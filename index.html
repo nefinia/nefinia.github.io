@@ -17,7 +17,7 @@
   <meta content="IE=edge" http-equiv="X-UA-Compatible">
   <meta content="width=device-width,initial-scale=1" name="viewport">
   <meta content="description" name="description">
-  <meta name="google" content="notranslate" />
+  <!-- <meta name="google" content="notranslate" />  -->
   <meta content="Mashup templates have been developped by Orson.io team" name="author">
 
   <!-- Disable tap highlight on IE -->
@@ -28,7 +28,18 @@
 
   <title>Sofia Gallego</title>
 
-<link href="./main.3f6952e4.css" rel="stylesheet"></head>
+  <link href="./main.3f6952e4.css" rel="stylesheet">
+
+  <style>
+    /* Ensure white text in hero section */
+    .hero-full-container .text-content h1, 
+    .hero-full-container .text-content span {
+      color: white !important;
+    }
+  </style>
+
+</head>
+
 
 <body class="minimal" style="background-color:black;">
 <div id="site-border-left"></div>
@@ -38,6 +49,10 @@
 
 <!-- Add your content of header -->
 <header>
+
+
+
+
   <nav class="navbar  navbar-fixed-top navbar-inverse">
     <div class="container">
         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
@@ -59,30 +74,31 @@
           <li><a href="./contact.html" title="">07 : Contact</a></li>
         </ul>
       </div>
-      <div id="google_translate_element" style="position: absolute; top: 10px; right: 10px; z-index: 1000;"></div>
     </div>
+
   </nav>
 </header>
-<!-- Add your site or app content here -->
-  <div class="hero-full-container background-image-container white-text-container" style="background-image: url('./assets/images/space.jpg')">
-    <div class="container">
-      <div class="row">
-        <div class="col-xs-12">
-          <div class="hero-full-wrapper">
-            <div class="text-content">
-              <h1>Hello,<br>
-                <span id="typed-strings">
-                  <span>I'm Dr. Sofia Gallego </span>
-                  <span>Scientist, Artist and Venturer</span>
-                </span>
-                <span id="typed"></span>
-              </h1>
-            </div>
+
+<!-- Hero Section -->
+<div class="hero-full-container background-image-container white-text-container" style="background-image: url('./assets/images/space.jpg')">
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="hero-full-wrapper">
+          <div class="text-content">
+            <h1>Hello,<br>
+              <span id="typed-strings">
+                <span>I'm Dr. Sofia Gallego </span>
+                <span>Scientist, Artist and Venturer</span>
+              </span>
+              <span id="typed"></span>
+            </h1>
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>
 
 <script>
   document.addEventListener("DOMContentLoaded", function (event) {
@@ -91,9 +107,35 @@
   });
 </script>
 
-
-<script type="text/javascript" src="./main.70a66962.js"></script></body>
-
+<script type="text/javascript" src="./main.70a66962.js"></script>
 
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let savedLang = localStorage.getItem("selectedLang") || "en";
+        document.getElementById("current-language").textContent = savedLang.toUpperCase() + " ▼";
+
+        document.querySelectorAll(".lang-option").forEach(link => {
+            link.addEventListener("click", function (event) {
+                event.preventDefault();
+                let lang = this.getAttribute("data-lang");
+                localStorage.setItem("selectedLang", lang);
+                window.location.href = this.href; // Redirect to the selected language page
+            });
+        });
+
+        document.getElementById("current-language").addEventListener("click", function (event) {
+            event.stopPropagation();
+            document.getElementById("language-options").classList.toggle("show");
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", function (event) {
+            if (!document.getElementById("language-selector").contains(event.target)) {
+                document.getElementById("language-options").classList.remove("show");
+            }
+        });
+    });
+</script>
+</body>
 </html>
