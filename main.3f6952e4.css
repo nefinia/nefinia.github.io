@@ -232,4 +232,7 @@ img {
 #language-options a:hover {
     background: rgba(255, 255, 255, 0.2);
 }
+
+.hero-full-container h1 {
+    font-size: 55px; /* Adjust this value as needed */
 }
