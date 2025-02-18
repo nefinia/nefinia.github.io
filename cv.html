@@ -105,41 +105,68 @@
 </header>
 
 <!-- Main Content -->
+
+
 <div class="section-container">
   <div class="container2">
-    
+    <h2>My CV</h2>
 
+    <div class="canva-embed">
+      <iframe loading="lazy" 
+        style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0; margin: 0;"
+        src="https://www.canva.com/design/DAFafr7Nk60/Kl0lQPwkZelMxi0mQNheHQ/view?embed" 
+        allowfullscreen="allowfullscreen" allow="fullscreen">
+      </iframe>
+    </div>
 
-    <h1 class="h2">About Me</h1>
-    
-    <img src="./assets/images/profil.png" class="profile-img" alt="Profile Picture">
-    
-    <h3>Scientist</h3>
     <p>
-      I am a postdoctoral researcher in astrophysics, specializing in galaxy evolution, gas dynamics, and AGN feedback 
-      within high-redshift protoclusters (z~2). My work bridges theoretical and observational astrophysics, 
-      combining integral field spectroscopy (IFS) and high-resolution imaging to explore the interplay between galaxies 
-      and their environment in the early universe. I am highly interested in outreach and interdisciplinary collaborations, 
-      seeking to connect astronomy with broader cultural, educational, and scientific contexts.
+      If the document does not load, you can view it directly on Canva: 
+      <a href="https://www.canva.com/design/DAFafr7Nk60/Kl0lQPwkZelMxi0mQNheHQ/view" target="_blank">
+        CV_SofiaGallego
+      </a>.
     </p>
-
-    <h3>Artist</h3>
-    <p>
-      As a singer and actress, I have performed in musicals, operas, and plays since childhood. In 2007, I participated 
-      in an international choral festival in Tarragona, Spain with the University choir. As a violinist, I toured Europe 
-      with my school orchestra and competed in a national violin contest in 2001. Over the years, I have performed with 
-      the Universidad de La Serena Symphonic Orchestra, the university orchestra in Santiago, and various ensembles.
-    </p>
-
-    <h3>Venturer</h3>
-    <p>
-      I use my diverse skills to develop innovative ideas that advance science, communication, education, and sustainability. My ventures integrate astronomy, the arts, culture, and education, fostering interdisciplinary connections and making complex scientific concepts more accessible to the public.
-    </p>
-
   </div>
 </div>
 
-<!-- Footer -->
+<!-- Styling -->
+<style>
+  .canva-embed {
+    position: relative;
+    width: 100%;
+    max-width: 800px; /* Limits the iframe size on large screens */
+    height: 0;
+    padding-top: 129.4118%; /* Keeps aspect ratio */
+    box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16);
+    margin: 1.6em auto 0.9em auto;
+    overflow: hidden;
+    border-radius: 8px;
+    will-change: transform;
+  }
+
+  /* Ensures the iframe inside scales properly */
+  .canva-embed iframe {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    border: none;
+  }
+
+  /* Fallback link style */
+  .container2 a {
+    color: #007BFF;
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  .container2 a:hover {
+    color: #0056b3;
+  }
+</style>
+
+
+
 <footer class="footer-container text-center">
   <div class="container">
     <div class="row">
@@ -163,3 +190,5 @@
 <script type="text/javascript" src="./main.70a66962.js"></script></body>
 
 </html>
+
+
