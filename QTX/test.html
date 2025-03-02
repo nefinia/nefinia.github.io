@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QT Code Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        input, select, button { margin: 10px; padding: 10px; }
+        #qtOutput, #decodedOutput { font-weight: bold; margin-top: 20px; word-wrap: break-word; }
+        .copy-btn { margin-left: 10px; cursor: pointer; }
+        .selected { background-color: #4CAF50; color: white; }
+        img { width: 150px; margin-bottom: 20px; }
+        .image-container { display: flex; justify-content: center; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <img src="logo.png" alt="QT Code Logo">
+    <h1>QT Code Generator</h1>
+    <p>Select Data Type:</p>
+    <button id="txtBtn" class="selected" onclick="setDataType('TXT', this)">Text</button>
+    <button id="linkBtn" onclick="setDataType('LINK', this)">Link</button>
+    <button id="emailBtn" onclick="setDataType('EMAIL', this)">Email</button>
+    <button id="imageBtn" onclick="setDataType('IMAGE', this)">Image</button>
+    
+    <br>
+    <input type="text" id="userInput" placeholder="Enter text, link, or email">
+    <input type="file" id="imageInput" accept="image/*" style="display: none;">
+    <button onclick="generateQT()">Generate QT Code</button>
+    <br>
+    <p>Generated QT Code:</p>
+    <p id="qtOutput"></p>
+    <button class="copy-btn" onclick="copyToClipboard('qtOutput')">Copy</button>
+    <br>
+    <h2>Decode QT Code</h2>
+    <input type="text" id="encodedInput" placeholder="Enter QT Code">
+    <button onclick="decodeQT()">Decode</button>
+    <br>
+    <p>Decoded Output:</p>
+    <p id="decodedOutput"></p>
+    <div class="image-container">
+        <canvas id="decodedImageCanvas" style="display: none; border: 1px solid black;"></canvas>
+    </div>
+    <button class="copy-btn" id="copyImageBtn" style="display: none;" onclick="copyDecodedImage()">Copy Image</button>
+    <button class="copy-btn" onclick="copyToClipboard('decodedOutput')">Copy Text</button>
+
+    <script>
+        let selectedDataType = "TXT";
+        
+        function setDataType(type, button) {
+            selectedDataType = type;
+            document.querySelectorAll("button").forEach(btn => btn.classList.remove("selected"));
+            button.classList.add("selected");
+            document.getElementById("userInput").style.display = (type === "IMAGE") ? "none" : "inline-block";
+            document.getElementById("imageInput").style.display = (type === "IMAGE") ? "inline-block" : "none";
+        }
+        
+        function base32Encode(str) {
+            return btoa(unescape(encodeURIComponent(str))).replace(/=+$/, '');
+        }
+
+        function base32Decode(encoded) {
+            try {
+                return decodeURIComponent(escape(atob(encoded)));
+            } catch (e) {
+                return "Invalid QT Code";
+            }
+        }
+
+        function imageToBase64(imageFile, callback) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                callback(event.target.result.split(',')[1]);
+            };
+            reader.readAsDataURL(imageFile);
+        }
+
+        function generateQT() {
+            if (selectedDataType === "IMAGE") {
+                let imageFile = document.getElementById("imageInput").files[0];
+                if (!imageFile) {
+                    alert("Please upload an image.");
+                    return;
+                }
+                imageToBase64(imageFile, function (encodedImage) {
+                    let qtCode = `//QT/IMAGE/${encodedImage}//`;
+                    document.getElementById("qtOutput").innerText = qtCode;
+                });
+            } else {
+                let userInput = document.getElementById("userInput").value.trim();
+                if (!userInput) {
+                    alert("Please enter a value.");
+                    return;
+                }
+                if (selectedDataType === "LINK" && !userInput.startsWith("http://") && !userInput.startsWith("https://")) {
+                    userInput = "http://" + userInput;
+                }
+                let encodedData = base32Encode(userInput);
+                let qtCode = `//QT/${selectedDataType}/${encodedData}//`;
+                document.getElementById("qtOutput").innerText = qtCode;
+            }
+        }
+
+        function decodeQT() {
+            let encodedInput = document.getElementById("encodedInput").value.trim();
+            let parts = encodedInput.match(/^\/\/QT\/(TXT|LINK|EMAIL|IMAGE)\/([A-Za-z0-9+/=]+)\/\/$/);
+            if (!parts) {
+                document.getElementById("decodedOutput").innerText = "Invalid QT Code format";
+                return;
+            }
+            let dataType = parts[1];
+            let encodedData = parts[2];
+            let outputElement = document.getElementById("decodedOutput");
+            let canvas = document.getElementById("decodedImageCanvas");
+            let copyImageBtn = document.getElementById("copyImageBtn");
+            
+            if (dataType === "IMAGE") {
+                let image = new Image();
+                image.onload = function () {
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                    let ctx = canvas.getContext("2d");
+                    ctx.drawImage(image, 0, 0);
+                    canvas.style.display = "block";
+                    copyImageBtn.style.display = "inline-block";
+                };
+                image.src = "data:image/png;base64," + encodedData;
+                outputElement.innerText = "";
+            } else {
+                let decodedData = base32Decode(encodedData);
+                if (dataType === "LINK") {
+                    outputElement.innerHTML = `Type: ${dataType}<br><a href="${decodedData}" target="_blank">${decodedData}</a>`;
+                } else if (dataType === "EMAIL") {
+                    outputElement.innerHTML = `Type: ${dataType}<br><a href="mailto:${decodedData}">${decodedData}</a>`;
+                } else {
+                    outputElement.innerText = decodedData;
+                }
+                canvas.style.display = "none";
+                copyImageBtn.style.display = "none";
+            }
+        }
+
+        function copyToClipboard(elementId) {
+            let text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text);
+        }
+
+        function copyDecodedImage() {
+            let canvas = document.getElementById("decodedImageCanvas");
+            canvas.toBlob(blob => navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]));
+        }
+    </script>
+</body>
+</html>
