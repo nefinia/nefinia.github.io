@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quick City Tour AI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        #map {
+            height: 80vh;
+            width: 100%;
+        }
+        #chat {
+            height: 20vh;
+            display: flex;
+            flex-direction: column;
+        }
+        #messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        #input-box {
+            display: flex;
+        }
+        #user-input {
+            flex-grow: 1;
+            padding: 10px;
+        }
+        #send-btn {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Quick City Tour AI 🌍</h2>
+    <div id="map"></div>
+    <div id="chat">
+        <div id="messages"></div>
+        <div id="input-box">
+            <input type="text" id="user-input" placeholder="Ask about this area...">
+            <button id="send-btn">Send</button>
+        </div>
+    </div>
+
+    <script>
+        // Simple map using Leaflet (free, open-source)
+        let map = L.map('map').setView([48.8566, 2.3522], 13); // default: Paris
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: 'Map data © OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Simple chatbot UI
+        const messages = document.getElementById('messages');
+        const input = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        function addMessage(sender, text) {
+            const msg = document.createElement('div');
+            msg.innerHTML = `<b>${sender}:</b> ${text}`;
+            messages.appendChild(msg);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        async function askChatGPT(message, lat, lon) {
+            addMessage('You', message);
+            addMessage('AI', 'Thinking...');
+
+            // Use your OpenAI API key here
+            const apiKey = 'YOUR_API_KEY';
+            const apiUrl = 'https://api.openai.com/v1/chat/completions';
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'gpt-3.5-turbo',
+                    messages: [{
+                        role: 'system', content: 'You are a tour guide AI that suggests interesting spots and quick 2-hour walking tours around given coordinates.'
+                    },{
+                        role: 'user', content: `I am near latitude ${lat} and longitude ${lon}. ${message}`
+                    }]
+                })
+            });
+
+            const data = await response.json();
+            messages.lastChild.remove(); // remove "thinking..."
+            addMessage('AI', data.choices[0].message.content);
+        }
+
+        sendBtn.onclick = () => {
+            if (input.value.trim() !== '') {
+                const center = map.getCenter();
+                askChatGPT(input.value.trim(), center.lat, center.lng);
+                input.value = '';
+            }
+        };
+
+        map.on('click', function(e) {
+            const { lat, lng } = e.latlng;
+            askChatGPT('What can I visit around here for a 2-hour walk?', lat, lng);
+        });
+    </script>
+
+    <!-- Leaflet map library -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</body>
+</html>
