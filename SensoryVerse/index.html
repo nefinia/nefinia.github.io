@@ -21,13 +21,13 @@
       padding: 2rem;
       border-radius: 1rem;
       box-shadow: 0 0 20px #00f2ff33;
-      max-width: 500px;
+      max-width: 600px;
       width: 90%;
       text-align: center;
     }
     .question, .intro {
-      font-size: 1.25rem;
-      margin-bottom: 1.5rem;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
     }
     button {
       background: #00f2ff;
@@ -46,7 +46,34 @@
       width: 120px;
       margin-bottom: 1rem;
     }
+    .insight {
+      font-size: 0.95rem;
+      color: #ccc;
+      margin-top: 0.5rem;
+    }
+    details {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      text-align: left;
+      color: #bbb;
+    }
+    .example-list {
+      margin-top: 0.25rem;
+      padding-left: 1rem;
+    }
+    .example-list li {
+      margin-bottom: 0.25rem;
+    }
   </style>
+  <script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
+  <script>
+    kofiWidgetOverlay.draw('cosmoventures', {
+      'type': 'floating-chat',
+      'floating-chat.donateButton.text': 'Support me',
+      'floating-chat.donateButton.background-color': '#794bc4',
+      'floating-chat.donateButton.text-color': '#fff'
+    });
+  </script>
 </head>
 <body>
   <div class="container">
@@ -62,21 +89,47 @@
 
     <div id="quiz" style="display:none;">
       <div class="question" id="question"></div>
+      <div class="insight" id="insight"></div>
+      <details id="examples"><summary>Not sure? Click for examples</summary><div id="exampleText"></div></details>
       <button onclick="answer('A')">A</button>
       <button onclick="answer('B')">B</button>
+      <br/>
+      <button onclick="goBack()">←</button>
     </div>
   </div>
 
   <script>
     const questions = [
-      "1. When starting something new:\nA) Jump between ideas\nB) Focus on one goal",
-      "2. How do you process info?\nA) Patterns & metaphors\nB) Step-by-step",
-      "3. Sensory input:\nA) Seek stimulation\nB) Avoid overwhelming input",
-      "4. Best learning style:\nA) Physical / embodied\nB) Mental / abstract",
-      "5. Emotions:\nA) Express them outwardly\nB) Keep them inside",
-      "6. Socially:\nA) Open & friendly\nB) Guarded & reserved",
-      "7. Attention:\nA) Bursty & chaotic\nB) Rhythmic & steady",
-      "8. Project endings:\nA) Adapt & change\nB) Stick to clear goals"
+      "1. When you begin something new, do you…\nA) Explore multiple ideas and possibilities at once\nB) Lock in on one clear direction and follow it through",
+      "2. When learning or solving a problem, do you…\nA) Think in analogies, images, or intuitive leaps\nB) Prefer logical, step-by-step analysis",
+      "3. In stimulating environments, do you…\nA) Feel energized and seek more input\nB) Feel overstimulated and prefer calm spaces",
+      "4. You retain information more easily when…\nA) You move, do, act, or physically engage with it\nB) You reflect, imagine, or conceptualize it in your mind",
+      "5. When something excites or moves you, do you…\nA) Express it freely and visibly\nB) Keep it mostly inside and process it quietly",
+      "6. In a new social situation, do you…\nA) Open up quickly and engage with others easily\nB) Take your time, observing before joining in",
+      "7. Your attention tends to be…\nA) Bursty, spontaneous, sometimes scattered but intense\nB) Rhythmic, steady, and structured over time",
+      "8. When finishing a project, do you prefer to…\nA) Stay flexible and evolve as you go\nB) Stick to a clear plan and defined outcome"
+    ];
+
+    const insights = [
+      "🧠 Insight: This trait reveals whether your mind tends toward divergent exploration (like a brainstorm) or convergent focus (like a laser). It influences how you tackle problems, start projects, and synthesize information.",
+      "🧠 Insight: This identifies if you're more of an associative thinker, making creative, symbolic links, or a sequential thinker, who builds understanding methodically. It affects how you connect ideas and explain them.",
+      "🧠 Insight: This reflects your sensitivity to sensory input—whether you're a seeker who thrives on richness and movement or an avoider who prefers simplicity and minimalism. This impacts your learning environment needs.",
+      "🧠 Insight: This trait distinguishes between embodied learners, who need action or hands-on experience, and abstract learners, who grasp ideas through mental models and theory.",
+      "🧠 Insight: This shows whether you're emotionally expressive or contained. It affects how you communicate, collaborate, and emotionally resonate with content and others.",
+      "🧠 Insight: This defines your social openness vs. guardedness. It shapes how you learn in groups, give/receive feedback, and build trust in learning environments.",
+      "🧠 Insight: This trait measures your cognitive tempo—whether you're more of a chaotic thinker with bursts of brilliance or a rhythmic thinker who builds momentum steadily.",
+      "🧠 Insight: This speaks to your need for structure vs. adaptability. It influences your project management, stress tolerance, and how you approach long-term tasks."
+    ];
+
+    const examples = [
+      "A)\n- You sketch out many ideas before choosing one.\n- You join multiple clubs when starting school.\n- You brainstorm before outlining.\nB)\n- You commit to one activity and go deep.\n- You research before taking action.\n- You follow a task list carefully.",
+      "A)\n- You relate science to myths or metaphors.\n- You connect ideas visually.\n- You use mental shortcuts or symbols.\nB)\n- You prefer bullet points and structure.\n- You follow a tutorial linearly.\n- You like solving problems step by step.",
+      "A)\n- You like music while studying.\n- You explore busy places for inspiration.\n- You touch materials to learn them.\nB)\n- You seek quiet rooms.\n- You dislike bright lights or noise.\n- You use minimal tools when learning.",
+      "A)\n- You learn by doing, not reading.\n- You retain better through movement.\n- You gesture while explaining.\nB)\n- You imagine diagrams in your head.\n- You prefer written instructions.\n- You focus best when still.",
+      "A)\n- You talk about your excitement.\n- You smile or emote openly.\n- You show your frustration.\nB)\n- You journal your emotions.\n- You reflect silently.\n- You keep a neutral expression.",
+      "A)\n- You make friends quickly.\n- You enjoy group activities.\n- You talk to strangers easily.\nB)\n- You observe before speaking.\n- You take longer to share ideas.\n- You prefer one-on-one settings.",
+      "A)\n- You do everything at once.\n- You work in creative waves.\n- You shift tasks frequently.\nB)\n- You stick to routines.\n- You follow a fixed schedule.\n- You finish before starting new.",
+      "A)\n- You change plans mid-way.\n- You allow flexibility in goals.\n- You adapt to new interests.\nB)\n- You follow your initial outline.\n- You stick to deadlines.\n- You like clear closure."
     ];
 
     const codeMap = [
@@ -94,6 +147,8 @@
     const answers = [];
 
     const questionEl = document.getElementById("question");
+    const insightEl = document.getElementById("insight");
+    const exampleText = document.getElementById("exampleText");
 
     function startQuiz() {
       document.getElementById("intro").style.display = "none";
@@ -104,12 +159,14 @@
     function showQuestion() {
       if (current < questions.length) {
         questionEl.innerText = questions[current];
+        insightEl.innerText = insights[current];
+        exampleText.innerHTML = examples[current].replace(/\n/g, '<br/>');
       }
     }
 
     function answer(choice) {
       if (current < codeMap.length && codeMap[current][choice]) {
-        answers.push(codeMap[current][choice]);
+        answers[current] = codeMap[current][choice];
       }
       current++;
       if (current < questions.length) {
@@ -120,7 +177,31 @@
       }
     }
 
+    function goBack() {
+      if (current > 0) {
+        current--;
+        answers.pop();
+        showQuestion();
+      } else {
+        document.getElementById("quiz").style.display = "none";
+        document.getElementById("intro").style.display = "block";
+      }
+    }
+
     showQuestion();
   </script>
+  
+  
+  
+  <script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
+<script>
+  kofiWidgetOverlay.draw('cosmoventures', {
+    'type': 'floating-chat',
+    'floating-chat.donateButton.text': 'Support me',
+    'floating-chat.donateButton.background-color': '#794bc4',
+    'floating-chat.donateButton.text-color': '#fff'
+  });
+</script>
+  
 </body>
 </html>
