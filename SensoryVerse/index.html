@@ -10,13 +10,18 @@
       font-family: sans-serif;
       background: radial-gradient(#111, #000);
       color: #eee;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
+
     .container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       background: #1e1e2f;
       padding: 2rem;
       border-radius: 1rem;
@@ -24,11 +29,14 @@
       max-width: 600px;
       width: 90%;
       text-align: center;
+      margin: 2rem auto;
     }
+
     .question, .intro {
       font-size: 1.1rem;
       margin-bottom: 1rem;
     }
+
     button {
       background: #00f2ff;
       color: #000;
@@ -39,43 +47,55 @@
       cursor: pointer;
       font-size: 1rem;
     }
+
     button:hover {
       background: #00c2cc;
     }
+
     .logo {
       width: 120px;
       margin-bottom: 1rem;
     }
+
     .insight {
       font-size: 0.95rem;
       color: #ccc;
       margin-top: 0.5rem;
     }
+
     details {
       margin-top: 0.5rem;
       font-size: 0.9rem;
       text-align: left;
       color: #bbb;
     }
-    .example-list {
-      margin-top: 0.25rem;
-      padding-left: 1rem;
+
+    .progress-container {
+      background-color: #333;
+      border-radius: 5px;
+      overflow: hidden;
+      height: 12px;
+      margin-bottom: 1rem;
     }
-    .example-list li {
-      margin-bottom: 0.25rem;
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #00f2ff;
+      transition: width 0.3s ease;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #888;
+      padding: 1rem 0;
     }
   </style>
-  <script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
-  <script>
-    kofiWidgetOverlay.draw('cosmoventures', {
-      'type': 'floating-chat',
-      'floating-chat.donateButton.text': 'Support me',
-      'floating-chat.donateButton.background-color': '#794bc4',
-      'floating-chat.donateButton.text-color': '#fff'
-    });
-  </script>
 </head>
+
 <body>
+
   <div class="container">
     <div id="intro">
       <div class="intro">
@@ -88,15 +108,25 @@
     </div>
 
     <div id="quiz" style="display:none;">
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
       <div class="question" id="question"></div>
       <div class="insight" id="insight"></div>
-      <details id="examples"><summary>Not sure? Click for examples</summary><div id="exampleText"></div></details>
+      <details id="examples">
+        <summary>Not sure? Click for examples</summary>
+        <div id="exampleText"></div>
+      </details>
       <button onclick="answer('A')">A</button>
       <button onclick="answer('B')">B</button>
-      <br/>
+      <br />
       <button onclick="goBack()">←</button>
     </div>
   </div>
+
+  <footer>
+    Created by Cosmoventures – © 2025 All rights reserved.
+  </footer>
 
   <script>
     const questions = [
@@ -111,14 +141,14 @@
     ];
 
     const insights = [
-      "🧠 Insight: This trait reveals whether your mind tends toward divergent exploration (like a brainstorm) or convergent focus (like a laser). It influences how you tackle problems, start projects, and synthesize information.",
-      "🧠 Insight: This identifies if you're more of an associative thinker, making creative, symbolic links, or a sequential thinker, who builds understanding methodically. It affects how you connect ideas and explain them.",
-      "🧠 Insight: This reflects your sensitivity to sensory input—whether you're a seeker who thrives on richness and movement or an avoider who prefers simplicity and minimalism. This impacts your learning environment needs.",
-      "🧠 Insight: This trait distinguishes between embodied learners, who need action or hands-on experience, and abstract learners, who grasp ideas through mental models and theory.",
-      "🧠 Insight: This shows whether you're emotionally expressive or contained. It affects how you communicate, collaborate, and emotionally resonate with content and others.",
-      "🧠 Insight: This defines your social openness vs. guardedness. It shapes how you learn in groups, give/receive feedback, and build trust in learning environments.",
-      "🧠 Insight: This trait measures your cognitive tempo—whether you're more of a chaotic thinker with bursts of brilliance or a rhythmic thinker who builds momentum steadily.",
-      "🧠 Insight: This speaks to your need for structure vs. adaptability. It influences your project management, stress tolerance, and how you approach long-term tasks."
+      "🧠 Insight: This trait reveals whether your mind tends toward divergent exploration (like a brainstorm) or convergent focus (like a laser).",
+      "🧠 Insight: This identifies whether you think through intuitive leaps and images or prefer linear, logical reasoning.",
+      "🧠 Insight: Do you thrive on stimulation or prefer a calm environment? This impacts how you take in sensory learning.",
+      "🧠 Insight: This trait explores whether you learn best through doing or by abstract mental modeling.",
+      "🧠 Insight: Do you express emotions outwardly or contain them inside? This impacts how you absorb and share energy.",
+      "🧠 Insight: This covers how quickly you socially engage and how you relate to learning in groups.",
+      "🧠 Insight: This measures your attention rhythm—chaotic bursts vs. consistent pacing.",
+      "🧠 Insight: It reveals your preference for structure or adaptability when approaching goals and deadlines."
     ];
 
     const examples = [
@@ -149,6 +179,7 @@
     const questionEl = document.getElementById("question");
     const insightEl = document.getElementById("insight");
     const exampleText = document.getElementById("exampleText");
+    const progressBar = document.getElementById("progressBar");
 
     function startQuiz() {
       document.getElementById("intro").style.display = "none";
@@ -161,6 +192,8 @@
         questionEl.innerText = questions[current];
         insightEl.innerText = insights[current];
         exampleText.innerHTML = examples[current].replace(/\n/g, '<br/>');
+        const progress = ((current) / questions.length) * 100;
+        progressBar.style.width = `${progress}%`;
       }
     }
 
@@ -182,26 +215,27 @@
         current--;
         answers.pop();
         showQuestion();
+        progressBar.style.width = `${(current / questions.length) * 100}%`;
       } else {
         document.getElementById("quiz").style.display = "none";
         document.getElementById("intro").style.display = "block";
+        progressBar.style.width = "0%";
       }
     }
 
     showQuestion();
   </script>
-  
-  
-  
+
+  <!-- Ko-fi Floating Button -->
   <script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
-<script>
-  kofiWidgetOverlay.draw('cosmoventures', {
-    'type': 'floating-chat',
-    'floating-chat.donateButton.text': 'Support me',
-    'floating-chat.donateButton.background-color': '#794bc4',
-    'floating-chat.donateButton.text-color': '#fff'
-  });
-</script>
-  
+  <script>
+    kofiWidgetOverlay.draw('cosmoventures', {
+      'type': 'floating-chat',
+      'floating-chat.donateButton.text': 'Support me',
+      'floating-chat.donateButton.background-color': '#794bc4',
+      'floating-chat.donateButton.text-color': '#fff'
+    });
+  </script>
+
 </body>
 </html>
