@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SensoryVerse Personality Quiz</title>
   <link rel="icon" type="image/png" href="SensoryVerse.png" />
   <style>
@@ -11,11 +11,10 @@
       background: radial-gradient(#111, #000);
       color: #eee;
       margin: 0;
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
+      min-height: 100vh;
     }
-
     .container {
       flex: 1;
       display: flex;
@@ -26,50 +25,24 @@
       padding: 2rem;
       border-radius: 1rem;
       box-shadow: 0 0 20px #00f2ff33;
-      max-width: 600px;
+      max-width: 700px;
       width: 90%;
       text-align: center;
       margin: 2rem auto;
     }
-
-    .question, .intro {
-      font-size: 1.1rem;
-      margin-bottom: 1rem;
-    }
-
     button {
       background: #00f2ff;
       color: #000;
-      border: none;
       padding: 0.75rem 1.5rem;
-      margin: 0.5rem;
-      border-radius: 0.5rem;
+      border: none;
+      border-radius: 5px;
       cursor: pointer;
       font-size: 1rem;
     }
-
-    button:hover {
-      background: #00c2cc;
-    }
-
-    .logo {
-      width: 120px;
-      margin-bottom: 1rem;
-    }
-
-    .insight {
-      font-size: 0.95rem;
-      color: #ccc;
-      margin-top: 0.5rem;
-    }
-
-    details {
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
-      text-align: left;
-      color: #bbb;
-    }
-
+    button:hover { background: #00c2cc; }
+    .logo { width: 120px; margin-bottom: 1rem; }
+    .insight { font-size: 0.95rem; color: #ccc; margin-top: 0.5rem; }
+    details { margin-top: 0.5rem; font-size: 0.9rem; text-align: left; color: #bbb; }
     .progress-container {
       background-color: #333;
       border-radius: 5px;
@@ -77,50 +50,84 @@
       height: 12px;
       margin-bottom: 1rem;
     }
-
     .progress-bar {
       height: 100%;
       width: 0%;
       background: #00f2ff;
       transition: width 0.3s ease;
     }
-
+    ul { text-align: left; }
     footer {
       text-align: center;
       font-size: 0.8rem;
       color: #888;
       padding: 1rem 0;
     }
+	#questionBlock {
+  	min-width: 400px;
+  	max-width: 400px;
+  	max-height: 200px;
+  	min-height: 200px;
+
+	}
   </style>
 </head>
-
 <body>
-
   <div class="container">
     <div id="intro">
-      <div class="intro">
-        <img src="SensoryVerse.png" alt="SensoryVerse Logo" class="logo">
-        <h2>Welcome to the SensoryVerse Personality Quiz</h2>
-        <p>This short quiz is part of <strong>SensoryVerse</strong>, a learning platform created by an astrophysicist to help you understand how you process, focus, feel, and learn best.</p>
-        <p>By answering 8 questions, you’ll uncover your unique cognitive constellation — and receive practical tips tailored to your learning style.</p>
-        <button onclick="startQuiz()">Let's Begin</button>
-      </div>
+      <img src="SensoryVerse.png" alt="SensoryVerse Logo" class="logo">
+      <h2>Welcome to the SensoryVerse Personality Quiz</h2>
+      <p>This short quiz is part of <strong>SensoryVerse</strong>, a learning platform created by an astrophysicist<a href="https://sofiagallego.com" target="_blank" style="color: #00f2ff;">*</a> to help you understand how you process, focus, feel, and learn best.</p>
+      <p>By answering 8 questions, you’ll uncover your unique cognitive constellation — and receive practical tips tailored to your learning style.</p>
+      <button id="beginBtn">Let's Begin</button>
     </div>
 
     <div id="quiz" style="display:none;">
       <div class="progress-container">
         <div class="progress-bar" id="progressBar"></div>
       </div>
-      <div class="question" id="question"></div>
-      <div class="insight" id="insight"></div>
-      <details id="examples">
-        <summary>Not sure? Click for examples</summary>
-        <div id="exampleText"></div>
-      </details>
-      <button onclick="answer('A')">A</button>
-      <button onclick="answer('B')">B</button>
-      <br />
+	<div id="questionBlock" style="min-height: 280px;">
+	  <div class="question" id="question"></div>
+	  <div class="insight" id="insight"></div>
+	  <details><summary>Not sure? Click for examples</summary>
+		<div id="exampleText"></div>
+	  </details>
+	</div>
+      <div style="margin: 1rem 0;">
+        <input type="range" id="slider" min="0" max="100" value="50" style="width: 100%;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-top: 0.3rem;">
+          <span>A</span><span>B</span>
+        </div>
+      </div>
+      <button onclick="answer()">Next</button>
       <button onclick="goBack()">←</button>
+    </div>
+
+    <div id="result" style="display:none;">
+      <h2 id="resultTitle"></h2>
+      <p id="resultDesc"></p>
+      <div id="combinedBlock" style="display:none;">
+        <p><strong>Additional insights from your secondary type:</strong></p>
+        <p id="combinedInsights"></p>
+      </div>
+      
+        <h3>Practical tips for efficient learning</h3>
+
+      <ul id="resultTips"></ul>
+      <div id="secondaryBlock" style="display:none;">
+        <p><strong>Related constellation:</strong> <span id="secondaryText"></span></p>
+        <ul id="secondaryTips"></ul>
+      </div>
+      
+ <hr style="margin: 2rem 0; border: none; border-top: 1px solid #444;">     
+      <div id="closingNote" style="margin-top: 2rem; font-size: 1.rem; color: #ccc;">
+  <p><strong>This is just the beginning of the SensoryVerse project!</strong></p>
+  <p>If you have questions, suggestions, or feedback, feel free to reach out at <a href="mailto:cosmovis1216@gmail.com" style="color: #00f2ff;">cosmovis1216@gmail.com</a>.</p>
+  <p>You can also follow the journey and learn more on our <a href="https://www.youtube.com/@SensoryVerse" target="_blank" style="color: #00f2ff;">YouTube channel</a>.</p>
+  <p>If you enjoyed this experience and want to support its evolution, you can <a href="https://ko-fi.com/cosmoventures" target="_blank" style="color: #00f2ff;">donate via Ko-fi</a>. Every bit helps us keep creating beautiful things ✨</p>
+</div>
+
+      <button onclick="location.reload()">Start Again</button>
     </div>
   </div>
 
@@ -128,106 +135,69 @@
     Created by Cosmoventures – © 2025 All rights reserved.
   </footer>
 
-  <script>
-    const questions = [
-      "1. When you begin something new, do you…\nA) Explore multiple ideas and possibilities at once\nB) Lock in on one clear direction and follow it through",
-      "2. When learning or solving a problem, do you…\nA) Think in analogies, images, or intuitive leaps\nB) Prefer logical, step-by-step analysis",
-      "3. In stimulating environments, do you…\nA) Feel energized and seek more input\nB) Feel overstimulated and prefer calm spaces",
-      "4. You retain information more easily when…\nA) You move, do, act, or physically engage with it\nB) You reflect, imagine, or conceptualize it in your mind",
-      "5. When something excites or moves you, do you…\nA) Express it freely and visibly\nB) Keep it mostly inside and process it quietly",
-      "6. In a new social situation, do you…\nA) Open up quickly and engage with others easily\nB) Take your time, observing before joining in",
-      "7. Your attention tends to be…\nA) Bursty, spontaneous, sometimes scattered but intense\nB) Rhythmic, steady, and structured over time",
-      "8. When finishing a project, do you prefer to…\nA) Stay flexible and evolve as you go\nB) Stick to a clear plan and defined outcome"
-    ];
+  <!-- External JS files loaded with defer -->
+  <script defer src="types_tips.js"></script>
+  <script defer src="NeuroSky_Profiles.js"></script>
+  <script defer src="quiz.js"></script>
 
-    const insights = [
-      "🧠 Insight: This trait reveals whether your mind tends toward divergent exploration (like a brainstorm) or convergent focus (like a laser).",
-      "🧠 Insight: This identifies whether you think through intuitive leaps and images or prefer linear, logical reasoning.",
-      "🧠 Insight: Do you thrive on stimulation or prefer a calm environment? This impacts how you take in sensory learning.",
-      "🧠 Insight: This trait explores whether you learn best through doing or by abstract mental modeling.",
-      "🧠 Insight: Do you express emotions outwardly or contain them inside? This impacts how you absorb and share energy.",
-      "🧠 Insight: This covers how quickly you socially engage and how you relate to learning in groups.",
-      "🧠 Insight: This measures your attention rhythm—chaotic bursts vs. consistent pacing.",
-      "🧠 Insight: It reveals your preference for structure or adaptability when approaching goals and deadlines."
-    ];
+<script>
+  function finishQuiz() {
+    document.getElementById("quiz").style.display = "none";
+    document.getElementById("result").style.display = "block";
 
-    const examples = [
-      "A)\n- You sketch out many ideas before choosing one.\n- You join multiple clubs when starting school.\n- You brainstorm before outlining.\nB)\n- You commit to one activity and go deep.\n- You research before taking action.\n- You follow a task list carefully.",
-      "A)\n- You relate science to myths or metaphors.\n- You connect ideas visually.\n- You use mental shortcuts or symbols.\nB)\n- You prefer bullet points and structure.\n- You follow a tutorial linearly.\n- You like solving problems step by step.",
-      "A)\n- You like music while studying.\n- You explore busy places for inspiration.\n- You touch materials to learn them.\nB)\n- You seek quiet rooms.\n- You dislike bright lights or noise.\n- You use minimal tools when learning.",
-      "A)\n- You learn by doing, not reading.\n- You retain better through movement.\n- You gesture while explaining.\nB)\n- You imagine diagrams in your head.\n- You prefer written instructions.\n- You focus best when still.",
-      "A)\n- You talk about your excitement.\n- You smile or emote openly.\n- You show your frustration.\nB)\n- You journal your emotions.\n- You reflect silently.\n- You keep a neutral expression.",
-      "A)\n- You make friends quickly.\n- You enjoy group activities.\n- You talk to strangers easily.\nB)\n- You observe before speaking.\n- You take longer to share ideas.\n- You prefer one-on-one settings.",
-      "A)\n- You do everything at once.\n- You work in creative waves.\n- You shift tasks frequently.\nB)\n- You stick to routines.\n- You follow a fixed schedule.\n- You finish before starting new.",
-      "A)\n- You change plans mid-way.\n- You allow flexibility in goals.\n- You adapt to new interests.\nB)\n- You follow your initial outline.\n- You stick to deadlines.\n- You like clear closure."
-    ];
+    const code = answers.join("");
+    const secondaryCode = ambiguous.filter(Boolean).join("");
+    const primary = profiles[code];
+    const secondary = profiles[secondaryCode];
 
-    const codeMap = [
-      { A: "Z", B: "M" },
-      { A: "A", B: "O" },
-      { A: "T", B: "L" },
-      { A: "E", B: "I" },
-      { A: "F", B: "S" },
-      { A: "U", B: "A" },
-      { A: "K", B: "R" },
-      { A: "E", B: "O" }
-    ];
+    const resultTitle = "🌟 " + primary["Type Name"];
+let codeLine = `<div style="font-size: 0.9rem; color: #aaa;">(${code})</div>`;
 
-    let current = 0;
-    const answers = [];
+if (secondary && secondaryCode !== code) {
+  codeLine += `<div style="font-size: 0.9rem; color: #aaa;">Related type: ${secondary["Type Name"]} (${secondaryCode})</div>`;
+}
 
-    const questionEl = document.getElementById("question");
-    const insightEl = document.getElementById("insight");
-    const exampleText = document.getElementById("exampleText");
-    const progressBar = document.getElementById("progressBar");
+document.getElementById("resultTitle").innerHTML = resultTitle + codeLine;
+    
+    const combinedDesc = answers.map((c, i) => types_insight[c + (i + 1)]).join(" ");
+    document.getElementById("resultDesc").innerHTML = combinedDesc + " " + primary["Final Phrase"];
 
-    function startQuiz() {
-      document.getElementById("intro").style.display = "none";
-      document.getElementById("quiz").style.display = "block";
-      showQuestion();
-    }
+    const tipsList = document.getElementById("resultTips");
+    tipsList.innerHTML = answers.map((c, i) => `<li>${practical_tips[c + (i + 1)]}</li>`).join("");
 
-    function showQuestion() {
-      if (current < questions.length) {
-        questionEl.innerText = questions[current];
-        insightEl.innerText = insights[current];
-        exampleText.innerHTML = examples[current].replace(/\n/g, '<br/>');
-        const progress = ((current) / questions.length) * 100;
-        progressBar.style.width = `${progress}%`;
+    // Additional insight from secondary type
+    let hasCombined = false;
+    ambiguous.forEach((alt, i) => {
+      if (alt) {
+        const pair = answers[i] + (i + 1) + alt + (i + 1);
+        const reverse = alt + (i + 1) + answers[i] + (i + 1);
+        const insight = types_insight_combined[pair] || types_insight_combined[reverse];
+        if (insight) {
+          document.getElementById("combinedBlock").style.display = "block";
+          document.getElementById("combinedInsights").innerHTML += insight + " ";
+          hasCombined = true;
+        }
       }
+    });
+
+    // Additional tips if secondary exists
+    if (secondary && secondaryCode !== code) {
+      document.getElementById("secondaryBlock").style.display = "block";
+      document.getElementById("secondaryText").textContent = "Additional tips";
+
+      const secondaryUl = document.getElementById("secondaryTips");
+      const secondaryTips = ambiguous
+        .map((alt, i) => alt && practical_tips[alt + (i + 1)])
+        .filter(tip => tip && !answers.map((c, i) => practical_tips[c + (i + 1)]).includes(tip));
+
+      secondaryUl.innerHTML = secondaryTips.map(tip => `<li> ${tip}</li>`).join("");
     }
+  }
+</script>
 
-    function answer(choice) {
-      if (current < codeMap.length && codeMap[current][choice]) {
-        answers[current] = codeMap[current][choice];
-      }
-      current++;
-      if (current < questions.length) {
-        showQuestion();
-      } else {
-        const code = answers.join("");
-        window.location.href = `SensoryVerse_TypePages/${code}.html`;
-      }
-    }
 
-    function goBack() {
-      if (current > 0) {
-        current--;
-        answers.pop();
-        showQuestion();
-        progressBar.style.width = `${(current / questions.length) * 100}%`;
-      } else {
-        document.getElementById("quiz").style.display = "none";
-        document.getElementById("intro").style.display = "block";
-        progressBar.style.width = "0%";
-      }
-    }
-
-    showQuestion();
-  </script>
-
-  <!-- Ko-fi Floating Button -->
-  <script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
+  <!-- Ko-fi floating chat widget -->
+  <script src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js"></script>
   <script>
     kofiWidgetOverlay.draw('cosmoventures', {
       'type': 'floating-chat',
@@ -237,5 +207,14 @@
     });
   </script>
 
+  <!-- Begin button logic -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("beginBtn").addEventListener("click", () => {
+        if (typeof startQuiz === 'function') startQuiz();
+        else console.error("startQuiz is not defined");
+      });
+    });
+  </script>
 </body>
 </html>
