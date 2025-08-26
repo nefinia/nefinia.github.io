@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Overstimulation Focus Game</title>
+  <style>
+    body {
+      background: #111;
+      color: #fff;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 80px);
+      grid-template-rows: repeat(4, 80px);
+      gap: 10px;
+      margin: 1rem;
+    }
+    .cell {
+      width: 80px;
+      height: 80px;
+      background: #333;
+      border-radius: 8px;
+    }
+    .active { background: #00f2ff; }
+    .correct { background: yellow !important; }
+    .wrong { background: red !important; }
+    button {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+    }
+    #results {
+      margin-top: 1rem;
+      font-size: 1.1rem;
+      max-width: 500px;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <h2>Overstimulation Focus Game</h2>
+  <div class="grid" id="grid"></div>
+  <button onclick="startGame()">Start</button>
+  <button onclick="stopGame()">Stop</button>
+  <div id="results"></div>
+
+  <script>
+    const grid = document.getElementById('grid');
+    const results = document.getElementById('results');
+    const TOTAL_CELLS = 16;
+    const MODE_ORDER = ['calm', 'medium', 'chaotic'];
+    const MODES = [...MODE_ORDER];
+    let modeIndex = 0;
+
+    let activeIndex = -1;
+    let gameInterval, modeInterval, activationLoop;
+    let currentMode = 'calm';
+    let startTime, lastClickTime;
+    let modeChangeTimes = [];
+
+    let correct = { calm: 0, medium: 0, chaotic: 0 };
+    let wrong = { calm: 0, medium: 0, chaotic: 0 };
+    let clicks = { calm: [], medium: [], chaotic: [] };
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+	function makeSound(mode) {
+	  const now = audioCtx.currentTime;
+	  let settings;
+	
+	  // Define base settings for each mode
+	  if (mode === 'calm') {
+		settings = {
+		  notes: 10,
+		  freqRange: [220, 250],
+		  gainRange: [0.04, 0.05]
+		};
+	  } else if (mode === 'medium') {
+		settings = {
+		  notes: 16,
+		  freqRange: [200, 700],
+		  gainRange: [0.05, 0.1]
+		};
+	  } else if (mode === 'chaotic') {
+		settings = {
+		  notes: 20,
+		  freqRange: [100, 1400],
+		  gainRange: [0.08, 0.2]
+		};
+	  }
+	
+	  // Fit all notes within ~4 seconds
+	  const totalDuration = 4.0; // seconds of sound per mode
+	  const spacing = totalDuration / settings.notes;
+	  const duration = Math.min(0.4, spacing); // ensure overlap doesn’t push beyond total
+	
+	  for (let i = 0; i < settings.notes; i++) {
+		const osc = audioCtx.createOscillator();
+		const gain = audioCtx.createGain();
+	
+		osc.frequency.value = settings.freqRange[0] + Math.random() * (settings.freqRange[1] - settings.freqRange[0]);
+		gain.gain.value = settings.gainRange[0] + Math.random() * (settings.gainRange[1] - settings.gainRange[0]);
+	
+		const startTime = now + i * spacing;
+		osc.connect(gain).connect(audioCtx.destination);
+		osc.start(startTime);
+		osc.stop(startTime + duration);
+	  }
+	}
+
+    for (let i = 0; i < TOTAL_CELLS; i++) {
+      const cell = document.createElement('div');
+      cell.classList.add('cell');
+      cell.dataset.index = i;
+      cell.onclick = () => handleClick(i);
+      grid.appendChild(cell);
+    }
+
+    function activateRandomCell() {
+      if (activeIndex >= 0) grid.children[activeIndex].classList.remove('active');
+      activeIndex = Math.floor(Math.random() * TOTAL_CELLS);
+      grid.children[activeIndex].classList.add('active');
+      lastClickTime = Date.now();
+      const delay = Math.floor(Math.random() * (2000 - 500)) + 500;
+      activationLoop = setTimeout(activateRandomCell, delay);
+    }
+
+    function handleClick(index) {
+      if (!startTime) return;
+      const now = Date.now();
+      const reaction = now - lastClickTime;
+      const cell = grid.children[index];
+
+      if (index === activeIndex) {
+        correct[currentMode]++;
+        clicks[currentMode].push({ reaction, time: now });
+        cell.classList.add('correct');
+        cell.classList.remove('active');
+      } else {
+        wrong[currentMode]++;
+        cell.classList.add('wrong');
+      }
+
+      setTimeout(() => {
+        cell.classList.remove('correct');
+        cell.classList.remove('wrong');
+      }, 300);
+    }
+
+    function changeMode() {
+      modeIndex = (modeIndex + 1) % MODE_ORDER.length;
+      currentMode = MODE_ORDER[modeIndex];
+      modeChangeTimes.push({ mode: currentMode, time: Date.now() });
+    }
+
+    function startGame() {
+      resetData();
+      currentMode = 'calm';
+      modeIndex = 0;
+      modeChangeTimes = [{ mode: currentMode, time: Date.now() }];
+      startTime = Date.now();
+      activateRandomCell();
+      makeSound(currentMode);
+      modeInterval = setInterval(() => {
+        changeMode();
+        makeSound(currentMode);
+      }, 5000);
+    }
+
+    function stopGame() {
+      clearInterval(modeInterval);
+      clearTimeout(activationLoop);
+      if (activeIndex >= 0) {
+        grid.children[activeIndex].classList.remove('active');
+        activeIndex = -1;
+      }
+      showResults();
+    }
+
+    function resetData() {
+      correct = { calm: 0, medium: 0, chaotic: 0 };
+      wrong = { calm: 0, medium: 0, chaotic: 0 };
+      clicks = { calm: [], medium: [], chaotic: [] };
+      results.innerHTML = '';
+    }
+
+    function showResults() {
+      let resultHTML = `<h3>Results</h3>`;
+      MODES.forEach(mode => {
+        const totalCorrect = correct[mode];
+        const totalWrong = wrong[mode];
+        const totalClicks = totalCorrect + totalWrong;
+        const totalTimeSec = clicks[mode].reduce((sum, obj) => sum + obj.reaction, 0) / 1000;
+        const cps = totalTimeSec > 0 ? (totalCorrect / totalTimeSec).toFixed(2) : 0;
+        const avg = clicks[mode].length ? (clicks[mode].reduce((a, b) => a + b.reaction, 0) / clicks[mode].length).toFixed(0) : '—';
+        const wrongRatio = totalClicks > 0 ? (totalWrong / totalClicks * 100).toFixed(1) : 0;
+
+        resultHTML += `<p><strong>${mode.toUpperCase()}:</strong><br>
+          ✅ ${totalCorrect} correct, ❌ ${totalWrong} wrong<br>
+          🎯 Accuracy: ${cps} clicks/sec<br>
+          ⚡ Avg reaction: ${avg} ms<br>
+          📉 Error rate: ${wrongRatio}%</p>`;
+      });
+      results.innerHTML = resultHTML;
+    }
+  </script>
+</body>
+</html>

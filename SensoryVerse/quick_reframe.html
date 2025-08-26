@@ -1,0 +1,175 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Quick Reframe Game – Cognitive Flexibility</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #111;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    h1 { margin-bottom: 0.5rem; }
+    #game, #summary { display: none; text-align: center; }
+    .options { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+    .option {
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      font-size: 2rem;
+      cursor: pointer;
+    }
+    button {
+      background: #00f2ff;
+      border: none;
+      padding: 0.75rem 1.25rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 1rem;
+    }
+    button:hover { background: #00c2cc; }
+  </style>
+</head>
+<body>
+  <h1>🧠 Quick Reframe</h1>
+  <p>Choose the correct symbol based on the current rule. The rule will change randomly!</p>
+  <div id="game">
+    <h2 id="ruleText"></h2>
+    <div class="options" id="optionsContainer"></div>
+    <button onclick="stopGame()">Stop Game</button>
+  </div>
+  <div id="summary"></div>
+  <button onclick="startGame()">Start Game</button>
+
+  <script>
+    const rules = [
+      { text: "Pick the shape: ●", condition: (opt) => opt.shape === "●" },
+      { text: "Pick the background color: red", condition: (opt) => opt.bg === "red" },
+      { text: "Pick the symbol color: yellow", condition: (opt) => opt.color === "yellow" },
+      { text: "Pick the shape: ▲", condition: (opt) => opt.shape === "▲" }
+    ];
+
+    const shapes = ["●", "▲", "■", "◆"];
+    const bgColors = ["red", "green", "blue", "purple"];
+    const symbolColors = ["white", "yellow", "cyan", "orange"];
+
+    let currentRule, roundCount = 0, changeAfter = 5, startTime;
+    let totalRounds = 0, correct = 0;
+    let rtBefore = [], rtAfter = [];
+    let ruleChangeCount = 0;
+    let ruleChangedTime = 0;
+    let gameActive = false;
+
+    function startGame() {
+      document.getElementById("summary").style.display = "none";
+      document.getElementById("game").style.display = "block";
+      gameActive = true;
+      currentRule = rules[Math.floor(Math.random() * rules.length)];
+      ruleChangeCount = 0;
+      roundCount = 0;
+      totalRounds = 0;
+      correct = 0;
+      rtBefore = [];
+      rtAfter = [];
+      showNewRound();
+    }
+
+    function stopGame() {
+      gameActive = false;
+      const avgBefore = rtBefore.length ? (rtBefore.reduce((a, b) => a + b) / rtBefore.length).toFixed(2) : "N/A";
+      const avgAfter = rtAfter.length ? (rtAfter.reduce((a, b) => a + b) / rtAfter.length).toFixed(2) : "N/A";
+      const accuracy = totalRounds ? ((correct / totalRounds) * 100).toFixed(1) : 0;
+
+      document.getElementById("game").style.display = "none";
+      document.getElementById("summary").innerHTML = `
+        <h2>Results</h2>
+        <p>Total Rounds: ${totalRounds}</p>
+        <p>Correct Answers: ${correct}</p>
+        <p>Accuracy: ${accuracy}%</p>
+        <p>Avg RT Before Rule Change: ${avgBefore} ms</p>
+        <p>Avg RT After Rule Change: ${avgAfter} ms</p>
+      `;
+      document.getElementById("summary").style.display = "block";
+    }
+
+    function showNewRound() {
+      if (!gameActive) return;
+      roundCount++;
+      totalRounds++;
+
+      if (roundCount >= changeAfter) {
+        const newRule = rules[Math.floor(Math.random() * rules.length)];
+        while (newRule.text === currentRule.text) {
+          newRule = rules[Math.floor(Math.random() * rules.length)];
+        }
+        currentRule = newRule;
+        roundCount = 0;
+        changeAfter = 3 + Math.floor(Math.random() * 8);
+        ruleChangeCount++;
+        ruleChangedTime = totalRounds;
+      }
+
+      document.getElementById("ruleText").innerText = currentRule.text;
+
+      const container = document.getElementById("optionsContainer");
+      container.innerHTML = "";
+
+      const correctOption = {
+        shape: shapes[Math.floor(Math.random() * shapes.length)],
+        bg: bgColors[Math.floor(Math.random() * bgColors.length)],
+        color: symbolColors[Math.floor(Math.random() * symbolColors.length)]
+      };
+
+      while (!currentRule.condition(correctOption)) {
+        correctOption.shape = shapes[Math.floor(Math.random() * shapes.length)];
+        correctOption.bg = bgColors[Math.floor(Math.random() * bgColors.length)];
+        correctOption.color = symbolColors[Math.floor(Math.random() * symbolColors.length)];
+      }
+
+      const options = [correctOption];
+      while (options.length < 4) {
+        const opt = {
+          shape: shapes[Math.floor(Math.random() * shapes.length)],
+          bg: bgColors[Math.floor(Math.random() * bgColors.length)],
+          color: symbolColors[Math.floor(Math.random() * symbolColors.length)]
+        };
+        if (!options.some(o => o.shape === opt.shape && o.bg === opt.bg && o.color === opt.color) &&
+            !currentRule.condition(opt)) {
+          options.push(opt);
+        }
+      }
+
+      options.sort(() => Math.random() - 0.5);
+      startTime = Date.now();
+
+      options.forEach(opt => {
+        const div = document.createElement("div");
+        div.className = "option";
+        div.style.backgroundColor = opt.bg;
+        div.style.color = opt.color;
+        div.innerText = opt.shape;
+        div.onclick = () => {
+          const rt = Date.now() - startTime;
+          if (currentRule.condition(opt)) {
+            correct++;
+            (totalRounds > ruleChangedTime ? rtAfter : rtBefore).push(rt);
+          }
+          showNewRound();
+        };
+        container.appendChild(div);
+      });
+    }
+  </script>
+</body>
+</html>
