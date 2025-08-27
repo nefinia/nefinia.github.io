@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SolveHive – Résolution Collective de Problèmes</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header>
+    <img src="assets/logo.png" alt="Logo SolveHive" class="logo">
+    <h1>SolveHive</h1>
+    <p>Une plateforme associative pour résoudre ensemble les problèmes grâce à l’IA et la communauté.</p>
+  </header>
+
+  <main>
+    <section class="intro">
+      <h2>Qu’est-ce que SolveHive ?</h2>
+      <p>SolveHive est un espace associatif où chacun peut partager des défis — personnels, pratiques ou globaux — et recevoir de l’aide grâce à une combinaison de l’intelligence communautaire et de suggestions générées par l’IA. Il connecte les idées entre différents domaines et peut s’intégrer à des plateformes comme Reddit ou GitHub.</p>
+    </section>
+
+    <section class="how">
+      <h2>Comment ça marche</h2>
+      <ul>
+        <li>🧠 Publiez un problème – petit ou grand.</li>
+        <li>🤖 L’IA vous propose des pistes adaptées.</li>
+        <li>👥 La communauté partage son expérience concrète.</li>
+        <li>🔁 Des connexions émergent entre les domaines et vécus.</li>
+      </ul>
+    </section>
+
+    <section class="chat">
+      <h2>Posez-nous une question</h2>
+      <div id="messages" style="border:1px solid #ccc; border-radius:10px; padding:10px; height:300px; overflow-y:auto; background:#f9f9f9;"></div>
+      <div style="display:flex; margin-top:10px;">
+        <input id="user-input" type="text" placeholder="Demandez quelque chose à SolveHiveBot..." style="flex:1; padding:10px; font-size:16px;">
+        <button id="send-btn" style="padding:10px; font-size:16px; background-color:#4CAF50; color:white; border:none; cursor:pointer;">Envoyer</button>
+      </div>
+    </section>
+
+    <section class="cta">
+      <h2>Rejoignez la ruche</h2>
+      <p>Nous construisons l’avenir de la résolution ouverte de problèmes. Envie de participer ?</p>
+      <a href="mailto:sofiag.gallego@gmail.com" class="button">Nous contacter</a>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 SolveHive – Une association pour l’intelligence collective</p>
+  </footer>
+
+  <script>
+    const apiKey = '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';
+    const messages = document.getElementById('messages');
+    const input = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+
+    function addMessage(sender, text) {
+      const msg = document.createElement('div');
+      msg.innerHTML = `<b>${sender}:</b> ${text}`;
+      messages.appendChild(msg);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    async function askSolveHiveBot(message) {
+      addMessage('Vous', message);
+      addMessage('SolveHiveBot', 'Réflexion en cours...');
+
+      const url = 'https://openrouter.ai/api/v1/chat/completions';
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'mistralai/mistral-7b-instruct:free',
+          messages: [
+            {
+              role: 'system',
+              content: `Tu es SolveHiveBot, une IA conçue pour aider les gens à comprendre et explorer la vision de SolveHive — une plateforme associative pour la résolution collective de problèmes.
+
+SolveHive est un espace où les utilisateurs partagent des problèmes réels — personnels, pratiques ou globaux — et reçoivent du soutien via un mélange d’intelligence communautaire et de suggestions IA. Elle encourage la pensée interdisciplinaire et relie les idées entre les domaines.
+
+SolveHive vise à s’intégrer à des plateformes existantes comme Reddit, GitHub ou Stack Overflow pour enrichir la collaboration et bâtir un réseau de connaissances publiques.
+
+Le projet a été créé par Sofia Gallego, astrophysicienne, artiste et cosmoventurière. Plus sur www.sofiagallego.com.
+
+Sois clair, inspirant et bienveillant. Encourage les utilisateurs à réfléchir et à contribuer à cette intelligence collective.`
+            },
+            {
+              role: 'user',
+              content: message
+            }
+          ]
+        })
+      });
+
+      messages.lastChild.remove();
+
+      const data = await response.json();
+      const reply = data.choices?.[0]?.message?.content || 'Oups ! Une erreur est survenue.';
+      addMessage('SolveHiveBot', reply);
+    }
+
+    sendBtn.onclick = function() {
+      const userMessage = input.value.trim();
+      if (userMessage !== '') {
+        askSolveHiveBot(userMessage);
+        input.value = '';
+      }
+    };
+
+    input.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') sendBtn.click();
+    });
+  </script>
+</body>
+</html>

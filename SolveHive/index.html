@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SolveHive – Collective Problem Solving</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header>
+    <img src="assets/logo.png" alt="SolveHive Logo" class="logo">
+    <h1>SolveHive</h1>
+    <p>A nonprofit platform for collective problem-solving using AI + community.</p>
+  </header>
+
+  <main>
+    <section class="intro">
+      <h2>What is SolveHive?</h2>
+      <p>SolveHive is a nonprofit space where anyone can share challenges—personal, practical, or global—and get help from a combination of community wisdom and AI-powered suggestions. It connects ideas across domains and can integrate with platforms like Reddit and GitHub.</p>
+    </section>
+
+    <section class="how">
+      <h2>How it Works</h2>
+      <ul>
+        <li>🧠 Post a problem – big or small.</li>
+        <li>🤖 AI offers context-aware guidance.</li>
+        <li>👥 The community shares real-world insights.</li>
+        <li>🔁 Connections emerge across fields and experiences.</li>
+      </ul>
+    </section>
+
+    <section class="chat">
+      <h2>Ask us anything</h2>
+      <div id="messages" style="border:1px solid #ccc; border-radius:10px; padding:10px; height:300px; overflow-y:auto; background:#f9f9f9;"></div>
+      <div style="display:flex; margin-top:10px;">
+        <input id="user-input" type="text" placeholder="Ask SolveHiveBot something..." style="flex:1; padding:10px; font-size:16px;">
+        <button id="send-btn" style="padding:10px; font-size:16px; background-color:#4CAF50; color:white; border:none; cursor:pointer;">Send</button>
+      </div>
+    </section>
+
+    <section class="cta">
+      <h2>Join the Hive</h2>
+      <p>We’re building the future of open problem-solving. Want to help?</p>
+      <a href="mailto:sofiag.gallego@gmail.com" class="button">Get in Touch</a>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 SolveHive – A Nonprofit for Collective Intelligence</p>
+  </footer>
+
+  <script>
+    const apiKey = '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';
+    const messages = document.getElementById('messages');
+    const input = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+
+    function addMessage(sender, text) {
+      const msg = document.createElement('div');
+      msg.innerHTML = `<b>${sender}:</b> ${text}`;
+      messages.appendChild(msg);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    async function askSolveHiveBot(message) {
+      addMessage('You', message);
+      addMessage('SolveHiveBot', 'Thinking...');
+
+      const url = 'https://openrouter.ai/api/v1/chat/completions';
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'mistralai/mistral-7b-instruct:free',
+messages: [
+  {
+    role: 'system',
+    content: `You are SolveHiveBot, an AI assistant designed to help people understand and explore the vision behind SolveHive — a nonprofit platform for collective problem solving.
+
+SolveHive is a space where users can share real-world problems — personal, practical, or global — and receive support through a mix of community insight and AI-powered suggestions. It encourages interdisciplinary thinking and connects ideas across domains.
+
+SolveHive aims to integrate with existing platforms like Reddit, GitHub, and Stack Overflow to enrich collaboration and build a public knowledge network.
+
+The project was created by Sofia Gallego, an astrophysicist, artist, and cosmoventurer. Learn more at www.sofiagallego.com.
+
+Be helpful, inspiring, and empowering. Use clear, friendly language. Encourage users to contribute or reflect on how they might apply collective intelligence in their own lives.`
+  },
+  {
+    role: 'user',
+    content: message
+  }
+]
+        })
+      });
+
+      messages.lastChild.remove();
+
+      const data = await response.json();
+      const reply = data.choices?.[0]?.message?.content || 'Oops! Something went wrong.';
+      addMessage('SolveHiveBot', reply);
+    }
+
+    sendBtn.onclick = function() {
+      const userMessage = input.value.trim();
+      if (userMessage !== '') {
+        askSolveHiveBot(userMessage);
+        input.value = '';
+      }
+    };
+
+    input.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') sendBtn.click();
+    });
+  </script>
+</body>
+</html>
