@@ -3,200 +3,86 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SensoryVerse Personality Quiz</title>
-  <link rel="icon" type="image/png" href="SensoryVerse.png" />
+  <title>Welcome to SensoryVerse</title>
+  <link rel="icon" href="SensoryVerse.png" />
   <style>
     body {
       font-family: sans-serif;
       background: radial-gradient(#111, #000);
       color: #eee;
       margin: 0;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    .container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: #1e1e2f;
       padding: 2rem;
-      border-radius: 1rem;
-      box-shadow: 0 0 20px #00f2ff33;
-      max-width: 700px;
-      width: 90%;
       text-align: center;
-      margin: 2rem auto;
     }
-    button {
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+
+    h1 {
+      color: #00f2ff;
+      font-size: 2.2rem;
+    }
+
+    p {
+      font-size: 1.1rem;
+      color: #ccc;
+      margin: 1rem 0;
+    }
+
+    .logo {
+      width: 120px;
+      margin-bottom: 1.5rem;
+    }
+
+    .button-group {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    a.button {
       background: #00f2ff;
       color: #000;
-      padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 1rem;
+      padding: 0.8rem 1.4rem;
+      border-radius: 8px;
+      font-weight: bold;
+      text-decoration: none;
     }
-    button:hover { background: #00c2cc; }
-    .logo { width: 120px; margin-bottom: 1rem; }
-    .insight { font-size: 0.95rem; color: #ccc; margin-top: 0.5rem; }
-    details { margin-top: 0.5rem; font-size: 0.9rem; text-align: left; color: #bbb; }
-    .progress-container {
-      background-color: #333;
-      border-radius: 5px;
-      overflow: hidden;
-      height: 12px;
-      margin-bottom: 1rem;
-    }
-    .progress-bar {
-      height: 100%;
-      width: 0%;
-      background: #00f2ff;
-      transition: width 0.3s ease;
-    }
-    ul { text-align: left; }
-    footer {
-      text-align: center;
-      font-size: 0.8rem;
-      color: #888;
-      padding: 1rem 0;
-    }
-	#questionBlock {
-  	min-width: 400px;
-  	max-width: 400px;
-  	max-height: 200px;
-  	min-height: 200px;
 
-	}
+    a.button:hover {
+      background: #00c2cc;
+    }
+
+    footer {
+      margin-top: 4rem;
+      font-size: 0.9rem;
+      color: #888;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <div id="intro">
-      <img src="SensoryVerse.png" alt="SensoryVerse Logo" class="logo">
-      <h2>Welcome to the SensoryVerse Personality Quiz</h2>
-      <p>This short quiz is part of <strong>SensoryVerse</strong>, a learning platform created by an astrophysicist<a href="https://sofiagallego.com" target="_blank" style="color: #00f2ff;">*</a> to help you understand how you process, focus, feel, and learn best.</p>
-      <p>By answering 8 questions, you’ll uncover your unique cognitive constellation — and receive practical tips tailored to your learning style.</p>
-      <button id="beginBtn">Let's Begin</button>
+    <img src="SensoryVerse.png" alt="SensoryVerse logo" class="logo">
+    <h1>Welcome to SensoryVerse</h1>
+    <p>SensoryVerse is a cognitive playground — built to help you discover how your brain processes, focuses, and learns best.</p>
+    <p>Created by an <a href="https://sofiagallego.com" target="_blank" style="color: #00f2ff;">astrophysicist</a>, it's both playful and practical: you’ll find an insightful personality quiz, and a growing set of mini-games that test different aspects of perception and attention.</p>
+
+    <div class="button-group">
+      <a href="quiz.html" class="button" target="_blank">🧠 Take the Quiz</a>
+      <a href="games.html" class="button" target="_blank">🎮 Try the Games</a>
     </div>
 
-    <div id="quiz" style="display:none;">
-      <div class="progress-container">
-        <div class="progress-bar" id="progressBar"></div>
-      </div>
-	<div id="questionBlock" style="min-height: 280px;">
-	  <div class="question" id="question"></div>
-	  <div class="insight" id="insight"></div>
-	  <details><summary>Not sure? Click for examples</summary>
-		<div id="exampleText"></div>
-	  </details>
-	</div>
-      <div style="margin: 1rem 0;">
-        <input type="range" id="slider" min="0" max="100" value="50" style="width: 100%;">
-        <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-top: 0.3rem;">
-          <span>A</span><span>B</span>
-        </div>
-      </div>
-      <button onclick="answer()">Next</button>
-      <button onclick="goBack()">←</button>
-    </div>
-
-    <div id="result" style="display:none;">
-      <h2 id="resultTitle"></h2>
-      <p id="resultDesc"></p>
-      <div id="combinedBlock" style="display:none;">
-        <p><strong>Additional insights from your secondary type:</strong></p>
-        <p id="combinedInsights"></p>
-      </div>
-      
-        <h3>Practical tips for efficient learning</h3>
-
-      <ul id="resultTips"></ul>
-      <div id="secondaryBlock" style="display:none;">
-        <p><strong>Related constellation:</strong> <span id="secondaryText"></span></p>
-        <ul id="secondaryTips"></ul>
-      </div>
-      
- <hr style="margin: 2rem 0; border: none; border-top: 1px solid #444;">     
-      <div id="closingNote" style="margin-top: 2rem; font-size: 1.rem; color: #ccc;">
-  <p><strong>This is just the beginning of the SensoryVerse project!</strong></p>
-  <p>If you have questions, suggestions, or feedback, feel free to reach out at <a href="mailto:cosmovis1216@gmail.com" style="color: #00f2ff;">cosmovis1216@gmail.com</a>.</p>
-  <p>You can also follow the journey and learn more on our <a href="https://www.youtube.com/@SensoryVerse" target="_blank" style="color: #00f2ff;">YouTube channel</a>.</p>
-  <p>If you enjoyed this experience and want to support its evolution, you can <a href="https://ko-fi.com/cosmoventures" target="_blank" style="color: #00f2ff;">donate via Ko-fi</a>. Every bit helps us keep creating beautiful things ✨</p>
-</div>
-
-      <button onclick="location.reload()">Start Again</button>
-    </div>
+    <footer>
+      Created by CosmoVentures — © 2025 All rights reserved.
+    </footer>
   </div>
-
-  <footer>
-    Created by Cosmoventures – © 2025 All rights reserved.
-  </footer>
-
-  <!-- External JS files loaded with defer -->
-  <script defer src="types_tips.js"></script>
-  <script defer src="NeuroSky_Profiles.js"></script>
-  <script defer src="quiz.js"></script>
-
-<script>
-  function finishQuiz() {
-    document.getElementById("quiz").style.display = "none";
-    document.getElementById("result").style.display = "block";
-
-    const code = answers.join("");
-    const secondaryCode = ambiguous.filter(Boolean).join("");
-    const primary = profiles[code];
-    const secondary = profiles[secondaryCode];
-
-    const resultTitle = "🌟 " + primary["Type Name"];
-let codeLine = `<div style="font-size: 0.9rem; color: #aaa;">(${code})</div>`;
-
-if (secondary && secondaryCode !== code) {
-  codeLine += `<div style="font-size: 0.9rem; color: #aaa;">Related type: ${secondary["Type Name"]} (${secondaryCode})</div>`;
-}
-
-document.getElementById("resultTitle").innerHTML = resultTitle + codeLine;
-    
-    const combinedDesc = answers.map((c, i) => types_insight[c + (i + 1)]).join(" ");
-    document.getElementById("resultDesc").innerHTML = combinedDesc + " " + primary["Final Phrase"];
-
-    const tipsList = document.getElementById("resultTips");
-    tipsList.innerHTML = answers.map((c, i) => `<li>${practical_tips[c + (i + 1)]}</li>`).join("");
-
-    // Additional insight from secondary type
-    let hasCombined = false;
-    ambiguous.forEach((alt, i) => {
-      if (alt) {
-        const pair = answers[i] + (i + 1) + alt + (i + 1);
-        const reverse = alt + (i + 1) + answers[i] + (i + 1);
-        const insight = types_insight_combined[pair] || types_insight_combined[reverse];
-        if (insight) {
-          document.getElementById("combinedBlock").style.display = "block";
-          document.getElementById("combinedInsights").innerHTML += insight + " ";
-          hasCombined = true;
-        }
-      }
-    });
-
-    // Additional tips if secondary exists
-    if (secondary && secondaryCode !== code) {
-      document.getElementById("secondaryBlock").style.display = "block";
-      document.getElementById("secondaryText").textContent = "Additional tips";
-
-      const secondaryUl = document.getElementById("secondaryTips");
-      const secondaryTips = ambiguous
-        .map((alt, i) => alt && practical_tips[alt + (i + 1)])
-        .filter(tip => tip && !answers.map((c, i) => practical_tips[c + (i + 1)]).includes(tip));
-
-      secondaryUl.innerHTML = secondaryTips.map(tip => `<li> ${tip}</li>`).join("");
-    }
-  }
-</script>
-
-
-  <!-- Ko-fi floating chat widget -->
+  
+  
+    <!-- Ko-fi floating chat widget -->
   <script src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js"></script>
   <script>
     kofiWidgetOverlay.draw('cosmoventures', {
@@ -206,15 +92,7 @@ document.getElementById("resultTitle").innerHTML = resultTitle + codeLine;
       'floating-chat.donateButton.text-color': '#fff'
     });
   </script>
-
-  <!-- Begin button logic -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      document.getElementById("beginBtn").addEventListener("click", () => {
-        if (typeof startQuiz === 'function') startQuiz();
-        else console.error("startQuiz is not defined");
-      });
-    });
-  </script>
+  
+  
 </body>
 </html>
