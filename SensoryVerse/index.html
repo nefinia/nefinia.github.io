@@ -42,6 +42,17 @@
       box-shadow: 0 0 15px var(--shadow);
       margin-bottom: 1.5rem;
     }
+    
+    
+    /* Language Switcher */
+    .language-switcher {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      display: flex;
+      gap: .5rem;
+    }    
+    
 
     .button-group {
       margin-top: 1.2rem;
@@ -103,13 +114,22 @@
   </style>
 </head>
 <body>
+
+  <!-- Language Switcher -->
+  <div class="language-switcher">
+    <a href="index.html" class="lang-btn">🇬🇧 EN</a>
+    <a href="index_es.html" class="lang-btn">🇪🇸 ES</a>
+    <a href="index_fr.html" class="lang-btn">🇫🇷 FR</a>
+  </div>
+
+
   <div class="container">
     <img src="SensoryVerse.png" alt="SensoryVerse logo" class="logo" />
     <h1>Welcome to SensoryVerse</h1>
 
     <section class="intro">
       <p><strong>SensoryVerse</strong> is a cognitive playground — built to help you discover how your brain processes, focuses, and learns best.</p>
-      <p>Created by an <a href="https://sofiagallego.com" target="_blank" style="color: #00f2ff;">astrophysicist</a>, it’s playful and practical: start with a short quiz to map your cognitive “constellation,” then try mini-games that probe attention, memory, flexibility, and sensory load.</p>
+      <p>Developed by a team of astrophysicists, neuroscientists, entrepreneurs, videogame designers, and AI experts, it’s both playful and practical: start with a short quiz to map your cognitive “constellation,” then explore mini-games that probe attention, memory, flexibility, and sensory load.</p>
       <div class="button-group">
         <a href="quiz.html" class="button" target="_blank">🧠 Take the Quiz</a>
         <a href="games.html" class="button" target="_blank">🎮 Try the Games</a>
@@ -220,12 +240,10 @@
         If you’d like to support the build, <a href="https://ko-fi.com/cosmoventures" target="_blank" style="color: var(--cyan);">Ko-fi</a>.
       </p>
     </section>
-
+  </div>
     <footer>
       Created by CosmoVentures — © 2025 All rights reserved.
-    </footer>
-  </div>
-
+	</footer>
   <!-- Ko-fi floating chat widget -->
   <script src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js"></script>
   <script>
