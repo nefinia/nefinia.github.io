@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bienvenido a SensoryVerse</title>
+  <link rel="icon" href="SensoryVerse.png" />
+  <style>
+    :root{
+      --cyan:#00f2ff;
+      --bg1:#111;
+      --bg2:#000;
+      --card:#1e1e2f;
+      --muted:#ccc;
+      --muted2:#888;
+      --shadow:#00f2ff33;
+    }
+    html,body{scroll-behavior:smooth}
+    body {
+      font-family: sans-serif;
+      background: radial-gradient(var(--bg1), var(--bg2));
+      color: #eee;
+      margin: 0;
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+
+    .container { max-width: 980px; margin: auto; }
+
+    .logo { width: 120px; margin-bottom: 1.2rem; }
+
+    h1 { color: var(--cyan); font-size: 2.2rem; margin: .2rem 0 1rem; }
+    h2 { color: var(--cyan); margin: 2.2rem 0 1rem; }
+    h3 { color: #e8ffff; margin: 1.2rem 0 .6rem; }
+
+    p { font-size: 1.05rem; color: var(--muted); margin: .75rem 0; line-height: 1.6; }
+
+    .intro {
+      background: var(--card);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 0 15px var(--shadow);
+      margin-bottom: 1.5rem;
+    }
+    
+    .language-switcher {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      display: flex;
+      gap: .5rem;
+    }    
+
+    .button-group {
+      margin-top: 1.2rem;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    a.button {
+      background: var(--cyan);
+      color: #000;
+      padding: 0.8rem 1.2rem;
+      border-radius: 10px;
+      font-weight: bold;
+      text-decoration: none;
+      box-shadow: 0 0 10px var(--shadow);
+    }
+    a.button:hover { background: #00c2cc; }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    @media (min-width: 840px){
+      .two-col { grid-template-columns: 1fr 1fr; }
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 1rem;
+      padding: 1.2rem 1.3rem;
+      text-align: left;
+      box-shadow: 0 0 15px var(--shadow);
+    }
+
+    ul, ol { text-align: left; color: var(--muted); line-height: 1.6; }
+    li + li { margin-top: .35rem; }
+
+    .pill {
+      display:inline-block; padding:.2rem .6rem; border-radius:999px;
+      background:#26304a; color:#cfefff; font-size:.85rem; margin:.15rem .25rem 0 0;
+      border:1px solid #3b4e79;
+    }
+
+    .divider {
+      margin: 2.2rem auto;
+      border: none;
+      border-top: 1px solid #444;
+      width: min(980px, 92vw);
+    }
+
+    footer { margin-top: 2rem; font-size: 0.9rem; color: var(--muted2); }
+
+    .small { font-size:.95rem; color:#b9cfd6; }
+    .note { font-size:.95rem; color:#b9cfd6; background:#151526; padding:.75rem 1rem; border-radius:.75rem; }
+  </style>
+</head>
+<body>
+
+  <!-- Selector de idioma -->
+  <div class="language-switcher">
+    <a href="index.html" class="lang-btn">🇬🇧 EN</a>
+    <a href="index_es.html" class="lang-btn">🇪🇸 ES</a>
+    <a href="index_fr.html" class="lang-btn">🇫🇷 FR</a>
+  </div>
+
+  <div class="container">
+    <img src="SensoryVerse.png" alt="Logo SensoryVerse" class="logo" />
+    <h1>Bienvenido a SensoryVerse</h1>
+
+    <section class="intro">
+      <p><strong>SensoryVerse</strong> es un patio de juegos cognitivo — diseñado para ayudarte a descubrir cómo tu cerebro procesa, se concentra y aprende mejor.</p>
+      <p>Desarrollado por un equipo de astrofísicos, neurocientíficos, emprendedores, diseñadores de videojuegos y expertos en IA, es a la vez lúdico y práctico: comienza con un breve cuestionario para mapear tu “constelación cognitiva”, luego explora mini-juegos que evalúan la atención, la memoria, la flexibilidad y la carga sensorial.</p>
+      <div class="button-group">
+        <a href="quiz_es.html" class="button" target="_blank">🧠 Hacer el Quiz</a>
+        <a href="games_es.html" class="button" target="_blank">🎮 Probar los Juegos</a>
+        <a href="#science" class="button">🔬 La Ciencia</a>
+      </div>
+    </section>
+
+    <section id="science">
+      <h2>🔬 La ciencia detrás de SensoryVerse</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>De “estilos” a rasgos medibles</h3>
+          <p>Los clásicos “estilos de aprendizaje” resultan motivadores, pero adaptar la enseñanza a un estilo declarado no ha mejorado los resultados de manera consistente. SensoryVerse se centra en <em>rasgos cognitivos observables</em> que influyen en el aprendizaje:</p>
+          <ul>
+            <li><strong>Apertura vs. enfoque inicial</strong> (explorar ampliamente vs. comprometerse temprano)</li>
+            <li><strong>Procesamiento asociativo vs. analítico</strong> (metáfora/síntesis vs. lógica paso a paso)</li>
+            <li><strong>Preferencia de carga sensorial</strong> (energizado por estímulos ricos vs. prosperar en calma)</li>
+            <li><strong>Repetición corporal vs. mental</strong> (aprendizaje práctico vs. modelado interno)</li>
+            <li><strong>Expresión emocional</strong> (expresivo vs. procesamiento interno)</li>
+            <li><strong>Activación social</strong> (rápido para conectar vs. observar primero)</li>
+            <li><strong>Ritmo atencional</strong> (intermitente vs. constante)</li>
+            <li><strong>Flexibilidad de resultados</strong> (adaptarse en el camino vs. ceñirse al plan)</li>
+          </ul>
+          <p class="note">Estos rasgos se capturan primero con un cuestionario estructurado y luego se contrastan con microconductas en los juegos (tiempo de reacción, patrones de error, costo de cambio, equilibrio de memoria para imágenes vs. palabras, tolerancia a la sobreestimulación).</p>
+        </div>
+
+        <div class="card">
+          <h3>Por qué importa</h3>
+          <p>En lugar de pedir a los estudiantes que se adapten a un entorno fijo, SensoryVerse adapta el entorno al estudiante. Esto es especialmente importante para perfiles neurodivergentes, donde las diferencias en atención, procesamiento sensorial o ritmo social pueden convertirse en fortalezas si el contexto se ajusta adecuadamente.</p>
+          <ul>
+            <li><strong>Diseño instruccional</strong>: elegir representaciones (visual/verbal/kinestésico), ritmos y niveles de ruido que se ajusten al perfil del estudiante.</li>
+            <li><strong>Herramientas de concentración</strong>: generar música de enfoque y rituales de estudio basados en el perfil.</li>
+            <li><strong>Evaluación</strong>: medir progreso en habilidades que realmente limitan el aprendizaje (p.ej., cambiar bajo carga) más que solo en la memoria de contenido.</li>
+          </ul>
+          <div>
+            <span class="pill">Afirmación de la neurodiversidad</span>
+            <span class="pill">UX adaptativa</span>
+            <span class="pill">Comportamiento + Autoinforme</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <h3>Cómo SensoryVerse obtiene señales</h3>
+          <ol>
+            <li><strong>Quiz → Constelación</strong>: un perfil de 8 ejes (ej. Z1/M1, A2/O2…) genera una constelación principal y una secundaria cuando las respuestas están dentro de ±10% (reconociendo ambigüedad, no forzando una etiqueta).</li>
+            <li><strong>Juegos → Micrométricas</strong>: 
+              <ul>
+                <li><em>EchoPattern</em> (recuerdo de secuencia): precisión visual vs. auditiva, costo de interferencia.</li>
+                <li><em>Sound Focus</em> (sobrecarga sensorial): precisión y tiempo de reacción en entornos calmados/medios/caóticos.</li>
+                <li><em>Quick Reframe</em> (cambio de reglas): costo de cambio, tipo de error bajo reglas cambiantes.</li>
+                <li><em>Memory Match</em> (imágenes vs. palabras): precisión y latencia según modalidad.</li>
+              </ul>
+            </li>
+            <li><strong>Fusión → Perspectivas</strong>: cuando el cuestionario y el comportamiento coinciden se refuerza la confianza; cuando difieren, se señalan áreas a entrenar o ajustar en el entorno.</li>
+          </ol>
+        </div>
+
+        <div class="card">
+          <h3>Ruta de investigación y publicación</h3>
+          <p>Nuestro objetivo es validar que tareas pequeñas y bien diseñadas pueden estimar preferencias cognitivas relevantes para el aprendizaje. Producciones planeadas:</p>
+          <ul>
+            <li><strong>Artículo de medición</strong>: fiabilidad de métricas derivadas de tareas y su relación con el autoinforme.</li>
+            <li><strong>Estudio de intervención</strong>: comprobar si adaptar el contenido/entorno sensorial según el perfil mejora resultados.</li>
+            <li><strong>Métodos abiertos</strong>: análisis pre-registrados; datos de tareas des-identificados para reproducibilidad.</li>
+          </ul>
+          <p class="small">Estamos reuniendo una red asesora en ciencias cognitivas, interacción humano–computadora y educación inclusiva. Si te interesa, contáctanos.</p>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <h3>Ética, privacidad y consentimiento</h3>
+          <ul>
+            <li><strong>Datos mínimos</strong>: solo lo necesario para retroalimentación y calidad de investigación.</li>
+            <li><strong>Local primero</strong>: siempre que sea posible, calcular consejos en el navegador; la exportación es opcional.</li>
+            <li><strong>Des-identificación</strong>: datos de tareas separados de la info de contacto; nunca se venden datos.</li>
+            <li><strong>Consentimiento claro</strong>: la participación en investigación es independiente del uso del producto.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Qué podría ser patentable</h3>
+          <ul>
+            <li><strong>Motor de constelaciones</strong>: el código específico de 8 ejes + lógica de fusión que genera salidas adaptativas.</li>
+            <li><strong>Generador adaptativo</strong>: ajuste en tiempo real de contenido/sonido/ritmo a partir de micrométricas.</li>
+            <li><strong>Mecánicas de juego</strong>: tareas novedosas que estiman balance modal y umbral de sobreestimulación eficientemente en navegador.</li>
+            <li><strong>Síntesis de música de concentración</strong>: parámetros condicionados por perfil para música funcional.</li>
+          </ul>
+          <p class="small">Exploramos protección donde permita colaboración abierta responsable + desarrollo sostenible del producto.</p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <section>
+      <h2>Comienza ahora</h2>
+      <p>Haz el quiz rápido y luego pon a prueba tu perfil con los mini-juegos. Tu retroalimentación da forma a la siguiente iteración.</p>
+      <div class="button-group">
+        <a href="quiz_es.html" class="button" target="_blank">🧠 Hacer el Quiz</a>
+        <a href="games_es.html" class="button" target="_blank">🎮 Probar los Juegos</a>
+      </div>
+      <p class="small" style="margin-top:1rem;">
+        ¿Preguntas o ideas de colaboración? <a href="mailto:cosmovis1216@gmail.com" style="color: var(--cyan);">cosmovis1216@gmail.com</a> —
+        Síguenos en <a href="https://www.youtube.com/@SensoryVerse" target="_blank" style="color: var(--cyan);">YouTube</a> —
+        Si quieres apoyar el proyecto, <a href="https://ko-fi.com/cosmoventures" target="_blank" style="color: var(--cyan);">Ko-fi</a>.
+      </p>
+    </section>
+  </div>
+    <footer>
+      Creado por CosmoVentures — © 2025 Todos los derechos reservados.
+	</footer>
+  <!-- Widget de chat flotante Ko-fi -->
+  <script src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js"></script>
+  <script>
+    kofiWidgetOverlay.draw('cosmoventures', {
+      'type': 'floating-chat',
+      'floating-chat.donateButton.text': 'Apóyanos',
+      'floating-chat.donateButton.background-color': '#794bc4',
+      'floating-chat.donateButton.text-color': '#fff'
+    });
+  </script>
+</body>
+</html>

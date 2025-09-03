@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cuestionario de Personalidad SensoryVerse</title>
+  <link rel="icon" type="image/png" href="SensoryVerse.png" />
+  <style>
+    body {
+      font-family: sans-serif;
+      background: radial-gradient(#111, #000);
+      color: #eee;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #1e1e2f;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 0 20px #00f2ff33;
+      max-width: 700px;
+      width: 90%;
+      text-align: center;
+      margin: 2rem auto;
+    }
+    button {
+      background: #00f2ff;
+      color: #000;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    button:hover { background: #00c2cc; }
+    .logo { width: 120px; margin-bottom: 1rem; }
+    .insight { font-size: 0.95rem; color: #ccc; margin-top: 0.5rem; }
+    details { margin-top: 0.5rem; font-size: 0.9rem; text-align: left; color: #bbb; }
+    .progress-container {
+      background-color: #333;
+      border-radius: 5px;
+      overflow: hidden;
+      height: 12px;
+      margin-bottom: 1rem;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #00f2ff;
+      transition: width 0.3s ease;
+    }
+    ul { text-align: left; }
+    footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #888;
+      padding: 1rem 0;
+    }
+    #questionBlock {
+      min-width: 400px;
+      max-width: 400px;
+      max-height: 200px;
+      min-height: 200px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="intro">
+      <img src="SensoryVerse.png" alt="Logo de SensoryVerse" class="logo">
+      <h2>Bienvenido/a al Cuestionario de Personalidad de SensoryVerse</h2>
+
+      <p>El <strong>Cuestionario SensoryVerse</strong> es un recorrido de 8 preguntas que explora cómo procesas la información, centras la atención y te adaptas a los retos.  
+      Cada respuesta construye tu “constelación cognitiva” — un perfil que refleja tus preferencias naturales de aprendizaje.  
+      Al final, recibirás <strong>ideas personalizadas</strong> y <strong>consejos prácticos</strong> que puedes aplicar de inmediato para estudiar, trabajar o crear.</p>
+
+      <button id="beginBtn">Empezar</button>
+    </div>
+
+    <div id="quiz" style="display:none;">
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <div id="questionBlock" style="min-height: 280px;">
+        <div class="question" id="question"></div>
+        <div class="insight" id="insight"></div>
+        <details>
+          <summary>¿Dudas? Pulsa para ver ejemplos</summary>
+          <div id="exampleText"></div>
+        </details>
+      </div>
+
+      <div style="margin: 1rem 0;">
+        <input type="range" id="slider" min="0" max="100" value="50" style="width: 100%;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-top: 0.3rem;">
+          <span>A</span><span>B</span>
+        </div>
+      </div>
+      <button onclick="answer()">Siguiente</button>
+      <button onclick="goBack()">←</button>
+    </div>
+
+    <div id="result" style="display:none;">
+      <h2 id="resultTitle"></h2>
+      <p id="resultDesc"></p>
+
+      <div id="combinedBlock" style="display:none;">
+        <p><strong>Ideas adicionales de tu tipo secundario:</strong></p>
+        <p id="combinedInsights"></p>
+      </div>
+
+      <h3>Consejos prácticos para aprender con eficacia</h3>
+      <ul id="resultTips"></ul>
+
+      <div id="secondaryBlock" style="display:none;">
+        <p><strong></strong> <span id="secondaryText"></span></p>
+        <ul id="secondaryTips"></ul>
+      </div>
+
+      <hr style="margin: 2rem 0; border: none; border-top: 1px solid #444;">
+      <div id="closingNote" style="margin-top: 2rem; font-size: 1rem; color: #ccc;">
+        <p><strong>¡Esto es solo el comienzo del proyecto SensoryVerse!</strong></p>
+        <p>¿Preguntas o sugerencias? Escríbenos a <a href="mailto:cosmovis1216@gmail.com" style="color: #00f2ff;">cosmovis1216@gmail.com</a>.</p>
+        <p>Sigue el avance en nuestro <a href="https://www.youtube.com/@SensoryVerse" target="_blank" style="color: #00f2ff;">canal de YouTube</a> o <a href="https://ko-fi.com/cosmoventures" target="_blank" style="color: #00f2ff;">apóyanos en Ko-fi</a>.</p>
+      </div>
+
+      <button onclick="location.reload()">Volver a empezar</button>
+    </div>
+  </div>
+
+  <footer>
+    Creado por Cosmoventures – © 2025 Todos los derechos reservados.
+  </footer>
+
+  <!-- Archivos JS externos -->
+  <script defer src="types_tips.js"></script>
+  <script defer src="NeuroSky_Profiles.js"></script>
+  <script defer src="quiz.js"></script>
+
+  <script>
+    function finishQuiz() {
+      document.getElementById("quiz").style.display = "none";
+      document.getElementById("result").style.display = "block";
+
+      const code = answers.join("");
+      const secondaryCode = ambiguous.filter(Boolean).join("");
+      const primary = profiles[code];
+      const secondary = profiles[secondaryCode];
+
+      const resultTitle = "🌟 " + primary["Type Name"];
+      let codeLine = `<div style="font-size: 0.9rem; color: #aaa;">(${code})</div>`;
+
+      if (secondary && secondaryCode !== code) {
+        codeLine += `<div style="font-size: 0.9rem; color: #aaa;">Tipo relacionado: ${secondary["Type Name"]} (${secondaryCode})</div>`;
+      }
+
+      document.getElementById("resultTitle").innerHTML = resultTitle + codeLine;
+
+      const combinedDesc = answers.map((c, i) => types_insight[c + (i + 1)]).join(" ");
+      document.getElementById("resultDesc").innerHTML = combinedDesc + " " + primary["Final Phrase"];
+
+      const tipsList = document.getElementById("resultTips");
+      tipsList.innerHTML = answers.map((c, i) => `<li>${practical_tips[c + (i + 1)]}</li>`).join("");
+
+      // Ideas adicionales del tipo secundario (±10%)
+      ambiguous.forEach((alt, i) => {
+        if (alt) {
+          const pair = answers[i] + (i + 1) + alt + (i + 1);
+          const reverse = alt + (i + 1) + answers[i] + (i + 1);
+          const insight = types_insight_combined[pair] || types_insight_combined[reverse];
+          if (insight) {
+            document.getElementById("combinedBlock").style.display = "block";
+            document.getElementById("combinedInsights").innerHTML += insight + " ";
+          }
+        }
+      });
+
+      // Consejos extra si existe secundario
+      if (secondary && secondaryCode !== code) {
+        document.getElementById("secondaryBlock").style.display = "block";
+        document.getElementById("secondaryText").textContent = "Consejos adicionales";
+
+        const secondaryUl = document.getElementById("secondaryTips");
+        const primaryTips = answers.map((c, i) => practical_tips[c + (i + 1)]);
+        const secondaryTips = ambiguous
+          .map((alt, i) => alt && practical_tips[alt + (i + 1)])
+          .filter(tip => tip && !primaryTips.includes(tip));
+
+        secondaryUl.innerHTML = secondaryTips.map(tip => `<li>${tip}</li>`).join("");
+      }
+    }
+
+    // Botón de inicio
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("beginBtn").addEventListener("click", () => {
+        if (typeof startQuiz === 'function') startQuiz();
+        else console.error("startQuiz no está definido");
+      });
+    });
+  </script>
+
+  <!-- Ko-fi floating chat widget -->
+  <script src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js"></script>
+  <script>
+    kofiWidgetOverlay.draw('cosmoventures', {
+      'type': 'floating-chat',
+      'floating-chat.donateButton.text': 'Support me',
+      'floating-chat.donateButton.background-color': '#794bc4',
+      'floating-chat.donateButton.text-color': '#fff'
+    });
+  </script>
+</body>
+</html>

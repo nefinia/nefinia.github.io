@@ -12,7 +12,7 @@ const profiles = {
     "Secondary Tips Disclaimer": "These additional suggestions may also apply to you due to your secondary constellation."
   },
   "ZATEFURE": {
-    "Type Name": "The Feral Conduit",
+    "Type Name": "The Wild Conduit",
     "Narrative Summary": "You’re a thinker who follow ideas wherever they lead, and connect concepts through patterns. You seek intense sensory experiences, and learn best through physical engagement. You tend to express your emotions openly, and enjoy social settings. You have a steady attention rhythm — but prefer flexibility and change to ground your path. Your inner rhythm guides your exploration.",
     "Music Prompt": "Motivating and mellow groove with relaxed tempo and layered textures for immersive, focused study sessions.",
     "Secondary Tips Disclaimer": "These additional suggestions may also apply to you due to your secondary constellation."
@@ -480,7 +480,7 @@ const profiles = {
     "Secondary Tips Disclaimer": "These additional suggestions may also apply to you due to your secondary constellation."
   },
   "ZOTIFUKE": {
-    "Type Name": "The Feral Mediator",
+    "Type Name": "The Wild Mediator",
     "Narrative Summary": "You’re a thinker who follow ideas wherever they lead, and prefer clear, linear steps. You seek intense sensory experiences, and learn best through abstract concepts. You tend to express your emotions openly, and enjoy social settings. You have a fluctuating attention span — but prefer flexibility and change to ground your path. You navigate the world through waves of inner clarity.",
     "Music Prompt": "Cinematic, expressive instrumental for focused learning. Jazzy rhythm, funky bassline, bright piano and subtle percussion.",
     "Secondary Tips Disclaimer": "These additional suggestions may also apply to you due to your secondary constellation."
@@ -720,7 +720,7 @@ const profiles = {
     "Secondary Tips Disclaimer": "These additional suggestions may also apply to you due to your secondary constellation."
   },
   "ZOLISUKE": {
-    "Type Name": "The Feral Curator",
+    "Type Name": "The Wild Curator",
     "Narrative Summary": "You’re a thinker who follow ideas wherever they lead, and prefer clear, linear steps. You avoid overwhelming sensory input, and learn best through abstract concepts. You tend to keep your emotions contained, and enjoy social settings. You have a fluctuating attention span — but prefer flexibility and change to ground your path. Your inner rhythm guides your exploration.",
     "Music Prompt": "Cinematic, expressive instrumental for focused learning. Jazzy rhythm, funky bassline, bright piano and subtle percussion.",
     "Secondary Tips Disclaimer": "These additional suggestions may also apply to you due to your secondary constellation."
@@ -744,7 +744,7 @@ const profiles = {
     "Secondary Tips Disclaimer": "These additional suggestions may also apply to you due to your secondary constellation."
   },
   "ZOLISAKE": {
-    "Type Name": "The Feral Catalyst",
+    "Type Name": "The Wild Catalyst",
     "Narrative Summary": "You’re a thinker who follow ideas wherever they lead, and prefer clear, linear steps. You avoid overwhelming sensory input, and learn best through abstract concepts. You tend to keep your emotions contained, and feel cautious in social interactions. You have a fluctuating attention span — but prefer flexibility and change to ground your path. Your perception weaves patterns others only glimpse.",
     "Music Prompt": "Energetic yet smooth instrumental with dynamic flow and rhythmic richness, perfect for deep focus and retention.",
     "Secondary Tips Disclaimer": "These additional suggestions may also apply to you due to your secondary constellation."
@@ -894,7 +894,7 @@ const profiles = {
     "Secondary Tips Disclaimer": "These additional suggestions may also apply to you due to your secondary constellation."
   },
   "MATIFAKO": {
-    "Type Name": "The Feral Wanderer",
+    "Type Name": "The Wild Wanderer",
     "Narrative Summary": "You’re a thinker who stick to structured thinking, and connect concepts through patterns. You seek intense sensory experiences, and learn best through abstract concepts. You tend to express your emotions openly, and feel cautious in social interactions. You have a fluctuating attention span — but prefer structure and clear outcomes to ground your path. You give shape to chaos through connection.",
     "Music Prompt": "Energetic yet smooth instrumental with dynamic flow and rhythmic richness, perfect for deep focus and retention.",
     "Secondary Tips Disclaimer": "These additional suggestions may also apply to you due to your secondary constellation."
@@ -1050,7 +1050,7 @@ const profiles = {
     "Secondary Tips Disclaimer": "These additional suggestions may also apply to you due to your secondary constellation."
   },
   "MALESARO": {
-    "Type Name": "The Feral Sculptor",
+    "Type Name": "The Wild Sculptor",
     "Narrative Summary": "You’re a thinker who stick to structured thinking, and connect concepts through patterns. You avoid overwhelming sensory input, and learn best through physical engagement. You tend to keep your emotions contained, and feel cautious in social interactions. You have a steady attention rhythm — but prefer structure and clear outcomes to ground your path. Your thoughts spiral outward in cosmic resonance.",
     "Music Prompt": "Cinematic, expressive instrumental for focused learning. Jazzy rhythm, funky bassline, bright piano and subtle percussion.",
     "Secondary Tips Disclaimer": "These additional suggestions may also apply to you due to your secondary constellation."
@@ -1272,7 +1272,7 @@ const profiles = {
     "Secondary Tips Disclaimer": "These additional suggestions may also apply to you due to your secondary constellation."
   },
   "MOTIFAKE": {
-    "Type Name": "The Feral Reflector",
+    "Type Name": "The Wild Reflector",
     "Narrative Summary": "You’re a thinker who stick to structured thinking, and prefer clear, linear steps. You seek intense sensory experiences, and learn best through abstract concepts. You tend to express your emotions openly, and feel cautious in social interactions. You have a fluctuating attention span — but prefer flexibility and change to ground your path. Your mind dances between instinct and intention.",
     "Music Prompt": "Motivating and mellow groove with relaxed tempo and layered textures for immersive, focused study sessions.",
     "Secondary Tips Disclaimer": "These additional suggestions may also apply to you due to your secondary constellation."
@@ -1434,7 +1434,7 @@ const profiles = {
     "Secondary Tips Disclaimer": "These additional suggestions may also apply to you due to your secondary constellation."
   },
   "MOLESARO": {
-    "Type Name": "The Feral Cipher",
+    "Type Name": "The Wild Cipher",
     "Narrative Summary": "You’re a thinker who stick to structured thinking, and prefer clear, linear steps. You avoid overwhelming sensory input, and learn best through physical engagement. You tend to keep your emotions contained, and feel cautious in social interactions. You have a steady attention rhythm — but prefer structure and clear outcomes to ground your path. Your perception weaves patterns others only glimpse.",
     "Music Prompt": "Energetic yet smooth instrumental with dynamic flow and rhythmic richness, perfect for deep focus and retention.",
     "Secondary Tips Disclaimer": "These additional suggestions may also apply to you due to your secondary constellation."
