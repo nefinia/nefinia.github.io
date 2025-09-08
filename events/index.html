@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sofia Gallego — Chanteuse & Violoniste à Paris</title>
+  <meta name="description" content="Chanteuse et violoniste pour mariages et événements à Paris et en Île-de-France. Répertoire classique, chansons françaises et pop internationale. +17 ans d’expérience internationale." />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --ink:#fff; --muted:#c9c9d4; --line:#2a2a3a; --a1:#ff8a00; --a2:#e52e71; }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Montserrat,system-ui,Arial,sans-serif;color:var(--ink);
+      background:radial-gradient(1400px 900px at 20% -10%, #1b1b29, #0d0d0f);}
+    a{color:var(--a1);text-decoration:none}
+    header{padding:56px 20px 16px;text-align:center}
+    h1{margin:0;font-size:2.6rem;
+      background:linear-gradient(90deg,var(--a1),var(--a2));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .tag{color:var(--muted);margin-top:8px}
+    .wrap{max-width:1000px;margin:0 auto;padding:0 20px}
+    .video{margin:28px auto;max-width:1000px;aspect-ratio:16/9;border-radius:16px;overflow:hidden;
+      box-shadow:0 0 30px rgba(229,46,113,.35);border:1px solid var(--line)}
+    iframe{width:100%;height:100%;border:0}
+    section{margin:56px 0}
+    h2{font-size:1.8rem;margin:0 0 12px;color:var(--a1)}
+    .muted{color:var(--muted)}
+    .grid{display:grid;gap:18px;grid-template-columns:repeat(3,1fr)}
+    .card{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:14px;padding:18px}
+    .card h3{margin:0 0 6px;color:var(--a2)}
+    .price{margin:8px 0 0;font-weight:700}
+    ul{margin:10px 0 0 18px}
+    details{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:12px;padding:14px}
+    summary{cursor:pointer;font-weight:700}
+    .contact{display:grid;gap:18px;grid-template-columns:1fr 1fr}
+    input,textarea,select{width:100%;background:#0f0f16;border:1px solid var(--line);color:var(--ink);
+      padding:12px;border-radius:12px;font:inherit}
+    textarea{min-height:120px}
+    button{background:linear-gradient(180deg,#1f90ff,#1776ff);color:#fff;border:0;padding:12px 16px;border-radius:12px;cursor:pointer;font-weight:700}
+    footer{border-top:1px solid var(--line);padding:22px 20px;margin-top:40px;color:var(--muted);text-align:center}
+    @media (max-width:900px){.grid{grid-template-columns:1fr}.contact{grid-template-columns:1fr}}
+    .lang{display:flex;gap:8px;justify-content:center;margin-top:10px}
+    .lang a{font-weight:700;border:1px solid var(--line);padding:6px 10px;border-radius:10px;color:var(--ink)}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Sofia Gallego</h1>
+    <p class="tag">Chanteuse & Violoniste — Paris & Île-de-France</p>
+    <div class="lang">
+      <a href="#" id="frBtn">FR</a>
+      <a href="#" id="enBtn">EN</a>
+    </div>
+  </header>
+
+  <div class="video">
+    <!-- Cambia el ID si quieres otro video -->
+    <iframe src="https://www.youtube.com/embed/6k6E8tYep_0" title="Sofia Gallego — vidéo de présentation" allowfullscreen></iframe>
+  </div>
+
+  <main class="wrap">
+    <!-- Prestations -->
+    <section id="services">
+      <h2 data-t="servicesTitle">Prestations & Forfaits</h2>
+      <p class="muted" data-t="servicesNote">Tarifs indicatifs — adaptés selon durée, lieu et configuration.</p>
+      <div class="grid">
+        <div class="card">
+          <h3 data-t="soloTitle">Solo</h3>
+          <p class="muted" data-t="soloDesc">Violon <em>ou</em> chant pour cérémonie, cocktail ou ambiance.</p>
+          <p class="price" data-t="soloPrice">à partir de 200€</p>
+        </div>
+        <div class="card">
+          <h3 data-t="duoTitle">Duo</h3>
+          <p class="muted" data-t="duoDesc">Chant + piano, ou violon + guitare. Idéal cocktail/réception.</p>
+          <p class="price" data-t="duoPrice">à partir de 400€</p>
+        </div>
+        <div class="card">
+          <h3 data-t="ensTitle">Ensemble</h3>
+          <p class="muted" data-t="ensDesc">Quatuor à cordes, chœur ou formation sur-mesure.</p>
+          <p class="price" data-t="ensPrice">à partir de 800€</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Répertoire -->
+    <section id="repertoire">
+      <h2 data-t="repTitle">Répertoire</h2>
+      <div class="grid">
+        <div class="card">
+          <h3 data-t="repClassical">Classique</h3>
+          <ul>
+            <li>Ave Maria (Gounod / Schubert)</li>
+            <li>Clair de Lune (Debussy)</li>
+            <li>Canon (Pachelbel)</li>
+            <li>Méditation (Massenet)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 data-t="repFrench">Chansons françaises</h3>
+          <ul>
+            <li>La Vie en Rose (Édith Piaf)</li>
+            <li>Hymne à l’amour</li>
+            <li>Ne me quitte pas (Brel)</li>
+            <li>Sous le ciel de Paris</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Pop & International</h3>
+          <ul>
+            <li>Por ti volaré</li>
+            <li>Someone Like You</li>
+            <li>The Scientist</li>
+            <li>Cinema Paradiso (Morricone)</li>
+          </ul>
+        </div>
+      </div>
+      <p class="muted" style="margin-top:10px" data-t="repNote">Répertoire complet disponible sur demande. Arrangements personnalisés possibles.</p>
+    </section>
+
+    <!-- Expérience -->
+    <section id="experience">
+      <h2 data-t="xpTitle">Expérience</h2>
+      <p class="muted" data-t="xpBody">
+        +20 ans d’expérience entre Chili, Suisse, États-Unis et France. Opéra, zarzuela, comédies musicales, musique de chambre, cérémonies et événements corporatifs.
+        Performances dans des lieux de prestige (Teatro Municipal La Serena, Semanas Musicales de Frutillar, salons & hôtels), enregistrements et apparitions télévisées. Basée à Paris, je propose des prestations raffinées pour cérémonies, cocktails et réceptions.
+      </p>
+
+      <!-- Raíces en Chile, compactadas -->
+      <details>
+        <summary data-t="rootsTitle">Racines au Chili (sélection)</summary>
+        <ul>
+          <li>Soliste en opéras et zarzuelas (*La Revoltosa*, Mozart, Puccini, Bach).</li>
+          <li>Musicals et galas (*¡Sí!, somos americanos*, *Una Noche de Jazz en Copacabana*).</li>
+          <li>Enregistrements (*Música Andalusí*) et participations TV (TVN, Canal 13).</li>
+          <li>Hôtels et salles: Ritz-Carlton, Teatro Municipal La Serena, Frutillar.</li>
+        </ul>
+      </details>
+    </section>
+
+    <!-- Témoignages -->
+    <section id="testimonials">
+      <h2 data-t="testiTitle">Témoignages</h2>
+      <div class="grid">
+        <div class="card"><em>« Une voix magnifique et un violon lumineux — nos invités étaient émus. Merci, Sofia ! »</em> — Mariage à Versailles</div>
+        <div class="card"><em>« Professionnelle, ponctuelle et à l’écoute. La musique a sublimé notre réception. »</em> — Événement d’entreprise, Paris</div>
+        <div class="card"><em>« Organisation fluide, répertoire élégant, ambiance parfaite. »</em> — Cérémonie à Saint-Germain</div>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact">
+      <h2 data-t="contactTitle">Contact & Devis</h2>
+      <div class="contact">
+        <form action="mailto:contact@sofiagallego.com" method="post" enctype="text/plain" class="card">
+          <input type="text" name="name" placeholder="Votre nom" required>
+          <input type="email" name="email" placeholder="Votre email" required>
+          <input type="text" name="event" placeholder="Type d’événement (mariage, cocktail, etc.)">
+          <div style="display:grid;gap:12px;grid-template-columns:1fr 1fr">
+            <input type="date" name="date">
+            <input type="text" name="location" placeholder="Lieu (Paris, Île-de-France)">
+          </div>
+          <select name="package">
+            <option value="solo">Forfait Solo</option>
+            <option value="duo">Forfait Duo</option>
+            <option value="ensemble">Ensemble</option>
+            <option value="custom">Sur-mesure</option>
+          </select>
+          <textarea name="message" placeholder="Dites-moi quelques détails (horaires, ambiance musicale, morceaux souhaités…)"></textarea>
+          <button type="submit">Envoyer la demande</button>
+          <p class="muted" style="font-size:.9rem">En envoyant ce formulaire, vous acceptez d’être contacté·e par email.</p>
+        </form>
+
+        <div class="card">
+          <p class="muted"><strong>Email</strong> : <a href="mailto:contact@sofiagallego.com">contact@sofiagallego.com</a></p>
+          <p class="muted"><strong>Basée à</strong> : Paris — Déplacements en Île-de-France</p>
+          <p class="muted"><strong>Langues</strong> : Français, Español, English</p>
+          <hr style="border:0;border-top:1px solid var(--line);margin:12px 0">
+          <p class="muted" style="font-size:.95rem">
+            Besoin d’un micro/sonorisation ? Je peux venir autonome pour des espaces intimes, ou me coordonner avec la technique sur place.
+            Frais de déplacement hors Paris intra-muros selon distance/horaires.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>© <span id="y"></span> Sofia Gallego — Chanteuse & Violoniste — Paris & Île-de-France</footer>
+
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear();
+
+    // Mini bilingüe FR/EN (texto esencial)
+    const dict = {
+      fr: {
+        servicesTitle:"Prestations & Forfaits",
+        servicesNote:"Tarifs indicatifs — adaptés selon durée, lieu et configuration.",
+        repTitle:"Répertoire",
+        repClassical:"Classique",
+        repFrench:"Chansons françaises",
+        repNote:"Répertoire complet disponible sur demande. Arrangements personnalisés possibles.",
+        xpTitle:"Expérience",
+        rootsTitle:"Racines au Chili (sélection)",
+        testiTitle:"Témoignages",
+        contactTitle:"Contact & Devis"
+      },
+      en: {
+        servicesTitle:"Services & Packages",
+        servicesNote:"Guide prices — adjusted by duration, venue and setup.",
+        repTitle:"Repertoire",
+        repClassical:"Classical",
+        repFrench:"French songs",
+        repNote:"Full repertoire available on request. Custom arrangements possible.",
+        xpTitle:"Experience",
+        rootsTitle:"Roots in Chile (selection)",
+        testiTitle:"Testimonials",
+        contactTitle:"Contact & Quote"
+      }
+    };
+    const tEls = document.querySelectorAll('[data-t]');
+    function setLang(lang){
+      tEls.forEach(el => {
+        const key = el.getAttribute('data-t');
+        if (dict[lang][key]) el.textContent = dict[lang][key];
+      });
+      // Título y tagline
+      if(lang==='en'){
+        document.title = "Sofia Gallego — Singer & Violinist in Paris";
+        document.querySelector('header .tag').textContent = "Singer & Violinist — Paris & Île-de-France";
+      } else {
+        document.title = "Sofia Gallego — Chanteuse & Violoniste à Paris";
+        document.querySelector('header .tag').textContent = "Chanteuse & Violoniste — Paris & Île-de-France";
+      }
+    }
+    document.getElementById('frBtn').addEventListener('click', e => {e.preventDefault(); setLang('fr');});
+    document.getElementById('enBtn').addEventListener('click', e => {e.preventDefault(); setLang('en');});
+  </script>
+</body>
+</html>
