@@ -52,10 +52,79 @@
     </div>
   </header>
 
-  <div class="video">
-    <!-- Cambia el ID si quieres otro video -->
-    <iframe src="https://www.youtube.com/embed/6k6E8tYep_0" title="Sofia Gallego — vidéo de présentation" allowfullscreen></iframe>
+
+
+<!-- Présentations en vidéo -->
+<section id="videos">
+  <div class="carousel">
+    <div class="carousel-track">
+      <iframe src="https://www.youtube.com/embed/BD9RXGT6QyI" title="Vidéo 1" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/tMJFzrkMxTU" title="Vidéo 2" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/yYZW344d488" title="Vidéo 3" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/Fkf3A3XVmEQ" title="Vidéo 4" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/6k6E8tYep_0" title="Vidéo 5" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/8emqAGSG4H8" title="Vidéo 6" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/7tm1iom-E-4" title="Vidéo 7" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/CGF57tHqiJQ" title="Vidéo 8" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/WN8r6ex9YX4" title="Vidéo 9" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/TDxtjgeXANI" title="Vidéo 10" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/uGzw7Y1JY8k" title="Vidéo 11" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/XpCzFkTFMSg" title="Vidéo 12" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/qBfStE8NYME" title="Vidéo 13" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/-_ja1FDesAg" title="Vidéo 14" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/AhlXQqJiy0k" title="Vidéo 15" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/WVtugy2UwWQ" title="Vidéo 16" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/wfffXSyVoDE" title="Vidéo 17" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/1UC4t9cazUo" title="Vidéo 18" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/3kdCAhmFvlM" title="Vidéo 19" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/4K0ahW1Vcx0" title="Vidéo 20" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/FM2G42FLads" title="Vidéo 21" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/NHQyckktNGg" title="Vidéo 22" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/Q4pAM8IIy7k" title="Vidéo 23" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/zA4DlLaDZN4" title="Vidéo 24" allowfullscreen></iframe>
+    </div>
+    <button class="prev">‹</button>
+    <button class="next">›</button>
   </div>
+</section>
+
+<style>
+  #videos { margin: 60px 0; text-align: center; }
+  #videos h2 { margin-bottom: 20px; font-size: 1.8em; color: #ff8a00; }
+  .carousel { position: relative; max-width: 900px; margin: auto; overflow: hidden; border-radius: 12px; }
+  .carousel-track { display: flex; transition: transform 0.5s ease-in-out; }
+  .carousel iframe { min-width: 100%; height: 500px; border: 0; }
+  .prev, .next {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(0,0,0,0.5); color: #fff; border: none;
+    padding: 10px 16px; cursor: pointer; font-size: 28px; border-radius: 50%;
+  }
+  .prev { left: 10px; }
+  .next { right: 10px; }
+</style>
+
+<script>
+  const track = document.querySelector("#videos .carousel-track");
+  const slides = Array.from(track.children);
+  const nextBtn = document.querySelector("#videos .next");
+  const prevBtn = document.querySelector("#videos .prev");
+  let index = 0;
+
+  function updateCarousel() {
+    track.style.transform = `translateX(-${index * 100}%)`;
+  }
+
+  nextBtn.addEventListener("click", () => {
+    index = (index + 1) % slides.length;
+    updateCarousel();
+  });
+
+  prevBtn.addEventListener("click", () => {
+    index = (index - 1 + slides.length) % slides.length;
+    updateCarousel();
+  });
+</script>
+
 
   <main class="wrap">
     <!-- Prestations -->
@@ -136,15 +205,6 @@
       </details>
     </section>
 
-    <!-- Témoignages -->
-    <section id="testimonials">
-      <h2 data-t="testiTitle">Témoignages</h2>
-      <div class="grid">
-        <div class="card"><em>« Une voix magnifique et un violon lumineux — nos invités étaient émus. Merci, Sofia ! »</em> — Mariage à Versailles</div>
-        <div class="card"><em>« Professionnelle, ponctuelle et à l’écoute. La musique a sublimé notre réception. »</em> — Événement d’entreprise, Paris</div>
-        <div class="card"><em>« Organisation fluide, répertoire élégant, ambiance parfaite. »</em> — Cérémonie à Saint-Germain</div>
-      </div>
-    </section>
 
     <!-- Contact -->
     <section id="contact">

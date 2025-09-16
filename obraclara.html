@@ -1,142 +1,250 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Supervisión Inteligente de Obras</title>
-  <link rel="icon" type="image/png" href="obraclara.png">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ObraClara — Supervisión Inteligente de Obras</title>
+  <meta name="description" content="Supervisión de obras con inspectores en terreno + IA. Reportes claros, evidencia visual y trazabilidad completa para mandantes, inmobiliarias y aseguradoras." />
+  <link rel="icon" type="image/png" href="obraclara.png" />
+
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0; padding: 0;
-      background: #f9fafb;
-      color: #1f2937;
+    :root{
+      --brand-700:#105280;
+      --brand-600:#1d74ab;
+      --brand-500:#2b8dc9;
+      --bg:#f9fafb;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#4b5563;
+      --good:#10b981;
     }
-    header {
-      background: linear-gradient(90deg, #105280, #1d74abff);
-      color: white;
-      padding: 2rem 1rem;
-      text-align: center;
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg:#0b1117; --card:#0f1720; --text:#e5e7eb; --muted:#9ca3af;
+      }
     }
-    header .logo-box {
-      display: inline-block;
-      background: white;
-      padding: 8px;
-      border-radius: 5px;
+    body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text);}
+    h1,h2,h3{margin:0 0 .75rem;}
+    h2{color:var(--brand-700);}
+    header.hero{
+      background: linear-gradient(90deg,var(--brand-700),var(--brand-600));
+      color:#fff; text-align:center; padding:3rem 1rem 2rem;
     }
-    header img {
-      height: 180px;
-      display: block;
-    }
-    header h1 {
-      font-size: 2.5rem;
-      margin: 1rem 0 0.5rem 0;
-    }
-    header p {
-      font-size: 1.2rem;
-      margin: 0;
-    }
-    .container {
-      max-width: 1200px;
-      margin: auto;
-      padding: 2rem;
-    }
-    section { margin-bottom: 3rem; }
-    h2 {
-      color: #105280;
-      margin-bottom: 1rem;
-    }
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.5rem;
-    }
-    .card {
-      background: white;
-      border-radius: 10px;
-      padding: 1.5rem;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    }
-    .card h3 { margin-top: 0; color: #111827; }
-    ul { line-height: 1.7; }
-    .cta {
-      background: #1d74abff;
-      color: white;
-      padding: 1rem 2rem;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: bold;
-      display: inline-block;
-      margin-top: 1rem;
-      transition: background 0.3s;
-    }
-    .cta:hover { background: #105280; }
-    footer {
-      background: #1d74abff;
-      color: #d1d5db;
-      padding: 2rem 1rem;
-      text-align: center;
-    }
+    .logo-box{display:inline-block;background:#fff;padding:10px;border-radius:8px;margin-bottom:1rem}
+    .logo-box img{height:110px}
+    .subtitle{font-size:1.2rem;opacity:.95}
+    nav{position:sticky;top:0;background:rgba(16,82,128,.95);padding:.5rem;z-index:50}
+    nav a{color:#fff;text-decoration:none;margin:0 .5rem;padding:.4rem .6rem;border-radius:6px}
+    nav a:hover{background:rgba(255,255,255,.15)}
+    .container{max-width:1200px;margin:auto;padding:2rem}
+    section{margin:3rem 0}
+    .grid{display:grid;gap:1.5rem}
+    .grid-3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+    .card{background:var(--card);border-radius:12px;padding:1.5rem;box-shadow:0 4px 14px rgba(0,0,0,.08)}
+    .list-check li{list-style:none;position:relative;padding-left:1.4rem;margin:.5rem 0}
+    .list-check li:before{content:"✓";position:absolute;left:0;color:var(--good);font-weight:bold}
+    .cta{background:var(--brand-600);color:#fff;padding:1rem 1.4rem;border-radius:10px;text-decoration:none;font-weight:bold;display:inline-block;margin:.4rem}
+    .cta:hover{background:var(--brand-800)} 
+  
+  
+  .cta-ghost {
+  background:#fff;
+  color:var(--brand-600);
+  padding:.9rem 1.3rem;
+  border-radius:10px;
+  font-weight:bold;
+  text-decoration:none;
+  margin:.4rem;
+}
+.cta-ghost:hover {
+  background:#f3f4f6;
+}
+    .plans .price{font-size:1.6rem;font-weight:bold;margin:.4rem 0}
+  
+  
+    footer{background:var(--brand-600);color:#e6eef6;text-align:center;padding:2rem 1rem;margin-top:3rem}
   </style>
 </head>
 <body>
-  <header>
-    <div class="logo-box">
-      <img src="obraclara.png" alt="Logo ObraClara">
-    </div>
-    <h1>Supervisión Inteligente de Obras</h1>
-    <p>Transparencia, control y calidad en cada etapa de tu proyecto</p>
-  </header>
 
+<!-- Navegación -->
+<nav>
+  <div style="text-align:center">
+    <a href="#solucion">Solución</a>
+    <a href="#como-funciona">Cómo funciona</a>
+    <a href="#planes">Planes</a>
+    <a href="#cumplimiento">Cumplimiento</a>
+    <a href="#faq">FAQ</a>
+    <a href="#contacto">Contacto</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<header class="hero">
+  <div class="logo-box"><img src="obraclara.png" alt="Logo ObraClara"></div>
+  <h1>Supervisión Inteligente de Obras</h1>
+  <p class="subtitle">Inspectores en terreno + IA · Reportes claros y en tiempo real · Evidencia para cada etapa</p>
+  <a href="#contacto" class="cta">Solicitar demostración</a>
+  
+  <a href="#planes" class="cta-ghost">Ver planes</a>
+</header>
+
+<main>
   <div class="container">
-    <section>
-      <h2>El Problema</h2>
-      <p>
-        En la construcción tradicional, los reportes de avance suelen llegar tarde, son incompletos 
-        y a menudo no muestran la realidad del terreno. Esto se traduce en pérdidas económicas, 
-        riesgos legales y desconfianza entre mandantes, constructoras e inversionistas.
-      </p>
-    </section>
 
-    <section>
-      <h2>Nuestra Solución</h2>
-      <div class="features">
-        <div class="card">
-          <h3>Inspectores Especializados</h3>
-          <p>Profesionales visitan la obra y documentan cada etapa con evidencia multimedia (fotos, videos, checklists estandarizados).</p>
-        </div>
-        <div class="card">
-          <h3>Inteligencia Artificial</h3>
-          <p>Nuestros algoritmos analizan los datos para detectar fallas, riesgos y comparar el avance real con la planificación.</p>
-        </div>
-        <div class="card">
-          <h3>Dashboard en Tiempo Real</h3>
-          <p>Accede desde cualquier dispositivo a reportes claros, objetivos y trazables, con alertas inmediatas cuando surgen problemas.</p>
-        </div>
+    <section id="problema">
+      <h2>El problema</h2>
+      <div class="card">
+        <p>En muchas obras, los informes llegan tarde, son poco claros o no muestran la realidad del terreno. Eso genera atrasos, sobrecostos y conflictos entre mandantes y constructoras. Falta una forma objetiva, rápida y confiable de comprobar el avance de cada proyecto.</p>
       </div>
     </section>
 
-    <section>
-      <h2>Beneficios para su empresa</h2>
-      <ul>
-        <li><strong>Transparencia total:</strong> evidencias visuales verificables en cada etapa.</li>
-        <li><strong>Menos riesgos:</strong> evita sobrecostos, retrasos y conflictos legales.</li>
-        <li><strong>Rapidez:</strong> informes en horas, no semanas.</li>
-        <li><strong>Cumplimiento:</strong> alineados con normativas de seguridad, privacidad y protección de datos.</li>
-        <li><strong>Histórico digital:</strong> acceso a la línea de tiempo completa del proyecto.</li>
-      </ul>
+    <section id="solucion">
+      <h2>Nuestra solución</h2>
+      <div class="grid grid-3">
+        <div class="card"><h3>Inspectores en terreno</h3><p>Visitas periódicas con fotos, videos y listas de chequeo claras.</p></div>
+        <div class="card"><h3>IA de apoyo</h3><p>La IA ayuda a detectar fallas y comparar avances con la planificación. Siempre revisa un inspector humano.</p></div>
+        <div class="card"><h3>Dashboard en línea</h3><p>Panel fácil de usar para ver avances, recibir alertas y descargar informes cuando quieras.</p></div>
+      </div>
     </section>
 
-
-    <section style="text-align:center;">
-      <h2>Transforma la manera en que supervisas tus proyectos</h2>
-      <p>Obtén control total, reportes en tiempo real y evidencia digital objetiva de cada avance.</p>
-      <a href="mailto:contacto@obraclara.cl" class="cta">Solicita una demostración</a>
+    <section id="como-funciona">
+      <h2>Cómo funciona</h2>
+      <div class="grid grid-3">
+        <div class="card"><h3>1. Levantamiento</h3><ul class="list-check"><li>Agenda de inspecciones</li><li>Registro con fotos y videos</li><li>Datos de fecha, hora y ubicación</li></ul></div>
+        <div class="card"><h3>2. Procesamiento</h3><ul class="list-check"><li>IA revisa consistencia</li><li>Validación por inspectores</li><li>Comparación con cronograma</li></ul></div>
+        <div class="card"><h3>3. Entrega</h3><ul class="list-check"><li>Dashboard disponible 24/7</li><li>PDF ejecutivo</li><li>Historial completo</li></ul></div>
+      </div>
     </section>
+    
+    
+        <section id="propuesta-valor">
+      <h2>Propuesta de Valor – Inspección Inteligente, Predictiva y Accionable</h2>
+      <div class="card">
+        <h3>Problema del mercado actual</h3>
+        <ul class="list-check">
+          <li>Empresas de inspección sólo proveen “recursos en terreno” sin generar inteligencia.</li>
+          <li>Reportes atrasados y estáticos, sin análisis ni recomendaciones.</li>
+          <li>Ausencia de proyecciones de cumplimiento de plazos según rendimientos reales.</li>
+          <li>Clientes toman decisiones reactivas, con riesgo de atrasos y sobrecostos.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Nuestra propuesta</h3>
+        <p><strong>Inspección Inteligente, Predictiva y Accionable:</strong> supervisión en terreno con reportabilidad, analítica, gestión de riesgos, proyección de plazos y planes de acción sugeridos.</p>
+        <ul class="list-check">
+          <li>Reportabilidad en tiempo real: dashboard con % de avance, hitos, no conformidades y rendimientos.</li>
+          <li>Pareto de brechas: clasificación de hallazgos (80/20) por contratista, frente y tipo de actividad.</li>
+          <li>Matriz de riesgos online: riesgos críticos con foco en impacto a plazos.</li>
+          <li>Proyección de término: cálculo de si el proyecto terminará en el plazo contractual en función de rendimientos actuales.</li>
+          <li>Hallazgos con posibles acciones: cada desviación viene acompañada de propuestas (ej. reasignar cuadrillas, reforzar equipos, adelantar insumos, gestionar permisos).</li>
+          <li>Alertas tempranas: notificaciones inmediatas con hallazgo + acción sugerida.</li>
+          <li>Benchmark de proyectos: comparación histórica para proyecciones más robustas.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Beneficios para el cliente</h3>
+        <ul class="list-check">
+          <li>Visibilidad integral y predictiva de avances, riesgos y plazos.</li>
+          <li>Decisiones rápidas gracias a recomendaciones accionables por cada hallazgo.</li>
+          <li>Prevención de atrasos y multas al anticipar brechas y definir medidas correctivas.</li>
+          <li>Optimización de recursos (HH, HM y equipos) con base en datos reales.</li>
+          <li>Confianza y transparencia en la gestión del contratista.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Formato del servicio</h3>
+        <ol>
+          <li><strong>Básico:</strong> inspección estándar.</li>
+          <li><strong>Avanzado:</strong> inspección + dashboard en tiempo real.</li>
+          <li><strong>Premium:</strong> inspección + analítica predictiva + matriz de riesgos enfocada en plazos + proyección de cumplimiento + acciones sugeridas para la toma de decisiones.</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Ejemplo de hallazgo con acción sugerida</h3>
+        <p><strong>Hallazgo:</strong> Rendimiento de tendido en Tramo X es 20% menor al planificado.<br>
+           <strong>Impacto:</strong> Proyecta atraso de 15 días en hito PES.</p>
+        <p><strong>Acciones sugeridas:</strong></p>
+        <ul class="list-check">
+          <li>Aumentar cuadrilla de 3 a 4 equipos.</li>
+          <li>Priorizar liberación de frentes críticos.</li>
+          <li>Coordinar faena nocturna para recuperar avance.</li>
+        </ul>
+      </div>
+    </section>
+    
+    
+    
+
+    <section id="planes">
+      <h2>Planes y servicios</h2>
+      <div class="grid grid-3 plans">
+        <div class="card">
+          <h3>Básico (Obra chica)</h3>
+          <p class="price">A medida</p>
+          <ul class="list-check">
+            <li>1 visita semanal</li>
+            <li>Checklist estandarizado</li>
+            <li>Informe mensual</li>
+          </ul>
+        </div>
+        <div class="card" style="border:2px solid var(--brand-600)">
+          <h3>Estándar (Obra mediana)</h3>
+          <p class="price">A medida</p>
+          <ul class="list-check">
+            <li>2–3 visitas semanales</li>
+            <li>Dashboard en tiempo real</li>
+            <li>Informes quincenales</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Avanzado (Obra mayor)</h3>
+          <p class="price">A medida</p>
+          <ul class="list-check">
+            <li>Visitas diarias</li>
+            <li>Integración con BIM/ERP</li>
+            <li>Auditorías completas</li>
+          </ul>
+        </div>
+      </div>
+      <p class="muted">* Los valores se ajustan según el tamaño y la complejidad de la obra.</p>
+    </section>
+
+    <section id="cumplimiento">
+      <h2>Cumplimiento y seguridad</h2>
+      <div class="grid grid-3">
+        <div class="card"><h3>Protección de datos</h3><p>Toda la información es privada, cifrada y propiedad del mandante. Se pueden anonimizar rostros o patentes si es necesario.</p></div>
+        <div class="card"><h3>Seguridad</h3><p>Acceso restringido, respaldos automáticos y registros de auditoría.</p></div>
+        <div class="card"><h3>Drones (opcional)</h3><p>Podemos incluir imágenes aéreas con pilotos certificados y permisos de la DGAC.</p></div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <h2>Preguntas frecuentes</h2>
+      <div class="card">
+        <p><strong>¿Necesito cambiar mis sistemas?</strong><br>No, entregamos informes en PDF o nos integramos a tu software actual.</p>
+        <p><strong>¿Qué pasa con la privacidad de los trabajadores?</strong><br>Se aplican protocolos de anonimización y consentimiento según la ley.</p>
+        <p><strong>¿La IA reemplaza al inspector?</strong><br>No. La IA solo apoya. La última palabra siempre es del inspector.</p>
+        <p><strong>¿Se pueden usar drones?</strong><br>Sí, siempre con permisos y seguros correspondientes.</p>
+      </div>
+    </section>
+
+    <section id="contacto" style="text-align:center">
+      <h2>Solicita una demostración</h2>
+      <p class="muted">Cuéntanos tu tipo de obra, ubicación y plazos. Te responderemos en 1–2 días hábiles.</p>
+      <a href="mailto:contacto@obraclara.cl" class="cta-ghost">contacto@obraclara.cl</a>
+      <a href="tel:+56900000000" class="cta-ghost">+56 9 0000 0000</a>
+    </section>
+
   </div>
+</main>
 
-  <footer>
-    <p>© 2025 Obra Clara – Todos los derechos reservados.</p>
-  </footer>
+<footer>
+  <p>© 2025 ObraClara — Supervisión Inteligente de Obras</p>
+</footer>
 </body>
 </html>
