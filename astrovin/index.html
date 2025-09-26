@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Astro, Musique, Vin & Fromage — Scripts</title>
+  <style>
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #0b0c10;
+      color: #f1f1f1;
+      line-height: 1.6;
+    }
+    header {
+      background: #1f2833;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      color: #66fcf1;
+    }
+    nav {
+      margin: 1rem auto;
+      text-align: center;
+    }
+    nav a {
+      display: inline-block;
+      margin: 0.5rem 1rem;
+      padding: 0.5rem 1rem;
+      background: #45a29e;
+      color: #0b0c10;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+    nav a:hover {
+      background: #66fcf1;
+    }
+    .lang-toggle {
+      text-align: center;
+      margin: 1rem 0;
+    }
+    .lang-toggle button {
+      margin: 0 0.5rem;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background: #45a29e;
+      color: #0b0c10;
+      font-weight: bold;
+    }
+    .lang-toggle button.active {
+      background: #66fcf1;
+    }
+    .content {
+      max-width: 800px;
+      margin: auto;
+      padding: 2rem;
+    }
+    .fr, .en {
+      display: none;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #c5c6c7;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Astro, Musique, Vin & Fromage — Scripts</h1>
+  </header>
+
+  <div class="lang-toggle">
+    <button id="fr-btn" class="active">Français</button>
+    <button id="en-btn">English</button>
+  </div>
+
+  <div class="content">
+    <div class="fr">
+      <h2>Bienvenue</h2>
+      <p>Ce site contient les scripts des cinq présentations de la soirée <em>Astro, Musique, Vin & Fromage</em>.  
+      Cliquez sur un thème pour accéder au texte complet en français.</p>
+      <nav>
+        <a href="nebula.html">🌌 Aube des nébuleuses</a>
+        <a href="supernova.html">💥 Le feu des supernovas</a>
+        <a href="darkness.html">🌑 Avant l’éveil des étoiles</a>
+        <a href="firstlights.html">✨ Les premières lumières du cosmos</a>
+        <a href="habitable.html">🌍 Au-delà des horizons</a>
+      </nav>
+    </div>
+
+    <div class="en">
+      <h2>Welcome</h2>
+      <p>This site contains the scripts of the five presentations of the evening <em>Astro, Music, Wine & Cheese</em>.  
+      Click on a theme to read the full script in English.</p>
+      <nav>
+        <a href="nebula.html">🌌 Dawn of the Nebulae</a>
+        <a href="supernova.html">💥 The Fire of Supernovae</a>
+        <a href="darkness.html">🌑 Before the Awakening of Stars</a>
+        <a href="firstlights.html">✨ The First Lights of the Cosmos</a>
+        <a href="habitable.html">🌍 Beyond the Horizons</a>
+      </nav>
+    </div>
+  </div>
+
+  <footer>
+    <p>Designed by Nefinia ✨</p>
+  </footer>
+
+  <script>
+    const frBtn = document.getElementById('fr-btn');
+    const enBtn = document.getElementById('en-btn');
+    const frContent = document.querySelector('.fr');
+    const enContent = document.querySelector('.en');
+
+    function showLang(lang) {
+      if (lang === 'fr') {
+        frContent.style.display = 'block';
+        enContent.style.display = 'none';
+        frBtn.classList.add('active');
+        enBtn.classList.remove('active');
+      } else {
+        frContent.style.display = 'none';
+        enContent.style.display = 'block';
+        enBtn.classList.add('active');
+        frBtn.classList.remove('active');
+      }
+    }
+
+    frBtn.addEventListener('click', () => showLang('fr'));
+    enBtn.addEventListener('click', () => showLang('en'));
+
+    // Default language: French
+    showLang('fr');
+  </script>
+</body>
+</html>
