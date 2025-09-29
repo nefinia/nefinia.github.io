@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Bienvenue dans SensoryVerse</title>
+  <title>Welcome to SensoryVerse</title>
   <link rel="icon" href="SensoryVerse.png" />
   <style>
     :root{
@@ -43,16 +43,32 @@
       margin-bottom: 1.5rem;
     }
     
-    
-    /* Language Switcher */
-    .language-switcher {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      display: flex;
-      gap: .5rem;
-    }    
-    
+  
+  /* Móvil: hacer más pequeños y evitar solape con el logo */
+  @media (max-width: 600px){
+    .language-switcher{ top:.35rem; right:.35rem; gap:.25rem; }
+    .language-switcher .lang-btn{ padding:.28rem .48rem; font-size:.78rem; border-radius:8px; }
+    .logo{ margin-top: 1.6rem; } /* separa el logo del switcher */
+    .two-col { grid-template-columns: 1fr 1fr; }
+
+  }
+
+  /* Botón compacto reutilizando el estilo base .button */
+  .button--sm{
+    padding: 0.45rem 0.75rem;
+    font-size: .9rem;
+    border-radius: 10px;
+  }
+  /* Quita subrayado y mantiene alineación del switcher */
+  .language-switcher {
+    position: absolute; top: 1rem; right: 1rem; display: flex; gap: .5rem;
+  }
+  /* Resalta el idioma activo */
+  .language-switcher .lang-btn[aria-current="page"]{
+    filter: brightness(0.9);
+    box-shadow: 0 0 0 2px #fff inset;
+    cursor: default;
+  }
 
     .button-group {
       margin-top: 1.2rem;
@@ -78,9 +94,6 @@
       grid-template-columns: 1fr;
       gap: 1rem;
       margin-top: 1rem;
-    }
-    @media (min-width: 840px){
-      .two-col { grid-template-columns: 1fr 1fr; }
     }
 
     .card {
@@ -116,11 +129,11 @@
 <body>
 
   <!-- Language Switcher -->
-  <div class="language-switcher">
-    <a href="index.html" class="lang-btn">🇬🇧 EN</a>
-    <a href="index_es.html" class="lang-btn">🇪🇸 ES</a>
-    <a href="index_fr.html" class="lang-btn">🇫🇷 FR</a>
-  </div>
+   <nav class="language-switcher">
+   <a href="index.html" class="button button--sm lang-btn" id="btnEN">🇬🇧 EN</a>
+    <a href="index_fr.html" class="button button--sm lang-btn" id="btnFR" aria-current="page">🇫🇷 FR</a>
+    <a href="index_es.html" class="button button--sm lang-btn" id="btnES">🇪🇸 ES</a>
+      </nav>
 
 
   <div class="container">
