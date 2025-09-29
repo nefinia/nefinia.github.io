@@ -64,12 +64,17 @@
       padding: 1rem 0;
     }
 	#questionBlock {
-  	min-width: 400px;
-  	max-width: 400px;
+    min-width: auto;
+    max-width: 100%;
   	max-height: 200px;
   	min-height: 200px;
 
 	}
+	@media (max-width: 480px) {
+    .container {
+    padding: 1.5rem 1rem;
+    }
+}
   </style>
 </head>
 <body>
@@ -101,7 +106,7 @@ At the end, you’ll receive personalized insights and practical tips you can ap
 	</div>
       <div style="margin: 1rem 0;">
         <input type="range" id="slider" min="0" max="100" value="50" style="width: 100%;">
-        <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-top: 0.3rem;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-top: 0.1rem; padding: 0 0.3rem;">
           <span>A</span><span>B</span>
         </div>
       </div>
