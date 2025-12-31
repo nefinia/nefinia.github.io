@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stellar Epochs — Pop III → Main Sequence (Solo)</title>
+  <style>
+    :root{--bg:#070b16;--panel:#0e1530;--ink:#e6ecff;--muted:#a9b8ff;--accent:#7aa2ff;--grid:#1a2448}
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:radial-gradient(1200px 800px at 60% 30%,#0a1030 0%,#070b16 60%);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif}
+    #app{display:grid;grid-template-columns:360px 1fr;grid-template-rows:auto 1fr;gap:10px;height:100%}
+    header{grid-column:1/3;padding:10px 14px;border-bottom:1px solid #1b2342;background:#0b1228;display:flex;align-items:center;gap:12px}
+    header h1{font-size:18px;margin:0;font-weight:800;letter-spacing:.2px}
+    header .sub{opacity:.8;font-size:12px}
+    aside{background:var(--panel);border-right:1px solid #182048;padding:14px;display:flex;flex-direction:column;gap:12px}
+    .section{padding:10px;border:1px solid #1a2144;border-radius:12px;background:#0e1532}
+    .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .btn{appearance:none;border:none;background:#1a2450;color:var(--ink);padding:8px 10px;border-radius:10px;cursor:pointer;font-weight:700;box-shadow:inset 0 0 0 1px #2a396f}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .btn.primary{background:#243480;box-shadow:inset 0 0 0 2px var(--accent)}
+    .slider{width:100%}
+    .label{font-size:12px;opacity:.85}
+    .stat{font-variant-numeric:tabular-nums}
+    canvas{width:100%;height:100%;display:block;background:#050815}
+    #stage{position:relative}
+    #tooltip{position:absolute;pointer-events:none;background:#0d1430;border:1px solid #2a396f;border-radius:8px;padding:6px 8px;font-size:12px;opacity:0;transition:opacity .08s ease;white-space:nowrap;transform:translate(-50%,-120%);}
+    .hand{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-top:6px}
+    .card{background:#0b1438;border:1px solid #273a7a;border-radius:10px;padding:8px}
+    .card h4{margin:0 0 4px 0;font-size:13px}
+    .pill{display:inline-block;padding:2px 6px;border-radius:999px;border:1px solid #3e54a8;font-size:11px;opacity:.9}
+    .legend{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px}
+    .chip{width:10px;height:10px;border-radius:50%}
+    footer{position:absolute;right:10px;bottom:10px;font-size:12px;opacity:.7}
+    code.small{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;color:#cfe0ff}
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>Stellar Epochs</h1>
+      <div class="sub">Pop III → Pop II → Pop I • one move per epoch • grid-based star garden</div>
+    </header>
+
+    <aside>
+      <div class="section">
+        <div class="row">
+          <button id="newGame" class="btn">New Universe</button>
+          <button id="endTurn" class="btn primary">Next Epoch</button>
+          <button id="toggleAging" class="btn">Auto-age: Off</button>
+        </div>
+        <div class="row"><span class="label">Grid size</span>
+          <input id="gridW" type="number" min="16" max="96" value="40" style="width:64px"/>
+          ×
+          <input id="gridH" type="number" min="12" max="72" value="28" style="width:64px"/>
+          <button id="applySize" class="btn">Apply</button>
+        </div>
+        <div class="row">
+          <label class="label">Accretion strength</label>
+          <input id="accretion" type="range" min="0" max="12" value="7" step="1" class="slider" />
+        </div>
+        <div class="row">
+          <label class="label">Gravity flow rate</label>
+          <input id="gravity" type="range" min="0" max="1" value="0.45" step="0.05" class="slider" />
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="label">Your star options this epoch</div>
+        <div id="hand" class="hand"></div>
+        <div class="legend">
+          <div class="chip" style="background:#6bbcff"></div><span class="label">O/B (M>8 M☉)</span>
+          <div class="chip" style="background:#cfdcff"></div><span class="label">A/F (1–3 M☉)</span>
+          <div class="chip" style="background:#ffe08a"></div><span class="label">G (~1 M☉)</span>
+          <div class="chip" style="background:#ffb07a"></div><span class="label">K/M (<1 M☉)</span>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="label">Stats</div>
+        <div id="stats" class="stat">—</div>
+        <div class="label" style="margin-top:6px">Era logic</div>
+        <p class="label">Low Z → top-heavy options (Pop III). As Z rises from SN feedback, options shift to a realistic mix (Pop II/I). Gas flows toward dense regions each epoch, sketching a cosmic web.</p>
+      </div>
+
+      <div class="section">
+        <div class="label">How to play</div>
+        <ul style="margin:6px 0 0 18px;line-height:1.4">
+          <li>Select a star card, then click a cell to place it (if the cell has enough gas). Click a placed star again to <b>remove</b> it (no refund).</li>
+          <li>Press <b>Next Epoch</b> to age stars, trigger SN, recycle gas, apply <b>gravity flow</b>, and accretion.</li>
+        </ul>
+      </div>
+    </aside>
+
+    <div id="stage">
+      <canvas id="canvas"></canvas>
+      <div id="tooltip"></div>
+      <footer><code class="small">prototype • solo • not to scale</code></footer>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // ======= Parameters =======
+  let W = 40, H = 28;               // grid dimensions (configurable)
+  const MAX_GAS = 320;               // higher cap so stars are feasible
+  const START_GAS_MEAN = 90;         // initial random gas mean (raised a lot)
+  const START_GAS_VAR = 55;          // initial random spread
+  const HAND_SIZE = 4;               // star options per epoch (more choice)
+  const ONE_STAR_PER_CELL = true;    // one per cell keeps clarity
+
+  // ======= State =======
+  let grid, epoch, autoAging=false;
+  let hand = [];
+
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const tooltip = document.getElementById('tooltip');
+  const ui = {
+    newGame: document.getElementById('newGame'),
+    endTurn: document.getElementById('endTurn'),
+    toggleAging: document.getElementById('toggleAging'),
+    gridW: document.getElementById('gridW'),
+    gridH: document.getElementById('gridH'),
+    applySize: document.getElementById('applySize'),
+    stats: document.getElementById('stats'),
+    hand: document.getElementById('hand'),
+    accretion: document.getElementById('accretion'),
+    gravity: document.getElementById('gravity'),
+  };
+
+  // ======= Stellar helpers =======
+  function spectralColor(M){
+    if(M>8) return '#6bbcff';
+    if(M>3) return '#cfdcff';
+    if(M>0.8) return '#ffe08a';
+    return '#ffb07a';
+  }
+  function lifetimeMyr(M){ return 10000 * Math.pow(M, -2.5); } // ~10 Gyr for 1 Msun
+
+  // Kroupa-like IMF sampler (piecewise slopes), slightly Z-modulated
+  function sampleIMF_Kroupa(Z){
+    // Slopes: alpha1~1.3 for M<0.5, alpha2~2.3 for M>0.5 (close to Salpeter at high mass)
+    // As Z→0, bias toward higher masses by lifting the lower bound a bit
+    const mmin = Math.max(0.08, 0.08 + (0.3*(0.0005 - Math.min(Z,0.0005))/0.0005)); // up to ~0.38 at Z≈0
+    const mmax = 80;
+    // decide regime based on weighted probability
+    const r = Math.random();
+    let M;
+    if(r < 0.6){
+      // low-mass branch 0.08–0.5 Msun (alpha~1.3)
+      M = invPowSample(1.3, mmin, 0.5);
+    } else if(r < 0.93){
+      // mid-mass 0.5–3 Msun (alpha~2.3)
+      M = invPowSample(2.3, 0.5, 3);
+    } else {
+      // high-mass 3–80 Msun (alpha~2.3), rarer
+      M = invPowSample(2.3, 3, mmax);
+    }
+    // very low Z slightly boosts chance of massive tail
+    if(Z < 5e-4 && Math.random() < 0.25){ M = invPowSample(2.1, 8, 60); }
+    return M;
+  }
+
+  function invPowSample(alpha, a, b){
+    // inverse transform for p(m) ~ m^-alpha
+    const k = 1 - alpha;
+    const ak = Math.pow(a, k), bk = Math.pow(b, k);
+    const u = Math.random();
+    return Math.pow(ak + u*(bk - ak), 1/k);
+  }
+
+  function newCell(x,y){
+    // Initialise gas with clumpy noise (bigger so first turns are playable)
+    const n = START_GAS_MEAN + (Math.random()*2-1)*START_GAS_VAR + 16*Math.sin(x*0.22)*Math.cos(y*0.19);
+    return { x,y, gas: clamp(n,0,MAX_GAS), Z: 0, star: null };
+  }
+
+  function makeGrid(){
+    grid = new Array(H).fill(0).map((_,y)=> new Array(W).fill(0).map((_,x)=> newCell(x,y)));
+  }
+
+  function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
+
+  function avgMetallicity(){
+    let sum=0, count=0;
+    for(const row of grid) for(const c of row){ sum+=c.Z; count++; }
+    return count? sum/count : 0;
+  }
+
+  function neighbors(c){
+    const out=[]; const {x,y}=c;
+    for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++){
+      if(!dx && !dy) continue; const nx=x+dx, ny=y+dy;
+      if(nx>=0&&nx<W&&ny>=0&&ny<H) out.push(grid[ny][nx]);
+    }
+    return out;
+  }
+
+  // ======= Hand generation (era-aware + guaranteed cheap pick) =======
+  function drawHand(){
+    hand = [];
+    const Z = avgMetallicity();
+    for(let i=0;i<HAND_SIZE;i++){
+      const M = sampleIMF_Kroupa(Z);
+      const cost = Math.max(2, Math.round(M * 3)); // cheaper: easier first stars
+      hand.push({ M, cost, color: spectralColor(M), life: lifetimeMyr(M) });
+    }
+    // guarantee at least one affordable option (<= 12 gas)
+    if(!hand.some(o=>o.cost<=12)){
+      hand[0] = { M: 0.5, cost: 2 + Math.floor(Math.random()*6), color: spectralColor(0.5), life: lifetimeMyr(0.5) };
+    }
+    renderHand();
+  }
+
+  // ======= Placement =======
+  function placeStar(cell, optionIndex){
+    if(optionIndex<0 || optionIndex>=hand.length) return;
+    const opt = hand[optionIndex];
+    if(ONE_STAR_PER_CELL && cell.star) return; // occupied
+    if(cell.gas < opt.cost) return;            // not enough gas
+    cell.gas = clamp(cell.gas - opt.cost, 0, MAX_GAS);
+    cell.star = { M: opt.M, age: 0, life: opt.life };
+    hand.splice(optionIndex,1);
+    renderHand(); draw(); updateStats();
+  }
+
+  // ======= Gravity-driven gas flow =======
+  function gravityFlow(){
+    const rate = Number(ui.gravity.value); // 0..1 fraction of gradient per epoch
+    if(rate<=0) return;
+    const deltas = new Array(H).fill(0).map(()=> new Array(W).fill(0));
+    for(let y=0;y<H;y++){
+      for(let x=0;x<W;x++){
+        const c = grid[y][x];
+        // find neighbor with maximum gas
+        let bestN=null, bestDiff=0;
+        for(const n of neighbors(c)){
+          const diff = n.gas - c.gas;
+          if(diff>bestDiff){ bestDiff=diff; bestN=n; }
+        }
+        if(bestN && bestDiff>0){
+          const transfer = rate * bestDiff * 0.3; // a bit stronger to help web emerge
+          const t = Math.min(transfer, c.gas*0.5);
+          deltas[y][x] -= t; deltas[bestN.y][bestN.x] += t;
+        }
+      }
+    }
+    for(let y=0;y<H;y++) for(let x=0;x<W;x++) grid[y][x].gas = clamp(grid[y][x].gas + deltas[y][x], 0, MAX_GAS);
+  }
+
+  // ======= Background accretion =======
+  function backgroundAccretion(){
+    const accStr = Number(ui.accretion.value); // 0..12
+    if(accStr<=0) return;
+    // drizzle everywhere + a few hotspots
+    const drizzle = 0.25*accStr;
+    for(const row of grid) for(const c of row) c.gas = clamp(c.gas + Math.random()*drizzle, 0, MAX_GAS);
+    const hits = Math.round((W*H) * accStr/160);
+    for(let i=0;i<hits;i++){
+      const x = Math.floor(Math.random()*W), y = Math.floor(Math.random()*H);
+      const c = grid[y][x]; c.gas = clamp(c.gas + (3 + Math.random()*10)*accStr/4, 0, MAX_GAS);
+    }
+  }
+
+  // ======= Epoch step =======
+  function nextEpoch(){
+    epoch++;
+    // Age stars and handle deaths & enrichment
+    let sn=0, died=0, gasRet=0, Zup=0;
+    for(const row of grid){
+      for(const c of row){
+        if(c.star){
+          c.star.age += 1; // one epoch ~ fixed dt
+          if(c.star.age >= c.star.life){
+            const M = c.star.M; c.star = null; died++;
+            if(M>8){
+              const ret = 0.2*M; gasRet += ret; c.gas = clamp(c.gas + ret, 0, MAX_GAS);
+              c.Z = clamp(c.Z + 0.001, 0, 0.05); Zup += 0.001; sn++;
+              for(const n of neighbors(c)){ n.gas = clamp(n.gas + ret*0.15, 0, MAX_GAS); n.Z = clamp(n.Z + 0.0005, 0, 0.05); }
+            }
+          }
+        }
+      }
+    }
+    gravityFlow();
+    backgroundAccretion();
+    drawHand();
+    draw(); updateStats({sn, died, gasRet, Zup});
+  }
+
+  // ======= Rendering =======
+  function resize(){
+    const stage = document.getElementById('stage');
+    const w = stage.clientWidth, h = stage.clientHeight;
+    const scale = Math.max(6, Math.floor(Math.min(w/W, h/H))); // bigger cells for precise clicks
+    canvas.width = W*scale; canvas.height = H*scale; canvas.dataset.scale = scale;
+    draw();
+  }
+  window.addEventListener('resize', resize);
+
+  function draw(){
+    const s = Number(canvas.dataset.scale||8);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+      const c = grid[y][x];
+      const g = c.gas / MAX_GAS; // 0..1
+      const z = clamp(c.Z/0.02, 0, 1);
+      const r = Math.floor(20 + 180*z);
+      const b = Math.floor(30 + 200*g*(1-z));
+      const gC= Math.floor(20 + 130*g*0.6);
+      ctx.fillStyle = `rgb(${r},${gC},${b})`;
+      const X = x*s, Y = y*s; ctx.fillRect(X, Y, s, s);
+      ctx.strokeStyle = 'rgba(40,60,120,0.15)'; ctx.strokeRect(X+.5, Y+.5, s-1, s-1);
+      if(c.star){
+        const col = spectralColor(c.star.M);
+        const rStar = Math.max(1.6, Math.log2(c.star.M+1)*1.9);
+        ctx.beginPath(); ctx.arc(X+s/2, Y+s/2, rStar, 0, Math.PI*2);
+        ctx.fillStyle = col; ctx.shadowColor=col; ctx.shadowBlur=8; ctx.fill(); ctx.shadowBlur=0;
+      }
+    }
+  }
+
+  function renderHand(){
+    ui.hand.innerHTML = '';
+    hand.forEach((opt, i)=>{
+      const el = document.createElement('div'); el.className='card';
+      const type = opt.M>8?'O/B':opt.M>3?'A/F':opt.M>0.8?'G':'K/M';
+      el.innerHTML = `<h4>${type} star</h4>
+        <div class="label">Mass: ${opt.M.toFixed(2)} M☉</div>
+        <div class="label">Cost: ${opt.cost} gas</div>
+        <div class="label">Lifetime: ${Math.round(opt.life)} epochs</div>
+        <div class="pill" style="background:${opt.color}22;border-color:${opt.color}">color</div>
+        <div class="row" style="margin-top:6px"><button class="btn" data-i="${i}">Select to place</button></div>`;
+      el.querySelector('button').onclick = ()=>{ selectingIndex = i; placing=true; };
+      ui.hand.appendChild(el);
+    });
+  }
+
+  // ======= Input & tooltip =======
+  let selectingIndex = -1, placing=false;
+
+  canvas.addEventListener('mousemove', e=>{
+    const c = cellFromEvent(e); if(!c){ tooltip.style.opacity=0; return; }
+    const gas = c.gas.toFixed(1), Z=c.Z.toFixed(4);
+    const star = c.star? `${c.star.M.toFixed(2)} M☉ (age ${Math.round(c.star.age)}/${Math.round(c.star.life)})` : '—';
+    positionTooltipAtCell(c);
+    tooltip.innerHTML = `<b>(${c.x},${c.y})</b> gas ${gas} • Z ${Z} • star ${star}`;
+    tooltip.style.opacity=1;
+  });
+  canvas.addEventListener('mouseleave', ()=> tooltip.style.opacity=0);
+
+  function positionTooltipAtCell(cell){
+    const scale = Number(canvas.dataset.scale||8);
+    const rect = canvas.getBoundingClientRect();
+    const cx = rect.left + window.scrollX + (cell.x+0.5)*scale;
+    const cy = rect.top  + window.scrollY + (cell.y+0.5)*scale;
+    tooltip.style.left = cx + 'px';
+    tooltip.style.top  = cy + 'px';
+  }
+
+  canvas.addEventListener('click', e=>{
+    const c = cellFromEvent(e); if(!c) return;
+    // Toggle removal if a star exists
+    if(c.star && (!placing || selectingIndex<0)) { c.star=null; draw(); updateStats(); return; }
+    // Place selected card if any
+    if(placing && selectingIndex>-1){ placeStar(c, selectingIndex); selectingIndex=-1; placing=false; }
+  });
+
+  function cellFromEvent(e){
+    const rect = canvas.getBoundingClientRect();
+    const scale = Number(canvas.dataset.scale||8);
+    const x = Math.floor((e.clientX - rect.left)/scale);
+    const y = Math.floor((e.clientY - rect.top)/scale);
+    if(x<0||y<0||x>=W||y>=H) return null; return grid[y][x];
+  }
+
+  // ======= Stats & UI =======
+  function updateStats(extra={}){
+    let nStars=0, blue=0, yellow=0, red=0, gasTot=0, gasMax=0;
+    for(const row of grid) for(const c of row){
+      gasTot += c.gas; gasMax = Math.max(gasMax, c.gas);
+      if(c.star){ nStars++; if(c.star.M>8) blue++; else if(c.star.M>0.8) yellow++; else red++; }
+    }
+    const Z = avgMetallicity();
+    const {sn=0, died=0} = extra;
+    ui.stats.textContent = `Epoch ${epoch} • Stars ${nStars} (O/B ${blue}, G/A/F ${yellow}, K/M ${red}) • avg Z ${Z.toExponential(2)} • gas Σ=${gasTot.toFixed(0)} • max cell gas=${gasMax.toFixed(1)} • SN ${sn} • deaths ${died}`;
+  }
+
+  // ======= Controls =======
+  ui.newGame.onclick = ()=>{ startNew(); };
+  ui.applySize.onclick = ()=>{ W=clamp(parseInt(ui.gridW.value)||W,16,96); H=clamp(parseInt(ui.gridH.value)||H,12,72); startNew(); };
+  ui.endTurn.onclick = ()=> nextEpoch();
+  ui.toggleAging.onclick = ()=>{ autoAging=!autoAging; ui.toggleAging.textContent = `Auto-age: ${autoAging? 'On':'Off'}`; };
+
+  function loop(){ if(autoAging){ nextEpoch(); } requestAnimationFrame(loop); }
+
+  // ======= Tests =======
+  function assert(cond,msg){ if(!cond){ console.error('❌',msg); throw new Error(msg);} else { console.log('✅',msg);} }
+  function runTests(){
+    console.log('\n— Running tests —');
+    assert(Array.isArray(grid)&&grid.length===H&&grid[0].length===W,'Grid shape correct');
+    const Z0 = avgMetallicity(); assert(Z0>=0,'Metallicity starts ≥0');
+    // IMF sanity: low-Z should still produce some low-mass; high-Z should favor low-mass overall
+    let hi=0, lo=0; for(let i=0;i<500;i++){ const m=sampleIMF_Kroupa(0); if(m>8) hi++; if(m<1) lo++; }
+    assert(hi>0 && lo>0, 'IMF at Z≈0 yields both high and low masses (top-heavy but mixed)');
+    let hi2=0, lo2=0; for(let i=0;i<500;i++){ const m=sampleIMF_Kroupa(0.02); if(m>8) hi2++; if(m<1) lo2++; }
+    assert(lo2>hi2, 'IMF at high Z favors low mass');
+    console.log('— Tests passed —\n');
+  }
+
+  // ======= Boot =======
+  function startNew(){ epoch=0; makeGrid(); resize(); drawHand(); draw(); updateStats(); }
+  startNew(); runTests(); loop();
+})();
+</script>
+</body>
+</html>
