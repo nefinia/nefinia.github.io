@@ -4,8 +4,11 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>WikiWander</title>
-  <link rel="icon" type="image/png" href="wikiwander_logo_squared.png">
-  <link rel="apple-touch-icon" href="wikiwander_logo_squared.png">
+
+  <!-- Favicon / App icon -->
+  <link rel="icon" type="image/png" href="assets/wikiwander_logo_squared.png">
+  <link rel="apple-touch-icon" href="assets/wikiwander_logo_squared.png">
+
   <style>
     :root{
       color-scheme: dark;
@@ -33,7 +36,7 @@
       padding:0;
       width:100%;
       height:auto;
-      overflow-x:hidden; /* prevents “frame cut” due to overflow */
+      overflow-x:hidden;
     }
 
     body{
@@ -45,7 +48,6 @@
         var(--bg);
       color:var(--text);
 
-      /* Safe-area + small-screen friendly padding */
       padding:
         max(12px, env(safe-area-inset-top))
         max(12px, env(safe-area-inset-right))
@@ -53,7 +55,6 @@
         max(12px, env(safe-area-inset-left));
     }
 
-    /* Center reliably: no body flex, just auto margins */
     .app{
       width: min(760px, 100%);
       margin: 0 auto;
@@ -77,18 +78,42 @@
       user-select:none;
       min-width: 0;
     }
-    .brand .dot{
-      width:10px; height:10px; border-radius:999px;
-      background: rgba(0,242,255,.85);
-      box-shadow: 0 0 18px rgba(0,242,255,.35);
-      flex: 0 0 auto;
+
+    .logo-img{
+      height: 20px;
+      width: auto;
+      max-width: 140px;
+      display:block;
     }
+
     .brand .name{
       font-weight:900;
       letter-spacing:-.2px;
       font-size: 22px;
       line-height: 1;
       white-space: nowrap;
+    }
+
+    .lang-switch{
+      display:flex;
+      gap:6px;
+      flex: 0 0 auto;
+    }
+    .lang-switch .lang-btn{
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.15);
+      color: var(--muted);
+      padding: 6px 8px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .lang-switch .lang-btn.active{
+      border-color: rgba(0,242,255,.65);
+      color: var(--text);
+      background: rgba(0,242,255,.10);
     }
 
     .pill{
@@ -129,21 +154,13 @@
       font-weight:750;
     }
 
-	.chipGrid{
-	  display:flex;
-	  flex-wrap:wrap;
-	  gap:10px;
-	  overflow: visible;
-	  padding-bottom: 0;
-	}
-	
-	/* Optional: on tiny screens, make chips slightly more compact */
-	@media (max-width: 420px){
-	  .chip{
-		padding: 9px 11px;
-		min-height: 38px;
-	  }
-	}
+    .chipGrid{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      overflow: visible;
+      padding-bottom: 0;
+    }
 
     .chip{
       flex:0 0 auto;
@@ -172,7 +189,7 @@
       background: linear-gradient(180deg, var(--card), rgba(10,15,26,.92));
       border-radius: var(--r);
       box-shadow: 0 18px 60px rgba(0,0,0,.45);
-      overflow:hidden; /* keep glow tidy */
+      overflow:hidden;
     }
 
     .media{
@@ -284,7 +301,6 @@
       background: rgba(0,242,255,.18);
     }
 
-    /* Save button: clean star + “Saved” state */
     .btn--save.saved{
       border-color: rgba(0,242,255,.60);
       background: rgba(0,242,255,.12);
@@ -316,6 +332,11 @@
       font-size: 14px;
     }
     .aboutBody ul{ margin: .6rem 0 0 1.1rem; }
+
+    .hint{
+      color:var(--muted2);
+      font-weight:750;
+    }
 
     .footer{
       margin-top:10px;
@@ -382,13 +403,10 @@
       background: rgba(18,23,38,.55);
     }
 
-    /* === Key fix for “frame cut on smaller windows” ===
-       Stack controls and make buttons full-width.
-       This prevents overflow and accidental clipping. */
     @media (max-width: 560px){
       .topbar{ flex-direction: column; align-items:flex-start; }
       .pill{ width:100%; justify-content:space-between; }
-
+      .lang-switch{ width:100%; }
       .controls{
         flex-direction: column;
         align-items: stretch;
@@ -399,37 +417,39 @@
       .btn{
         width:100%;
       }
+      .logo-img{
+        height: 18px;
+        max-width: 120px;
+      }
     }
-    
-    .logo-img{
-      height: 30px;      /* ← change this number */
-      width: auto;
-      max-width: 120px;
-    }
-    
   </style>
 </head>
 
 <body>
   <div class="app">
     <div class="topbar">
-	  <div class="brand" aria-label="app title">
-	    <img src="wikiwander_logo.png"
-	  	     alt="WikiWander logo"
-		     class="logo-img">
-	    <span class="name">WikiWander</span>
-	  </div>
+      <div class="brand" aria-label="app title">
+        <img src="assets/wikiwander_logo.png" alt="WikiWander logo" class="logo-img">
+        <span class="name">WikiWander</span>
+      </div>
+
+      <div class="lang-switch" aria-label="Language selector">
+        <button class="lang-btn" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="es">ES</button>
+        <button class="lang-btn" data-lang="fr">FR</button>
+      </div>
+
       <div class="pill" id="statusPill">
         <span id="statusText">Loading…</span>
         <span>·</span>
-        <span>Saved:</span>
+        <span data-i18n="savedLabel">Saved:</span>
         <span id="savedCount">0</span>
       </div>
     </div>
 
     <section class="panel">
       <div class="topicsHeader">
-        <div class="label">Topics</div>
+        <div class="label" data-i18n="topics">Topics</div>
       </div>
       <div class="chipGrid" id="chipRow"></div>
     </section>
@@ -444,46 +464,46 @@
         <h1 class="title" id="title">Loading…</h1>
 
         <div class="meta">
-          <span>From Wikipedia</span>
+          <span data-i18n="fromWikipedia">From Wikipedia</span>
           <span id="metaTopic">· Random</span>
-          <a id="openLink" href="#" target="_blank" rel="noopener">open</a>
+          <a id="openLink" href="#" target="_blank" rel="noopener" data-i18n="open">open</a>
         </div>
 
         <div class="concept" id="concept">Fetching a concept…</div>
 
         <div class="controls">
           <div class="leftControls">
-            <button class="btn btn--ghost" id="back" title="Back" aria-label="Back">← Back</button>
+            <button class="btn btn--ghost" id="back" title="Back" aria-label="Back">← <span data-i18n="back">Back</span></button>
           </div>
 
           <div class="rightControls">
-            <button class="btn btn--primary" id="next" title="Next" aria-label="Next">Next →</button>
-            <button class="btn" id="open" title="Open article" aria-label="Open article">Article</button>
-            <button class="btn btn--save" id="save" title="Save" aria-label="Save">★ Save</button>
+            <button class="btn btn--primary" id="next" title="Next" aria-label="Next"><span data-i18n="next">Next</span> →</button>
+            <button class="btn" id="open" title="Open article" aria-label="Open article"><span data-i18n="article">Article</span></button>
+            <button class="btn btn--save" id="save" title="Save" aria-label="Save">★ <span data-i18n="save">Save</span></button>
           </div>
         </div>
 
         <details class="about" id="about">
           <summary>
-            <span>What is WikiWander?</span>
-            <span style="color:var(--muted2); font-weight:750;">tap</span>
+            <span data-i18n="whatIs">What is WikiWander?</span>
+            <span class="hint" data-i18n="tap">tap</span>
           </summary>
           <div class="aboutBody">
-            <p>
+            <p data-i18n="aboutText">
               WikiWander is a quick way to discover unexpected knowledge.
               Each card shows a short excerpt from Wikipedia, chosen at random or by topic.
             </p>
             <ul>
-              <li><strong>Next</strong> shows a new idea.</li>
-              <li><strong>★ Save</strong> bookmarks it below.</li>
-              <li><strong>Article</strong> opens the full page on Wikipedia.</li>
+              <li><strong data-i18n="aboutNext">Next</strong> — <span data-i18n="aboutNextDesc">shows a new idea.</span></li>
+              <li><strong data-i18n="aboutSave">Save</strong> — <span data-i18n="aboutSaveDesc">bookmarks it below.</span></li>
+              <li><strong data-i18n="aboutArticle">Article</strong> — <span data-i18n="aboutArticleDesc">opens the full page on Wikipedia.</span></li>
             </ul>
           </div>
         </details>
 
         <div class="footer">
           <span id="errorText"></span>
-          <span>Tip: topics bias the randomness (they don’t guarantee it).</span>
+          <span data-i18n="tip">Tip: topics bias the randomness (they don’t guarantee it).</span>
         </div>
       </div>
     </main>
@@ -491,37 +511,140 @@
     <section class="savedWrap" aria-label="Saved">
       <div class="savedHead">
         <div>
-          <div class="t">Saved</div>
-          <div class="small">Your bookmarked Wikipedia pages</div>
+          <div class="t" data-i18n="savedTitle">Saved</div>
+          <div class="small" data-i18n="savedSubtitle">Your bookmarked Wikipedia pages</div>
         </div>
-        <button class="btn btn--tiny" id="clearSaved" title="Clear saved list">Clear</button>
+        <button class="btn btn--tiny" id="clearSaved" title="Clear saved list"><span data-i18n="clear">Clear</span></button>
       </div>
       <div class="savedBody">
-        <p class="savedEmpty" id="savedEmpty">No saved pages yet.</p>
+        <p class="savedEmpty" id="savedEmpty" data-i18n="noSaved">No saved pages yet.</p>
         <ol class="savedList" id="savedList" style="display:none;"></ol>
       </div>
     </section>
   </div>
 
 <script>
-/* ============================================================
-   WikiWander — centered + small-window safe + saved list visible
-   ============================================================ */
+/* =========================
+   i18n (UI translations)
+   ========================= */
+const I18N = {
+  en: {
+    savedLabel:"Saved:",
+    topics:"Topics",
+    fromWikipedia:"From Wikipedia",
+    open:"open",
+    back:"Back",
+    next:"Next",
+    article:"Article",
+    save:"Save",
+    whatIs:"What is WikiWander?",
+    tap:"tap",
+    aboutText:"WikiWander is a quick way to discover unexpected knowledge. Each card shows a short excerpt from Wikipedia, chosen at random or by topic.",
+    aboutNext:"Next",
+    aboutNextDesc:"shows a new idea.",
+    aboutSave:"Save",
+    aboutSaveDesc:"bookmarks it below.",
+    aboutArticle:"Article",
+    aboutArticleDesc:"opens the full page on Wikipedia.",
+    tip:"Tip: topics bias the randomness (they don’t guarantee it).",
+    savedTitle:"Saved",
+    savedSubtitle:"Your bookmarked Wikipedia pages",
+    clear:"Clear",
+    noSaved:"No saved pages yet."
+  },
+  es: {
+    savedLabel:"Guardados:",
+    topics:"Temas",
+    fromWikipedia:"Desde Wikipedia",
+    open:"abrir",
+    back:"Atrás",
+    next:"Siguiente",
+    article:"Artículo",
+    save:"Guardar",
+    whatIs:"¿Qué es WikiWander?",
+    tap:"toca",
+    aboutText:"WikiWander es una forma rápida de descubrir conocimiento inesperado. Cada tarjeta muestra un extracto breve de Wikipedia, elegido al azar o por tema.",
+    aboutNext:"Siguiente",
+    aboutNextDesc:"muestra una nueva idea.",
+    aboutSave:"Guardar",
+    aboutSaveDesc:"lo guarda abajo.",
+    aboutArticle:"Artículo",
+    aboutArticleDesc:"abre la página completa en Wikipedia.",
+    tip:"Tip: los temas influyen en la aleatoriedad (no la garantizan).",
+    savedTitle:"Guardados",
+    savedSubtitle:"Tus páginas guardadas de Wikipedia",
+    clear:"Borrar",
+    noSaved:"Aún no hay páginas guardadas."
+  },
+  fr: {
+    savedLabel:"Enregistrés :",
+    topics:"Thèmes",
+    fromWikipedia:"Depuis Wikipédia",
+    open:"ouvrir",
+    back:"Retour",
+    next:"Suivant",
+    article:"Article",
+    save:"Enregistrer",
+    whatIs:"Qu’est-ce que WikiWander ?",
+    tap:"toucher",
+    aboutText:"WikiWander est un moyen rapide de découvrir des connaissances inattendues. Chaque carte affiche un court extrait de Wikipédia, au hasard ou par thème.",
+    aboutNext:"Suivant",
+    aboutNextDesc:"affiche une nouvelle idée.",
+    aboutSave:"Enregistrer",
+    aboutSaveDesc:"l’ajoute en bas.",
+    aboutArticle:"Article",
+    aboutArticleDesc:"ouvre la page complète sur Wikipédia.",
+    tip:"Astuce : les thèmes orientent l’aléatoire (sans le garantir).",
+    savedTitle:"Enregistrés",
+    savedSubtitle:"Tes pages Wikipédia enregistrées",
+    clear:"Effacer",
+    noSaved:"Aucune page enregistrée pour l’instant."
+  }
+};
 
+const LS_LANG   = "wikiwander_lang_v1";
 const LS_SAVED  = "wikiwander_saved_v2";
 const LS_RECENT = "wikiwander_recent_v2";
 const LS_CHOICE = "wikiwander_choice_v2";
 
+function applyLanguage(lang){
+  if (!I18N[lang]) lang = "en";
+  state.lang = lang;
+  localStorage.setItem(LS_LANG, lang);
+  document.documentElement.lang = lang;
+
+  document.querySelectorAll("[data-i18n]").forEach(node=>{
+    const key = node.getAttribute("data-i18n");
+    const v = I18N[lang][key];
+    if (typeof v === "string") node.textContent = v;
+  });
+
+  document.querySelectorAll(".lang-btn").forEach(btn=>{
+    btn.classList.toggle("active", btn.dataset.lang === lang);
+  });
+
+  // Update tag/meta labels (topic chip labels are rebuilt separately)
+  renderChips();
+
+  // Switch Wikipedia source: clear queue + reload content in the new language
+  state.queue = [];
+  state.history = [];
+  next();
+}
+
+/* ============================================================
+   WikiWander — with language-aware Wikipedia base URLs
+   ============================================================ */
 const TOPICS = [
-  { key:"random",  label:"Random", query:null },
-  { key:"space",   label:"Astronomy", query:"astronomy OR astrophysics OR galaxy OR cosmology -astrology" },
-  { key:"mind",    label:"Mind", query:"psychology OR neuroscience OR cognition" },
-  { key:"history", label:"History", query:"history OR ancient OR medieval OR revolution" },
-  { key:"philo",   label:"Philosophy", query:"philosophy OR ethics OR metaphysics OR epistemology" },
-  { key:"bio",     label:"Biology", query:"biology OR evolution OR genetics OR ecology" },
-  { key:"tech",    label:"Tech", query:"computer science OR software OR algorithm OR engineering" },
-  { key:"art",     label:"Arts", query:"art OR music OR literature OR cinema" },
-  { key:"geo",     label:"Earth", query:"geology OR climate OR ocean OR volcano" },
+  { key:"random",  label:{en:"Random", es:"Aleatorio", fr:"Aléatoire"}, query:null },
+  { key:"space",   label:{en:"Astronomy", es:"Astronomía", fr:"Astronomie"}, query:"astronomy OR astrophysics OR galaxy OR cosmology -astrology" },
+  { key:"mind",    label:{en:"Mind", es:"Mente", fr:"Esprit"}, query:"psychology OR neuroscience OR cognition" },
+  { key:"history", label:{en:"History", es:"Historia", fr:"Histoire"}, query:"history OR ancient OR medieval OR revolution" },
+  { key:"philo",   label:{en:"Philosophy", es:"Filosofía", fr:"Philosophie"}, query:"philosophy OR ethics OR metaphysics OR epistemology" },
+  { key:"bio",     label:{en:"Biology", es:"Biología", fr:"Biologie"}, query:"biology OR evolution OR genetics OR ecology" },
+  { key:"tech",    label:{en:"Tech", es:"Tecnología", fr:"Tech"}, query:"computer science OR software OR algorithm OR engineering" },
+  { key:"art",     label:{en:"Arts", es:"Artes", fr:"Arts"}, query:"art OR music OR literature OR cinema" },
+  { key:"geo",     label:{en:"Earth", es:"Tierra", fr:"Terre"}, query:"geology OR climate OR ocean OR volcano" },
 ];
 
 const FETCH_TIMEOUT_MS = 9000;
@@ -532,6 +655,7 @@ const BACKOFF_BASE_MS = 120;
 const el = (id) => document.getElementById(id);
 
 const state = {
+  lang: "en",
   choice: "random",
   current: null,
   history: [],
@@ -544,6 +668,12 @@ const state = {
   prefetching: false,
   targetQueue: 4,
 };
+
+function wikiBase(){
+  // only allow supported langs
+  const lang = (state.lang === "es" || state.lang === "fr") ? state.lang : "en";
+  return `https://${lang}.wikipedia.org`;
+}
 
 function escapeHtml(s){
   return String(s)
@@ -559,6 +689,9 @@ function loadLocal(){
   try { state.recentTitles = JSON.parse(localStorage.getItem(LS_RECENT) || "[]"); } catch { state.recentTitles = []; }
   const c = localStorage.getItem(LS_CHOICE);
   if (c && TOPICS.some(t => t.key === c)) state.choice = c;
+
+  const lang = localStorage.getItem(LS_LANG);
+  if (lang && I18N[lang]) state.lang = lang;
 }
 function saveLocal(){
   localStorage.setItem(LS_SAVED, JSON.stringify(state.saved.slice(0, 1000)));
@@ -615,10 +748,12 @@ function updateSaveButtonState(){
   if (!c){ btn.classList.remove("saved"); return; }
   const isSaved = state.saved.some(x => x.url === c.url);
   btn.classList.toggle("saved", isSaved);
-  btn.textContent = isSaved ? "★ Saved" : "★ Save";
+  // keep star + translated label
+  const label = I18N[state.lang]?.save || "Save";
+  btn.querySelector("[data-i18n='save']").textContent = isSaved ? (I18N[state.lang]?.save || "Save") : (I18N[state.lang]?.save || "Save");
+  btn.firstChild.textContent = isSaved ? "★ " : "★ ";
 }
 
-/* ===== Excerpt length ===== */
 function leadParagraph(text){
   if (!text) return "";
   return text
@@ -654,17 +789,25 @@ function rememberTitle(title){
 }
 
 /* ===== UI: topic chips ===== */
+function topicLabel(t){
+  const L = t.label || {};
+  return L[state.lang] || L.en || "Random";
+}
+
 function renderChips(){
   const row = el("chipRow");
   row.innerHTML = "";
+
   for (const t of TOPICS){
     const chip = document.createElement("div");
     chip.className = "chip" + (state.choice === t.key ? " active" : "");
-    chip.innerHTML = `<span class="dot"></span><span class="name">${escapeHtml(t.label)}</span>`;
+    chip.innerHTML = `<span class="dot"></span><span class="name">${escapeHtml(topicLabel(t))}</span>`;
     chip.onclick = () => onTopicChange(t.key);
     row.appendChild(chip);
   }
-  const label = TOPICS.find(t => t.key === state.choice)?.label || "Random";
+
+  const current = TOPICS.find(t => t.key === state.choice) || TOPICS[0];
+  const label = topicLabel(current);
   el("tag").textContent = label;
   el("metaTopic").textContent = `· ${label}`;
 }
@@ -693,7 +836,7 @@ function isBadSummary(s){
 }
 
 async function fetchRandomTitle(){
-  const url = new URL("https://en.wikipedia.org/w/api.php");
+  const url = new URL(`${wikiBase()}/w/api.php`);
   url.searchParams.set("action","query");
   url.searchParams.set("list","random");
   url.searchParams.set("rnnamespace","0");
@@ -706,13 +849,13 @@ async function fetchRandomTitle(){
 }
 
 async function fetchSummaryByTitle(title){
-  const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
+  const url = `${wikiBase()}/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
   const res = await fetchWithTimeout(url, { headers: { "accept":"application/json" }});
   return await jsonOrThrow(res);
 }
 
 async function searchTotalHits(query){
-  const url = new URL("https://en.wikipedia.org/w/api.php");
+  const url = new URL(`${wikiBase()}/w/api.php`);
   url.searchParams.set("action","query");
   url.searchParams.set("list","search");
   url.searchParams.set("srsearch", query);
@@ -726,7 +869,7 @@ async function searchTotalHits(query){
 }
 
 async function searchTitles(query, offset, limit=30){
-  const url = new URL("https://en.wikipedia.org/w/api.php");
+  const url = new URL(`${wikiBase()}/w/api.php`);
   url.searchParams.set("action","query");
   url.searchParams.set("list","search");
   url.searchParams.set("srsearch", query);
@@ -742,7 +885,7 @@ async function searchTitles(query, offset, limit=30){
 
 async function makeCardFromSummary(summary){
   const title = summary.title;
-  const url = summary?.content_urls?.desktop?.page || `https://en.wikipedia.org/wiki/${encodeURIComponent(title)}`;
+  const url = summary?.content_urls?.desktop?.page || `${wikiBase()}/wiki/${encodeURIComponent(title)}`;
   const imageUrl = summary?.thumbnail?.source || summary?.originalimage?.source || null;
   return { title, extract: summary.extract, url, imageUrl, ts:new Date().toISOString() };
 }
@@ -757,6 +900,7 @@ async function getNextCard(){
       if (topic.key === "random" || !topic.query){
         title = await fetchRandomTitle();
       } else {
+        // Note: queries are English; on ES/FR wikis results may be noisier. Random still works reliably.
         const total = await searchTotalHits(topic.query);
         const cap = Math.min(total, 5000);
         const offset = cap > 0 ? Math.floor(Math.random() * cap) : 0;
@@ -883,7 +1027,8 @@ function saveCurrent(){
     title: c.title,
     url: c.url,
     savedAt: new Date().toISOString(),
-    topic: state.choice
+    topic: state.choice,
+    lang: state.lang
   });
 
   saveLocal();
@@ -924,13 +1069,24 @@ el("clearSaved").onclick = clearSaved;
 /* Init */
 (function init(){
   loadLocal();
-  renderChips();
+
+  // Activate language buttons
+  document.querySelectorAll(".lang-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      applyLanguage(btn.dataset.lang);
+    });
+  });
+
+  // Apply saved/default language and mark active button
+  applyLanguage(state.lang);
+
   renderSaved();
-  updateSaveButtonState();
+  renderChips();
 
   setStatus("Loading…");
   el("savedCount").textContent = String(state.saved.length);
 
+  // Prefetch + first render
   next().then(() => refillQueueSoon());
 })();
 </script>
