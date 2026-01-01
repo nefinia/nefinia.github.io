@@ -4,7 +4,8 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>WikiWander</title>
-
+  <link rel="icon" type="image/png" href="wikiwander_logo_squared.png">
+  <link rel="apple-touch-icon" href="wikiwander_logo_squared.png">
   <style>
     :root{
       color-scheme: dark;
@@ -399,16 +400,25 @@
         width:100%;
       }
     }
+    
+    .logo-img{
+      height: 30px;      /* ← change this number */
+      width: auto;
+      max-width: 120px;
+    }
+    
   </style>
 </head>
 
 <body>
   <div class="app">
     <div class="topbar">
-      <div class="brand" aria-label="app title">
-        <span class="dot"></span>
-        <span class="name">WikiWander</span>
-      </div>
+	  <div class="brand" aria-label="app title">
+	    <img src="wikiwander_logo.png"
+	  	     alt="WikiWander logo"
+		     class="logo-img">
+	    <span class="name">WikiWander</span>
+	  </div>
       <div class="pill" id="statusPill">
         <span id="statusText">Loading…</span>
         <span>·</span>
