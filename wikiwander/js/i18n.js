@@ -1,4 +1,3 @@
-// js/i18n.js
 window.I18N = {
   en: {
     savedLabel:"Saved:",
@@ -24,30 +23,32 @@ window.I18N = {
     clear:"Clear",
     noSaved:"No saved pages yet."
   },
+
   es: {
     savedLabel:"Guardados:",
     topics:"Temas",
-    fromWikipedia:"Desde Wikipedia",
+    fromWikipedia:"De Wikipedia",
     open:"abrir",
     back:"Atrás",
     next:"Siguiente",
     article:"Artículo",
     save:"Guardar",
     whatIs:"¿Qué es WikiWander?",
-    tap:"toca",
-    aboutText:"WikiWander es una forma rápida de descubrir conocimiento inesperado. Cada tarjeta muestra un extracto breve de Wikipedia, elegido al azar o por tema.",
+    tap:"tocar",
+    aboutText:"WikiWander es una forma rápida de descubrir conocimiento inesperado. Cada tarjeta muestra un extracto corto de Wikipedia, al azar o por tema.",
     aboutNext:"Siguiente",
     aboutNextDesc:"muestra una nueva idea.",
     aboutSave:"Guardar",
-    aboutSaveDesc:"lo guarda abajo.",
+    aboutSaveDesc:"la guarda abajo.",
     aboutArticle:"Artículo",
     aboutArticleDesc:"abre la página completa en Wikipedia.",
-    tip:"Tip: los temas influyen en la aleatoriedad (no la garantizan).",
+    tip:"Tip: los temas influyen el azar (no lo garantizan).",
     savedTitle:"Guardados",
     savedSubtitle:"Tus páginas guardadas de Wikipedia",
     clear:"Borrar",
     noSaved:"Aún no hay páginas guardadas."
   },
+
   fr: {
     savedLabel:"Enregistrés :",
     topics:"Thèmes",
@@ -59,17 +60,42 @@ window.I18N = {
     save:"Enregistrer",
     whatIs:"Qu’est-ce que WikiWander ?",
     tap:"toucher",
-    aboutText:"WikiWander est un moyen rapide de découvrir des connaissances inattendues. Chaque carte affiche un court extrait de Wikipédia, au hasard ou par thème.",
+    aboutText:"WikiWander permet de découvrir rapidement des connaissances inattendues. Chaque carte montre un court extrait de Wikipédia, au hasard ou par thème.",
     aboutNext:"Suivant",
     aboutNextDesc:"affiche une nouvelle idée.",
     aboutSave:"Enregistrer",
-    aboutSaveDesc:"l’ajoute en bas.",
+    aboutSaveDesc:"l’ajoute ci-dessous.",
     aboutArticle:"Article",
     aboutArticleDesc:"ouvre la page complète sur Wikipédia.",
-    tip:"Astuce : les thèmes orientent l’aléatoire (sans le garantir).",
+    tip:"Astuce : les thèmes influencent le hasard (sans le garantir).",
     savedTitle:"Enregistrés",
-    savedSubtitle:"Tes pages Wikipédia enregistrées",
+    savedSubtitle:"Vos pages Wikipédia sauvegardées",
     clear:"Effacer",
-    noSaved:"Aucune page enregistrée pour l’instant."
+    noSaved:"Aucune page enregistrée."
+  },
+
+  de: {
+    savedLabel:"Gespeichert:",
+    topics:"Themen",
+    fromWikipedia:"Aus Wikipedia",
+    open:"öffnen",
+    back:"Zurück",
+    next:"Weiter",
+    article:"Artikel",
+    save:"Speichern",
+    whatIs:"Was ist WikiWander?",
+    tap:"tippen",
+    aboutText:"WikiWander ist eine schnelle Art, unerwartetes Wissen zu entdecken. Jede Karte zeigt einen kurzen Auszug aus Wikipedia – zufällig oder nach Thema.",
+    aboutNext:"Weiter",
+    aboutNextDesc:"zeigt eine neue Idee.",
+    aboutSave:"Speichern",
+    aboutSaveDesc:"merkt es unten vor.",
+    aboutArticle:"Artikel",
+    aboutArticleDesc:"öffnet die vollständige Seite auf Wikipedia.",
+    tip:"Tipp: Themen beeinflussen den Zufall (garantieren ihn aber nicht).",
+    savedTitle:"Gespeichert",
+    savedSubtitle:"Deine gespeicherten Wikipedia-Seiten",
+    clear:"Löschen",
+    noSaved:"Noch keine gespeicherten Seiten."
   }
 };

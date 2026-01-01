@@ -69,6 +69,7 @@
       align-items:center;
       justify-content:space-between;
       gap:10px;
+      flex-wrap:wrap;
     }
 
     .brand{
@@ -146,6 +147,7 @@
       justify-content:space-between;
       gap:10px;
       margin-bottom:10px;
+      flex-wrap:wrap;
     }
     .topicsHeader .label{
       font-size:13px;
@@ -182,6 +184,52 @@
     }
     .chip .name{ font-size:13px; font-weight:800; }
     .chip .dot{ width:6px; height:6px; border-radius:999px; background: rgba(0,242,255,.75); }
+
+    /* Custom topic mini UI */
+    .customWrap{
+      width:100%;
+      margin-top:10px;
+      display:none;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .customWrap.show{ display:flex; }
+    .customInput{
+      flex: 1 1 220px;
+      min-width: 160px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(18,23,38,.55);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      outline: none;
+      font-size: 14px;
+      font-weight: 650;
+    }
+    .customInput::placeholder{ color: rgba(169,181,209,.75); }
+    .customBtn{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(18,23,38,.9);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      font-size:13px;
+      font-weight:850;
+      cursor:pointer;
+      user-select:none;
+      transition: transform .08s ease, border-color .12s ease, background .12s ease;
+      line-height:1;
+    }
+    .customBtn:hover{ border-color: rgba(255,255,255,.16); transform: translateY(-1px); }
+    .customBtn.primary{
+      border-color: rgba(0,242,255,.45);
+      background: rgba(0,242,255,.14);
+    }
+    .customBtn.primary:hover{
+      border-color: rgba(0,242,255,.70);
+      background: rgba(0,242,255,.18);
+    }
 
     .card{
       width:100%;
@@ -437,6 +485,7 @@
         <button class="lang-btn" data-lang="en">EN</button>
         <button class="lang-btn" data-lang="es">ES</button>
         <button class="lang-btn" data-lang="fr">FR</button>
+        <button class="lang-btn" data-lang="de">DE</button>
       </div>
 
       <div class="pill" id="statusPill">
@@ -452,6 +501,15 @@
         <div class="label" data-i18n="topics">Topics</div>
       </div>
       <div class="chipGrid" id="chipRow"></div>
+
+      <!-- Custom topic search bar (only shows when Custom selected) -->
+      <div class="customWrap" id="customWrap" aria-label="Custom search">
+        <input id="customInput" class="customInput" type="text"
+               placeholder="Search Wikipedia…"
+               autocomplete="off" spellcheck="false">
+        <button id="customApply" class="customBtn primary">Apply</button>
+        <button id="customCancel" class="customBtn">Cancel</button>
+      </div>
     </section>
 
     <main class="card" id="card">
@@ -550,7 +608,11 @@ const I18N = {
     savedTitle:"Saved",
     savedSubtitle:"Your bookmarked Wikipedia pages",
     clear:"Clear",
-    noSaved:"No saved pages yet."
+    noSaved:"No saved pages yet.",
+    customPlaceholder:"Search Wikipedia…",
+    customApply:"Apply",
+    customCancel:"Cancel",
+    customNeedsQuery:"Please type a search term for your custom topic."
   },
   es: {
     savedLabel:"Guardados:",
@@ -574,7 +636,11 @@ const I18N = {
     savedTitle:"Guardados",
     savedSubtitle:"Tus páginas guardadas de Wikipedia",
     clear:"Borrar",
-    noSaved:"Aún no hay páginas guardadas."
+    noSaved:"Aún no hay páginas guardadas.",
+    customPlaceholder:"Buscar en Wikipedia…",
+    customApply:"Aplicar",
+    customCancel:"Cancelar",
+    customNeedsQuery:"Escribe un término para tu tema personal."
   },
   fr: {
     savedLabel:"Enregistrés :",
@@ -598,7 +664,39 @@ const I18N = {
     savedTitle:"Enregistrés",
     savedSubtitle:"Tes pages Wikipédia enregistrées",
     clear:"Effacer",
-    noSaved:"Aucune page enregistrée pour l’instant."
+    noSaved:"Aucune page enregistrée pour l’instant.",
+    customPlaceholder:"Rechercher sur Wikipédia…",
+    customApply:"Appliquer",
+    customCancel:"Annuler",
+    customNeedsQuery:"Saisis un terme pour ton thème personnalisé."
+  },
+  de: {
+    savedLabel:"Gespeichert:",
+    topics:"Themen",
+    fromWikipedia:"Aus Wikipedia",
+    open:"öffnen",
+    back:"Zurück",
+    next:"Weiter",
+    article:"Artikel",
+    save:"Speichern",
+    whatIs:"Was ist WikiWander?",
+    tap:"tippen",
+    aboutText:"WikiWander ist ein schneller Weg, unerwartetes Wissen zu entdecken. Jede Karte zeigt einen kurzen Auszug aus Wikipedia – zufällig oder nach Thema.",
+    aboutNext:"Weiter",
+    aboutNextDesc:"zeigt eine neue Idee.",
+    aboutSave:"Speichern",
+    aboutSaveDesc:"merkt es unten vor.",
+    aboutArticle:"Artikel",
+    aboutArticleDesc:"öffnet die ganze Seite auf Wikipedia.",
+    tip:"Tipp: Themen beeinflussen die Zufälligkeit (garantieren sie aber nicht).",
+    savedTitle:"Gespeichert",
+    savedSubtitle:"Deine gespeicherten Wikipedia-Seiten",
+    clear:"Löschen",
+    noSaved:"Noch keine gespeicherten Seiten.",
+    customPlaceholder:"Wikipedia durchsuchen…",
+    customApply:"Anwenden",
+    customCancel:"Abbrechen",
+    customNeedsQuery:"Bitte gib einen Suchbegriff für dein eigenes Thema ein."
   }
 };
 
@@ -606,57 +704,14 @@ const LS_LANG   = "wikiwander_lang_v1";
 const LS_SAVED  = "wikiwander_saved_v2";
 const LS_RECENT = "wikiwander_recent_v2";
 const LS_CHOICE = "wikiwander_choice_v2";
-
-function applyLanguage(lang){
-  if (!I18N[lang]) lang = "en";
-  state.lang = lang;
-  localStorage.setItem(LS_LANG, lang);
-  document.documentElement.lang = lang;
-
-  document.querySelectorAll("[data-i18n]").forEach(node=>{
-    const key = node.getAttribute("data-i18n");
-    const v = I18N[lang][key];
-    if (typeof v === "string") node.textContent = v;
-  });
-
-  document.querySelectorAll(".lang-btn").forEach(btn=>{
-    btn.classList.toggle("active", btn.dataset.lang === lang);
-  });
-
-  // Update tag/meta labels (topic chip labels are rebuilt separately)
-  renderChips();
-
-  // Switch Wikipedia source: clear queue + reload content in the new language
-  state.queue = [];
-  state.history = [];
-  next();
-}
-
-/* ============================================================
-   WikiWander — with language-aware Wikipedia base URLs
-   ============================================================ */
-const TOPICS = [
-  { key:"random",  label:{en:"Random", es:"Aleatorio", fr:"Aléatoire"}, query:null },
-  { key:"space",   label:{en:"Astronomy", es:"Astronomía", fr:"Astronomie"}, query:"astronomy OR astrophysics OR galaxy OR cosmology -astrology" },
-  { key:"mind",    label:{en:"Mind", es:"Mente", fr:"Esprit"}, query:"psychology OR neuroscience OR cognition" },
-  { key:"history", label:{en:"History", es:"Historia", fr:"Histoire"}, query:"history OR ancient OR medieval OR revolution" },
-  { key:"philo",   label:{en:"Philosophy", es:"Filosofía", fr:"Philosophie"}, query:"philosophy OR ethics OR metaphysics OR epistemology" },
-  { key:"bio",     label:{en:"Biology", es:"Biología", fr:"Biologie"}, query:"biology OR evolution OR genetics OR ecology" },
-  { key:"tech",    label:{en:"Tech", es:"Tecnología", fr:"Tech"}, query:"computer science OR software OR algorithm OR engineering" },
-  { key:"art",     label:{en:"Arts", es:"Artes", fr:"Arts"}, query:"art OR music OR literature OR cinema" },
-  { key:"geo",     label:{en:"Earth", es:"Tierra", fr:"Terre"}, query:"geology OR climate OR ocean OR volcano" },
-];
-
-const FETCH_TIMEOUT_MS = 9000;
-const RECENT_LIMIT = 500;
-const MAX_ATTEMPTS = 60;
-const BACKOFF_BASE_MS = 120;
+const LS_CUSTOM_QUERY = "wikiwander_custom_query_v1";
 
 const el = (id) => document.getElementById(id);
 
 const state = {
   lang: "en",
   choice: "random",
+  customQuery: "",
   current: null,
   history: [],
   saved: [],
@@ -669,12 +724,45 @@ const state = {
   targetQueue: 4,
 };
 
+/* ---------- Language ---------- */
+function applyLanguage(lang){
+  if (!I18N[lang]) lang = "en";
+  state.lang = lang;
+  localStorage.setItem(LS_LANG, lang);
+  document.documentElement.lang = lang;
+
+  document.querySelectorAll("[data-i18n]").forEach(node=>{
+    const key = node.getAttribute("data-i18n");
+    const v = I18N[lang][key];
+    if (typeof v === "string") node.textContent = v;
+  });
+
+  // custom input strings
+  el("customInput").placeholder = I18N[lang].customPlaceholder;
+  el("customApply").textContent = I18N[lang].customApply;
+  el("customCancel").textContent = I18N[lang].customCancel;
+
+  document.querySelectorAll(".lang-btn").forEach(btn=>{
+    btn.classList.toggle("active", btn.dataset.lang === lang);
+  });
+
+  renderChips();
+
+  // Switch Wikipedia source: clear queue + reload content in the new language
+  state.queue = [];
+  state.history = [];
+  next();
+}
+
+/* ---------- Wikipedia base ---------- */
 function wikiBase(){
-  // only allow supported langs
-  const lang = (state.lang === "es" || state.lang === "fr") ? state.lang : "en";
+  // allow EN/ES/FR/DE
+  const allowed = new Set(["en","es","fr","de"]);
+  const lang = allowed.has(state.lang) ? state.lang : "en";
   return `https://${lang}.wikipedia.org`;
 }
 
+/* ---------- Helpers ---------- */
 function escapeHtml(s){
   return String(s)
     .replaceAll("&","&amp;")
@@ -688,15 +776,19 @@ function loadLocal(){
   try { state.saved = JSON.parse(localStorage.getItem(LS_SAVED) || "[]"); } catch { state.saved = []; }
   try { state.recentTitles = JSON.parse(localStorage.getItem(LS_RECENT) || "[]"); } catch { state.recentTitles = []; }
   const c = localStorage.getItem(LS_CHOICE);
-  if (c && TOPICS.some(t => t.key === c)) state.choice = c;
+  if (c) state.choice = c;
 
   const lang = localStorage.getItem(LS_LANG);
   if (lang && I18N[lang]) state.lang = lang;
+
+  state.customQuery = localStorage.getItem(LS_CUSTOM_QUERY) || "";
 }
+
 function saveLocal(){
   localStorage.setItem(LS_SAVED, JSON.stringify(state.saved.slice(0, 1000)));
-  localStorage.setItem(LS_RECENT, JSON.stringify(state.recentTitles.slice(0, RECENT_LIMIT)));
+  localStorage.setItem(LS_RECENT, JSON.stringify(state.recentTitles.slice(0, 500)));
   localStorage.setItem(LS_CHOICE, state.choice);
+  localStorage.setItem(LS_CUSTOM_QUERY, state.customQuery || "");
 }
 
 function setStatus(text, isErr=false){
@@ -722,7 +814,54 @@ function setImage(url){
   }
 }
 
-/* ===== Saved list UI ===== */
+/* ---------- Topics ---------- */
+const TOPICS = [
+  { key:"random",  label:{en:"Random", es:"Aleatorio", fr:"Aléatoire", de:"Zufall"}, query:null },
+  { key:"space",   label:{en:"Astronomy", es:"Astronomía", fr:"Astronomie", de:"Astronomie"}, query:"astronomy OR astrophysics OR galaxy OR cosmology -astrology" },
+  { key:"mind",    label:{en:"Mind", es:"Mente", fr:"Esprit", de:"Geist"}, query:"psychology OR neuroscience OR cognition" },
+  { key:"history", label:{en:"History", es:"Historia", fr:"Histoire", de:"Geschichte"}, query:"history OR ancient OR medieval OR revolution" },
+  { key:"philo",   label:{en:"Philosophy", es:"Filosofía", fr:"Philosophie", de:"Philosophie"}, query:"philosophy OR ethics OR metaphysics OR epistemology" },
+  { key:"bio",     label:{en:"Biology", es:"Biología", fr:"Biologie", de:"Biologie"}, query:"biology OR evolution OR genetics OR ecology" },
+  { key:"tech",    label:{en:"Tech", es:"Tecnología", fr:"Tech", de:"Technik"}, query:"computer science OR software OR algorithm OR engineering" },
+  { key:"art",     label:{en:"Arts", es:"Artes", fr:"Arts", de:"Kunst"}, query:"art OR music OR literature OR cinema" },
+  { key:"geo",     label:{en:"Earth", es:"Tierra", fr:"Terre", de:"Erde"}, query:"geology OR climate OR ocean OR volcano" },
+
+  // user-defined search
+  { key:"custom",  label:{en:"Custom", es:"Personal", fr:"Perso", de:"Eigene"}, query:"__CUSTOM__" },
+];
+
+function topicLabel(t){
+  const L = t.label || {};
+  return L[state.lang] || L.en || "Random";
+}
+
+function renderChips(){
+  const row = el("chipRow");
+  row.innerHTML = "";
+
+  for (const t of TOPICS){
+    const chip = document.createElement("div");
+    chip.className = "chip" + (state.choice === t.key ? " active" : "");
+    chip.innerHTML = `<span class="dot"></span><span class="name">${escapeHtml(topicLabel(t))}</span>`;
+    chip.onclick = () => onTopicChange(t.key);
+    row.appendChild(chip);
+  }
+
+  const current = TOPICS.find(t => t.key === state.choice) || TOPICS[0];
+  const label = topicLabel(current);
+  el("tag").textContent = label;
+  el("metaTopic").textContent = `· ${label}`;
+
+  // show/hide custom bar
+  const showCustom = (current.key === "custom");
+  el("customWrap").classList.toggle("show", showCustom);
+  if (showCustom){
+    el("customInput").value = state.customQuery || "";
+    // focus only if user intentionally clicked custom (we’ll focus in onTopicChange too)
+  }
+}
+
+/* ---------- Saved list ---------- */
 function renderSaved(){
   const list = el("savedList");
   const empty = el("savedEmpty");
@@ -748,12 +887,9 @@ function updateSaveButtonState(){
   if (!c){ btn.classList.remove("saved"); return; }
   const isSaved = state.saved.some(x => x.url === c.url);
   btn.classList.toggle("saved", isSaved);
-  // keep star + translated label
-  const label = I18N[state.lang]?.save || "Save";
-  btn.querySelector("[data-i18n='save']").textContent = isSaved ? (I18N[state.lang]?.save || "Save") : (I18N[state.lang]?.save || "Save");
-  btn.firstChild.textContent = isSaved ? "★ " : "★ ";
 }
 
+/* ---------- Excerpt ---------- */
 function leadParagraph(text){
   if (!text) return "";
   return text
@@ -761,11 +897,13 @@ function leadParagraph(text){
     .map(p => p.trim())
     .filter(Boolean)[0] || text.trim();
 }
+
 function clampWords(text, maxWords){
   const words = (text || "").trim().split(/\s+/).filter(Boolean);
   if (words.length <= maxWords) return (text || "").trim();
   return words.slice(0, maxWords).join(" ") + "…";
 }
+
 function adaptiveMaxWords(){
   const w = window.innerWidth;
   if (w < 420) return 120;
@@ -773,46 +911,28 @@ function adaptiveMaxWords(){
   if (w < 900) return 180;
   return 210;
 }
+
 function adaptiveExcerpt(text){
   return clampWords(leadParagraph(text), adaptiveMaxWords());
 }
+
 window.addEventListener("resize", () => {
   if (state.current) el("concept").textContent = adaptiveExcerpt(state.current.extract);
 });
 
-/* ===== De-dupe ===== */
+/* ---------- De-dupe ---------- */
 function rememberTitle(title){
   if (!title) return;
   state.recentTitles.unshift(title);
-  state.recentTitles = [...new Set(state.recentTitles)].slice(0, RECENT_LIMIT);
+  state.recentTitles = [...new Set(state.recentTitles)].slice(0, 500);
   saveLocal();
 }
 
-/* ===== UI: topic chips ===== */
-function topicLabel(t){
-  const L = t.label || {};
-  return L[state.lang] || L.en || "Random";
-}
+/* ---------- Networking ---------- */
+const FETCH_TIMEOUT_MS = 9000;
+const MAX_ATTEMPTS = 60;
+const BACKOFF_BASE_MS = 120;
 
-function renderChips(){
-  const row = el("chipRow");
-  row.innerHTML = "";
-
-  for (const t of TOPICS){
-    const chip = document.createElement("div");
-    chip.className = "chip" + (state.choice === t.key ? " active" : "");
-    chip.innerHTML = `<span class="dot"></span><span class="name">${escapeHtml(topicLabel(t))}</span>`;
-    chip.onclick = () => onTopicChange(t.key);
-    row.appendChild(chip);
-  }
-
-  const current = TOPICS.find(t => t.key === state.choice) || TOPICS[0];
-  const label = topicLabel(current);
-  el("tag").textContent = label;
-  el("metaTopic").textContent = `· ${label}`;
-}
-
-/* ===== Networking ===== */
 async function fetchWithTimeout(url, options={}){
   const controller = new AbortController();
   const t = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
@@ -822,10 +942,12 @@ async function fetchWithTimeout(url, options={}){
     clearTimeout(t);
   }
 }
+
 async function jsonOrThrow(res){
   if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
   return await res.json();
 }
+
 function isBadSummary(s){
   if (!s) return true;
   if (s.type === "disambiguation") return true;
@@ -900,11 +1022,16 @@ async function getNextCard(){
       if (topic.key === "random" || !topic.query){
         title = await fetchRandomTitle();
       } else {
-        // Note: queries are English; on ES/FR wikis results may be noisier. Random still works reliably.
-        const total = await searchTotalHits(topic.query);
+        const query = (topic.query === "__CUSTOM__") ? (state.customQuery || "").trim() : topic.query;
+
+        if (topic.key === "custom" && !query){
+          throw new Error(I18N[state.lang]?.customNeedsQuery || "Please type a search term for your custom topic.");
+        }
+
+        const total = await searchTotalHits(query);
         const cap = Math.min(total, 5000);
         const offset = cap > 0 ? Math.floor(Math.random() * cap) : 0;
-        const titles = await searchTitles(topic.query, offset, 30);
+        const titles = await searchTitles(query, offset, 30);
         title = titles.length ? titles[Math.floor(Math.random() * titles.length)] : await fetchRandomTitle();
       }
 
@@ -918,7 +1045,11 @@ async function getNextCard(){
       rememberTitle(card.title);
       return card;
 
-    } catch {
+    } catch (e){
+      // for custom empty query, rethrow immediately
+      if (topic.key === "custom" && String(e?.message || "").includes("search term")){
+        throw e;
+      }
       await new Promise(r => setTimeout(r, BACKOFF_BASE_MS + attempt * 18));
       continue;
     }
@@ -926,7 +1057,7 @@ async function getNextCard(){
   throw new Error("Wikipedia is slow / rate-limiting. Try Next again.");
 }
 
-/* ===== Prefetch queue ===== */
+/* ---------- Prefetch queue ---------- */
 function prefetchImage(url){
   if (!url) return;
   const img = new Image();
@@ -948,11 +1079,12 @@ async function fillQueue(){
     state.prefetching = false;
   }
 }
+
 function refillQueueSoon(){
   setTimeout(() => fillQueue().catch(()=>{}), 0);
 }
 
-/* ===== Render ===== */
+/* ---------- Render ---------- */
 function renderCard(){
   const c = state.current;
   if (!c) return;
@@ -969,7 +1101,7 @@ function renderCard(){
   refillQueueSoon();
 }
 
-/* ===== Actions ===== */
+/* ---------- Actions ---------- */
 async function next(){
   if (state.isLoading) return;
   state.isLoading = true;
@@ -1045,7 +1177,34 @@ function clearSaved(){
   setStatus("Cleared");
 }
 
-/* ===== Topic change ===== */
+/* ---------- Topic + Custom search UI ---------- */
+function openCustomUI(){
+  el("customWrap").classList.add("show");
+  el("customInput").value = state.customQuery || "";
+  setTimeout(()=> el("customInput").focus(), 0);
+}
+
+function closeCustomUI(){
+  el("customWrap").classList.remove("show");
+}
+
+async function applyCustomQuery(){
+  const q = (el("customInput").value || "").trim();
+  state.customQuery = q;
+  saveLocal();
+
+  if (!q){
+    setStatus(I18N[state.lang]?.customNeedsQuery || "Please type a search term.", true);
+    el("errorText").textContent = I18N[state.lang]?.customNeedsQuery || "Please type a search term.";
+    return;
+  }
+
+  state.queue = [];
+  state.history = [];
+  setStatus("Loading…");
+  await next();
+}
+
 async function onTopicChange(key){
   if (!TOPICS.some(t => t.key === key)) return;
   state.choice = key;
@@ -1055,27 +1214,63 @@ async function onTopicChange(key){
   state.history = [];
 
   renderChips();
+
+  if (key === "custom"){
+    openCustomUI();
+    // Don't auto-next unless we already have a query
+    if (state.customQuery && state.customQuery.trim()){
+      setStatus("Loading…");
+      await next();
+    } else {
+      setStatus("Ready");
+    }
+    return;
+  } else {
+    closeCustomUI();
+  }
+
   setStatus("Loading…");
   await next();
 }
 
-/* Wiring */
+/* ---------- Wiring ---------- */
 el("next").onclick = next;
 el("back").onclick = back;
 el("open").onclick = openArticle;
 el("save").onclick = saveCurrent;
 el("clearSaved").onclick = clearSaved;
 
-/* Init */
+document.querySelectorAll(".lang-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    applyLanguage(btn.dataset.lang);
+  });
+});
+
+// Custom search bar
+el("customApply").addEventListener("click", applyCustomQuery);
+el("customCancel").addEventListener("click", ()=>{
+  // revert to Random when canceling custom
+  state.choice = "random";
+  saveLocal();
+  closeCustomUI();
+  renderChips();
+  setStatus("Loading…");
+  next();
+});
+
+el("customInput").addEventListener("keydown", (ev)=>{
+  if (ev.key === "Enter"){
+    ev.preventDefault();
+    applyCustomQuery();
+  } else if (ev.key === "Escape"){
+    ev.preventDefault();
+    el("customCancel").click();
+  }
+});
+
+/* ---------- Init ---------- */
 (function init(){
   loadLocal();
-
-  // Activate language buttons
-  document.querySelectorAll(".lang-btn").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      applyLanguage(btn.dataset.lang);
-    });
-  });
 
   // Apply saved/default language and mark active button
   applyLanguage(state.lang);
@@ -1083,10 +1278,13 @@ el("clearSaved").onclick = clearSaved;
   renderSaved();
   renderChips();
 
+  // set input state
+  el("customInput").value = state.customQuery || "";
+
   setStatus("Loading…");
   el("savedCount").textContent = String(state.saved.length);
 
-  // Prefetch + first render
+  // First render
   next().then(() => refillQueueSoon());
 })();
 </script>
