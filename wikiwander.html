@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>WikiWander</title>
+
   <style>
     :root{
       color-scheme: dark;
@@ -13,29 +14,28 @@
       --text:#EAF0FF;
       --muted:#A9B5D1;
       --muted2:#8693B4;
-      --accent:#8FB6FF;
+      --accent:#00f2ff;
+      --card: rgba(11,16,32,.92);
       --r:20px;
 
-      /* dynamic typography */
       --title: clamp(22px, 5.2vw, 32px);
       --concept: clamp(16px, 3.8vw, 20px);
       --meta: clamp(12px, 3.2vw, 13px);
-      --pad: clamp(12px, 3.2vw, 16px);
-
-      /* FIX: smaller media height so card isn't cut on phones */
-      --mediaH: clamp(160px, 35vw, 260px);
-    }
-
-    /* FIX: page scrolls naturally; nothing should clip vertically */
-    html, body{
-      height:auto;
-      overflow-y:auto;
+      --pad: clamp(10px, 3.2vw, 16px);
+      --mediaH: clamp(120px, 28vw, 220px);
     }
 
     *{ box-sizing:border-box; }
 
-    body{
+    html, body{
       margin:0;
+      padding:0;
+      width:100%;
+      height:auto;
+      overflow-x:hidden; /* prevents “frame cut” due to overflow */
+    }
+
+    body{
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       background:
         radial-gradient(1200px 700px at 30% -10%, rgba(143,182,255,.18), transparent 55%),
@@ -43,47 +43,106 @@
         radial-gradient(800px 500px at 60% 110%, rgba(255,124,124,.08), transparent 55%),
         var(--bg);
       color:var(--text);
-      min-height:100vh;
-      display:flex;
-      align-items:flex-start;
-      justify-content:center;
-      padding:14px;
+
+      /* Safe-area + small-screen friendly padding */
+      padding:
+        max(12px, env(safe-area-inset-top))
+        max(12px, env(safe-area-inset-right))
+        max(12px, env(safe-area-inset-bottom))
+        max(12px, env(safe-area-inset-left));
     }
 
-    /* FIX: do NOT set height:100vh anywhere; let page scroll */
+    /* Center reliably: no body flex, just auto margins */
     .app{
-      width:min(760px, 100%);
-      display:grid;
+      width: min(760px, 100%);
+      margin: 0 auto;
+      display:flex;
+      flex-direction:column;
       gap:12px;
     }
 
-    .topics{
+    .topbar{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      user-select:none;
+      min-width: 0;
+    }
+    .brand .dot{
+      width:10px; height:10px; border-radius:999px;
+      background: rgba(0,242,255,.85);
+      box-shadow: 0 0 18px rgba(0,242,255,.35);
+      flex: 0 0 auto;
+    }
+    .brand .name{
+      font-weight:900;
+      letter-spacing:-.2px;
+      font-size: 22px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .pill{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(18,23,38,.75);
+      border-radius:999px;
+      padding:8px 10px;
+      font-size:12px;
+      color:var(--muted);
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      flex: 0 0 auto;
+    }
+    .err{ color:#ffd1d1; }
+
+    .panel{
+      width:100%;
       border:1px solid var(--stroke);
-      background: linear-gradient(180deg, rgba(11,16,32,.92), rgba(10,15,26,.92));
+      background: linear-gradient(180deg, var(--card), rgba(10,15,26,.92));
       border-radius: var(--r);
       padding: var(--pad);
       box-shadow: 0 18px 60px rgba(0,0,0,.45);
     }
+
     .topicsHeader{
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
       margin-bottom:10px;
     }
     .topicsHeader .label{
-      font-size:13px; letter-spacing:.3px; color:var(--muted);
+      font-size:13px;
+      letter-spacing:.3px;
+      color:var(--muted);
       font-weight:750;
     }
-    /* FIX: remove confusing hint completely (no "Swipe topics →") */
-    .topicsHeader .hint{ display:none; }
 
-    .chipRow{
-      display:flex;
-      gap:10px;
-      overflow-x:auto;
-      -webkit-overflow-scrolling: touch;
-      padding-bottom:6px;
-    }
-    .chipRow::-webkit-scrollbar{ height:8px; }
-    .chipRow::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.10); border-radius:999px; }
+	.chipGrid{
+	  display:flex;
+	  flex-wrap:wrap;
+	  gap:10px;
+	  overflow: visible;
+	  padding-bottom: 0;
+	}
+	
+	/* Optional: on tiny screens, make chips slightly more compact */
+	@media (max-width: 420px){
+	  .chip{
+		padding: 9px 11px;
+		min-height: 38px;
+	  }
+	}
 
     .chip{
       flex:0 0 auto;
@@ -100,36 +159,34 @@
     }
     .chip:hover{ border-color: var(--stroke2); transform: translateY(-1px); }
     .chip.active{
-      border-color: rgba(143,182,255,.75);
-      background: rgba(143,182,255,.10);
+      border-color: rgba(0,242,255,.55);
+      background: rgba(0,242,255,.08);
     }
     .chip .name{ font-size:13px; font-weight:800; }
-    .chip .dot{ width:6px; height:6px; border-radius:999px; background: rgba(143,182,255,.75); opacity:.9; }
+    .chip .dot{ width:6px; height:6px; border-radius:999px; background: rgba(0,242,255,.75); }
 
     .card{
+      width:100%;
       border:1px solid var(--stroke);
-      background: linear-gradient(180deg, rgba(11,16,32,.92), rgba(10,15,26,.92));
+      background: linear-gradient(180deg, var(--card), rgba(10,15,26,.92));
       border-radius: var(--r);
-
-      /* FIX: don't clip vertically */
-      overflow-x:hidden;
-      overflow-y:visible;
-
       box-shadow: 0 18px 60px rgba(0,0,0,.45);
+      overflow:hidden; /* keep glow tidy */
     }
 
     .media{
       height: var(--mediaH);
       position:relative;
       background:
-        radial-gradient(800px 360px at 20% 10%, rgba(143,182,255,.22), transparent 55%),
-        radial-gradient(600px 320px at 80% 30%, rgba(255,124,124,.14), transparent 60%),
-        radial-gradient(700px 420px at 60% 110%, rgba(124,255,178,.12), transparent 60%),
+        radial-gradient(800px 360px at 20% 10%, rgba(0,242,255,.16), transparent 55%),
+        radial-gradient(600px 320px at 80% 30%, rgba(255,124,124,.12), transparent 60%),
+        radial-gradient(700px 420px at 60% 110%, rgba(124,255,178,.10), transparent 60%),
         #070A10;
       border-bottom:1px solid rgba(255,255,255,.06);
     }
     .media img{
-      width:100%; height:100%;
+      width:100%;
+      height:100%;
       object-fit:cover;
       display:none;
       filter:saturate(1.05) contrast(1.03);
@@ -144,20 +201,6 @@
       backdrop-filter: blur(8px);
       font-size:12px;
       color:var(--muted);
-    }
-    .media .spark{
-      position:absolute; inset:0;
-      pointer-events:none;
-      opacity:.65;
-      background-image:
-        radial-gradient(2px 2px at 12% 30%, rgba(255,255,255,.8), transparent 60%),
-        radial-gradient(1.6px 1.6px at 22% 55%, rgba(255,255,255,.7), transparent 60%),
-        radial-gradient(1.8px 1.8px at 38% 20%, rgba(255,255,255,.65), transparent 60%),
-        radial-gradient(2px 2px at 48% 70%, rgba(255,255,255,.75), transparent 60%),
-        radial-gradient(1.5px 1.5px at 64% 36%, rgba(255,255,255,.6), transparent 60%),
-        radial-gradient(2px 2px at 78% 62%, rgba(255,255,255,.7), transparent 60%),
-        radial-gradient(1.6px 1.6px at 86% 24%, rgba(255,255,255,.65), transparent 60%);
-      mix-blend-mode: screen;
     }
 
     .body{ padding: var(--pad); }
@@ -187,78 +230,209 @@
       margin-top:12px;
       font-size: var(--concept);
       line-height:1.34;
-      color:var(--text);
       letter-spacing:-.1px;
+      word-break: break-word;
     }
 
-    .bar{
-      margin-top:12px;
-      display:grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+    .controls{
+      margin-top:14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
       gap:10px;
+      flex-wrap:wrap;
     }
-    @media (min-width: 520px){
-      .bar{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .leftControls, .rightControls{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
     }
 
     .btn{
       border:1px solid rgba(255,255,255,.10);
       background: rgba(18,23,38,.9);
       color:var(--text);
-      padding:12px 10px;
+      padding:12px 14px;
       border-radius:14px;
       font-size:14px;
-      font-weight:800;
+      font-weight:850;
       cursor:pointer;
       user-select:none;
       transition: transform .08s ease, border-color .12s ease, background .12s ease;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      line-height:1;
+      max-width: 100%;
     }
     .btn:hover{ border-color: rgba(255,255,255,.16); transform: translateY(-1px); }
     .btn:active{ transform: translateY(0px); }
     .btn[disabled]{ opacity:.55; cursor:not-allowed; transform:none; }
 
-    /* FIX: remove keys line; footer shows only status */
-    .footer{
-      margin-top:10px;
-      display:flex;
-      justify-content:flex-end;
-      color:var(--muted2);
-      font-size:12px;
+    .btn--ghost{ background: rgba(18,23,38,.55); }
+
+    .btn--primary{
+      border-color: rgba(0,242,255,.45);
+      background: rgba(0,242,255,.14);
+    }
+    .btn--primary:hover{
+      border-color: rgba(0,242,255,.70);
+      background: rgba(0,242,255,.18);
     }
 
-    .saved{
+    /* Save button: clean star + “Saved” state */
+    .btn--save.saved{
+      border-color: rgba(0,242,255,.60);
+      background: rgba(0,242,255,.12);
+    }
+
+    details.about{
       margin-top:12px;
       border:1px solid rgba(255,255,255,.08);
       background: rgba(9,12,18,.35);
       border-radius:16px;
-      padding:12px;
+      padding:10px 12px;
     }
-    .saved h3{ margin:0 0 8px 0; font-size:13px; color:var(--muted); }
-    .saved ul{ margin:0; padding-left:18px; font-size:13px; line-height:1.45; }
-    .saved a{ color:var(--accent); text-decoration:none; }
-    .saved a:hover{ text-decoration:underline; }
+    details.about > summary{
+      list-style:none;
+      cursor:pointer;
+      font-size:13px;
+      color:var(--muted);
+      font-weight:800;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    details.about > summary::-webkit-details-marker{ display:none; }
+    .aboutBody{
+      margin-top:10px;
+      color: var(--muted);
+      line-height:1.55;
+      font-size: 14px;
+    }
+    .aboutBody ul{ margin: .6rem 0 0 1.1rem; }
+
+    .footer{
+      margin-top:10px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      color:var(--muted2);
+      font-size:12px;
+      flex-wrap:wrap;
+    }
+
+    .savedWrap{
+      width:100%;
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(11,16,32,.75), rgba(10,15,26,.78));
+      border-radius: var(--r);
+      box-shadow: 0 18px 60px rgba(0,0,0,.35);
+      overflow:hidden;
+    }
+    .savedHead{
+      padding: 12px 16px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .savedHead .t{
+      font-weight:900;
+      color: var(--text);
+      letter-spacing:-.2px;
+    }
+    .savedHead .small{
+      color: var(--muted2);
+      font-size:12px;
+    }
+    .savedBody{
+      padding: 12px 16px 16px;
+    }
+    .savedList{
+      margin:0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height:1.55;
+      word-break: break-word;
+    }
+    .savedList a{
+      color: var(--accent);
+      text-decoration:none;
+    }
+    .savedList a:hover{ text-decoration:underline; }
+    .savedEmpty{
+      color: var(--muted2);
+      font-size: 13px;
+      margin:0;
+    }
+    .btn--tiny{
+      padding:8px 10px;
+      border-radius:12px;
+      font-size:12px;
+      font-weight:850;
+      background: rgba(18,23,38,.55);
+    }
+
+    /* === Key fix for “frame cut on smaller windows” ===
+       Stack controls and make buttons full-width.
+       This prevents overflow and accidental clipping. */
+    @media (max-width: 560px){
+      .topbar{ flex-direction: column; align-items:flex-start; }
+      .pill{ width:100%; justify-content:space-between; }
+
+      .controls{
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .leftControls, .rightControls{
+        width:100%;
+      }
+      .btn{
+        width:100%;
+      }
+    }
   </style>
 </head>
+
 <body>
   <div class="app">
+    <div class="topbar">
+      <div class="brand" aria-label="app title">
+        <span class="dot"></span>
+        <span class="name">WikiWander</span>
+      </div>
+      <div class="pill" id="statusPill">
+        <span id="statusText">Loading…</span>
+        <span>·</span>
+        <span>Saved:</span>
+        <span id="savedCount">0</span>
+      </div>
+    </div>
 
-    <section class="topics">
+    <section class="panel">
       <div class="topicsHeader">
         <div class="label">Topics</div>
-        <div class="hint">Browse by topic</div>
       </div>
-      <div class="chipRow" id="chipRow"></div>
+      <div class="chipGrid" id="chipRow"></div>
     </section>
 
-    <main class="card">
+    <main class="card" id="card">
       <div class="media">
         <img id="img" alt=""/>
-        <div class="spark"></div>
         <div class="tag" id="tag">Random</div>
       </div>
 
       <div class="body">
         <h1 class="title" id="title">Loading…</h1>
+
         <div class="meta">
           <span>From Wikipedia</span>
           <span id="metaTopic">· Random</span>
@@ -267,51 +441,77 @@
 
         <div class="concept" id="concept">Fetching a concept…</div>
 
-        <div class="bar">
-          <button class="btn" id="back">Back</button>
-          <button class="btn" id="next">Next</button>
-          <button class="btn" id="article">Article</button>
-          <button class="btn" id="save">Save</button>
+        <div class="controls">
+          <div class="leftControls">
+            <button class="btn btn--ghost" id="back" title="Back" aria-label="Back">← Back</button>
+          </div>
+
+          <div class="rightControls">
+            <button class="btn btn--primary" id="next" title="Next" aria-label="Next">Next →</button>
+            <button class="btn" id="open" title="Open article" aria-label="Open article">Article</button>
+            <button class="btn btn--save" id="save" title="Save" aria-label="Save">★ Save</button>
+          </div>
         </div>
+
+        <details class="about" id="about">
+          <summary>
+            <span>What is WikiWander?</span>
+            <span style="color:var(--muted2); font-weight:750;">tap</span>
+          </summary>
+          <div class="aboutBody">
+            <p>
+              WikiWander is a quick way to discover unexpected knowledge.
+              Each card shows a short excerpt from Wikipedia, chosen at random or by topic.
+            </p>
+            <ul>
+              <li><strong>Next</strong> shows a new idea.</li>
+              <li><strong>★ Save</strong> bookmarks it below.</li>
+              <li><strong>Article</strong> opens the full page on Wikipedia.</li>
+            </ul>
+          </div>
+        </details>
 
         <div class="footer">
-          <div id="status">Ready · Saved: <span id="savedCount">0</span></div>
-        </div>
-
-        <div class="saved">
-          <h3>Saved</h3>
-          <ul id="savedList"></ul>
+          <span id="errorText"></span>
+          <span>Tip: topics bias the randomness (they don’t guarantee it).</span>
         </div>
       </div>
     </main>
 
+    <section class="savedWrap" aria-label="Saved">
+      <div class="savedHead">
+        <div>
+          <div class="t">Saved</div>
+          <div class="small">Your bookmarked Wikipedia pages</div>
+        </div>
+        <button class="btn btn--tiny" id="clearSaved" title="Clear saved list">Clear</button>
+      </div>
+      <div class="savedBody">
+        <p class="savedEmpty" id="savedEmpty">No saved pages yet.</p>
+        <ol class="savedList" id="savedList" style="display:none;"></ol>
+      </div>
+    </section>
   </div>
 
 <script>
-/*
-Fixes included:
-- Removed confusing "Swipe topics →" hint
-- Removed "Keys: B · N · A · S" line entirely
-- Reduced media height on small screens (via CSS var)
-- Ensured vertical overflow is never clipped (page scrolls)
-- Excerpt is longer (lead paragraph) and adaptive by device width
-- Topic relevance uses Wikipedia Search (CirrusSearch)
-*/
+/* ============================================================
+   WikiWander — centered + small-window safe + saved list visible
+   ============================================================ */
 
-const LS_SAVED  = "wikiswipe_saved_mobile_v3";
-const LS_RECENT = "wikiswipe_recent_mobile_v3";
-const LS_CHOICE = "wikiswipe_choice_mobile_v3";
+const LS_SAVED  = "wikiwander_saved_v2";
+const LS_RECENT = "wikiwander_recent_v2";
+const LS_CHOICE = "wikiwander_choice_v2";
 
 const TOPICS = [
-  { key:"random",  label:"Random",    query:null },
+  { key:"random",  label:"Random", query:null },
   { key:"space",   label:"Astronomy", query:"astronomy OR astrophysics OR galaxy OR cosmology -astrology" },
-  { key:"mind",    label:"Mind",      query:"psychology OR neuroscience OR cognition" },
-  { key:"history", label:"History",   query:"history OR ancient OR medieval OR revolution" },
-  { key:"philo",   label:"Philosophy",query:"philosophy OR ethics OR metaphysics OR epistemology" },
-  { key:"bio",     label:"Biology",   query:"biology OR evolution OR genetics OR ecology" },
-  { key:"tech",    label:"Tech",      query:"computer science OR software OR algorithm OR engineering" },
-  { key:"art",     label:"Arts",      query:"art OR music OR literature OR cinema" },
-  { key:"geo",     label:"Earth",     query:"geology OR climate OR ocean OR volcano" },
+  { key:"mind",    label:"Mind", query:"psychology OR neuroscience OR cognition" },
+  { key:"history", label:"History", query:"history OR ancient OR medieval OR revolution" },
+  { key:"philo",   label:"Philosophy", query:"philosophy OR ethics OR metaphysics OR epistemology" },
+  { key:"bio",     label:"Biology", query:"biology OR evolution OR genetics OR ecology" },
+  { key:"tech",    label:"Tech", query:"computer science OR software OR algorithm OR engineering" },
+  { key:"art",     label:"Arts", query:"art OR music OR literature OR cinema" },
+  { key:"geo",     label:"Earth", query:"geology OR climate OR ocean OR volcano" },
 ];
 
 const FETCH_TIMEOUT_MS = 9000;
@@ -328,20 +528,12 @@ const state = {
   saved: [],
   recentTitles: [],
   isLoading: false,
+
+  // Prefetch
+  queue: [],
+  prefetching: false,
+  targetQueue: 4,
 };
-
-function loadLocal(){
-  try { state.saved = JSON.parse(localStorage.getItem(LS_SAVED) || "[]"); } catch { state.saved = []; }
-  try { state.recentTitles = JSON.parse(localStorage.getItem(LS_RECENT) || "[]"); } catch { state.recentTitles = []; }
-  const c = localStorage.getItem(LS_CHOICE);
-  if (c && TOPICS.some(t => t.key === c)) state.choice = c;
-}
-
-function saveLocal(){
-  localStorage.setItem(LS_SAVED, JSON.stringify(state.saved.slice(0, 500)));
-  localStorage.setItem(LS_RECENT, JSON.stringify(state.recentTitles.slice(0, RECENT_LIMIT)));
-  localStorage.setItem(LS_CHOICE, state.choice);
-}
 
 function escapeHtml(s){
   return String(s)
@@ -352,13 +544,28 @@ function escapeHtml(s){
     .replaceAll("'","&#039;");
 }
 
-function setStatus(text){
-  el("status").innerHTML = `${escapeHtml(text)} · Saved: <span id="savedCount">${state.saved.length}</span>`;
+function loadLocal(){
+  try { state.saved = JSON.parse(localStorage.getItem(LS_SAVED) || "[]"); } catch { state.saved = []; }
+  try { state.recentTitles = JSON.parse(localStorage.getItem(LS_RECENT) || "[]"); } catch { state.recentTitles = []; }
+  const c = localStorage.getItem(LS_CHOICE);
+  if (c && TOPICS.some(t => t.key === c)) state.choice = c;
+}
+function saveLocal(){
+  localStorage.setItem(LS_SAVED, JSON.stringify(state.saved.slice(0, 1000)));
+  localStorage.setItem(LS_RECENT, JSON.stringify(state.recentTitles.slice(0, RECENT_LIMIT)));
+  localStorage.setItem(LS_CHOICE, state.choice);
+}
+
+function setStatus(text, isErr=false){
+  el("statusText").innerHTML = isErr ? `<span class="err">${escapeHtml(text)}</span>` : escapeHtml(text);
+  el("savedCount").textContent = String(state.saved.length);
 }
 
 function setButtonsEnabled(enabled){
-  for (const id of ["back","next","article","save"]) el(id).disabled = !enabled;
   el("back").disabled = !(enabled && state.history.length > 0);
+  el("next").disabled = !enabled;
+  el("open").disabled = !enabled;
+  el("save").disabled = !enabled;
 }
 
 function setImage(url){
@@ -372,7 +579,36 @@ function setImage(url){
   }
 }
 
-/* -------- Excerpt: lead paragraph, adaptive -------- */
+/* ===== Saved list UI ===== */
+function renderSaved(){
+  const list = el("savedList");
+  const empty = el("savedEmpty");
+
+  if (!state.saved.length){
+    empty.style.display = "block";
+    list.style.display = "none";
+    list.innerHTML = "";
+    return;
+  }
+
+  empty.style.display = "none";
+  list.style.display = "block";
+  list.innerHTML = state.saved
+    .slice(0, 40)
+    .map(item => `<li><a href="${item.url}" target="_blank" rel="noopener">${escapeHtml(item.title)}</a></li>`)
+    .join("");
+}
+
+function updateSaveButtonState(){
+  const btn = el("save");
+  const c = state.current;
+  if (!c){ btn.classList.remove("saved"); return; }
+  const isSaved = state.saved.some(x => x.url === c.url);
+  btn.classList.toggle("saved", isSaved);
+  btn.textContent = isSaved ? "★ Saved" : "★ Save";
+}
+
+/* ===== Excerpt length ===== */
 function leadParagraph(text){
   if (!text) return "";
   return text
@@ -380,30 +616,26 @@ function leadParagraph(text){
     .map(p => p.trim())
     .filter(Boolean)[0] || text.trim();
 }
-
 function clampWords(text, maxWords){
   const words = (text || "").trim().split(/\s+/).filter(Boolean);
   if (words.length <= maxWords) return (text || "").trim();
   return words.slice(0, maxWords).join(" ") + "…";
 }
-
 function adaptiveMaxWords(){
   const w = window.innerWidth;
-  if (w < 420) return 75;   // small phones
-  if (w < 600) return 90;   // phones
-  if (w < 900) return 110;  // tablets
-  return 140;               // desktops
+  if (w < 420) return 120;
+  if (w < 600) return 150;
+  if (w < 900) return 180;
+  return 210;
 }
-
 function adaptiveExcerpt(text){
   return clampWords(leadParagraph(text), adaptiveMaxWords());
 }
-
 window.addEventListener("resize", () => {
   if (state.current) el("concept").textContent = adaptiveExcerpt(state.current.extract);
 });
 
-/* --------- De-dupe --------- */
+/* ===== De-dupe ===== */
 function rememberTitle(title){
   if (!title) return;
   state.recentTitles.unshift(title);
@@ -411,7 +643,7 @@ function rememberTitle(title){
   saveLocal();
 }
 
-/* --------- UI: chips --------- */
+/* ===== UI: topic chips ===== */
 function renderChips(){
   const row = el("chipRow");
   row.innerHTML = "";
@@ -419,12 +651,7 @@ function renderChips(){
     const chip = document.createElement("div");
     chip.className = "chip" + (state.choice === t.key ? " active" : "");
     chip.innerHTML = `<span class="dot"></span><span class="name">${escapeHtml(t.label)}</span>`;
-    chip.onclick = async () => {
-      state.choice = t.key;
-      saveLocal();
-      renderChips();
-      await next();
-    };
+    chip.onclick = () => onTopicChange(t.key);
     row.appendChild(chip);
   }
   const label = TOPICS.find(t => t.key === state.choice)?.label || "Random";
@@ -432,7 +659,7 @@ function renderChips(){
   el("metaTopic").textContent = `· ${label}`;
 }
 
-/* --------- Networking --------- */
+/* ===== Networking ===== */
 async function fetchWithTimeout(url, options={}){
   const controller = new AbortController();
   const t = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
@@ -442,12 +669,10 @@ async function fetchWithTimeout(url, options={}){
     clearTimeout(t);
   }
 }
-
 async function jsonOrThrow(res){
   if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
   return await res.json();
 }
-
 function isBadSummary(s){
   if (!s) return true;
   if (s.type === "disambiguation") return true;
@@ -476,22 +701,6 @@ async function fetchSummaryByTitle(title){
   return await jsonOrThrow(res);
 }
 
-async function fetchRevisionId(title){
-  const url = new URL("https://en.wikipedia.org/w/api.php");
-  url.searchParams.set("action","query");
-  url.searchParams.set("prop","revisions");
-  url.searchParams.set("titles",title);
-  url.searchParams.set("rvprop","ids");
-  url.searchParams.set("format","json");
-  url.searchParams.set("origin","*");
-  const res = await fetchWithTimeout(url.toString());
-  const j = await jsonOrThrow(res);
-  const pages = j?.query?.pages;
-  const page = pages ? pages[Object.keys(pages)[0]] : null;
-  return page?.revisions?.[0]?.revid || null;
-}
-
-/* ---- Search-based topic randomization ---- */
 async function searchTotalHits(query){
   const url = new URL("https://en.wikipedia.org/w/api.php");
   url.searchParams.set("action","query");
@@ -525,13 +734,7 @@ async function makeCardFromSummary(summary){
   const title = summary.title;
   const url = summary?.content_urls?.desktop?.page || `https://en.wikipedia.org/wiki/${encodeURIComponent(title)}`;
   const imageUrl = summary?.thumbnail?.source || summary?.originalimage?.source || null;
-
-  const oldid = await fetchRevisionId(title);
-  const oldidUrl = oldid
-    ? `https://en.wikipedia.org/w/index.php?title=${encodeURIComponent(title)}&oldid=${oldid}`
-    : url;
-
-  return { title, extract: summary.extract, url, oldidUrl, imageUrl, ts:new Date().toISOString() };
+  return { title, extract: summary.extract, url, imageUrl, ts:new Date().toISOString() };
 }
 
 async function getNextCard(){
@@ -566,38 +769,53 @@ async function getNextCard(){
       continue;
     }
   }
-
-  throw new Error("Wikipedia is flaky / rate-limiting right now. Try again.");
+  throw new Error("Wikipedia is slow / rate-limiting. Try Next again.");
 }
 
-/* --------- Render --------- */
-function renderSaved(){
-  const savedCountEl = document.getElementById("savedCount");
-  if (savedCountEl) savedCountEl.textContent = String(state.saved.length);
-
-  const list = el("savedList");
-  list.innerHTML = "";
-  state.saved.slice(0, 12).forEach(item => {
-    const li = document.createElement("li");
-    li.innerHTML = `<a href="${item.oldidUrl || item.url}" target="_blank" rel="noopener">${escapeHtml(item.title)}</a>`;
-    list.appendChild(li);
-  });
+/* ===== Prefetch queue ===== */
+function prefetchImage(url){
+  if (!url) return;
+  const img = new Image();
+  img.decoding = "async";
+  img.loading = "eager";
+  img.src = url;
 }
 
+async function fillQueue(){
+  if (state.prefetching) return;
+  state.prefetching = true;
+  try{
+    while (state.queue.length < state.targetQueue){
+      const card = await getNextCard();
+      state.queue.push(card);
+      if (state.queue.length <= 2) prefetchImage(card.imageUrl);
+    }
+  } finally {
+    state.prefetching = false;
+  }
+}
+function refillQueueSoon(){
+  setTimeout(() => fillQueue().catch(()=>{}), 0);
+}
+
+/* ===== Render ===== */
 function renderCard(){
   const c = state.current;
   if (!c) return;
 
   el("title").textContent = c.title;
   el("concept").textContent = adaptiveExcerpt(c.extract);
-  el("openLink").href = c.oldidUrl || c.url;
-
+  el("openLink").href = c.url;
   setImage(c.imageUrl);
-  renderChips();
+
+  el("errorText").textContent = "";
   setButtonsEnabled(!state.isLoading);
+  updateSaveButtonState();
+  setStatus("Ready");
+  refillQueueSoon();
 }
 
-/* --------- Actions --------- */
+/* ===== Actions ===== */
 async function next(){
   if (state.isLoading) return;
   state.isLoading = true;
@@ -605,20 +823,22 @@ async function next(){
   setStatus("Loading…");
 
   el("title").textContent = "Loading…";
-  el("concept").textContent = "Fetching a concept…";
+  el("concept").textContent = "Fetching…";
   setImage(null);
 
   try{
-    const card = await getNextCard();
+    let card = state.queue.shift();
+    if (!card) card = await getNextCard();
+
     if (state.current) state.history.push(state.current);
     state.current = card;
 
     renderCard();
-    setStatus("Ready");
   } catch (e){
     el("title").textContent = "Error";
     el("concept").textContent = String(e?.message || e);
-    setStatus("Error");
+    el("errorText").textContent = "Fetch error. Try again.";
+    setStatus("Error", true);
   } finally {
     state.isLoading = false;
     setButtonsEnabled(true);
@@ -630,59 +850,80 @@ function back(){
   if (!state.history.length) return;
   state.current = state.history.pop();
   renderCard();
-  setStatus("Ready");
 }
 
 function openArticle(){
   const c = state.current;
   if (!c) return;
-  window.open(c.oldidUrl || c.url, "_blank", "noopener");
+  window.open(c.url, "_blank", "noopener");
 }
 
-function doSave(){
+function saveCurrent(){
   const c = state.current;
   if (!c) return;
 
-  const key = c.oldidUrl || c.url;
-  if (state.saved.some(x => (x.oldidUrl || x.url) === key)) return;
+  const key = c.url;
+  if (state.saved.some(x => x.url === key)){
+    setStatus("Already saved");
+    updateSaveButtonState();
+    return;
+  }
 
   state.saved.unshift({
     title: c.title,
     url: c.url,
-    oldidUrl: c.oldidUrl,
-    imageUrl: c.imageUrl,
-    excerpt: adaptiveExcerpt(c.extract),
     savedAt: new Date().toISOString(),
     topic: state.choice
   });
+
   saveLocal();
   renderSaved();
+  updateSaveButtonState();
   setStatus("Saved");
 }
 
-/* --------- Wiring --------- */
-el("back").onclick = back;
+function clearSaved(){
+  state.saved = [];
+  saveLocal();
+  renderSaved();
+  updateSaveButtonState();
+  setStatus("Cleared");
+}
+
+/* ===== Topic change ===== */
+async function onTopicChange(key){
+  if (!TOPICS.some(t => t.key === key)) return;
+  state.choice = key;
+  saveLocal();
+
+  state.queue = [];
+  state.history = [];
+
+  renderChips();
+  setStatus("Loading…");
+  await next();
+}
+
+/* Wiring */
 el("next").onclick = next;
-el("article").onclick = openArticle;
-el("save").onclick = doSave;
+el("back").onclick = back;
+el("open").onclick = openArticle;
+el("save").onclick = saveCurrent;
+el("clearSaved").onclick = clearSaved;
 
-/* (Optional) keep keyboard shortcuts but don't advertise them */
-window.addEventListener("keydown", (e) => {
-  const k = e.key.toLowerCase();
-  if (k === "b") back();
-  if (k === "n") next();
-  if (k === "a") openArticle();
-  if (k === "s") doSave();
-});
-
-/* --------- Init --------- */
+/* Init */
 (function init(){
   loadLocal();
   renderChips();
   renderSaved();
-  setStatus("Ready");
-  next();
+  updateSaveButtonState();
+
+  setStatus("Loading…");
+  el("savedCount").textContent = String(state.saved.length);
+
+  next().then(() => refillQueueSoon());
 })();
 </script>
+
 </body>
 </html>
