@@ -1,0 +1,506 @@
+<!-- index.html
+Paris Cultural Map PoC
+- Loads your local CSV: seeds_paris.csv (same folder)
+- Leaflet map + empty right panel until you click a pin (or select from list)
+- No pins without content: pins come ONLY from rows in the CSV
+- Works as a static site (needs to be served via a local web server for fetch)
+
+How to run locally (any option):
+  - python3 -m http.server 8000
+  - or npx serve
+Then open: http://localhost:8000
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Paris Cultural Map (PoC)</title>
+
+  <!-- Leaflet -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+
+  <!-- PapaParse for CSV -->
+  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    body { margin: 0; background: #fff; color: #111; }
+    header {
+      padding: 12px 14px;
+      border-bottom: 1px solid #e6e6e6;
+      display:flex; gap:12px; align-items:center; justify-content:space-between;
+    }
+    header .left { display:flex; gap:10px; align-items:baseline; flex-wrap:wrap; }
+    header h1 { margin:0; font-size: 16px; font-weight: 750; }
+    header .sub { color:#666; font-size: 12px; }
+    header .right { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    button {
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      background: #fff;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    button:hover { background: #f6f6f6; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      height: calc(100vh - 56px);
+    }
+    #map { height: 100%; }
+
+    #panel {
+      border-left: 1px solid #e6e6e6;
+      height: 100%;
+      overflow: auto;
+      padding: 12px;
+      background: #fafafa;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e6e6e6;
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.02);
+    }
+
+    .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .pill {
+      display:inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid #ddd;
+      font-size: 12px;
+      color:#444;
+      background:#fff;
+    }
+    .muted { color:#666; font-size: 12px; line-height: 1.35; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; }
+    .title { font-size: 16px; font-weight: 800; margin: 0 0 6px 0; }
+    .quote {
+      font-size: 14px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      margin: 10px 0;
+      padding-left: 10px;
+      border-left: 3px solid #ddd;
+    }
+    .links a { color: inherit; }
+    .divider { height:1px; background:#eee; margin: 10px 0; }
+
+    .search {
+      width: min(420px, 100%);
+      padding: 9px 10px;
+      border: 1px solid #d9d9d9;
+      border-radius: 12px;
+      font-size: 13px;
+      outline: none;
+      background: #fff;
+    }
+
+    .listItem {
+      padding: 10px 10px;
+      border-radius: 12px;
+      border: 1px solid #eee;
+      background: #fff;
+      cursor: pointer;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .listItem:hover { background:#f7f7f7; }
+    .listItem .name { font-weight: 700; font-size: 13px; }
+    .listItem .meta { display:flex; gap:8px; flex-wrap:wrap; }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; grid-template-rows: 56vh 1fr; }
+      #panel { border-left: none; border-top: 1px solid #e6e6e6; }
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="left">
+    <h1>Paris Cultural Map</h1>
+    <div class="sub">CSV-driven PoC (pins + panel from <span class="mono">seeds_paris.csv</span>)</div>
+  </div>
+  <div class="right">
+    <input id="search" class="search" placeholder="Search title, text, tags…" />
+    <button id="fitBtn">Fit to pins</button>
+    <button id="clearBtn">Clear selection</button>
+  </div>
+</header>
+
+<div class="layout">
+  <div id="map"></div>
+  <div id="panel">
+    <div id="statusCard" class="card">
+      <div class="row" style="justify-content:space-between;">
+        <div>
+          <div class="title" style="margin:0;">Ready</div>
+          <div id="status" class="muted">Loading <span class="mono">seeds_paris.csv</span>…</div>
+        </div>
+        <div class="pill"><span id="count">0</span> items</div>
+      </div>
+      <div class="divider"></div>
+      <div class="muted">
+        Right panel stays empty until you click a pin (or pick an item below).<br>
+        Map shows only items that exist in your CSV.
+      </div>
+    </div>
+
+    <div id="detailCard" class="card" style="display:none;"></div>
+
+    <div id="listCard" class="card">
+      <div class="row" style="justify-content:space-between;">
+        <div class="title" style="margin:0; font-size:14px;">Items</div>
+        <div class="muted"><span id="filteredCount">0</span> shown</div>
+      </div>
+      <div class="divider"></div>
+      <div id="list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---------------------------
+  // CSV Expectations
+  // ---------------------------
+  // Required columns (header names):
+  // id,title,latitude,longitude,category,content_type,text,author_or_source,source_title,source_url,location_name,tags,confidence,notes_internal
+  //
+  // Latitude/longitude must be numeric (or blank -> row skipped).
+  //
+  // tags may be "a;b;c" or "a, b, c" — we normalize.
+  // ---------------------------
+
+  const CSV_PATH = "./seeds_paris.csv";
+
+  const map = L.map('map', { zoomControl: true }).setView([48.8566, 2.3522], 13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const markersLayer = L.layerGroup().addTo(map);
+
+  const state = {
+    items: [],
+    filtered: [],
+    markersById: new Map(),
+    selectedId: null
+  };
+
+  const elStatus = document.getElementById('status');
+  const elCount = document.getElementById('count');
+  const elFilteredCount = document.getElementById('filteredCount');
+  const elList = document.getElementById('list');
+  const elDetail = document.getElementById('detailCard');
+  const elSearch = document.getElementById('search');
+
+  document.getElementById('fitBtn').addEventListener('click', fitToPins);
+  document.getElementById('clearBtn').addEventListener('click', clearSelection);
+  elSearch.addEventListener('input', () => applyFilter(elSearch.value));
+
+  function normalizeTags(tagsRaw) {
+    const t = (tagsRaw || "").trim();
+    if (!t) return [];
+    // allow ; or , as separators
+    return t
+      .split(/[;,]/g)
+      .map(s => s.trim())
+      .filter(Boolean);
+  }
+
+  function safe(s) {
+    return (s ?? "").toString();
+  }
+
+  function parseFloatOrNull(v) {
+    const n = parseFloat(v);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  function itemMatchesQuery(item, q) {
+    if (!q) return true;
+    const hay = [
+      item.title, item.location_name, item.category, item.content_type,
+      item.text, item.author_or_source, item.source_title,
+      (item.tags || []).join(" "),
+      item.confidence
+    ].join(" ").toLowerCase();
+    return hay.includes(q.toLowerCase());
+  }
+
+  function applyFilter(query) {
+    state.filtered = state.items.filter(it => itemMatchesQuery(it, query));
+    renderList();
+    renderPins(); // show only filtered pins to reduce clutter
+  }
+
+  function renderPins() {
+    markersLayer.clearLayers();
+    state.markersById.clear();
+
+    for (const it of state.filtered) {
+      const m = L.marker([it.latitude, it.longitude], { keyboard: true });
+      m.on('click', () => selectItem(it.id));
+      m.addTo(markersLayer);
+      state.markersById.set(it.id, m);
+    }
+
+    elCount.textContent = state.items.length.toString();
+    elFilteredCount.textContent = state.filtered.length.toString();
+
+    elStatus.textContent = `Loaded ${state.items.length} items (${state.filtered.length} currently shown). Click a pin to view details.`;
+  }
+
+  function fitToPins() {
+    if (state.filtered.length === 0) return;
+    const bounds = L.latLngBounds(state.filtered.map(it => [it.latitude, it.longitude]));
+    map.fitBounds(bounds.pad(0.12));
+  }
+
+  function clearSelection() {
+    state.selectedId = null;
+    elDetail.style.display = "none";
+    // Remove bounce/highlight? Keep simple.
+  }
+
+  function selectItem(id) {
+    state.selectedId = id;
+    const it = state.items.find(x => x.id === id);
+    if (!it) return;
+
+    // Center map on selection (small offset not needed)
+    map.setView([it.latitude, it.longitude], Math.max(map.getZoom(), 15), { animate: true });
+
+    // Open popup-like behavior is avoided; we use right panel.
+    elDetail.style.display = "block";
+    elDetail.innerHTML = detailHTML(it);
+
+    // Visually emphasize selection by opening a Leaflet tooltip briefly
+    const marker = state.markersById.get(id);
+    if (marker) {
+      marker.bindTooltip(it.title, { direction: 'top', offset: [0,-8], opacity: 0.95 }).openTooltip();
+      setTimeout(() => { try { marker.closeTooltip(); } catch(e){} }, 1400);
+    }
+
+    // Scroll panel to detail
+    elDetail.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function detailHTML(it) {
+    const tags = (it.tags || []).map(t => `<span class="pill">${escapeHtml(t)}</span>`).join(" ");
+    const sourceLink = it.source_url
+      ? `<a href="${escapeAttr(it.source_url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(it.source_title || it.source_url)}</a>`
+      : `<span class="muted">—</span>`;
+
+    const authorLine = it.author_or_source ? escapeHtml(it.author_or_source) : "—";
+    const confidence = it.confidence ? `<span class="pill">${escapeHtml(it.confidence)}</span>` : "";
+
+    const coords = `<span class="mono">${it.latitude.toFixed(5)}, ${it.longitude.toFixed(5)}</span>`;
+
+    return `
+      <div class="row" style="justify-content:space-between;">
+        <div>
+          <div class="title">${escapeHtml(it.title)}</div>
+          <div class="muted">${escapeHtml(it.location_name || "")} • ${coords}</div>
+        </div>
+        <div class="row">
+          <span class="pill">${escapeHtml(it.category || "uncategorized")}</span>
+          <span class="pill">${escapeHtml(it.content_type || "content")}</span>
+          ${confidence}
+        </div>
+      </div>
+
+      <div class="quote">${escapeHtml(it.text || "")}</div>
+
+      <div class="row" style="gap:14px;">
+        <div class="muted"><b>Author / Source:</b> ${authorLine}</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="links muted"><b>Source:</b> ${sourceLink}</div>
+
+      ${tags ? `<div class="divider"></div><div class="row" style="gap:6px; align-items:flex-start;"><b class="muted">Tags:</b> <div class="row" style="gap:6px;">${tags}</div></div>` : ""}
+
+      ${it.notes_internal ? `<div class="divider"></div><div class="muted"><b>Internal:</b> ${escapeHtml(it.notes_internal)}</div>` : ""}
+    `;
+  }
+
+  function renderList() {
+    elList.innerHTML = "";
+
+    if (state.filtered.length === 0) {
+      elList.innerHTML = `<div class="muted">No matching items. Try a different search.</div>`;
+      return;
+    }
+
+    for (const it of state.filtered) {
+      const div = document.createElement('div');
+      div.className = "listItem";
+      div.tabIndex = 0;
+      div.addEventListener('click', () => selectItem(it.id));
+      div.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') selectItem(it.id);
+      });
+
+      div.innerHTML = `
+        <div class="name">${escapeHtml(it.title)}</div>
+        <div class="meta">
+          <span class="pill">${escapeHtml(it.category || "—")}</span>
+          <span class="pill">${escapeHtml(it.content_type || "—")}</span>
+          ${it.confidence ? `<span class="pill">${escapeHtml(it.confidence)}</span>` : ""}
+        </div>
+        <div class="muted">${escapeHtml((it.text || "").slice(0, 90))}${(it.text || "").length > 90 ? "…" : ""}</div>
+      `;
+      elList.appendChild(div);
+    }
+  }
+
+  function escapeHtml(str) {
+    return safe(str)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+  function escapeAttr(str) {
+    return safe(str).replaceAll('"', "%22");
+  }
+
+  function coerceRow(row) {
+    // Accept both your earlier tiny seed format and the full schema:
+    // If the CSV only has: place_name,wikiquote_title,wikidata_qid,lat,lon,tags
+    // we map it into the full schema with placeholders.
+    const hasFull = ("id" in row) && ("title" in row) && ("latitude" in row) && ("longitude" in row);
+
+    if (hasFull) {
+      const lat = parseFloatOrNull(row.latitude);
+      const lon = parseFloatOrNull(row.longitude);
+      if (lat === null || lon === null) return null;
+
+      return {
+        id: safe(row.id).trim() || crypto.randomUUID(),
+        title: safe(row.title).trim(),
+        latitude: lat,
+        longitude: lon,
+        category: safe(row.category).trim(),
+        content_type: safe(row.content_type).trim(),
+        text: safe(row.text).trim(),
+        author_or_source: safe(row.author_or_source).trim(),
+        source_title: safe(row.source_title).trim(),
+        source_url: safe(row.source_url).trim(),
+        location_name: safe(row.location_name).trim() || safe(row.title).trim(),
+        tags: normalizeTags(row.tags),
+        confidence: safe(row.confidence).trim(),
+        notes_internal: safe(row.notes_internal).trim()
+      };
+    }
+
+    // Minimal seed format (your original seeds_paris.csv)
+    // place_name,wikiquote_title,wikidata_qid,lat,lon,tags
+    const place = safe(row.place_name).trim();
+    const title = safe(row.wikiquote_title).trim() || place;
+    const lat = parseFloatOrNull(row.lat);
+    const lon = parseFloatOrNull(row.lon);
+    if (!place || lat === null || lon === null) return null;
+
+    const url = title ? `https://en.wikiquote.org/wiki/${encodeURIComponent(title.replaceAll(" ", "_"))}` : "";
+
+    return {
+      id: `seed_${place.toLowerCase().replaceAll(/[^a-z0-9]+/g, "_")}`,
+      title: place,
+      latitude: lat,
+      longitude: lon,
+      category: "literature",
+      content_type: "quote_source",
+      text: `Wikiquote seed page: ${title}. (Fetch/curate quotes offline, then replace this row with actual text.)`,
+      author_or_source: "Wikiquote",
+      source_title: title,
+      source_url: url,
+      location_name: place,
+      tags: normalizeTags(row.tags),
+      confidence: "seed",
+      notes_internal: "This is a seed row. Replace with curated quote/fact/scene entries."
+    };
+  }
+
+  async function loadCSV() {
+    elStatus.textContent = `Loading ${CSV_PATH}…`;
+
+    return new Promise((resolve, reject) => {
+      Papa.parse(CSV_PATH, {
+        header: true,
+        download: true,
+        skipEmptyLines: true,
+        complete: (results) => resolve(results),
+        error: (err) => reject(err)
+      });
+    });
+  }
+
+  async function init() {
+    try {
+      const parsed = await loadCSV();
+
+      const rows = parsed.data || [];
+      const items = [];
+      const seen = new Set();
+
+      for (const r of rows) {
+        const it = coerceRow(r);
+        if (!it) continue;
+        if (!it.title) continue;
+
+        // Ensure unique IDs
+        if (seen.has(it.id)) {
+          it.id = it.id + "_" + Math.random().toString(16).slice(2, 8);
+        }
+        seen.add(it.id);
+        items.push(it);
+      }
+
+      // Sort for list readability
+      items.sort((a, b) => a.title.localeCompare(b.title));
+
+      state.items = items;
+      state.filtered = items;
+
+      renderList();
+      renderPins();
+      fitToPins();
+
+      elStatus.textContent = `Loaded ${items.length} items. Click a pin to view details.`;
+
+    } catch (e) {
+      console.error(e);
+      elStatus.textContent = `Failed to load ${CSV_PATH}. Make sure you are serving this folder via a web server (not opening the file directly).`;
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>
