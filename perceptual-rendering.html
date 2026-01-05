@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Adaptive Reading — Neuro-Constellation Text Rendering PoC</title>
+
+<style>
+  :root{
+    /* ===== Fonts ===== */
+    --font-system: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    --font-serif: ui-serif, Georgia, "Times New Roman", Times, serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+    --font-dys: "OpenDyslexic","OpenDyslexic3", var(--font-system); /* optional if available */
+    --font: var(--font-system);
+
+    /* ===== Reading knobs ===== */
+    --fs: 16px;
+    --lh: 1.6;
+    --ls: 0px;          /* letter spacing */
+    --maxw: 74ch;       /* line length */
+    --paraGap: 12px;
+    --sectionGap: 14px;
+    --pad: 18px;
+    --radius: 16px;
+
+    /* ===== Mode flags ===== */
+    --showSummary: 1;
+    --denseBullets: 0;
+    --showCards: 0;
+    --showSteps: 0;
+    --showQA: 0;
+
+    /* ===== Layout sizes ===== */
+    --leftW: 340px;
+    --leftPeekW: 52px;
+    --bottomH: 52px;
+    --bottomPeekH: 44px;
+
+    /* ===== Theme vars (overridden by theme classes) ===== */
+    --bg:#f6f7fb;
+    --bg2:#e9eefc;
+    --panel: rgba(255,255,255,.92);
+    --surface: rgba(255,255,255,.92);
+    --surface2: rgba(255,255,255,.75);
+    --ink:#0b1220;
+    --muted:#475569;
+    --line:#cbd5e1;
+    --accent:#2563eb;
+    --accent2:#7c3aed;
+    --shadow: rgba(2,6,23,.10);
+  }
+
+  /* Explicit themes */
+  body.theme-light{
+    --bg:#f6f7fb;
+    --bg2:#e9eefc;
+    --panel: rgba(255,255,255,.92);
+    --surface: rgba(255,255,255,.92);
+    --surface2: rgba(255,255,255,.75);
+    --ink:#0b1220;
+    --muted:#475569;
+    --line:#cbd5e1;
+    --accent:#2563eb;
+    --accent2:#7c3aed;
+    --shadow: rgba(2,6,23,.10);
+  }
+  body.theme-dark{
+    --bg:#0b0f17;
+    --bg2:#13213f;
+    --panel: rgba(17,24,39,.88);
+    --surface: rgba(15,23,42,.55);
+    --surface2: rgba(11,15,23,.35);
+    --ink:#e5e7eb;
+    --muted:#a7b3cf;
+    --line:#24304a;
+    --accent:#7dd3fc;
+    --accent2:#c4b5fd;
+    --shadow: rgba(0,0,0,.25);
+  }
+
+  body.contrast{
+    --line: color-mix(in srgb, var(--line) 55%, var(--ink) 45%);
+    --muted: color-mix(in srgb, var(--muted) 30%, var(--ink) 70%);
+  }
+  body.reduce-motion *{
+    transition:none !important;
+    animation:none !important;
+    scroll-behavior:auto !important;
+  }
+
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    font-family: var(--font);
+    background: radial-gradient(1200px 700px at 12% 0%, var(--bg2), var(--bg));
+    color: var(--ink);
+    letter-spacing: var(--ls);
+  }
+
+  /* ===== App layout: left panel + main ===== */
+  .app{
+    display:grid;
+    grid-template-columns: var(--leftW) 1fr;
+    min-height: 100vh;
+  }
+  body.left-collapsed .app{
+    grid-template-columns: var(--leftPeekW) 1fr;
+  }
+
+  /* Main padding reserves space for bottom bar */
+  main{
+    padding: 26px 20px calc(var(--bottomH) + 24px);
+  }
+
+
+  /* ===== Left panel ===== */
+  .left{
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    background: var(--panel);
+    border-right: 1px solid var(--line);
+    box-shadow: 6px 0 18px var(--shadow);
+    padding: 14px 12px;
+    overflow:auto;
+  }
+  body.left-collapsed .left .panel-body{ display:none; }
+  .left .panel-header{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent 30%);
+    margin-bottom: 12px;
+  }
+  .left .panel-title{
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    margin:0;
+  }
+  .icon-btn{
+    border:1px solid var(--line);
+    background: color-mix(in srgb, var(--surface2) 70%, transparent 30%);
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 6px 10px;
+    cursor:pointer;
+    font-size: 12px;
+    white-space:nowrap;
+  }
+  .icon-btn:hover{ border-color: color-mix(in srgb, var(--accent) 60%, var(--line) 40%); }
+
+  /* Collapsed peek button inside left bar */
+  .left-peek{
+    display:none;
+    height:100%;
+    align-items:center;
+    justify-content:center;
+  }
+  body.left-collapsed .left-peek{ display:flex; }
+  body.left-collapsed .left{ padding: 10px 6px; }
+
+  .group{
+    border:1px solid color-mix(in srgb, var(--line) 75%, transparent 25%);
+    background: color-mix(in srgb, var(--surface) 55%, transparent 45%);
+    border-radius: 14px;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  .group h4{
+    margin:0 0 10px 0;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing:.06em;
+    text-transform: uppercase;
+  }
+  .control{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin: 10px 0;
+    font-size: 13px;
+  }
+  .control label{
+    color: var(--muted);
+    min-width: 110px;
+  }
+  .control .val{
+    color: var(--muted);
+    font-size: 12px;
+    min-width: 48px;
+    text-align:right;
+  }
+  select, input[type="range"]{
+    width: 100%;
+  }
+  select{
+    border:1px solid var(--line);
+    background: color-mix(in srgb, var(--surface2) 70%, transparent 30%);
+    color: var(--ink);
+    border-radius: 10px;
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+  input[type="range"]{ accent-color: var(--accent); }
+  .toggle{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin: 10px 0;
+    font-size: 13px;
+  }
+  .toggle span{ color: var(--muted); }
+  .toggle input{ accent-color: var(--accent); }
+
+  .small{
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  /* ===== Main content viewer ===== */
+  .viewer{
+    border:1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: 0 18px 60px var(--shadow);
+    padding: var(--pad);
+    max-width: 1100px;
+  }
+
+  header.hero{
+    max-width: 900px;
+    margin: 0 0 18px 0;
+  }
+  .title{
+    margin:0 0 8px 0;
+    font-size: 20px;
+    letter-spacing:.2px;
+  }
+  .subtitle{
+    margin:0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .content{
+    max-width: var(--maxw);
+    font-size: var(--fs);
+    line-height: var(--lh);
+  }
+  .summary{
+    display:none;
+    border:1px solid color-mix(in srgb, var(--accent) 45%, var(--line) 55%);
+    background: color-mix(in srgb, var(--accent) 10%, transparent 90%);
+    padding: 12px 12px;
+    border-radius: 14px;
+    margin: 0 0 var(--sectionGap) 0;
+  }
+  .summary.show{ display:block; }
+  .summary b{ color: var(--accent); }
+
+  .content h2{
+    margin: 0 0 10px 0;
+    font-size: 15px;
+    letter-spacing:.2px;
+  }
+  .content p{ margin: 0 0 var(--paraGap) 0; }
+  .divider{
+    height:1px;
+    background: color-mix(in srgb, var(--line) 85%, transparent 15%);
+    margin: var(--sectionGap) 0;
+  }
+  ul{ margin: 0 0 var(--paraGap) 18px; padding:0; }
+  li{ margin: 6px 0; }
+  .dense li{ margin: 2px 0; }
+
+  /* Cards / Steps / QA */
+  .cards{ display:none; gap:10px; }
+  .cards.show{ display:grid; grid-template-columns: 1fr; }
+  @media(min-width:900px){ .cards.show{ grid-template-columns: 1fr 1fr; } }
+  .card{
+    border:1px solid var(--line);
+    background: var(--surface2);
+    border-radius: 14px;
+    padding: 12px;
+  }
+  .card h3{ margin:0 0 6px 0; font-size: 13px; color: var(--accent2); }
+  .card p{ margin:0; }
+
+  .steps{ display:none; }
+  .steps.show{ display:block; }
+  .step{
+    border-left: 3px solid color-mix(in srgb, var(--accent) 65%, transparent 35%);
+    padding: 10px 12px;
+    margin: 10px 0;
+    background: color-mix(in srgb, var(--surface2) 70%, transparent 30%);
+    border-radius: 10px;
+  }
+  .step b{ color: var(--accent); }
+
+  .qa{ display:none; }
+  .qa.show{ display:block; }
+  .qa details{
+    border:1px solid var(--line);
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin: 10px 0;
+  }
+  .qa summary{
+    cursor:pointer;
+    color: var(--accent);
+    font-weight: 650;
+  }
+  .qa .answer{ margin-top: 8px; }
+
+  /* ===== Bottom bar: modes only ===== */
+  .bottom{
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    height: var(--bottomH);
+    background: var(--panel);
+    border-top: 1px solid var(--line);
+    backdrop-filter: blur(10px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 8px 10px;
+    gap:10px;
+    z-index: 30;
+    transition: transform .18s ease, height .18s ease;
+  }
+
+  .mode-btn{
+    border:1px solid var(--line);
+    background: color-mix(in srgb, var(--surface2) 70%, transparent 30%);
+    color: var(--ink);
+    padding: 8px 12px;
+    border-radius: 999px;
+    cursor:pointer;
+    font-size: 12px;
+    white-space:nowrap;
+  }
+  .mode-btn.active{
+    border-color: color-mix(in srgb, var(--accent) 75%, var(--line) 25%);
+    background: color-mix(in srgb, var(--accent) 16%, transparent 84%);
+  }
+  .bottom-right{
+    position:absolute;
+    right: 10px;
+    top: 10px;
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+  .chip{
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .peek-controls{
+    position: fixed;
+    right: 12px;
+    bottom: calc(var(--bottomPeekH) + 10px);
+    z-index: 40;
+    display:none;
+    gap:10px;
+  }
+
+  :focus-visible{
+    outline: 2px solid color-mix(in srgb, var(--accent) 70%, transparent 30%);
+    outline-offset: 2px;
+    border-radius: 10px;
+  }
+</style>
+</head>
+
+<body class="theme-light">
+  <div class="app">
+
+    <!-- LEFT PANEL -->
+    <aside class="left" aria-label="Display controls">
+      <div class="panel-header">
+        <div class="panel-title">Display controls</div>
+        <button id="leftToggleBtn" class="icon-btn" type="button" title="Collapse/expand left panel">Collapse</button>
+      </div>
+
+      <div class="left-peek">
+        <button class="icon-btn" type="button" onclick="toggleLeft(false)" title="Show controls">Show</button>
+      </div>
+
+      <div class="panel-body">
+        <div class="group">
+          <h4>Theme</h4>
+          <div class="control">
+            <label for="themeSel">Mode</label>
+            <select id="themeSel">
+              <option value="system">System</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
+
+          <div class="toggle">
+            <span>High contrast</span>
+            <input id="contrastTog" type="checkbox"/>
+          </div>
+          <div class="toggle">
+            <span>Reduce motion</span>
+            <input id="motionTog" type="checkbox"/>
+          </div>
+
+          <div class="small">
+            This PoC is intentionally “just UI”: it tests whether *presentation alone* improves comprehension comfort.
+          </div>
+        </div>
+
+        <div class="group">
+          <h4>Typography</h4>
+          <div class="control">
+            <label for="fontSel">Font</label>
+            <select id="fontSel">
+              <option value="system">System</option>
+              <option value="serif">Serif</option>
+              <option value="mono">Mono</option>
+              <option value="dys">Dyslexia-friendly*</option>
+            </select>
+          </div>
+          <div class="small">*Uses OpenDyslexic if available on the system / loaded later.</div>
+        </div>
+
+        <div class="group">
+          <h4>Readability</h4>
+
+          <div class="control">
+            <label for="fs">Font size</label>
+            <input id="fs" type="range" min="14" max="22" step="1" value="16"/>
+            <div id="fsVal" class="val">16</div>
+          </div>
+
+          <div class="control">
+            <label for="lh">Line height</label>
+            <input id="lh" type="range" min="1.3" max="2.1" step="0.05" value="1.6"/>
+            <div id="lhVal" class="val">1.60</div>
+          </div>
+
+          <div class="control">
+            <label for="ls">Letter spacing</label>
+            <input id="ls" type="range" min="0" max="1.2" step="0.05" value="0"/>
+            <div id="lsVal" class="val">0.00</div>
+          </div>
+
+          <div class="control">
+            <label for="pg">Paragraph gap</label>
+            <input id="pg" type="range" min="6" max="26" step="1" value="12"/>
+            <div id="pgVal" class="val">12</div>
+          </div>
+
+          <div class="control">
+            <label for="mw">Line width</label>
+            <input id="mw" type="range" min="55" max="105" step="1" value="74"/>
+            <div id="mwVal" class="val">74ch</div>
+          </div>
+        </div>
+
+        <div class="group">
+          <h4>Reset</h4>
+          <button id="resetBtn" class="icon-btn" type="button">Reset controls</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main>
+      <header class="hero">
+        <div class="title">Adaptive Reading — Neuro-Constellation Text Rendering PoC</div>
+        <p class="subtitle">
+          One content payload. Five rendering modes. No AI. The claim being tested is simple:
+          <b>the baseline should be how a person processes information, not how the author formats it.</b>
+          Bottom bar = mode (structure). Left panel = comfort controls (typography & spacing).
+        </p>
+      </header>
+
+      <section class="viewer">
+        <div class="content">
+
+          <div id="summary" class="summary">
+            <b>TL;DR</b> —
+          </div>
+
+          <!-- Narrative mode (default) -->
+          <div id="narrative">
+            <h2>One-page reference: basic pig feeding (conceptual)</h2>
+            <p>
+              Pig diets are typically designed around <b>life stage</b> (weaner → grower → finisher) and <b>production goal</b>
+              (growth rate, carcass quality, or reproduction). The same ingredient can be appropriate or inappropriate depending on
+              stage, because nutrient requirements shift with body size and physiology.
+            </p>
+
+            <div class="divider"></div>
+
+            <h2>Key principles</h2>
+            <ul id="principles">
+              <li><b>Energy</b> drives growth; too little slows gain, too much can push excess fat.</li>
+              <li><b>Protein + amino acids</b> (esp. lysine) support lean tissue; balance matters more than crude %.</li>
+              <li><b>Fiber</b> affects satiety and gut health; sows often tolerate/benefit from more fiber than weaners.</li>
+              <li><b>Minerals & vitamins</b> (Ca/P, salt, trace minerals) prevent deficiencies and support bone/metabolism.</li>
+              <li><b>Water</b> is non-negotiable; intake often limits performance before feed does.</li>
+            </ul>
+
+            <h2>Stage hints (very simplified)</h2>
+            <ul id="stages">
+              <li><b>Weaners</b>: highly digestible feed, careful protein quality, avoid abrupt changes.</li>
+              <li><b>Growers</b>: steady energy + balanced amino acids; monitor growth uniformity.</li>
+              <li><b>Finishers</b>: manage energy to control fatness; keep minerals adequate.</li>
+              <li><b>Sows</b>: adjust for gestation vs lactation; fiber can help satiety during gestation.</li>
+            </ul>
+
+            <h2>Safety / reality checks</h2>
+            <ul id="checks">
+              <li>Exact rations depend on breed, environment, health status, and local ingredient quality.</li>
+              <li>For real feeding plans: use a qualified nutritionist or validated tables for your region.</li>
+            </ul>
+          </div>
+
+          <!-- Cards mode -->
+          <div id="cards" class="cards" aria-hidden="true"></div>
+
+          <!-- Steps mode -->
+          <div id="steps" class="steps" aria-hidden="true"></div>
+
+          <!-- QA mode -->
+          <div id="qa" class="qa" aria-hidden="true"></div>
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Bottom bar: learning styles only -->
+  <div class="bottom" role="region" aria-label="Learning style selector">
+    <button class="mode-btn" data-skin="skimmer">Skimmer</button>
+    <button class="mode-btn" data-skin="stepper">Stepper</button>
+    <button class="mode-btn" data-skin="deep">Deep Reader</button>
+    <button class="mode-btn" data-skin="visual">Visual Chunker</button>
+    <button class="mode-btn" data-skin="socratic">Socratic</button>
+
+    <div class="bottom-right">
+      
+      <span id="activeChip" class="chip">Active: —</span>
+    </div>
+  </div>
+
+
+<script>
+  const STORE_KEY = "adaptiveReading.leftBottom.v1";
+
+  // ===== Content payload =====
+  const content = {
+    summary: "A basic pig diet is about energy (growth), protein (muscle), fiber (gut), minerals/vitamins, and clean water — matched to age and purpose (weaner, grower, finisher, sow).",
+    principles: [
+      {k:"Energy", v:"Drives growth; too little slows gain, too much can push excess fat."},
+      {k:"Protein + amino acids", v:"Support lean tissue; balance matters more than crude %."},
+      {k:"Fiber", v:"Affects satiety and gut health; sows often tolerate/benefit from more fiber than weaners."},
+      {k:"Minerals & vitamins", v:"Ca/P, salt, trace minerals prevent deficiencies and support bone/metabolism."},
+      {k:"Water", v:"Non-negotiable; intake often limits performance before feed does."}
+    ],
+    stageHints: [
+      {k:"Weaners", v:"Highly digestible feed, careful protein quality, avoid abrupt changes."},
+      {k:"Growers", v:"Steady energy + balanced amino acids; monitor growth uniformity."},
+      {k:"Finishers", v:"Manage energy to control fatness; keep minerals adequate."},
+      {k:"Sows", v:"Adjust for gestation vs lactation; fiber can help satiety during gestation."}
+    ],
+    checks: [
+      "Exact rations depend on breed, environment, health status, and local ingredient quality.",
+      "For real feeding plans: use a qualified nutritionist or validated tables for your region."
+    ],
+    socratic: [
+      {q:"What decides a pig diet first?", a:"Life stage and production goal. Requirements change as pigs grow and depending on whether you’re optimizing growth, carcass traits, or reproduction."},
+      {q:"What are the non-negotiable nutrients?", a:"Clean water plus balanced energy, amino acids (especially lysine), minerals/vitamins, and appropriate fiber."},
+      {q:"Why not just use crude protein %?", a:"Because amino acid balance matters. Two feeds with the same crude protein can differ in usable amino acids for lean growth."},
+      {q:"Where do mistakes usually happen?", a:"Abrupt feed changes, poor water access, unbalanced minerals (Ca/P), or using an adult-type diet for weaners."},
+      {q:"When do you need an expert?", a:"Whenever you’re setting actual rations for a farm: ingredient variability and local constraints can dominate outcomes."}
+    ]
+  };
+
+  // ===== 5 learning style presets (structure only) =====
+  const skins = {
+    skimmer: {
+      label: "Skimmer",
+      css: {"--maxw":"92ch","--fs":"15px","--lh":"1.45","--paraGap":"8px","--sectionGap":"10px","--pad":"14px",
+            "--showSummary":"1","--denseBullets":"1","--showCards":"0","--showSteps":"0","--showQA":"0"}
+    },
+    stepper: {
+      label: "Stepper",
+      css: {"--maxw":"78ch","--fs":"16px","--lh":"1.6","--paraGap":"10px","--sectionGap":"16px","--pad":"18px",
+            "--showSummary":"1","--denseBullets":"0","--showCards":"0","--showSteps":"1","--showQA":"0"}
+    },
+    deep: {
+      label: "Deep Reader",
+      css: {"--maxw":"70ch","--fs":"17px","--lh":"1.75","--paraGap":"14px","--sectionGap":"14px","--pad":"20px",
+            "--showSummary":"0","--denseBullets":"0","--showCards":"0","--showSteps":"0","--showQA":"0"}
+    },
+    visual: {
+      label: "Visual Chunker",
+      css: {"--maxw":"1100px","--fs":"15px","--lh":"1.55","--paraGap":"10px","--sectionGap":"14px","--pad":"16px",
+            "--showSummary":"1","--denseBullets":"0","--showCards":"1","--showSteps":"0","--showQA":"0"}
+    },
+    socratic: {
+      label: "Socratic",
+      css: {"--maxw":"78ch","--fs":"16px","--lh":"1.6","--paraGap":"10px","--sectionGap":"14px","--pad":"18px",
+            "--showSummary":"0","--denseBullets":"0","--showCards":"0","--showSteps":"0","--showQA":"1"}
+    }
+  };
+
+  // ===== Utilities =====
+  function escapeHtml(str){
+    return String(str)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;");
+  }
+  function setVar(name, value){
+    document.documentElement.style.setProperty(name, value);
+  }
+  function cssVar(name){
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  // ===== Renderers =====
+  function renderCards(){
+    const el = document.getElementById("cards");
+    el.innerHTML = "";
+    const blocks = [
+      {title:"Summary", text: content.summary},
+      {title:"Principles", text: content.principles.map(x=>`${x.k}: ${x.v}`).join(" ")},
+      {title:"Stages", text: content.stageHints.map(x=>`${x.k}: ${x.v}`).join(" ")},
+      {title:"Reality checks", text: content.checks.join(" ")}
+    ];
+    blocks.forEach(b=>{
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `<h3>${escapeHtml(b.title)}</h3><p>${escapeHtml(b.text)}</p>`;
+      el.appendChild(card);
+    });
+  }
+
+  function renderSteps(){
+    const el = document.getElementById("steps");
+    el.innerHTML = "";
+    const steps = [
+      {t:"Identify stage + goal", d:"Weaner/grower/finisher/sow and whether you’re optimizing growth, carcass traits, or reproduction."},
+      {t:"Set the nutrient backbone", d:"Energy + amino acids (esp. lysine) + minerals/vitamins + water; add fiber appropriate to stage."},
+      {t:"Translate to ingredients", d:"Choose local ingredients that can meet the backbone reliably; digestibility matters for young pigs."},
+      {t:"Avoid abrupt transitions", d:"Change feeds gradually; sudden shifts often cause intake drops or gut issues."},
+      {t:"Monitor + adjust", d:"Track growth uniformity, condition, and water access; re-check mineral balance (Ca/P) if issues arise."},
+      {t:"Use expert tables when real", d:"For actual ration formulation, use validated nutrient tables or a nutritionist."}
+    ];
+    steps.forEach((s,i)=>{
+      const div = document.createElement("div");
+      div.className = "step";
+      div.innerHTML = `<b>Step ${i+1} — ${escapeHtml(s.t)}</b><div style="margin-top:6px;">${escapeHtml(s.d)}</div>`;
+      el.appendChild(div);
+    });
+  }
+
+  function renderQA(){
+    const el = document.getElementById("qa");
+    el.innerHTML = "";
+    content.socratic.forEach(item=>{
+      const d = document.createElement("details");
+      d.open = false;
+      d.innerHTML = `<summary>${escapeHtml(item.q)}</summary><div class="answer">${escapeHtml(item.a)}</div>`;
+      el.appendChild(d);
+    });
+  }
+
+  // ===== Mode application =====
+  let currentSkin = "skimmer";
+
+  function applySkin(name){
+    const skin = skins[name];
+    if(!skin) return;
+    currentSkin = name;
+
+    // apply preset vars (structure defaults)
+    for(const [k,v] of Object.entries(skin.css)){
+      setVar(k, v);
+    }
+
+    // summary
+    const summary = document.getElementById("summary");
+    summary.classList.toggle("show", skin.css["--showSummary"] === "1");
+    summary.innerHTML = `<b>TL;DR</b> ${escapeHtml(content.summary)}`;
+
+    // dense bullets
+    const dense = skin.css["--denseBullets"] === "1";
+    ["principles","stages","checks"].forEach(id=>{
+      const ul = document.getElementById(id);
+      ul?.classList.toggle("dense", dense);
+    });
+
+    // show/hide blocks
+    const narrative = document.getElementById("narrative");
+    const cards = document.getElementById("cards");
+    const steps = document.getElementById("steps");
+    const qa = document.getElementById("qa");
+
+    const showCards = skin.css["--showCards"] === "1";
+    const showSteps = skin.css["--showSteps"] === "1";
+    const showQA = skin.css["--showQA"] === "1";
+
+    cards.classList.toggle("show", showCards);
+    steps.classList.toggle("show", showSteps);
+    qa.classList.toggle("show", showQA);
+    narrative.style.display = (showCards || showSteps || showQA) ? "none" : "block";
+
+    if(showCards) renderCards();
+    if(showSteps) renderSteps();
+    if(showQA) renderQA();
+
+    // buttons UI
+    document.querySelectorAll(".mode-btn").forEach(b=>{
+      b.classList.toggle("active", b.dataset.skin === name);
+    });
+    document.getElementById("activeChip").textContent = `Active: ${skin.label}`;
+
+    // sync sliders to current CSS (so left panel reflects mode changes but user can override after)
+    syncSlidersFromCSS();
+
+    savePrefs();
+  }
+
+  // ===== Theme / accessibility =====
+  function setTheme(mode){
+    document.body.classList.remove("theme-light","theme-dark");
+    if(mode === "light") document.body.classList.add("theme-light");
+    if(mode === "dark") document.body.classList.add("theme-dark");
+    if(mode === "system"){
+      const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      document.body.classList.add(prefersDark ? "theme-dark" : "theme-light");
+    }
+  }
+
+  function setFont(which){
+    let val = "var(--font-system)";
+    if(which === "serif") val = "var(--font-serif)";
+    if(which === "mono")  val = "var(--font-mono)";
+    if(which === "dys")   val = "var(--font-dys)";
+    setVar("--font", val);
+  }
+
+  // ===== Slider syncing =====
+  function syncSlidersFromCSS(){
+    const fs = parseFloat(cssVar("--fs")) || 16;
+    const lh = parseFloat(cssVar("--lh")) || 1.6;
+    const ls = parseFloat(cssVar("--ls")) || 0;
+    const pg = parseFloat(cssVar("--paraGap")) || 12;
+    const mwRaw = cssVar("--maxw");
+    const mw = mwRaw.endsWith("ch") ? parseFloat(mwRaw) : 74;
+
+    setSlider("fs", fs, "fsVal", `${fs}`);
+    setSlider("lh", lh, "lhVal", lh.toFixed(2));
+    setSlider("ls", ls, "lsVal", ls.toFixed(2));
+    setSlider("pg", pg, "pgVal", `${pg}`);
+    setSlider("mw", mw, "mwVal", `${mw}ch`);
+  }
+
+  function setSlider(id, value, labelId, labelText){
+    const el = document.getElementById(id);
+    if(el) el.value = value;
+    const lab = document.getElementById(labelId);
+    if(lab) lab.textContent = labelText;
+  }
+
+  // ===== Panels =====
+  function toggleLeft(force){
+    const collapsed = (typeof force === "boolean") ? force : !document.body.classList.contains("left-collapsed");
+    document.body.classList.toggle("left-collapsed", collapsed);
+    document.getElementById("leftToggleBtn").textContent = collapsed ? "Expand" : "Collapse";
+    savePrefs();
+  }
+
+  // ===== Persistence =====
+  function savePrefs(){
+    const prefs = {
+      skin: currentSkin,
+      theme: document.getElementById("themeSel").value,
+      contrast: document.getElementById("contrastTog").checked,
+      motion: document.getElementById("motionTog").checked,
+      fontSel: document.getElementById("fontSel").value,
+      fs: document.getElementById("fs").value,
+      lh: document.getElementById("lh").value,
+      ls: document.getElementById("ls").value,
+      pg: document.getElementById("pg").value,
+      mw: document.getElementById("mw").value,
+      leftCollapsed: document.body.classList.contains("left-collapsed"),
+      bottomCollapsed: document.body.classList.contains("bottom-collapsed")
+    };
+    localStorage.setItem(STORE_KEY, JSON.stringify(prefs));
+  }
+
+  function loadPrefs(){
+    try{
+      const raw = localStorage.getItem(STORE_KEY);
+      if(!raw) return null;
+      return JSON.parse(raw);
+    }catch{ return null; }
+  }
+
+  function resetControls(){
+    // Keep current skin but reset comfort knobs to sane defaults
+    document.getElementById("themeSel").value = "system";
+    setTheme("system");
+
+    document.getElementById("contrastTog").checked = false;
+    document.body.classList.remove("contrast");
+
+    document.getElementById("motionTog").checked = false;
+    document.body.classList.remove("reduce-motion");
+
+    document.getElementById("fontSel").value = "system";
+    setFont("system");
+
+    // Reset to skin defaults by re-applying skin
+    applySkin(currentSkin);
+
+    // Make sure panels are visible after reset (optional, feels nicer)
+    toggleLeft(false);
+    toggleBottom(false);
+
+    savePrefs();
+  }
+
+  // ===== Wiring =====
+  function init(){
+    // Mode buttons
+    document.querySelectorAll(".mode-btn").forEach(btn=>{
+      btn.addEventListener("click", ()=> applySkin(btn.dataset.skin));
+    });
+
+    // Panel toggles
+    document.getElementById("leftToggleBtn").addEventListener("click", ()=> toggleLeft());
+
+
+    // Theme + toggles
+    document.getElementById("themeSel").addEventListener("change", (e)=>{
+      setTheme(e.target.value); savePrefs();
+    });
+
+    document.getElementById("contrastTog").addEventListener("change", (e)=>{
+      document.body.classList.toggle("contrast", e.target.checked); savePrefs();
+    });
+
+    document.getElementById("motionTog").addEventListener("change", (e)=>{
+      document.body.classList.toggle("reduce-motion", e.target.checked); savePrefs();
+    });
+
+    // Font selector
+    document.getElementById("fontSel").addEventListener("change", (e)=>{
+      setFont(e.target.value); savePrefs();
+    });
+
+    // Sliders (comfort knobs override whatever the skin set)
+    const bind = (id, fn) => {
+      const el = document.getElementById(id);
+      el.addEventListener("input", ()=>{
+        fn(el.value);
+      });
+      el.addEventListener("change", savePrefs);
+    };
+
+    bind("fs", v => { setVar("--fs", `${v}px`); document.getElementById("fsVal").textContent = v; });
+    bind("lh", v => { setVar("--lh", `${v}`); document.getElementById("lhVal").textContent = Number(v).toFixed(2); });
+    bind("ls", v => { setVar("--ls", `${v}px`); document.getElementById("lsVal").textContent = Number(v).toFixed(2); });
+    bind("pg", v => { setVar("--paraGap", `${v}px`); document.getElementById("pgVal").textContent = v; });
+    bind("mw", v => { setVar("--maxw", `${v}ch`); document.getElementById("mwVal").textContent = `${v}ch`; });
+
+    // Reset
+    document.getElementById("resetBtn").addEventListener("click", resetControls);
+
+    // Apply saved prefs if any
+    const prefs = loadPrefs();
+
+    if(prefs){
+      // Theme first
+      document.getElementById("themeSel").value = prefs.theme || "system";
+      setTheme(document.getElementById("themeSel").value);
+
+      // toggles
+      document.getElementById("contrastTog").checked = !!prefs.contrast;
+      document.body.classList.toggle("contrast", !!prefs.contrast);
+
+      document.getElementById("motionTog").checked = !!prefs.motion;
+      document.body.classList.toggle("reduce-motion", !!prefs.motion);
+
+      // font
+      document.getElementById("fontSel").value = prefs.fontSel || "system";
+      setFont(document.getElementById("fontSel").value);
+
+      // apply skin (sets structure)
+      applySkin(prefs.skin || "skimmer");
+
+      // apply comfort overrides after skin
+      setVar("--fs", `${prefs.fs || 16}px`);
+      setVar("--lh", `${prefs.lh || 1.6}`);
+      setVar("--ls", `${(prefs.ls || 0)}px`);
+      setVar("--paraGap", `${prefs.pg || 12}px`);
+      setVar("--maxw", `${prefs.mw || 74}ch`);
+      syncSlidersFromCSS();
+
+      // panels
+      document.body.classList.toggle("left-collapsed", !!prefs.leftCollapsed);
+      document.getElementById("leftToggleBtn").textContent = prefs.leftCollapsed ? "Expand" : "Collapse";
+    } else {
+      // Defaults
+      document.getElementById("themeSel").value = "system";
+      setTheme("system");
+      document.getElementById("fontSel").value = "system";
+      setFont("system");
+      applySkin("skimmer");
+    }
+
+    // Keep system theme in sync
+    if(window.matchMedia){
+      window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", ()=>{
+        if(document.getElementById("themeSel").value === "system"){
+          setTheme("system");
+        }
+      });
+    }
+
+    // Ensure TL;DR is set
+    const summary = document.getElementById("summary");
+    summary.innerHTML = `<b>TL;DR</b> ${escapeHtml(content.summary)}`;
+  }
+
+  init();
+</script>
+</body>
+</html>
