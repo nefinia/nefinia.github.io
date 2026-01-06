@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Perceptual Rendering — Proof of Concept</title>
+  <link rel="stylesheet" href="assets/styles.css"/>
+</head>
+<body class="theme-light">
+  <div class="page">
+    <header class="hero">
+      <div class="kicker">Perceptual Rendering</div>
+      <h1 class="hero-title">A perception-first reading layer (PoC)</h1>
+      <p class="hero-sub">
+        Same information. Different renderings. The claim is modest and testable:
+        <b>people often struggle less with the content than with the presentation.</b>
+        This prototype lets readers switch how text is structured (bottom bar) and tune readability (left panel) —
+        without changing the underlying content.
+      </p>
+    </header>
+
+    <section class="card">
+      <h2 class="h2">What this is</h2>
+      <ul class="bullets">
+        <li>A minimal demo of a <b>rendering layer</b>: structure and formatting adapt to the reader.</li>
+        <li>No AI. No “personality typing.” No claims about fixed “learning styles.”</li>
+        <li>Goal: see whether certain renderings reduce friction and improve comprehension/recall.</li>
+      </ul>
+
+      <h2 class="h2">How to use it</h2>
+      <ol class="stepslist">
+        <li>Pick a topic below.</li>
+        <li>Switch rendering modes in the bottom bar (Skimmer / Stepper / Deep / Visual / Socratic).</li>
+        <li>Adjust comfort controls in the left panel (font, size, spacing, width, theme).</li>
+        <li>Notice which mode makes things “click” faster, with less fatigue.</li>
+      </ol>
+    </section>
+
+    <section class="topics">
+      <a class="topic" href="topic.html?t=blackhole">
+        <div class="topic-emoji">🌌</div>
+        <div>
+          <div class="topic-title">What is a black hole — really?</div>
+          <div class="topic-desc">Dense concept, high misconception load. Great stress test for structure.</div>
+        </div>
+        <div class="topic-arrow">→</div>
+      </a>
+
+      <a class="topic" href="topic.html?t=entropy">
+        <div class="topic-emoji">🧠</div>
+        <div>
+          <div class="topic-title">What is entropy (without equations)?</div>
+          <div class="topic-desc">Abstract idea with slippery intuition. Rendering should matter a lot here.</div>
+        </div>
+        <div class="topic-arrow">→</div>
+      </a>
+
+      <a class="topic" href="topic.html?t=cheeseboard">
+        <div class="topic-emoji">🧀</div>
+        <div>
+          <div class="topic-title">How to design a great cheese board</div>
+          <div class="topic-desc">Low-stakes procedural problem. Tests whether the layer generalizes beyond STEM.</div>
+        </div>
+        <div class="topic-arrow">→</div>
+      </a>
+    </section>
+
+    <footer class="foot">
+      <span class="muted">PoC: rendering logic is shared across topics; only the content payload changes.</span>
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Perceptual Rendering — Topic</title>
+  <link rel="stylesheet" href="./assets/styles.css"/>
+</head>
+<body class="theme-light">
+  <div class="app">
+
+    <!-- LEFT PANEL (controls) -->
+    <aside class="left" aria-label="Display controls">
+      <button class="collapse-arrow" id="leftArrow" type="button" aria-label="Toggle controls"></button>
+
+      <div class="left-inner">
+        <a class="backlink" href="./index.html">← Overview</a>
+
+        <div class="left-title">Display controls</div>
+
+        <div class="group">
+          <div class="group-title">Theme</div>
+          <div class="row">
+            <label class="lbl" for="themeSel">Mode</label>
+            <select id="themeSel">
+              <option value="system">System</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
+          <label class="tog"><input id="contrastTog" type="checkbox"/> High contrast</label>
+          <label class="tog"><input id="motionTog" type="checkbox"/> Reduce motion</label>
+        </div>
+
+        <div class="group">
+          <div class="group-title">Font</div>
+          <div class="row">
+            <label class="lbl" for="fontSel">Family</label>
+            <select id="fontSel">
+              <option value="system">System</option>
+              <option value="serif">Serif</option>
+              <option value="mono">Mono</option>
+              <option value="dys">Dyslexia-friendly*</option>
+            </select>
+          </div>
+          <div class="tiny muted">*Uses OpenDyslexic if available on device.</div>
+        </div>
+
+        <div class="group">
+          <div class="group-title">Readability</div>
+
+          <div class="slider">
+            <div class="srow"><span class="lbl">Size</span><span id="fsVal" class="val">16</span></div>
+            <input id="fs" type="range" min="14" max="22" step="1" value="16"/>
+          </div>
+
+          <div class="slider">
+            <div class="srow"><span class="lbl">Line height</span><span id="lhVal" class="val">1.60</span></div>
+            <input id="lh" type="range" min="1.3" max="2.1" step="0.05" value="1.6"/>
+          </div>
+
+          <div class="slider">
+            <div class="srow"><span class="lbl">Letter spacing</span><span id="lsVal" class="val">0.00</span></div>
+            <input id="ls" type="range" min="0" max="1.2" step="0.05" value="0"/>
+          </div>
+
+          <div class="slider">
+            <div class="srow"><span class="lbl">Paragraph gap</span><span id="pgVal" class="val">12</span></div>
+            <input id="pg" type="range" min="6" max="26" step="1" value="12"/>
+          </div>
+
+          <div class="slider">
+            <div class="srow"><span class="lbl">Line width</span><span id="mwVal" class="val">74ch</span></div>
+            <input id="mw" type="range" min="55" max="105" step="1" value="74"/>
+          </div>
+        </div>
+
+        <button class="btn" id="resetBtn" type="button">Reset controls</button>
+      </div>
+
+      <div class="left-peek">
+        <button class="peek-btn" id="leftPeekBtn" type="button" aria-label="Show controls">›</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main>
+      <header class="topic-hero">
+        <div class="topic-topline">
+          <div class="kicker">Perceptual Rendering</div>
+          <div class="topic-switch">
+            <label class="lbl" for="topicSel">Topic</label>
+            <select id="topicSel"></select>
+          </div>
+        </div>
+        <h1 class="topic-title" id="topicTitle">—</h1>
+        <p class="topic-sub" id="topicSubtitle">—</p>
+      </header>
+
+      <section class="viewer">
+        <div class="content">
+          <div id="summary" class="summary"><b>TL;DR</b> —</div>
+
+          <!-- MODE VIEWS (app.js will show one at a time) -->
+          <div id="skim"></div>
+          <div id="deep"></div>
+          <div id="cards" class="cards" aria-hidden="true"></div>
+          <div id="steps" class="steps" aria-hidden="true"></div>
+          <div id="qa" class="qa" aria-hidden="true"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- BOTTOM BAR (modes only) -->
+  <div class="bottom" role="region" aria-label="Rendering modes">
+    <button class="mode-btn" data-skin="skimmer">Skimmer</button>
+    <button class="mode-btn" data-skin="stepper">Stepper</button>
+    <button class="mode-btn" data-skin="deep">Deep Reader</button>
+    <button class="mode-btn" data-skin="visual">Visual Chunker</button>
+    <button class="mode-btn" data-skin="socratic">Socratic</button>
+    <div class="chip" id="activeChip">Active: —</div>
+  </div>
+
+  <script src="./assets/topics.js"></script>
+  <script src="./assets/app.js"></script>
+</body>
+</html>
