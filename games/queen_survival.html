@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Queen Survival</title>
+
+<style>
+  :root { --cell: 44px; --anim: 140ms; }
+
+  body{
+    font-family: system-ui, sans-serif;
+    text-align:center;
+    background:#fafafa;
+    margin:0;
+    padding:14px 10px 24px;
+    overflow-x:hidden;
+  }
+  h2{ margin:8px 0 6px; }
+
+  #hud{
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:10px 14px;
+    align-items:center;
+    margin:8px 0 10px;
+  }
+  .hudItem{ font-size:16px; }
+  .hudLabel{ color:#333; }
+  .hudValue{ font-weight:700; }
+
+  select, button{
+    font-size:14px;
+    padding:6px 10px;
+  }
+
+  #boardWrap{ width:min(100vw - 20px, 520px); margin:0 auto; }
+  #board{
+    position:relative;
+    width:calc(var(--cell)*8 + 4px);
+    height:calc(var(--cell)*8 + 4px);
+    margin:0 auto;
+    border:2px solid #333;
+    box-sizing:border-box;
+    touch-action:manipulation;
+  }
+  #grid{
+    position:absolute;
+    inset:0;
+    display:grid;
+    grid-template-columns:repeat(8, var(--cell));
+    grid-template-rows:repeat(8, var(--cell));
+  }
+  .cell{
+    width:var(--cell);
+    height:var(--cell);
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+  }
+  .light{ background:#f0d9b5; }
+  .dark{ background:#b58863; }
+
+  #pieces{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+  }
+
+  .piece{
+    position:absolute;
+    width:var(--cell);
+    height:var(--cell);
+    line-height:var(--cell);
+    font-size:calc(var(--cell)*0.58);
+    user-select:none;
+    transform:translate(var(--px), var(--py));
+    transition:transform var(--anim) linear;
+    will-change:transform;
+  }
+
+  .cooldown{ opacity:0.55; }
+
+  .float{
+    position:absolute;
+    transform:translate(var(--px), var(--py));
+    font-weight:800;
+    font-size:calc(var(--cell)*0.35);
+    opacity:0;
+    animation:pop 850ms ease-out forwards;
+    pointer-events:none;
+    text-shadow:0 1px 0 rgba(255,255,255,0.65);
+  }
+  .float.plus{ color:#0a7a2f; }
+  .float.minus{ color:#b00020; }
+
+  @keyframes pop{
+    0%{ opacity:0; transform:translate(var(--px), var(--py)) translateY(6px) scale(0.95); }
+    15%{ opacity:1; }
+    70%{ opacity:1; transform:translate(var(--px), var(--py)) translateY(-14px) scale(1.05); }
+    100%{ opacity:0; transform:translate(var(--px), var(--py)) translateY(-22px) scale(1.0); }
+  }
+
+  .muted{ color:#444; font-size:13px; margin-top:8px; }
+  .over{ color:#a00; font-weight:700; }
+</style>
+</head>
+
+<body>
+<h2>Queen Survival</h2>
+
+<div id="hud">
+  <div class="hudItem"><span class="hudLabel">Time:</span> <span class="hudValue" id="time">2:00</span></div>
+  <div class="hudItem"><span class="hudLabel">Score:</span> <span class="hudValue" id="score">0</span></div>
+
+  <div class="hudItem">
+    <span class="hudLabel">High Score (for </span>
+    <span class="hudValue" id="enemyCountLabel">2</span>
+    <span class="hudLabel"> enemies):</span>
+    <span class="hudValue" id="best">0</span>
+  </div>
+
+  <div class="hudItem">
+    <span class="hudLabel">Enemies:</span>
+    <select id="enemyCount">
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="6">6</option>
+      <option value="8">8</option>
+      <option value="10">10</option>
+    </select>
+  </div>
+
+  <button id="startBtn">Start</button>
+  <button id="pauseBtn" disabled>Pause</button>
+  <button id="stopBtn" disabled>Stop</button>
+</div>
+
+<div id="boardWrap">
+  <div id="board">
+    <div id="grid"></div>
+    <div id="pieces"></div>
+  </div>
+</div>
+
+<div class="muted" id="msg">Pick an enemy count and press Start.</div>
+
+<script>
+/* =========================
+   Responsive cell sizing
+========================= */
+function setCellSizeFromViewport() {
+  const wrap = document.getElementById("boardWrap");
+  const wrapW = wrap.getBoundingClientRect().width;
+  const usable = Math.floor(wrapW - 8);
+  const cell = Math.max(32, Math.min(62, Math.floor(usable / 8)));
+  document.documentElement.style.setProperty("--cell", cell + "px");
+}
+window.addEventListener("resize", () => { setCellSizeFromViewport(); redrawAll(); });
+window.addEventListener("orientationchange", () => setTimeout(() => { setCellSizeFromViewport(); redrawAll(); }, 80));
+
+/* =========================
+   Elements
+========================= */
+const gridEl = document.getElementById("grid");
+const piecesEl = document.getElementById("pieces");
+
+const timeEl  = document.getElementById("time");
+const scoreEl = document.getElementById("score");
+const bestEl  = document.getElementById("best");
+const msgEl   = document.getElementById("msg");
+
+const enemyCountSel = document.getElementById("enemyCount");
+const enemyCountLabel = document.getElementById("enemyCountLabel");
+
+const startBtn = document.getElementById("startBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+const stopBtn  = document.getElementById("stopBtn");
+
+/* =========================
+   High score per enemy count
+========================= */
+const BEST_MAP_KEY = "queen_survival_best_map_v2";
+function loadBestMap() {
+  try { return JSON.parse(localStorage.getItem(BEST_MAP_KEY) || "{}"); }
+  catch { return {}; }
+}
+function saveBestMap(map) {
+  localStorage.setItem(BEST_MAP_KEY, JSON.stringify(map));
+}
+let bestMap = loadBestMap();
+
+function currentEnemyCount() {
+  return Number(enemyCountSel.value);
+}
+function getBestForCount(n) {
+  return Number(bestMap[String(n)] || 0);
+}
+function setBestForCount(n, val) {
+  bestMap[String(n)] = val;
+  saveBestMap(bestMap);
+}
+function refreshBestDisplay() {
+  const n = currentEnemyCount();
+  enemyCountLabel.textContent = n;
+  bestEl.textContent = getBestForCount(n);
+}
+
+/* =========================
+   Game state
+========================= */
+const symbols = { queen: "♕", rook: "♜", bishop: "♝", knight: "♞", pawn: "♟" };
+const values  = { queen: 9, rook: 5, bishop: 3, knight: 3, pawn: 1 };
+
+let score = 0;
+let queen = { x: 4, y: 4, id: "Q" };
+// enemies: {x,y,type,id,cooldown}
+let enemies = [];
+
+let timeLeftMs = 120000;
+let timerHandle = null;
+
+let status = "idle"; // "idle" | "running" | "paused" | "stopped"
+let nextEnemyId = 1;
+
+/* =========================
+   Board / input
+========================= */
+function buildGrid() {
+  gridEl.innerHTML = "";
+  for (let y=0; y<8; y++) {
+    for (let x=0; x<8; x++) {
+      const cell = document.createElement("div");
+      cell.className = "cell " + ((x+y)%2 ? "dark":"light");
+      cell.addEventListener("click", () => onCell(x,y), { passive: true });
+      cell.addEventListener("touchend", (ev) => { ev.preventDefault(); onCell(x,y); }, { passive: false });
+      gridEl.appendChild(cell);
+    }
+  }
+}
+
+/* =========================
+   Helpers
+========================= */
+function inBounds(x,y){ return x>=0 && x<8 && y>=0 && y<8; }
+function enemyAt(x,y){ return enemies.find(e => e.x===x && e.y===y); }
+function isOccupied(x,y){
+  if (queen.x===x && queen.y===y) return true;
+  return !!enemyAt(x,y);
+}
+
+function randomEmptySquare() {
+  for (let tries=0; tries<1200; tries++) {
+    const x = Math.floor(Math.random()*8);
+    const y = Math.floor(Math.random()*8);
+    if (!isOccupied(x,y)) return {x,y};
+  }
+  for (let y=0;y<8;y++) for (let x=0;x<8;x++) if (!isOccupied(x,y)) return {x,y};
+  return null;
+}
+
+function fmtTime(ms) {
+  const s = Math.max(0, Math.ceil(ms/1000));
+  const m = Math.floor(s/60);
+  const r = s % 60;
+  return `${m}:${String(r).padStart(2,"0")}`;
+}
+
+/* =========================
+   Rendering + animation
+========================= */
+function cellSizePx(){
+  return parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--cell"));
+}
+function cellToPixels(x,y){
+  const c = cellSizePx();
+  return { px: x*c, py: y*c };
+}
+
+function ensurePieceEl(id, text) {
+  let el = document.getElementById("piece_" + id);
+  if (!el) {
+    el = document.createElement("div");
+    el.className = "piece";
+    el.id = "piece_" + id;
+    piecesEl.appendChild(el);
+  }
+  el.textContent = text;
+  return el;
+}
+
+function removePieceEl(id) {
+  const el = document.getElementById("piece_" + id);
+  if (el) el.remove();
+}
+
+function placePieceEl(id, x, y) {
+  const el = document.getElementById("piece_" + id);
+  if (!el) return;
+  const {px,py} = cellToPixels(x,y);
+  el.style.setProperty("--px", px + "px");
+  el.style.setProperty("--py", py + "px");
+}
+
+function updateCooldownClass(e) {
+  const el = document.getElementById("piece_" + e.id);
+  if (!el) return;
+  if (e.cooldown > 0) el.classList.add("cooldown");
+  else el.classList.remove("cooldown");
+}
+
+function floatingDeltaOverQueen(delta) {
+  const c = cellSizePx();
+  const {px,py} = cellToPixels(queen.x, queen.y);
+  const el = document.createElement("div");
+  el.className = "float " + (delta >= 0 ? "plus" : "minus");
+  el.textContent = delta > 0 ? `+${delta}` : `${delta}`;
+  el.style.setProperty("--px", (px + c*0.10) + "px");
+  el.style.setProperty("--py", (py - c*0.10) + "px");
+  piecesEl.appendChild(el);
+  setTimeout(() => el.remove(), 900);
+}
+
+function redrawAll() {
+  ensurePieceEl(queen.id, symbols.queen);
+  placePieceEl(queen.id, queen.x, queen.y);
+
+  for (const e of enemies) {
+    ensurePieceEl(e.id, symbols[e.type]);
+    placePieceEl(e.id, e.x, e.y);
+    updateCooldownClass(e);
+  }
+
+  timeEl.textContent = fmtTime(timeLeftMs);
+  scoreEl.textContent = score;
+  refreshBestDisplay();
+
+  if (status === "idle") msgEl.textContent = "Pick an enemy count and press Start.";
+  else if (status === "running") msgEl.textContent = "Tap a square to move the queen. Then one black piece moves.";
+  else if (status === "paused") msgEl.textContent = "Paused (pieces hidden). Press Resume to continue.";
+  else msgEl.textContent = "Stopped / finished. Press Start to play again.";
+
+  msgEl.className = (status === "stopped") ? "muted over" : "muted";
+}
+
+/* =========================
+   Attack model (AI + fair spawn)
+========================= */
+function enemyAttacksSquareFromType(type, ex, ey, tx, ty) {
+  if (type === "knight") {
+    const deltas = [[2,1],[2,-1],[-2,1],[-2,-1],[1,2],[1,-2],[-1,2],[-1,-2]];
+    return deltas.some(([dx,dy]) => ex+dx===tx && ey+dy===ty);
+  }
+  if (type === "pawn") {
+    return (ty === ey + 1) && (tx === ex - 1 || tx === ex + 1);
+  }
+  if (type === "rook") {
+    if (ex !== tx && ey !== ty) return false;
+    const sx = Math.sign(tx - ex), sy = Math.sign(ty - ey);
+    let x = ex + sx, y = ey + sy;
+    while (x !== tx || y !== ty) {
+      if (enemyAt(x,y)) return false;
+      x += sx; y += sy;
+    }
+    return true;
+  }
+  if (type === "bishop") {
+    if (Math.abs(tx - ex) !== Math.abs(ty - ey)) return false;
+    const sx = Math.sign(tx - ex), sy = Math.sign(ty - ey);
+    let x = ex + sx, y = ey + sy;
+    while (x !== tx || y !== ty) {
+      if (enemyAt(x,y)) return false;
+      x += sx; y += sy;
+    }
+    return true;
+  }
+  return false;
+}
+function enemyAttacksQueenNow(e) {
+  return enemyAttacksSquareFromType(e.type, e.x, e.y, queen.x, queen.y);
+}
+
+/* =========================
+   Fair spawning + cooldown
+========================= */
+function spawnEnemy({ avoidImmediateAttack = true, cooldown = 0 } = {}) {
+  const types = ["rook","bishop","knight","pawn"];
+  const type = types[Math.floor(Math.random() * types.length)];
+
+  const candidates = [];
+  for (let y=0; y<8; y++) {
+    for (let x=0; x<8; x++) {
+      if (isOccupied(x,y)) continue;
+      if (avoidImmediateAttack && enemyAttacksSquareFromType(type, x, y, queen.x, queen.y)) continue;
+      candidates.push({x,y});
+    }
+  }
+
+  const p = candidates.length
+    ? candidates[Math.floor(Math.random() * candidates.length)]
+    : randomEmptySquare();
+
+  if (!p) return;
+
+  const e = { x: p.x, y: p.y, type, id: "E" + (nextEnemyId++), cooldown };
+  enemies.push(e);
+
+  ensurePieceEl(e.id, symbols[e.type]);
+  placePieceEl(e.id, e.x, e.y);
+  updateCooldownClass(e);
+}
+
+/* =========================
+   Queen move legality
+========================= */
+function queenPathClear(tx, ty) {
+  const dx = Math.sign(tx - queen.x);
+  const dy = Math.sign(ty - queen.y);
+  let x = queen.x + dx, y = queen.y + dy;
+  while (x !== tx || y !== ty) {
+    if (enemyAt(x,y)) return false;
+    x += dx; y += dy;
+  }
+  return true;
+}
+function isLegalQueenMove(tx, ty) {
+  const dx = tx - queen.x, dy = ty - queen.y;
+  if (dx === 0 && dy === 0) return false;
+  const rookLike = (dx === 0 || dy === 0);
+  const bishopLike = (Math.abs(dx) === Math.abs(dy));
+  if (!rookLike && !bishopLike) return false;
+  return queenPathClear(tx, ty);
+}
+
+/* =========================
+   Black AI (smart, respects cooldown)
+========================= */
+function legalMovesNoCaptureQueen(e) {
+  const moves = [];
+
+  if (e.type === "rook") {
+    const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+    for (const [sx,sy] of dirs) {
+      let x = e.x + sx, y = e.y + sy;
+      while (inBounds(x,y)) {
+        if (enemyAt(x,y)) break;
+        if (x === queen.x && y === queen.y) break;
+        moves.push({x,y});
+        x += sx; y += sy;
+      }
+    }
+  }
+
+  if (e.type === "bishop") {
+    const dirs = [[1,1],[1,-1],[-1,1],[-1,-1]];
+    for (const [sx,sy] of dirs) {
+      let x = e.x + sx, y = e.y + sy;
+      while (inBounds(x,y)) {
+        if (enemyAt(x,y)) break;
+        if (x === queen.x && y === queen.y) break;
+        moves.push({x,y});
+        x += sx; y += sy;
+      }
+    }
+  }
+
+  if (e.type === "knight") {
+    const deltas = [[2,1],[2,-1],[-2,1],[-2,-1],[1,2],[1,-2],[-1,2],[-1,-2]];
+    for (const [dx,dy] of deltas) {
+      const x = e.x + dx, y = e.y + dy;
+      if (!inBounds(x,y)) continue;
+      if (enemyAt(x,y)) continue;
+      if (x === queen.x && y === queen.y) continue;
+      moves.push({x,y});
+    }
+  }
+
+  if (e.type === "pawn") {
+    const f = {x: e.x, y: e.y + 1};
+    if (inBounds(f.x,f.y) && !enemyAt(f.x,f.y) && !(f.x===queen.x && f.y===queen.y)) moves.push(f);
+    for (const d of [{x:e.x-1,y:e.y+1},{x:e.x+1,y:e.y+1}]) {
+      if (!inBounds(d.x,d.y)) continue;
+      if (enemyAt(d.x,d.y)) continue;
+      if (d.x===queen.x && d.y===queen.y) continue;
+      moves.push(d);
+    }
+  }
+
+  return moves;
+}
+
+function moveCostHeuristic(type, nx, ny) {
+  const qx = queen.x, qy = queen.y;
+  const manhattan = Math.abs(nx-qx) + Math.abs(ny-qy);
+
+  if (type === "knight") return manhattan;
+
+  if (type === "pawn") {
+    const targets = [
+      {x: qx-1, y: qy-1},
+      {x: qx+1, y: qy-1}
+    ].filter(t => inBounds(t.x,t.y));
+    let best = Infinity;
+    for (const t of targets) best = Math.min(best, Math.abs(nx-t.x) + Math.abs(ny-t.y));
+    return best;
+  }
+
+  if (type === "rook") {
+    const alignedPenalty = (nx===qx || ny===qy) ? 0 : 6;
+    const dist = (nx===qx) ? Math.abs(ny-qy) : (ny===qy) ? Math.abs(nx-qx) : manhattan;
+    return alignedPenalty + dist;
+  }
+
+  if (type === "bishop") {
+    const alignedPenalty = (Math.abs(nx-qx)===Math.abs(ny-qy)) ? 0 : 6;
+    const dist = Math.max(Math.abs(nx-qx), Math.abs(ny-qy));
+    return alignedPenalty + dist;
+  }
+
+  return manhattan;
+}
+
+function chooseBestEnemyAction(movable) {
+  for (const e of movable) {
+    if (enemyAttacksQueenNow(e)) {
+      return { enemy: e, to: {x: queen.x, y: queen.y}, isCapture: true };
+    }
+  }
+
+  let best = null;
+  for (const e of movable) {
+    const moves = legalMovesNoCaptureQueen(e);
+    for (const m of moves) {
+      const wouldAttack = enemyAttacksSquareFromType(e.type, m.x, m.y, queen.x, queen.y);
+      let cost = moveCostHeuristic(e.type, m.x, m.y);
+      if (wouldAttack) cost -= 4;
+
+      const tie = Math.abs(m.x-queen.x) + Math.abs(m.y-queen.y);
+      if (!best || cost < best.cost || (cost === best.cost && tie < best.tie)) {
+        best = { enemy: e, to: m, isCapture: false, cost, tie };
+      }
+    }
+  }
+  return best ? { enemy: best.enemy, to: best.to, isCapture: false } : null;
+}
+
+function decrementCooldowns() {
+  for (const e of enemies) {
+    if (e.cooldown > 0) {
+      e.cooldown -= 1;
+      updateCooldownClass(e);
+    }
+  }
+}
+
+function enemyTurnSmart() {
+  if (enemies.length === 0) return;
+
+  const movable = enemies.filter(e => e.cooldown === 0);
+
+  if (movable.length === 0) {
+    decrementCooldowns();
+    return;
+  }
+
+  const action = chooseBestEnemyAction(movable);
+  if (!action) {
+    decrementCooldowns();
+    return;
+  }
+
+  const e = action.enemy;
+
+  if (action.isCapture) {
+    e.x = queen.x; e.y = queen.y;
+    placePieceEl(e.id, e.x, e.y);
+
+    decrementCooldowns();
+
+    setTimeout(() => {
+      score -= 9;
+      floatingDeltaOverQueen(-9);
+
+      const p = randomEmptySquare();
+      if (!p) { stopGame(true); return; }
+
+      queen.x = p.x; queen.y = p.y;
+      placePieceEl(queen.id, queen.x, queen.y);
+
+      redrawAll();
+    }, 150);
+
+    return;
+  }
+
+  e.x = action.to.x;
+  e.y = action.to.y;
+  placePieceEl(e.id, e.x, e.y);
+
+  decrementCooldowns();
+}
+
+/* =========================
+   High score update per enemy count
+========================= */
+function updateHighScoreIfNeeded() {
+  const n = currentEnemyCount();
+  const best = getBestForCount(n);
+  if (score > best) setBestForCount(n, score);
+  refreshBestDisplay();
+}
+
+/* =========================
+   Timer + game control
+========================= */
+function tick() {
+  if (status !== "running") return;
+  timeLeftMs -= 250;
+  if (timeLeftMs <= 0) {
+    timeLeftMs = 0;
+    stopGame(true);
+    return;
+  }
+  redrawAll();
+}
+function startTimer() {
+  stopTimer();
+  timerHandle = setInterval(tick, 250);
+}
+function stopTimer() {
+  if (timerHandle) clearInterval(timerHandle);
+  timerHandle = null;
+}
+
+function hidePieces(hide) {
+  piecesEl.style.visibility = hide ? "hidden" : "visible";
+}
+
+/* =========================
+   Start / Pause / Stop
+========================= */
+function resetStateForNewGame() {
+  score = 0;
+  queen = { x: 4, y: 4, id: "Q" };
+  enemies = [];
+  nextEnemyId = 1;
+  timeLeftMs = 120000;
+
+  piecesEl.innerHTML = "";
+  ensurePieceEl(queen.id, symbols.queen);
+  placePieceEl(queen.id, queen.x, queen.y);
+
+  const n = currentEnemyCount();
+  for (let i=0; i<n; i++) {
+    spawnEnemy({ avoidImmediateAttack: true, cooldown: 0 });
+  }
+
+  if (enemyAt(queen.x, queen.y)) {
+    const p = randomEmptySquare();
+    if (p) { queen.x = p.x; queen.y = p.y; placePieceEl(queen.id, queen.x, queen.y); }
+  }
+}
+
+function startGame() {
+  if (status === "running") return;
+
+  resetStateForNewGame();
+  status = "running";
+  hidePieces(false);
+
+  enemyCountSel.disabled = true;
+
+  startBtn.disabled = true;
+  pauseBtn.disabled = false;
+  stopBtn.disabled  = false;
+  pauseBtn.textContent = "Pause";
+
+  startTimer();
+  redrawAll();
+}
+
+function pauseToggle() {
+  if (status === "running") {
+    status = "paused";
+    stopTimer();
+    hidePieces(true);
+    pauseBtn.textContent = "Resume";
+    redrawAll();
+    return;
+  }
+  if (status === "paused") {
+    status = "running";
+    hidePieces(false);
+    pauseBtn.textContent = "Pause";
+    startTimer();
+    redrawAll();
+    return;
+  }
+}
+
+function stopGame(fromTimeoutOrEnd = false) {
+  if (status === "idle" || status === "stopped") return;
+
+  status = "stopped";
+  stopTimer();
+  hidePieces(false);
+
+  updateHighScoreIfNeeded();
+
+  enemyCountSel.disabled = false;
+
+  startBtn.disabled = false;
+  pauseBtn.disabled = true;
+  stopBtn.disabled  = true;
+  pauseBtn.textContent = "Pause";
+
+  if (fromTimeoutOrEnd) {
+    msgEl.textContent = "Game over. Press Start to play again.";
+    msgEl.className = "muted over";
+  }
+
+  redrawAll();
+}
+
+/* =========================
+   Main turn (white then black)
+   Fix: move queen BEFORE spawning new enemy to prevent overlap
+========================= */
+function onCell(x,y) {
+  if (status !== "running") return;
+  if (!isLegalQueenMove(x,y)) return;
+
+  // detect capture
+  const victim = enemyAt(x,y);
+  let delta = 0;
+
+  if (victim) {
+    delta = values[victim.type];
+    score += delta;
+
+    enemies = enemies.filter(en => en !== victim);
+    removePieceEl(victim.id);
+  }
+
+  // move queen first so (x,y) is occupied before spawn
+  queen.x = x; queen.y = y;
+  placePieceEl(queen.id, queen.x, queen.y);
+
+  if (delta !== 0) floatingDeltaOverQueen(delta);
+
+  // now spawn replacement enemy (fair + can't move immediately)
+  if (victim) {
+    spawnEnemy({ avoidImmediateAttack: true, cooldown: 1 });
+  }
+
+  setTimeout(() => {
+    if (status !== "running") return;
+    enemyTurnSmart();
+    updateHighScoreIfNeeded();
+    redrawAll();
+  }, 150);
+}
+
+/* =========================
+   Wire buttons + init
+========================= */
+startBtn.addEventListener("click", startGame);
+pauseBtn.addEventListener("click", pauseToggle);
+stopBtn.addEventListener("click", () => stopGame(false));
+
+enemyCountSel.addEventListener("change", () => {
+  refreshBestDisplay();
+  if (status === "idle" || status === "stopped") redrawAll();
+});
+
+setCellSizeFromViewport();
+buildGrid();
+refreshBestDisplay();
+hidePieces(false);
+redrawAll();
+</script>
+</body>
+</html>
