@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Tint Tactics</title>
+
+<style>
+  :root{
+    --cell: 54px;
+    --gap: 2px;
+    --n: 8;
+
+    /* Paler territory colors (still clearly visible) */
+    --cell-base: #ffffff;
+	--cell-blue: #e9effa;  /* very pale blue */
+	--cell-red:  #f7e6ea;  /* very pale red */
+
+    /* Piece outline colors (darker than cells) */
+    --blue: #0b57d0;
+    --red:  #b00020;
+
+    --grid-bg: #333;
+    --frame: #222;
+  }
+
+  body{
+    margin:0;
+    padding:14px 10px 28px;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    background:#fafafa;
+    color:#111;
+    text-align:center;
+  }
+  h2{ margin:6px 0 8px; }
+
+  #rules{
+    width:min(100vw - 20px, 760px);
+    margin:0 auto 10px;
+    text-align:left;
+    background:#fff;
+    border:1px solid #e6e6e6;
+    border-radius:12px;
+    padding:10px 12px;
+    line-height:1.35;
+    font-size:13px;
+    color:#222;
+  }
+  #rules b{ font-weight:800; }
+  #rules ul{ margin:6px 0 0 18px; padding:0; }
+  #rules li{ margin:3px 0; }
+
+  #hud{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px 14px;
+    align-items:center;
+    margin-bottom:10px;
+  }
+  .pill{
+    display:flex;
+    gap:8px;
+    align-items:baseline;
+    padding:8px 10px;
+    border:1px solid #ddd;
+    border-radius:999px;
+    background:#fff;
+    white-space:nowrap;
+  }
+  .label{ color:#444; font-size:13px; }
+  .value{ font-weight:800; font-size:16px; }
+  .p1{ color:var(--blue); }
+  .p2{ color:var(--red); }
+  button, select{ font-size:14px; padding:7px 10px; }
+
+  #wrap{ width:min(100vw - 20px, 520px); margin:0 auto; }
+
+  /* FIX: frame is now always fully visible (no right/bottom clipping)
+     by using content-box sizing + padding for the inner grid. */
+  #board{
+    display:inline-block;
+    border:2px solid var(--frame);
+    background:var(--grid-bg);
+    padding:2px;                 /* gap between frame and grid */
+    box-sizing:content-box;      /* IMPORTANT */
+  }
+
+  #grid{
+    display:grid;
+    grid-template-columns: repeat(var(--n), var(--cell));
+    grid-template-rows: repeat(var(--n), var(--cell));
+    gap: var(--gap);
+    background:var(--grid-bg);
+  }
+
+  .cell{
+    position:relative;
+    width:var(--cell);
+    height:var(--cell);
+    background:var(--cell-base);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    user-select:none;
+    -webkit-tap-highlight-color: transparent;
+    cursor:pointer;
+    font-size: calc(var(--cell) * 0.56);
+    line-height:1;
+  }
+
+
+
+  /* Territory */
+  .c0{ background: var(--cell-base); }
+  .c1{ background: var(--cell-blue); }
+  .c2{ background: var(--cell-red); }
+
+  /* selection + hints */
+  .sel{
+    outline: 3px solid rgba(0,0,0,0.45);
+    outline-offset: -3px;
+  }
+  .hint{
+    outline: 3px solid rgba(0,0,0,0.18);
+    outline-offset: -3px;
+  }
+  .hintCapture{
+    outline: 3px solid rgba(0,0,0,0.18);
+    outline-offset: -3px;
+    box-shadow: inset 0 0 0 999px rgba(0,0,0,0.05);
+  }
+
+  /* bot move animation highlight */
+  .botFrom{
+    outline: 3px solid rgba(176,0,32,0.45);
+    outline-offset:-3px;
+  }
+  .botTo{
+    outline: 3px solid rgba(176,0,32,0.25);
+    outline-offset:-3px;
+    box-shadow: inset 0 0 0 999px rgba(176,0,32,0.07);
+  }
+
+  /* Pieces: darker OUTLINE (not filled).
+     Uses text-stroke when available; falls back to solid color elsewhere. */
+  .pieceBlue, .pieceRed{
+    font-weight: 700;
+    paint-order: stroke fill;
+  }
+.pieceBlue{
+  color: transparent;
+  -webkit-text-stroke: 3px var(--blue);
+}
+.pieceRed{
+  color: transparent;
+  -webkit-text-stroke: 3px var(--red);
+}
+
+  /* If a browser ignores text-stroke + transparent color, show filled as fallback */
+  @supports not (-webkit-text-stroke: 1px black){
+    .pieceBlue{ color: var(--blue); }
+    .pieceRed{ color: var(--red); }
+  }
+
+  .disabled{
+    opacity:0.72;
+    pointer-events:none;
+    filter: grayscale(0.10);
+  }
+
+  .msg{ margin-top:10px; font-size:13px; color:#444; }
+  .legend{
+    margin-top:8px;
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:10px 14px;
+    font-size:13px;
+    color:#333;
+  }
+  .dot{
+    display:inline-block;
+    width:12px; height:12px;
+    border-radius:999px;
+    vertical-align:middle;
+    margin-right:6px;
+    border:1px solid rgba(0,0,0,0.18);
+  }
+  .dot1{ background: var(--cell-blue); }
+  .dot2{ background: var(--cell-red); }
+</style>
+</head>
+
+<body>
+<h2>Tint Tactics</h2>
+
+<div id="rules">
+  <b>Goal:</b> After a fixed number of turns, control more territory.
+  <ul>
+    <li>Move like chess (rook/bishop/knight). No pawns, no check rules.</li>
+    <li>The <b>destination square</b> becomes your color (overwrites the opponent’s color).</li>
+    <li>If you capture an enemy piece, it <b>respawns as the same type</b> on a <b>random empty square</b> (respawn does <b>not</b> color the square).</li>
+    <li>Game starts randomly, but with <b>no immediate captures</b> available.</li>
+  </ul>
+</div>
+
+<div id="hud">
+  <div class="pill">
+    <span class="label">Mode:</span>
+    <select id="modeSel">
+      <option value="bot" selected>Vs Bot</option>
+      <option value="2p">2 Players</option>
+    </select>
+  </div>
+
+  <div class="pill">
+    <span class="label">Turn:</span>
+    <span class="value" id="turnText"><span class="p1">Blue</span></span>
+  </div>
+
+  <div class="pill">
+    <span class="label">Turns left:</span>
+    <span class="value" id="turnsLeft">20</span>
+  </div>
+
+  <div class="pill">
+    <span class="label"><span class="p1">Blue</span> territory:</span>
+    <span class="value p1" id="score1">0</span>
+  </div>
+
+  <div class="pill">
+    <span class="label"><span class="p2">Red</span> territory:</span>
+    <span class="value p2" id="score2">0</span>
+  </div>
+
+  <div class="pill">
+    <span class="label">Board:</span>
+    <select id="boardSize">
+      <option value="7">7×7</option>
+      <option value="8" selected>8×8</option>
+      <option value="6">6×6</option>
+    </select>
+  </div>
+
+  <div class="pill">
+    <span class="label">Turns per side:</span>
+    <select id="turnLimit">
+      <option value="10">10</option>
+      <option value="15">15</option>
+      <option value="20" selected>20</option>
+      <option value="25">25</option>
+    </select>
+  </div>
+
+  <button id="newGameBtn">New Game</button>
+</div>
+
+<div id="wrap">
+  <div id="board"><div id="grid"></div></div>
+</div>
+
+<div class="legend">
+  <span><span class="dot dot1"></span>Blue territory</span>
+  <span><span class="dot dot2"></span>Red territory</span>
+  <span>Pieces: rook, bishop, knight</span>
+</div>
+
+<div class="msg" id="msg">Click a piece, then a highlighted destination.</div>
+
+<script>
+const BLUE = 1;
+const RED  = 2;
+
+const SYMBOL = {
+  [BLUE]: { rook:"♖", bishop:"♗", knight:"♘" },
+  [RED]:  { rook:"♜", bishop:"♝", knight:"♞" }
+};
+
+const BOT_THINK_MS = 450;
+const BOT_SHOW_MS  = 420;
+
+const state = {
+  n: 8,
+  turnLimit: 20,
+  turnsLeft: { [BLUE]: 20, [RED]: 20 },
+  current: BLUE,
+  selectedId: null,
+  gameOver: false,
+  busy: false,
+  mode: "bot",
+  territory: [],
+  pieces: []
+};
+
+const gridEl = document.getElementById("grid");
+const msgEl = document.getElementById("msg");
+const turnTextEl = document.getElementById("turnText");
+const turnsLeftEl = document.getElementById("turnsLeft");
+const score1El = document.getElementById("score1");
+const score2El = document.getElementById("score2");
+const boardSizeSel = document.getElementById("boardSize");
+const turnLimitSel = document.getElementById("turnLimit");
+const newGameBtn = document.getElementById("newGameBtn");
+const modeSel = document.getElementById("modeSel");
+const boardEl = document.getElementById("board");
+
+/* sizing */
+function setCellSize(){
+  const wrap = document.getElementById("wrap");
+  const w = wrap.getBoundingClientRect().width;
+  const n = state.n;
+  const usable = Math.floor(w - 10);
+  const cell = Math.max(34, Math.min(70, Math.floor((usable - (n-1)*2 - 4) / n)));
+  document.documentElement.style.setProperty("--cell", cell + "px");
+}
+window.addEventListener("resize", setCellSize);
+
+function inBounds(x,y){ return x>=0 && x<state.n && y>=0 && y<state.n; }
+function cellId(x,y){ return `c_${x}_${y}`; }
+
+function getPieceAt(x,y){ return state.pieces.find(p => p.x===x && p.y===y) || null; }
+function isOccupied(x,y){ return !!getPieceAt(x,y); }
+
+function clearMarks(){
+  for (let y=0;y<state.n;y++){
+    for (let x=0;x<state.n;x++){
+      const el = document.getElementById(cellId(x,y));
+      el.classList.remove("sel","hint","hintCapture","botFrom","botTo");
+    }
+  }
+}
+
+function setTurnUI(){
+  const who = (state.current===BLUE) ? "Blue" : "Red";
+  const cls = (state.current===BLUE) ? "p1" : "p2";
+  turnTextEl.innerHTML = `<span class="${cls}">${who}</span>`;
+  turnsLeftEl.textContent = state.turnsLeft[state.current];
+  if (state.gameOver) return;
+  msgEl.textContent = (state.mode==="bot" && state.current===RED) ? "Bot is thinking…" : "Click a piece, then a highlighted destination.";
+}
+
+/* territory */
+function initTerritory(){
+  state.territory = Array.from({length: state.n}, () => Array(state.n).fill(0));
+}
+function renderTerritoryCell(x,y){
+  const el = document.getElementById(cellId(x,y));
+  if (!el) return;
+  el.classList.remove("c0","c1","c2");
+  const v = state.territory[y][x];
+  el.classList.add(v===BLUE ? "c1" : v===RED ? "c2" : "c0");
+}
+function colorCell(x,y, owner){
+  state.territory[y][x] = owner;
+  renderTerritoryCell(x,y);
+}
+function refreshAllTerritory(){
+  for (let y=0;y<state.n;y++){
+    for (let x=0;x<state.n;x++) renderTerritoryCell(x,y);
+  }
+}
+function countTerritory(){
+  let a=0,b=0;
+  for (let y=0;y<state.n;y++){
+    for (let x=0;x<state.n;x++){
+      if (state.territory[y][x]===BLUE) a++;
+      else if (state.territory[y][x]===RED) b++;
+    }
+  }
+  score1El.textContent = a;
+  score2El.textContent = b;
+  return {a,b};
+}
+
+/* build/render */
+function buildBoard(){
+  document.documentElement.style.setProperty("--n", state.n);
+  gridEl.innerHTML = "";
+  for (let y=0;y<state.n;y++){
+    for (let x=0;x<state.n;x++){
+      const el = document.createElement("div");
+      el.id = cellId(x,y);
+      el.className = "cell c0" + (((x+y)%2) ? " parity1" : "");
+      el.addEventListener("click", () => onCellClick(x,y), {passive:true});
+      gridEl.appendChild(el);
+    }
+  }
+  setCellSize();
+}
+
+function renderPieces(){
+  for (let y=0;y<state.n;y++){
+    for (let x=0;x<state.n;x++){
+      const el = document.getElementById(cellId(x,y));
+      el.textContent = "";
+      el.classList.remove("pieceBlue","pieceRed");
+    }
+  }
+  for (const p of state.pieces){
+    const el = document.getElementById(cellId(p.x,p.y));
+    if (!el) continue;
+    el.textContent = SYMBOL[p.owner][p.type];
+    el.classList.add(p.owner===BLUE ? "pieceBlue" : "pieceRed");
+  }
+}
+
+/* moves */
+function rayMoves(p, dirs){
+  const moves = [];
+  for (const [dx,dy] of dirs){
+    let x=p.x+dx, y=p.y+dy;
+    while (inBounds(x,y)){
+      const occ = getPieceAt(x,y);
+      if (!occ) moves.push({x,y,capture:false});
+      else { if (occ.owner!==p.owner) moves.push({x,y,capture:true}); break; }
+      x+=dx; y+=dy;
+    }
+  }
+  return moves;
+}
+function knightMoves(p){
+  const deltas=[[2,1],[2,-1],[-2,1],[-2,-1],[1,2],[1,-2],[-1,2],[-1,-2]];
+  const moves=[];
+  for (const [dx,dy] of deltas){
+    const x=p.x+dx, y=p.y+dy;
+    if (!inBounds(x,y)) continue;
+    const occ=getPieceAt(x,y);
+    if (!occ) moves.push({x,y,capture:false});
+    else if (occ.owner!==p.owner) moves.push({x,y,capture:true});
+  }
+  return moves;
+}
+function legalMovesFor(p){
+  if (p.type==="rook") return rayMoves(p, [[1,0],[-1,0],[0,1],[0,-1]]);
+  if (p.type==="bishop") return rayMoves(p, [[1,1],[1,-1],[-1,1],[-1,-1]]);
+  return knightMoves(p);
+}
+
+/* start fairness */
+function anyImmediateCaptureExists(){
+  return state.pieces.some(p => legalMovesFor(p).some(m => m.capture));
+}
+
+/* respawn: random empty; does NOT color; try to avoid immediate capture next turn */
+function canPieceCaptureAnyFrom(type, owner, x, y){
+  const temp={id:"tmp", owner, type, x, y};
+  return legalMovesFor(temp).some(m => m.capture);
+}
+function pickRandomRespawnSquare(type, owner){
+  const safe=[], any=[];
+  for (let y=0;y<state.n;y++){
+    for (let x=0;x<state.n;x++){
+      if (isOccupied(x,y)) continue;
+      any.push({x,y});
+      if (!canPieceCaptureAnyFrom(type, owner, x, y)) safe.push({x,y});
+    }
+  }
+  if (safe.length) return safe[Math.floor(Math.random()*safe.length)];
+  return any.length ? any[Math.floor(Math.random()*any.length)] : null;
+}
+function respawnSameType(capturedPiece){
+  const spot = pickRandomRespawnSquare(capturedPiece.type, capturedPiece.owner);
+  if (!spot) return false;
+  capturedPiece.x = spot.x;
+  capturedPiece.y = spot.y;
+  return true;
+}
+
+/* turns/end */
+function finalizeGame(){
+  state.gameOver=true;
+  state.busy=false;
+  boardEl.classList.remove("disabled");
+  clearMarks();
+  renderPieces();
+  const {a,b}=countTerritory();
+  let verdict="Draw.";
+  if (a>b) verdict="Blue wins.";
+  if (b>a) verdict="Red wins.";
+  msgEl.textContent=`Game over. Blue: ${a} • Red: ${b}. ${verdict}`;
+}
+function switchTurn(){
+  state.turnsLeft[state.current]-=1;
+  if (state.turnsLeft[BLUE]<=0 && state.turnsLeft[RED]<=0){ finalizeGame(); return; }
+
+  state.current = (state.current===BLUE) ? RED : BLUE;
+  state.selectedId=null;
+  clearMarks();
+  setTurnUI();
+  renderPieces();
+  countTerritory();
+
+  if (!state.gameOver && state.mode==="bot" && state.current===RED){
+    state.busy=true;
+    boardEl.classList.add("disabled");
+    setTimeout(botMove, BOT_THINK_MS);
+  } else {
+    state.busy=false;
+    boardEl.classList.remove("disabled");
+  }
+}
+
+/* hints */
+function highlightMoves(piece){
+  for (const m of legalMovesFor(piece)){
+    const el=document.getElementById(cellId(m.x,m.y));
+    el.classList.add(m.capture ? "hintCapture" : "hint");
+  }
+}
+
+/* interaction */
+function canSelectPiece(p){
+  if (state.mode==="bot") return p.owner===BLUE;
+  return p.owner===state.current;
+}
+function onCellClick(x,y){
+  if (state.gameOver || state.busy) return;
+
+  const clickedPiece=getPieceAt(x,y);
+
+  if (!state.selectedId){
+    if (!clickedPiece || !canSelectPiece(clickedPiece)) return;
+    state.selectedId=clickedPiece.id;
+    clearMarks();
+    document.getElementById(cellId(clickedPiece.x, clickedPiece.y)).classList.add("sel");
+    highlightMoves(clickedPiece);
+    return;
+  }
+
+  const piece=state.pieces.find(p=>p.id===state.selectedId);
+  if (!piece){ state.selectedId=null; clearMarks(); return; }
+
+  if (clickedPiece && canSelectPiece(clickedPiece) && clickedPiece.id!==piece.id){
+    state.selectedId=clickedPiece.id;
+    clearMarks();
+    document.getElementById(cellId(clickedPiece.x, clickedPiece.y)).classList.add("sel");
+    highlightMoves(clickedPiece);
+    return;
+  }
+
+  const legal=legalMovesFor(piece).find(m=>m.x===x && m.y===y);
+  if (!legal) return;
+
+  clearMarks();
+  const captured = legal.capture ? getPieceAt(x,y) : null;
+
+  piece.x=x; piece.y=y;
+  colorCell(x,y, piece.owner);
+
+  if (captured){
+    const ok=respawnSameType(captured);
+    if (!ok){ finalizeGame(); return; }
+  }
+
+  renderPieces();
+  countTerritory();
+  switchTurn();
+}
+
+/* bot */
+function evalMove(owner, move){
+  const opp=(owner===BLUE)?RED:BLUE;
+  let s=0;
+  const cellColor=state.territory[move.y][move.x];
+  if (cellColor===0) s+=1;
+  else if (cellColor===opp) s+=2;
+  if (move.capture) s+=0.6;
+
+  const cx=(state.n-1)/2, cy=(state.n-1)/2;
+  const dist=Math.abs(move.x-cx)+Math.abs(move.y-cy);
+  s+=Math.max(0, 0.25 - dist*0.04);
+  return s;
+}
+function estimateBestBlueAfter(botPiece, botMove, capturedMaybe){
+  const saved={bx:botPiece.x, by:botPiece.y, cap: capturedMaybe ? {x:capturedMaybe.x,y:capturedMaybe.y} : null};
+  botPiece.x=botMove.x; botPiece.y=botMove.y;
+  if (capturedMaybe){ capturedMaybe.x=-99; capturedMaybe.y=-99; }
+
+  let best=-Infinity;
+  for (const p of state.pieces.filter(pp=>pp.owner===BLUE)){
+    for (const m of legalMovesFor(p)) best=Math.max(best, evalMove(BLUE,m));
+  }
+
+  botPiece.x=saved.bx; botPiece.y=saved.by;
+  if (capturedMaybe){ capturedMaybe.x=saved.cap.x; capturedMaybe.y=saved.cap.y; }
+  return best===-Infinity?0:best;
+}
+function botMove(){
+  if (state.gameOver || state.current!==RED || state.mode!=="bot") return;
+
+  const reds=state.pieces.filter(p=>p.owner===RED);
+  let bestPlan=null;
+
+  for (const p of reds){
+    for (const m of legalMovesFor(p)){
+      const captured = m.capture ? getPieceAt(m.x,m.y) : null;
+      let s=evalMove(RED,m);
+      s-=0.25*estimateBestBlueAfter(p,m,captured);
+      if (!bestPlan || s>bestPlan.score) bestPlan={piece:p, move:m, captured, score:s};
+    }
+  }
+  if (!bestPlan){ finalizeGame(); return; }
+
+  clearMarks();
+  const fromEl=document.getElementById(cellId(bestPlan.piece.x, bestPlan.piece.y));
+  const toEl=document.getElementById(cellId(bestPlan.move.x, bestPlan.move.y));
+  if (fromEl) fromEl.classList.add("botFrom");
+  if (toEl) toEl.classList.add("botTo");
+
+  setTimeout(()=>{
+    if (state.gameOver) return;
+
+    const {piece, move, captured}=bestPlan;
+    piece.x=move.x; piece.y=move.y;
+    colorCell(move.x, move.y, RED);
+
+    if (captured){
+      const ok=respawnSameType(captured);
+      if (!ok){ finalizeGame(); return; }
+    }
+
+    renderPieces();
+    countTerritory();
+
+    state.busy=false;
+    boardEl.classList.remove("disabled");
+    switchTurn();
+  }, BOT_SHOW_MS);
+}
+
+/* setup */
+function randomEmptyCell(){
+  const empties=[];
+  for (let y=0;y<state.n;y++) for (let x=0;x<state.n;x++) if (!isOccupied(x,y)) empties.push({x,y});
+  return empties.length ? empties[Math.floor(Math.random()*empties.length)] : null;
+}
+function placeInitialPieces(){
+  state.pieces=[];
+  const types=["rook","bishop","knight"];
+  let idx=0;
+
+  for (const owner of [BLUE, RED]){
+    for (const type of types){
+      const spot=randomEmptyCell();
+      if (!spot) return false;
+      const p={id:`${owner}_${idx++}`, owner, type, x:spot.x, y:spot.y};
+      state.pieces.push(p);
+      colorCell(spot.x, spot.y, owner);
+    }
+  }
+  return true;
+}
+function tryGenerateFairStart(maxTries){
+  for (let i=0;i<maxTries;i++){
+    initTerritory();
+    buildBoard();
+    state.pieces=[];
+    if (!placeInitialPieces()) continue;
+    if (anyImmediateCaptureExists()) continue;
+    return true;
+  }
+  return false;
+}
+
+function newGame(){
+  state.n=Number(boardSizeSel.value);
+  state.turnLimit=Number(turnLimitSel.value);
+  state.mode=modeSel.value;
+
+  state.turnsLeft={ [BLUE]: state.turnLimit, [RED]: state.turnLimit };
+  state.current=BLUE;
+  state.selectedId=null;
+  state.gameOver=false;
+  state.busy=false;
+  boardEl.classList.remove("disabled");
+
+  const ok=tryGenerateFairStart(180);
+  if (!ok){
+    initTerritory();
+    buildBoard();
+    state.pieces=[];
+    placeInitialPieces();
+  }
+
+  refreshAllTerritory();
+  renderPieces();
+  countTerritory();
+  clearMarks();
+  setTurnUI();
+}
+
+newGameBtn.addEventListener("click", newGame);
+boardSizeSel.addEventListener("change", newGame);
+turnLimitSel.addEventListener("change", newGame);
+modeSel.addEventListener("change", newGame);
+
+newGame();
+</script>
+</body>
+</html>
