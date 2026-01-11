@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-20EEFX7Q6N"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-20EEFX7Q6N');
+</script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Tint Tactics</title>
@@ -258,12 +267,12 @@
 <h2>Tint Tactics</h2>
 
 <div id="rules">
-  <b>Goal:</b> After a fixed number of turns, control more territory.
+  <b>Goal:</b> Win by the selected win condition.
   <ul>
     <li>Move like chess. No check rules.</li>
     <li>Your <b>destination square</b> becomes your color (overwrites the opponent’s color).</li>
     <li>If you capture an enemy piece, it <b>respawns as the same type</b> on a random empty square. Respawning does <b>not</b> color the square.</li>
-    <li><b>Fair respawn:</b> respawn squares are chosen so the respawned piece has <b>no immediate captures</b> if possible.</li>
+    <li><b>Fair respawn:</b> a respawn square is chosen so the respawned piece has <b>no immediate captures</b> and is <b>not immediately capturable</b>, if possible.</li>
     <li><b>Fair start:</b> initial positions are generated so <b>no immediate captures</b> are possible for either side.</li>
     <li><b>Vs Bot:</b> your color and the starting side are randomized (shown in the HUD).</li>
   </ul>
@@ -286,6 +295,14 @@
   </div>
 
   <div class="pill">
+    <span class="label">Win:</span>
+    <select id="winModeSel">
+      <option value="turns" selected>Most territory after turns</option>
+      <option value="line">Complete a row or column</option>
+    </select>
+  </div>
+
+  <div class="pill">
     <span class="label">Piece set:</span>
     <select id="pieceSetSel"></select>
   </div>
@@ -295,7 +312,7 @@
     <span class="value" id="turnText"></span>
   </div>
 
-  <div class="pill">
+  <div class="pill" id="turnsLeftPill">
     <span class="label">Turns left:</span>
     <span class="value" id="turnsLeft">20</span>
   </div>
@@ -320,7 +337,7 @@
     </select>
   </div>
 
-  <div class="pill">
+  <div class="pill" id="turnLimitPill">
     <span class="label">Turns/side:</span>
     <select id="turnLimit">
       <option value="10">10</option>
@@ -353,6 +370,7 @@
     <div id="winnerBanner" class="draw">DRAW</div>
     <div class="row"><span>Blue territory</span> <b id="finalBlue">0</b></div>
     <div class="row"><span>Red territory</span> <b id="finalRed">0</b></div>
+    <div class="row"><span>Win condition</span> <b id="finalWinMode">—</b></div>
     <div class="row"><span>Piece set</span> <b id="finalSet">—</b></div>
     <div class="row"><span>Mode</span> <b id="finalMode">—</b></div>
     <div class="actions">
@@ -389,7 +407,7 @@ const PIECE_SETS = [
 const BOT_THINK_MS = 450;
 const BOT_SHOW_MS  = 420;
 
-/* === RNG (per game) to avoid positional loops and allow randomized starts/colors === */
+/* === RNG (per game) === */
 let RNG_SEED = 0;
 function reseedRng(){
   RNG_SEED = (Date.now() ^ ((Math.random()*1e9)|0)) >>> 0;
@@ -420,11 +438,11 @@ const state = {
   gameOver: false,
   busy: false,
   mode: "bot",
+  winMode: "turns", // "turns" | "line"
   territory: [],
   pieces: [],
   pieceSetId: "queen5k",
 
-  /* NEW: explicit roles in bot mode */
   userColor: BLUE,
   botColor: RED
 };
@@ -439,6 +457,7 @@ const boardSizeSel = document.getElementById("boardSize");
 const turnLimitSel = document.getElementById("turnLimit");
 const newGameBtn = document.getElementById("newGameBtn");
 const modeSel = document.getElementById("modeSel");
+const winModeSel = document.getElementById("winModeSel");
 const boardEl = document.getElementById("board");
 const pieceSetSel = document.getElementById("pieceSetSel");
 const setNote = document.getElementById("setNote");
@@ -446,12 +465,15 @@ const setNote = document.getElementById("setNote");
 const whoPill = document.getElementById("whoPill");
 const youColorText = document.getElementById("youColorText");
 const botColorText = document.getElementById("botColorText");
+const turnsLeftPill = document.getElementById("turnsLeftPill");
+const turnLimitPill = document.getElementById("turnLimitPill");
 
 /* overlay */
 const overlayEl = document.getElementById("overlay");
 const winnerBannerEl = document.getElementById("winnerBanner");
 const finalBlueEl = document.getElementById("finalBlue");
 const finalRedEl = document.getElementById("finalRed");
+const finalWinModeEl = document.getElementById("finalWinMode");
 const finalSetEl = document.getElementById("finalSet");
 const finalModeEl = document.getElementById("finalMode");
 const closeOverlayBtn = document.getElementById("closeOverlayBtn");
@@ -501,6 +523,10 @@ function setTurnUI(){
   turnTextEl.innerHTML = cssColorName(state.current);
   turnsLeftEl.textContent = state.turnsLeft[state.current];
 
+  const usingTurns = (state.winMode === "turns");
+  turnsLeftPill.style.display = usingTurns ? "flex" : "none";
+  turnLimitPill.style.display = usingTurns ? "flex" : "none";
+
   if (state.gameOver) return;
 
   if (state.mode==="bot"){
@@ -547,6 +573,33 @@ function countTerritory(){
   return {a,b};
 }
 
+/* win condition: line */
+function hasFullRowOrCol(owner){
+  for (let y=0;y<state.n;y++){
+    let ok = true;
+    for (let x=0;x<state.n;x++){
+      if (state.territory[y][x] !== owner){ ok=false; break; }
+    }
+    if (ok) return true;
+  }
+  for (let x=0;x<state.n;x++){
+    let ok = true;
+    for (let y=0;y<state.n;y++){
+      if (state.territory[y][x] !== owner){ ok=false; break; }
+    }
+    if (ok) return true;
+  }
+  return false;
+}
+function maybeEndByLineWin(lastMover){
+  if (state.winMode !== "line") return false;
+  if (hasFullRowOrCol(lastMover)){
+    finalizeGameImmediate(lastMover);
+    return true;
+  }
+  return false;
+}
+
 /* board */
 function buildBoard(){
   document.documentElement.style.setProperty("--n", state.n);
@@ -579,7 +632,7 @@ function renderPieces(){
   }
 }
 
-/* moves */
+/* ===== move generation (legal captures depend on occupancy) ===== */
 function rayMoves(p, dirs){
   const moves = [];
   for (const [dx,dy] of dirs){
@@ -637,7 +690,6 @@ function pawnMoves(p){
   }
   return moves;
 }
-
 function legalMovesFor(p){
   if (p.type==="rook")   return rayMoves(p, [[1,0],[-1,0],[0,1],[0,-1]]);
   if (p.type==="bishop") return rayMoves(p, [[1,1],[1,-1],[-1,1],[-1,-1]]);
@@ -648,20 +700,78 @@ function legalMovesFor(p){
   return [];
 }
 
-/* ==========================
-   STRICT FAIR START (FIXED)
-   ==========================
-
-   Key fix: while searching for a start, we DO NOT color and we DO NOT accept
-   any arrangement that yields ANY immediate capture for EITHER side.
-
-   After we find a valid arrangement, then we initialize territory and color the
-   starting squares (as before).
+/* ===== Attack detection (does NOT require a target piece to exist) =====
+   This is the critical fix: respawn safety must use "attacked squares" not capture flags.
 */
+function attacksSquare(piece, tx, ty){
+  if (piece.x===tx && piece.y===ty) return false;
+
+  const dx = tx - piece.x;
+  const dy = ty - piece.y;
+
+  if (piece.type==="knight"){
+    const ax = Math.abs(dx), ay = Math.abs(dy);
+    return (ax===2 && ay===1) || (ax===1 && ay===2);
+  }
+
+  if (piece.type==="king"){
+    return Math.max(Math.abs(dx), Math.abs(dy)) === 1;
+  }
+
+  if (piece.type==="pawn"){
+    const dir = (piece.owner===BLUE) ? -1 : 1;
+    return (dy === dir) && (Math.abs(dx) === 1);
+  }
+
+  // sliders
+  function rayAttacks(stepX, stepY){
+    let x = piece.x + stepX;
+    let y = piece.y + stepY;
+    while (inBounds(x,y)){
+      if (x===tx && y===ty) return true;          // target reached before blockage
+      if (isOccupied(x,y)) return false;          // blocked by any piece
+      x += stepX; y += stepY;
+    }
+    return false;
+  }
+
+  if (piece.type==="rook"){
+    if (dx===0 && dy!==0) return rayAttacks(0, Math.sign(dy));
+    if (dy===0 && dx!==0) return rayAttacks(Math.sign(dx), 0);
+    return false;
+  }
+
+  if (piece.type==="bishop"){
+    if (Math.abs(dx)===Math.abs(dy) && dx!==0){
+      return rayAttacks(Math.sign(dx), Math.sign(dy));
+    }
+    return false;
+  }
+
+  if (piece.type==="queen"){
+    if (dx===0 && dy!==0) return rayAttacks(0, Math.sign(dy));
+    if (dy===0 && dx!==0) return rayAttacks(Math.sign(dx), 0);
+    if (Math.abs(dx)===Math.abs(dy) && dx!==0){
+      return rayAttacks(Math.sign(dx), Math.sign(dy));
+    }
+    return false;
+  }
+
+  return false;
+}
+
+function squareAttackedByOwner(owner, x, y){
+  for (const p of state.pieces){
+    if (p.owner !== owner) continue;
+    if (attacksSquare(p, x, y)) return true;
+  }
+  return false;
+}
+
+/* ===== strict fair start ===== */
 function anyImmediateCaptureExists(){
   for (const p of state.pieces){
-    const moves = legalMovesFor(p);
-    for (const m of moves){
+    for (const m of legalMovesFor(p)){
       if (m.capture) return true;
     }
   }
@@ -677,7 +787,6 @@ function placePiecesNoColor(){
   const set = currentPieceSet();
   let idx = 0;
 
-  // Build list of all squares and shuffle so placement is unbiased.
   const squares = [];
   for (let y=0;y<state.n;y++) for (let x=0;x<state.n;x++) squares.push({x,y});
   shuffleInPlace(squares);
@@ -710,13 +819,21 @@ function generateStrictFairStart(maxTries){
   return false;
 }
 
-/* respawn fairness + randomness */
-function canPieceCaptureAnyFrom(type, owner, x, y){
+/* ===== respawn fairness (FIXED) =====
+   Tier A: respawned piece has no immediate captures AND is not attacked by opponent.
+   Tier B: no immediate captures (but may be attacked).
+   Tier C: any empty square.
+*/
+function canRespawnedPieceCaptureImmediately(type, owner, x, y){
+  // Temporarily evaluate captures from (x,y) against current board pieces.
+  // This does not require inserting the piece into state; rayMoves uses getPieceAt for enemy detection.
   const temp = {id:"tmp", owner, type, x, y};
   return legalMovesFor(temp).some(m => m.capture);
 }
 
 function pickRandomRespawnSquareFair(type, owner){
+  const opp = (owner===BLUE) ? RED : BLUE;
+
   const empties = [];
   for (let y=0;y<state.n;y++){
     for (let x=0;x<state.n;x++){
@@ -727,19 +844,25 @@ function pickRandomRespawnSquareFair(type, owner){
 
   shuffleInPlace(empties);
 
-  const safe = [];
+  const tierA = [];
+  const tierB = [];
+
   for (const s of empties){
-    if (!canPieceCaptureAnyFrom(type, owner, s.x, s.y)) safe.push(s);
+    const noImmediateCapture = !canRespawnedPieceCaptureImmediately(type, owner, s.x, s.y);
+    const notAttackedByOpp   = !squareAttackedByOwner(opp, s.x, s.y);
+
+    if (noImmediateCapture) tierB.push(s);
+    if (noImmediateCapture && notAttackedByOpp) tierA.push(s);
   }
 
-  if (safe.length){
-    // pick randomly among a shuffled top subset to avoid loops
-    shuffleInPlace(safe);
-    const k = Math.min(14, safe.length);
-    return safe[Math.floor(rand01()*k)];
+  function pickFrom(list){
+    if (!list.length) return null;
+    shuffleInPlace(list);
+    const k = Math.min(24, list.length);
+    return list[Math.floor(rand01()*k)];
   }
 
-  return pickRandom(empties);
+  return pickFrom(tierA) || pickFrom(tierB) || pickFrom(empties);
 }
 
 function respawnSameType(capturedPiece){
@@ -750,10 +873,12 @@ function respawnSameType(capturedPiece){
   return true;
 }
 
-/* end/turn */
+/* ===== end / overlay ===== */
 function showGameOverOverlay(a,b,verdict){
   finalBlueEl.textContent = a;
   finalRedEl.textContent = b;
+  finalWinModeEl.textContent =
+    (state.winMode==="line") ? "Complete a row or column" : "Most territory after turns";
 
   const set = currentPieceSet();
   finalSetEl.textContent = set.name;
@@ -774,7 +899,7 @@ function showGameOverOverlay(a,b,verdict){
   overlayEl.classList.add("show");
 }
 
-function finalizeGame(){
+function finalizeGameByTerritory(){
   state.gameOver=true;
   state.busy=false;
   boardEl.classList.remove("disabled");
@@ -790,9 +915,27 @@ function finalizeGame(){
   showGameOverOverlay(a,b,verdict);
 }
 
+function finalizeGameImmediate(winnerOwner){
+  state.gameOver=true;
+  state.busy=false;
+  boardEl.classList.remove("disabled");
+  clearMarks();
+  renderPieces();
+  const {a,b}=countTerritory();
+
+  const verdict = (winnerOwner===BLUE) ? "Blue wins" : "Red wins";
+  msgEl.textContent = `Game over. ${verdict} (row/column completed).`;
+  showGameOverOverlay(a,b,verdict);
+}
+
 function switchTurn(){
-  state.turnsLeft[state.current]-=1;
-  if (state.turnsLeft[BLUE]<=0 && state.turnsLeft[RED]<=0){ finalizeGame(); return; }
+  if (state.winMode === "turns"){
+    state.turnsLeft[state.current]-=1;
+    if (state.turnsLeft[BLUE]<=0 && state.turnsLeft[RED]<=0){
+      finalizeGameByTerritory();
+      return;
+    }
+  }
 
   state.current = (state.current===BLUE) ? RED : BLUE;
   state.selectedId=null;
@@ -828,8 +971,6 @@ function canSelectPiece(p){
 
 function onCellClick(x,y){
   if (state.gameOver || state.busy) return;
-
-  // if bot mode and it's bot's turn, ignore clicks
   if (state.mode==="bot" && state.current===state.botColor) return;
 
   const clickedPiece = getPieceAt(x,y);
@@ -865,11 +1006,14 @@ function onCellClick(x,y){
 
   if (captured){
     const ok = respawnSameType(captured);
-    if (!ok){ finalizeGame(); return; }
+    if (!ok){ finalizeGameByTerritory(); return; }
   }
 
   renderPieces();
   countTerritory();
+
+  if (maybeEndByLineWin(piece.owner)) return;
+
   switchTurn();
 }
 
@@ -877,14 +1021,24 @@ function onCellClick(x,y){
 function evalMove(owner, move){
   const opp = (owner===BLUE) ? RED : BLUE;
   let s=0;
+
   const cellColor = state.territory[move.y][move.x];
   if (cellColor===0) s += 1.0;
   else if (cellColor===opp) s += 2.0;
   if (move.capture) s += 0.7;
 
+  if (state.winMode === "line"){
+    const prev = state.territory[move.y][move.x];
+    state.territory[move.y][move.x] = owner;
+    if (hasFullRowOrCol(owner)) s += 120;
+    if (hasFullRowOrCol(opp)) s -= 40;
+    state.territory[move.y][move.x] = prev;
+  }
+
   const cx=(state.n-1)/2, cy=(state.n-1)/2;
   const dist=Math.abs(move.x-cx)+Math.abs(move.y-cy);
   s += Math.max(0, 0.25 - dist*0.04);
+
   return s;
 }
 
@@ -908,16 +1062,13 @@ function botMove(){
     for (const m of legalMovesFor(p)){
       const captured = m.capture ? getPieceAt(m.x, m.y) : null;
 
-      // simulate quickly
       const saved = {px:p.x, py:p.y, cap: captured ? {x:captured.x,y:captured.y} : null};
       p.x=m.x; p.y=m.y;
       if (captured){ captured.x=-99; captured.y=-99; }
 
       let s = evalMove(state.botColor, m);
-      // slight lookahead penalty: allow opponent's best response
       s -= 0.25 * estimateBestAfter(opp);
 
-      // revert
       p.x=saved.px; p.y=saved.py;
       if (captured){ captured.x=saved.cap.x; captured.y=saved.cap.y; }
 
@@ -925,7 +1076,7 @@ function botMove(){
     }
   }
 
-  if (!bestPlan){ finalizeGame(); return; }
+  if (!bestPlan){ finalizeGameByTerritory(); return; }
 
   clearMarks();
   const fromEl = document.getElementById(cellId(bestPlan.piece.x, bestPlan.piece.y));
@@ -943,11 +1094,13 @@ function botMove(){
 
     if (captured){
       const ok = respawnSameType(captured);
-      if (!ok){ finalizeGame(); return; }
+      if (!ok){ finalizeGameByTerritory(); return; }
     }
 
     renderPieces();
     countTerritory();
+
+    if (maybeEndByLineWin(piece.owner)) return;
 
     state.busy=false;
     boardEl.classList.remove("disabled");
@@ -966,7 +1119,6 @@ function fillPieceSetDropdown(){
   }
   pieceSetSel.value = state.pieceSetId;
 }
-
 function updateSetNote(extra=""){
   const set = currentPieceSet();
   const counts = {};
@@ -981,22 +1133,23 @@ function newGame(){
   reseedRng();
 
   state.n = Number(boardSizeSel.value);
-  state.turnLimit = Number(turnLimitSel.value);
   state.mode = modeSel.value;
+  state.winMode = winModeSel.value;
   state.pieceSetId = pieceSetSel.value || state.pieceSetId;
 
-  // Randomize roles + starting side in bot mode
+  state.turnLimit = Number(turnLimitSel.value);
+  state.turnsLeft = { [BLUE]: state.turnLimit, [RED]: state.turnLimit };
+
   if (state.mode==="bot"){
     state.userColor = (rand01() < 0.5) ? BLUE : RED;
     state.botColor  = (state.userColor===BLUE) ? RED : BLUE;
-    state.current   = (rand01() < 0.5) ? BLUE : RED; // random starter (independent)
+    state.current   = (rand01() < 0.5) ? BLUE : RED;
   } else {
     state.userColor = BLUE;
     state.botColor  = RED;
     state.current   = BLUE;
   }
 
-  state.turnsLeft = { [BLUE]: state.turnLimit, [RED]: state.turnLimit };
   state.selectedId = null;
   state.gameOver = false;
   state.busy = false;
@@ -1004,22 +1157,35 @@ function newGame(){
 
   buildBoard();
 
-  // Strict fair start (try hard)
   const setSize = currentPieceSet().perSide.length;
-  const tries = 1500 + setSize * 600;
+  const tries = 1800 + setSize * 800;
 
-  const ok = generateStrictFairStart(tries);
+  let ok = false;
 
-  initTerritory();
-  if (ok){
-    // color initial squares AFTER we know it is fair
+  // Try to also avoid "already a line" at start in line-mode.
+  for (let attempt=0; attempt<tries; attempt++){
+    ok = generateStrictFairStart(1);
+    if (!ok) continue;
+
+    initTerritory();
     for (const p of state.pieces) colorCell(p.x, p.y, p.owner);
-    updateSetNote("Fair start: no immediate captures.");
+
+    if (state.winMode === "line"){
+      if (hasFullRowOrCol(BLUE) || hasFullRowOrCol(RED)){
+        continue;
+      }
+    }
+    break;
+  }
+
+  if (!ok){
+    // fallback (rare): still start, but warn
+    initTerritory();
+    generateStrictFairStart(tries);
+    for (const p of state.pieces) colorCell(p.x, p.y, p.owner);
+    updateSetNote("⚠️ Could not guarantee a fully fair start for this board/piece count.");
   } else {
-    // This should be rare: too many pieces / too small board.
-    // Still start, but loudly tell you it's not guaranteed.
-    for (const p of state.pieces) colorCell(p.x, p.y, p.owner);
-    updateSetNote("⚠️ Could not guarantee a fair start for this board/piece count.");
+    updateSetNote("Fair start: no immediate captures. Respawns avoid attacked squares when possible.");
   }
 
   refreshAllTerritory();
@@ -1029,7 +1195,6 @@ function newGame(){
   roleLabels();
   setTurnUI();
 
-  // If bot starts, immediately play
   if (state.mode==="bot" && state.current===state.botColor){
     state.busy=true;
     boardEl.classList.add("disabled");
@@ -1037,13 +1202,14 @@ function newGame(){
   }
 }
 
+/* init */
 newGameBtn.addEventListener("click", newGame);
 boardSizeSel.addEventListener("change", newGame);
 turnLimitSel.addEventListener("change", newGame);
 modeSel.addEventListener("change", newGame);
 pieceSetSel.addEventListener("change", newGame);
+winModeSel.addEventListener("change", newGame);
 
-/* init */
 fillPieceSetDropdown();
 newGame();
 </script>
