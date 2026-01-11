@@ -11,12 +11,15 @@
     --gap: 2px;
     --n: 8;
 
-    /* Paler territory colors (still clearly visible) */
-    --cell-base: #ffffff;
-	--cell-blue: #e9effa;  /* very pale blue */
-	--cell-red:  #f7e6ea;  /* very pale red */
+    /* checked board */
+    --sq-light: #f7f7f7;
+    --sq-dark:  #e4e4e4;
 
-    /* Piece outline colors (darker than cells) */
+    /* pale territory tints */
+    --tint-blue: rgba(11, 87, 208, 0.16);
+    --tint-red:  rgba(176, 0, 32, 0.16);
+
+    /* piece colors */
     --blue: #0b57d0;
     --red:  #b00020;
 
@@ -35,7 +38,7 @@
   h2{ margin:6px 0 8px; }
 
   #rules{
-    width:min(100vw - 20px, 760px);
+    width:min(100vw - 20px, 980px);
     margin:0 auto 10px;
     text-align:left;
     background:#fff;
@@ -61,7 +64,7 @@
   .pill{
     display:flex;
     gap:8px;
-    align-items:baseline;
+    align-items:center;
     padding:8px 10px;
     border:1px solid #ddd;
     border-radius:999px;
@@ -72,18 +75,21 @@
   .value{ font-weight:800; font-size:16px; }
   .p1{ color:var(--blue); }
   .p2{ color:var(--red); }
-  button, select{ font-size:14px; padding:7px 10px; }
 
-  #wrap{ width:min(100vw - 20px, 520px); margin:0 auto; }
+  button, select{
+    font-size:14px;
+    padding:7px 10px;
+  }
 
-  /* FIX: frame is now always fully visible (no right/bottom clipping)
-     by using content-box sizing + padding for the inner grid. */
+  #wrap{ width:min(100vw - 20px, 560px); margin:0 auto; }
+
+  /* frame */
   #board{
     display:inline-block;
     border:2px solid var(--frame);
     background:var(--grid-bg);
-    padding:2px;                 /* gap between frame and grid */
-    box-sizing:content-box;      /* IMPORTANT */
+    padding:2px;
+    box-sizing:content-box;
   }
 
   #grid{
@@ -98,7 +104,6 @@
     position:relative;
     width:var(--cell);
     height:var(--cell);
-    background:var(--cell-base);
     display:flex;
     align-items:center;
     justify-content:center;
@@ -107,14 +112,20 @@
     cursor:pointer;
     font-size: calc(var(--cell) * 0.56);
     line-height:1;
+    background: var(--sq-light);
+    font-family: "Apple Color Emoji","Segoe UI Symbol", system-ui, sans-serif;
   }
+  .cell.parity1{ background: var(--sq-dark); }
 
-
-
-  /* Territory */
-  .c0{ background: var(--cell-base); }
-  .c1{ background: var(--cell-blue); }
-  .c2{ background: var(--cell-red); }
+  /* territory overlay keeps check pattern visible */
+  .cell.c1{
+    background-image: linear-gradient(var(--tint-blue), var(--tint-blue));
+    background-blend-mode: multiply;
+  }
+  .cell.c2{
+    background-image: linear-gradient(var(--tint-red), var(--tint-red));
+    background-blend-mode: multiply;
+  }
 
   /* selection + hints */
   .sel{
@@ -131,7 +142,7 @@
     box-shadow: inset 0 0 0 999px rgba(0,0,0,0.05);
   }
 
-  /* bot move animation highlight */
+  /* bot animation */
   .botFrom{
     outline: 3px solid rgba(176,0,32,0.45);
     outline-offset:-3px;
@@ -142,26 +153,13 @@
     box-shadow: inset 0 0 0 999px rgba(176,0,32,0.07);
   }
 
-  /* Pieces: darker OUTLINE (not filled).
-     Uses text-stroke when available; falls back to solid color elsewhere. */
-  .pieceBlue, .pieceRed{
-    font-weight: 700;
-    paint-order: stroke fill;
+  /* Pieces: filled glyphs (black-piece Unicode) colored via CSS */
+  .piece{
+    font-weight:800;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.10);
   }
-.pieceBlue{
-  color: transparent;
-  -webkit-text-stroke: 3px var(--blue);
-}
-.pieceRed{
-  color: transparent;
-  -webkit-text-stroke: 3px var(--red);
-}
-
-  /* If a browser ignores text-stroke + transparent color, show filled as fallback */
-  @supports not (-webkit-text-stroke: 1px black){
-    .pieceBlue{ color: var(--blue); }
-    .pieceRed{ color: var(--red); }
-  }
+  .pieceBlue{ color: var(--blue); }
+  .pieceRed { color: var(--red); }
 
   .disabled{
     opacity:0.72;
@@ -187,8 +185,72 @@
     margin-right:6px;
     border:1px solid rgba(0,0,0,0.18);
   }
-  .dot1{ background: var(--cell-blue); }
-  .dot2{ background: var(--cell-red); }
+  .dot1{ background: var(--tint-blue); }
+  .dot2{ background: var(--tint-red); }
+
+  .smallNote{ font-size:12px; color:#555; margin-top:6px; }
+
+  option{ font-family: "Apple Color Emoji", "Segoe UI Symbol", system-ui, sans-serif; }
+
+  /* ===== Game Over modal ===== */
+  #overlay{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background: rgba(0,0,0,0.45);
+    z-index: 9999;
+    padding: 18px;
+  }
+  #overlay.show{ display:flex; }
+  #modal{
+    width:min(92vw, 520px);
+    border-radius:16px;
+    background:#fff;
+    border:2px solid rgba(0,0,0,0.15);
+    box-shadow: 0 14px 50px rgba(0,0,0,0.25);
+    padding: 16px 16px 14px;
+    text-align:left;
+  }
+  #modal h3{
+    margin:0 0 8px;
+    font-size: 18px;
+  }
+  #winnerBanner{
+    margin: 8px 0 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-weight: 850;
+    font-size: 18px;
+    letter-spacing: 0.2px;
+    border: 1px solid rgba(0,0,0,0.12);
+  }
+  #winnerBanner.blue{
+    color: var(--blue);
+    background: rgba(11,87,208,0.10);
+  }
+  #winnerBanner.red{
+    color: var(--red);
+    background: rgba(176,0,32,0.10);
+  }
+  #winnerBanner.draw{
+    color: #222;
+    background: rgba(0,0,0,0.06);
+  }
+  #modal .row{
+    display:flex;
+    justify-content:space-between;
+    margin: 6px 0;
+    font-size:14px;
+  }
+  #modal .row b{ font-weight:800; }
+  #modal .actions{
+    margin-top: 12px;
+    display:flex;
+    gap: 10px;
+    justify-content:flex-end;
+  }
 </style>
 </head>
 
@@ -198,10 +260,12 @@
 <div id="rules">
   <b>Goal:</b> After a fixed number of turns, control more territory.
   <ul>
-    <li>Move like chess (rook/bishop/knight). No pawns, no check rules.</li>
-    <li>The <b>destination square</b> becomes your color (overwrites the opponent’s color).</li>
-    <li>If you capture an enemy piece, it <b>respawns as the same type</b> on a <b>random empty square</b> (respawn does <b>not</b> color the square).</li>
-    <li>Game starts randomly, but with <b>no immediate captures</b> available.</li>
+    <li>Move like chess. No check rules.</li>
+    <li>Your <b>destination square</b> becomes your color (overwrites the opponent’s color).</li>
+    <li>If you capture an enemy piece, it <b>respawns as the same type</b> on a random empty square. Respawning does <b>not</b> color the square.</li>
+    <li><b>Fair respawn:</b> respawn squares are chosen so the respawned piece has <b>no immediate captures</b> if possible.</li>
+    <li><b>Fair start:</b> initial positions are generated so <b>no immediate captures</b> are possible for either side.</li>
+    <li><b>Vs Bot:</b> your color and the starting side are randomized (shown in the HUD).</li>
   </ul>
 </div>
 
@@ -214,9 +278,21 @@
     </select>
   </div>
 
+  <div class="pill" id="whoPill">
+    <span class="label">You:</span>
+    <span class="value" id="youColorText"></span>
+    <span class="label" style="margin-left:8px;">Bot:</span>
+    <span class="value" id="botColorText"></span>
+  </div>
+
+  <div class="pill">
+    <span class="label">Piece set:</span>
+    <select id="pieceSetSel"></select>
+  </div>
+
   <div class="pill">
     <span class="label">Turn:</span>
-    <span class="value" id="turnText"><span class="p1">Blue</span></span>
+    <span class="value" id="turnText"></span>
   </div>
 
   <div class="pill">
@@ -237,19 +313,21 @@
   <div class="pill">
     <span class="label">Board:</span>
     <select id="boardSize">
+      <option value="6">6×6</option>
       <option value="7">7×7</option>
       <option value="8" selected>8×8</option>
-      <option value="6">6×6</option>
+      <option value="9">9×9</option>
     </select>
   </div>
 
   <div class="pill">
-    <span class="label">Turns per side:</span>
+    <span class="label">Turns/side:</span>
     <select id="turnLimit">
       <option value="10">10</option>
       <option value="15">15</option>
       <option value="20" selected>20</option>
       <option value="25">25</option>
+      <option value="30">30</option>
     </select>
   </div>
 
@@ -258,27 +336,80 @@
 
 <div id="wrap">
   <div id="board"><div id="grid"></div></div>
+  <div class="smallNote" id="setNote"></div>
 </div>
 
 <div class="legend">
   <span><span class="dot dot1"></span>Blue territory</span>
   <span><span class="dot dot2"></span>Red territory</span>
-  <span>Pieces: rook, bishop, knight</span>
 </div>
 
 <div class="msg" id="msg">Click a piece, then a highlighted destination.</div>
+
+<!-- Game Over Overlay -->
+<div id="overlay" role="dialog" aria-modal="true" aria-label="Game Over">
+  <div id="modal">
+    <h3>Game Over</h3>
+    <div id="winnerBanner" class="draw">DRAW</div>
+    <div class="row"><span>Blue territory</span> <b id="finalBlue">0</b></div>
+    <div class="row"><span>Red territory</span> <b id="finalRed">0</b></div>
+    <div class="row"><span>Piece set</span> <b id="finalSet">—</b></div>
+    <div class="row"><span>Mode</span> <b id="finalMode">—</b></div>
+    <div class="actions">
+      <button id="closeOverlayBtn">Close</button>
+      <button id="playAgainBtn">Play again</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const BLUE = 1;
 const RED  = 2;
 
-const SYMBOL = {
-  [BLUE]: { rook:"♖", bishop:"♗", knight:"♘" },
-  [RED]:  { rook:"♜", bishop:"♝", knight:"♞" }
+/* FILLED glyphs (black-piece Unicode), colored via CSS */
+const GLYPH = {
+  rook:   "♜",
+  bishop: "♝",
+  knight: "♞",
+  queen:  "♛",
+  king:   "♚",
+  pawn:   "♟"
 };
+
+const PIECE_SETS = [
+  { id:"mini3",    name:"♜ ♝ ♞",              perSide:["rook","bishop","knight"] },
+  { id:"classic6", name:"♜ ♞ ♞ ♝ ♝ ♚",        perSide:["rook","knight","knight","bishop","bishop","king"] },
+  { id:"queen4",   name:"♛ ♜ ♝ ♞",            perSide:["queen","rook","bishop","knight"] },
+  { id:"queen5k",  name:"♛ ♜ ♝ ♞ ♚",          perSide:["queen","rook","bishop","knight","king"] },
+  { id:"queen6",   name:"♛ ♜ ♞ ♞ ♝ ♚",        perSide:["queen","rook","knight","knight","bishop","king"] },
+  { id:"pawnsLite6", name:"♜ ♝ ♞ ♚ ♟ ♟",      perSide:["rook","bishop","knight","king","pawn","pawn"] },
+  { id:"pawnsPlus8", name:"♛ ♜ ♝ ♞ ♚ ♟ ♟ ♟",  perSide:["queen","rook","bishop","knight","king","pawn","pawn","pawn"] }
+];
 
 const BOT_THINK_MS = 450;
 const BOT_SHOW_MS  = 420;
+
+/* === RNG (per game) to avoid positional loops and allow randomized starts/colors === */
+let RNG_SEED = 0;
+function reseedRng(){
+  RNG_SEED = (Date.now() ^ ((Math.random()*1e9)|0)) >>> 0;
+}
+function rand01(){
+  // xorshift32
+  RNG_SEED ^= (RNG_SEED << 13); RNG_SEED >>>= 0;
+  RNG_SEED ^= (RNG_SEED >>> 17); RNG_SEED >>>= 0;
+  RNG_SEED ^= (RNG_SEED << 5);  RNG_SEED >>>= 0;
+  return (RNG_SEED >>> 0) / 4294967296;
+}
+function shuffleInPlace(arr){
+  for (let i=arr.length-1; i>0; i--){
+    const j = Math.floor(rand01() * (i+1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+function pickRandom(arr){
+  return arr[Math.floor(rand01() * arr.length)];
+}
 
 const state = {
   n: 8,
@@ -290,7 +421,12 @@ const state = {
   busy: false,
   mode: "bot",
   territory: [],
-  pieces: []
+  pieces: [],
+  pieceSetId: "queen5k",
+
+  /* NEW: explicit roles in bot mode */
+  userColor: BLUE,
+  botColor: RED
 };
 
 const gridEl = document.getElementById("grid");
@@ -304,21 +440,38 @@ const turnLimitSel = document.getElementById("turnLimit");
 const newGameBtn = document.getElementById("newGameBtn");
 const modeSel = document.getElementById("modeSel");
 const boardEl = document.getElementById("board");
+const pieceSetSel = document.getElementById("pieceSetSel");
+const setNote = document.getElementById("setNote");
 
-/* sizing */
+const whoPill = document.getElementById("whoPill");
+const youColorText = document.getElementById("youColorText");
+const botColorText = document.getElementById("botColorText");
+
+/* overlay */
+const overlayEl = document.getElementById("overlay");
+const winnerBannerEl = document.getElementById("winnerBanner");
+const finalBlueEl = document.getElementById("finalBlue");
+const finalRedEl = document.getElementById("finalRed");
+const finalSetEl = document.getElementById("finalSet");
+const finalModeEl = document.getElementById("finalMode");
+const closeOverlayBtn = document.getElementById("closeOverlayBtn");
+const playAgainBtn = document.getElementById("playAgainBtn");
+
+closeOverlayBtn.addEventListener("click", () => overlayEl.classList.remove("show"));
+playAgainBtn.addEventListener("click", () => { overlayEl.classList.remove("show"); newGame(); });
+
 function setCellSize(){
   const wrap = document.getElementById("wrap");
   const w = wrap.getBoundingClientRect().width;
   const n = state.n;
-  const usable = Math.floor(w - 10);
-  const cell = Math.max(34, Math.min(70, Math.floor((usable - (n-1)*2 - 4) / n)));
+  const usable = Math.floor(w - 14);
+  const cell = Math.max(34, Math.min(72, Math.floor((usable - (n-1)*2 - 4) / n)));
   document.documentElement.style.setProperty("--cell", cell + "px");
 }
 window.addEventListener("resize", setCellSize);
 
 function inBounds(x,y){ return x>=0 && x<state.n && y>=0 && y<state.n; }
 function cellId(x,y){ return `c_${x}_${y}`; }
-
 function getPieceAt(x,y){ return state.pieces.find(p => p.x===x && p.y===y) || null; }
 function isOccupied(x,y){ return !!getPieceAt(x,y); }
 
@@ -331,33 +484,54 @@ function clearMarks(){
   }
 }
 
+function cssColorName(owner){
+  return owner===BLUE ? `<span class="p1">Blue</span>` : `<span class="p2">Red</span>`;
+}
+function roleLabels(){
+  if (state.mode !== "bot"){
+    whoPill.style.display = "none";
+    return;
+  }
+  whoPill.style.display = "flex";
+  youColorText.innerHTML = cssColorName(state.userColor);
+  botColorText.innerHTML = cssColorName(state.botColor);
+}
+
 function setTurnUI(){
-  const who = (state.current===BLUE) ? "Blue" : "Red";
-  const cls = (state.current===BLUE) ? "p1" : "p2";
-  turnTextEl.innerHTML = `<span class="${cls}">${who}</span>`;
+  turnTextEl.innerHTML = cssColorName(state.current);
   turnsLeftEl.textContent = state.turnsLeft[state.current];
+
   if (state.gameOver) return;
-  msgEl.textContent = (state.mode==="bot" && state.current===RED) ? "Bot is thinking…" : "Click a piece, then a highlighted destination.";
+
+  if (state.mode==="bot"){
+    const isBotTurn = (state.current === state.botColor);
+    msgEl.textContent = isBotTurn ? "Bot is thinking…" : "Your turn: click a piece, then a highlighted destination.";
+  }else{
+    msgEl.textContent = "Click a piece, then a highlighted destination.";
+  }
 }
 
 /* territory */
 function initTerritory(){
   state.territory = Array.from({length: state.n}, () => Array(state.n).fill(0));
 }
-function renderTerritoryCell(x,y){
-  const el = document.getElementById(cellId(x,y));
-  if (!el) return;
-  el.classList.remove("c0","c1","c2");
-  const v = state.territory[y][x];
-  el.classList.add(v===BLUE ? "c1" : v===RED ? "c2" : "c0");
+function applyTerritoryClass(el, owner){
+  el.classList.remove("c1","c2");
+  if (owner===BLUE) el.classList.add("c1");
+  else if (owner===RED) el.classList.add("c2");
 }
 function colorCell(x,y, owner){
   state.territory[y][x] = owner;
-  renderTerritoryCell(x,y);
+  const el = document.getElementById(cellId(x,y));
+  if (el) applyTerritoryClass(el, owner);
 }
 function refreshAllTerritory(){
   for (let y=0;y<state.n;y++){
-    for (let x=0;x<state.n;x++) renderTerritoryCell(x,y);
+    for (let x=0;x<state.n;x++){
+      const el = document.getElementById(cellId(x,y));
+      if (!el) continue;
+      applyTerritoryClass(el, state.territory[y][x]);
+    }
   }
 }
 function countTerritory(){
@@ -373,7 +547,7 @@ function countTerritory(){
   return {a,b};
 }
 
-/* build/render */
+/* board */
 function buildBoard(){
   document.documentElement.style.setProperty("--n", state.n);
   gridEl.innerHTML = "";
@@ -381,7 +555,7 @@ function buildBoard(){
     for (let x=0;x<state.n;x++){
       const el = document.createElement("div");
       el.id = cellId(x,y);
-      el.className = "cell c0" + (((x+y)%2) ? " parity1" : "");
+      el.className = "cell" + (((x+y)%2) ? " parity1" : "");
       el.addEventListener("click", () => onCellClick(x,y), {passive:true});
       gridEl.appendChild(el);
     }
@@ -394,14 +568,14 @@ function renderPieces(){
     for (let x=0;x<state.n;x++){
       const el = document.getElementById(cellId(x,y));
       el.textContent = "";
-      el.classList.remove("pieceBlue","pieceRed");
+      el.classList.remove("piece","pieceBlue","pieceRed");
     }
   }
   for (const p of state.pieces){
     const el = document.getElementById(cellId(p.x,p.y));
     if (!el) continue;
-    el.textContent = SYMBOL[p.owner][p.type];
-    el.classList.add(p.owner===BLUE ? "pieceBlue" : "pieceRed");
+    el.textContent = GLYPH[p.type] || "?";
+    el.classList.add("piece", p.owner===BLUE ? "pieceBlue" : "pieceRed");
   }
 }
 
@@ -411,7 +585,7 @@ function rayMoves(p, dirs){
   for (const [dx,dy] of dirs){
     let x=p.x+dx, y=p.y+dy;
     while (inBounds(x,y)){
-      const occ = getPieceAt(x,y);
+      const occ=getPieceAt(x,y);
       if (!occ) moves.push({x,y,capture:false});
       else { if (occ.owner!==p.owner) moves.push({x,y,capture:true}); break; }
       x+=dx; y+=dy;
@@ -431,43 +605,175 @@ function knightMoves(p){
   }
   return moves;
 }
-function legalMovesFor(p){
-  if (p.type==="rook") return rayMoves(p, [[1,0],[-1,0],[0,1],[0,-1]]);
-  if (p.type==="bishop") return rayMoves(p, [[1,1],[1,-1],[-1,1],[-1,-1]]);
-  return knightMoves(p);
-}
-
-/* start fairness */
-function anyImmediateCaptureExists(){
-  return state.pieces.some(p => legalMovesFor(p).some(m => m.capture));
-}
-
-/* respawn: random empty; does NOT color; try to avoid immediate capture next turn */
-function canPieceCaptureAnyFrom(type, owner, x, y){
-  const temp={id:"tmp", owner, type, x, y};
-  return legalMovesFor(temp).some(m => m.capture);
-}
-function pickRandomRespawnSquare(type, owner){
-  const safe=[], any=[];
-  for (let y=0;y<state.n;y++){
-    for (let x=0;x<state.n;x++){
-      if (isOccupied(x,y)) continue;
-      any.push({x,y});
-      if (!canPieceCaptureAnyFrom(type, owner, x, y)) safe.push({x,y});
+function kingMoves(p){
+  const moves=[];
+  for (let dy=-1; dy<=1; dy++){
+    for (let dx=-1; dx<=1; dx++){
+      if (dx===0 && dy===0) continue;
+      const x=p.x+dx, y=p.y+dy;
+      if (!inBounds(x,y)) continue;
+      const occ=getPieceAt(x,y);
+      if (!occ) moves.push({x,y,capture:false});
+      else if (occ.owner!==p.owner) moves.push({x,y,capture:true});
     }
   }
-  if (safe.length) return safe[Math.floor(Math.random()*safe.length)];
-  return any.length ? any[Math.floor(Math.random()*any.length)] : null;
+  return moves;
 }
+function pawnMoves(p){
+  const dir = (p.owner===BLUE) ? -1 : 1;
+  const moves=[];
+  const fwdY = p.y + dir;
+
+  if (inBounds(p.x, fwdY) && !isOccupied(p.x, fwdY)){
+    moves.push({x:p.x, y:fwdY, capture:false});
+  }
+  for (const dx of [-1, 1]){
+    const cx = p.x + dx, cy = p.y + dir;
+    if (!inBounds(cx,cy)) continue;
+    const occ = getPieceAt(cx,cy);
+    if (occ && occ.owner !== p.owner){
+      moves.push({x:cx, y:cy, capture:true});
+    }
+  }
+  return moves;
+}
+
+function legalMovesFor(p){
+  if (p.type==="rook")   return rayMoves(p, [[1,0],[-1,0],[0,1],[0,-1]]);
+  if (p.type==="bishop") return rayMoves(p, [[1,1],[1,-1],[-1,1],[-1,-1]]);
+  if (p.type==="queen")  return rayMoves(p, [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]);
+  if (p.type==="knight") return knightMoves(p);
+  if (p.type==="king")   return kingMoves(p);
+  if (p.type==="pawn")   return pawnMoves(p);
+  return [];
+}
+
+/* ==========================
+   STRICT FAIR START (FIXED)
+   ==========================
+
+   Key fix: while searching for a start, we DO NOT color and we DO NOT accept
+   any arrangement that yields ANY immediate capture for EITHER side.
+
+   After we find a valid arrangement, then we initialize territory and color the
+   starting squares (as before).
+*/
+function anyImmediateCaptureExists(){
+  for (const p of state.pieces){
+    const moves = legalMovesFor(p);
+    for (const m of moves){
+      if (m.capture) return true;
+    }
+  }
+  return false;
+}
+
+function currentPieceSet(){
+  return PIECE_SETS.find(s => s.id===state.pieceSetId) || PIECE_SETS[0];
+}
+
+function placePiecesNoColor(){
+  state.pieces = [];
+  const set = currentPieceSet();
+  let idx = 0;
+
+  // Build list of all squares and shuffle so placement is unbiased.
+  const squares = [];
+  for (let y=0;y<state.n;y++) for (let x=0;x<state.n;x++) squares.push({x,y});
+  shuffleInPlace(squares);
+
+  let ptr = 0;
+  function nextEmpty(){
+    while (ptr < squares.length){
+      const s = squares[ptr++];
+      if (!isOccupied(s.x,s.y)) return s;
+    }
+    return null;
+  }
+
+  for (const owner of [BLUE, RED]){
+    for (const type of set.perSide){
+      const spot = nextEmpty();
+      if (!spot) return false;
+      state.pieces.push({ id: `${owner}_${idx++}`, owner, type, x: spot.x, y: spot.y });
+    }
+  }
+  return true;
+}
+
+function generateStrictFairStart(maxTries){
+  for (let i=0;i<maxTries;i++){
+    state.pieces = [];
+    if (!placePiecesNoColor()) continue;
+    if (!anyImmediateCaptureExists()) return true;
+  }
+  return false;
+}
+
+/* respawn fairness + randomness */
+function canPieceCaptureAnyFrom(type, owner, x, y){
+  const temp = {id:"tmp", owner, type, x, y};
+  return legalMovesFor(temp).some(m => m.capture);
+}
+
+function pickRandomRespawnSquareFair(type, owner){
+  const empties = [];
+  for (let y=0;y<state.n;y++){
+    for (let x=0;x<state.n;x++){
+      if (!isOccupied(x,y)) empties.push({x,y});
+    }
+  }
+  if (!empties.length) return null;
+
+  shuffleInPlace(empties);
+
+  const safe = [];
+  for (const s of empties){
+    if (!canPieceCaptureAnyFrom(type, owner, s.x, s.y)) safe.push(s);
+  }
+
+  if (safe.length){
+    // pick randomly among a shuffled top subset to avoid loops
+    shuffleInPlace(safe);
+    const k = Math.min(14, safe.length);
+    return safe[Math.floor(rand01()*k)];
+  }
+
+  return pickRandom(empties);
+}
+
 function respawnSameType(capturedPiece){
-  const spot = pickRandomRespawnSquare(capturedPiece.type, capturedPiece.owner);
+  const spot = pickRandomRespawnSquareFair(capturedPiece.type, capturedPiece.owner);
   if (!spot) return false;
   capturedPiece.x = spot.x;
   capturedPiece.y = spot.y;
   return true;
 }
 
-/* turns/end */
+/* end/turn */
+function showGameOverOverlay(a,b,verdict){
+  finalBlueEl.textContent = a;
+  finalRedEl.textContent = b;
+
+  const set = currentPieceSet();
+  finalSetEl.textContent = set.name;
+  finalModeEl.textContent = (state.mode==="bot") ? "Vs Bot" : "2 Players";
+
+  winnerBannerEl.className = "";
+  winnerBannerEl.id = "winnerBanner";
+  if (verdict==="Blue wins"){
+    winnerBannerEl.classList.add("blue");
+    winnerBannerEl.textContent = "BLUE WINS";
+  } else if (verdict==="Red wins"){
+    winnerBannerEl.classList.add("red");
+    winnerBannerEl.textContent = "RED WINS";
+  } else {
+    winnerBannerEl.classList.add("draw");
+    winnerBannerEl.textContent = "DRAW";
+  }
+  overlayEl.classList.add("show");
+}
+
 function finalizeGame(){
   state.gameOver=true;
   state.busy=false;
@@ -475,11 +781,15 @@ function finalizeGame(){
   clearMarks();
   renderPieces();
   const {a,b}=countTerritory();
-  let verdict="Draw.";
-  if (a>b) verdict="Blue wins.";
-  if (b>a) verdict="Red wins.";
-  msgEl.textContent=`Game over. Blue: ${a} • Red: ${b}. ${verdict}`;
+
+  let verdict="Draw";
+  if (a>b) verdict="Blue wins";
+  if (b>a) verdict="Red wins";
+
+  msgEl.textContent=`Game over. Blue: ${a} • Red: ${b}. ${verdict}.`;
+  showGameOverOverlay(a,b,verdict);
 }
+
 function switchTurn(){
   state.turnsLeft[state.current]-=1;
   if (state.turnsLeft[BLUE]<=0 && state.turnsLeft[RED]<=0){ finalizeGame(); return; }
@@ -491,7 +801,7 @@ function switchTurn(){
   renderPieces();
   countTerritory();
 
-  if (!state.gameOver && state.mode==="bot" && state.current===RED){
+  if (!state.gameOver && state.mode==="bot" && state.current===state.botColor){
     state.busy=true;
     boardEl.classList.add("disabled");
     setTimeout(botMove, BOT_THINK_MS);
@@ -504,52 +814,57 @@ function switchTurn(){
 /* hints */
 function highlightMoves(piece){
   for (const m of legalMovesFor(piece)){
-    const el=document.getElementById(cellId(m.x,m.y));
+    const el = document.getElementById(cellId(m.x,m.y));
+    if (!el) continue;
     el.classList.add(m.capture ? "hintCapture" : "hint");
   }
 }
 
 /* interaction */
 function canSelectPiece(p){
-  if (state.mode==="bot") return p.owner===BLUE;
+  if (state.mode==="bot") return p.owner===state.userColor;
   return p.owner===state.current;
 }
+
 function onCellClick(x,y){
   if (state.gameOver || state.busy) return;
 
-  const clickedPiece=getPieceAt(x,y);
+  // if bot mode and it's bot's turn, ignore clicks
+  if (state.mode==="bot" && state.current===state.botColor) return;
+
+  const clickedPiece = getPieceAt(x,y);
 
   if (!state.selectedId){
     if (!clickedPiece || !canSelectPiece(clickedPiece)) return;
-    state.selectedId=clickedPiece.id;
+    state.selectedId = clickedPiece.id;
     clearMarks();
     document.getElementById(cellId(clickedPiece.x, clickedPiece.y)).classList.add("sel");
     highlightMoves(clickedPiece);
     return;
   }
 
-  const piece=state.pieces.find(p=>p.id===state.selectedId);
+  const piece = state.pieces.find(p => p.id===state.selectedId);
   if (!piece){ state.selectedId=null; clearMarks(); return; }
 
-  if (clickedPiece && canSelectPiece(clickedPiece) && clickedPiece.id!==piece.id){
-    state.selectedId=clickedPiece.id;
+  if (clickedPiece && canSelectPiece(clickedPiece) && clickedPiece.id !== piece.id){
+    state.selectedId = clickedPiece.id;
     clearMarks();
     document.getElementById(cellId(clickedPiece.x, clickedPiece.y)).classList.add("sel");
     highlightMoves(clickedPiece);
     return;
   }
 
-  const legal=legalMovesFor(piece).find(m=>m.x===x && m.y===y);
+  const legal = legalMovesFor(piece).find(m => m.x===x && m.y===y);
   if (!legal) return;
 
   clearMarks();
   const captured = legal.capture ? getPieceAt(x,y) : null;
 
-  piece.x=x; piece.y=y;
+  piece.x = x; piece.y = y;
   colorCell(x,y, piece.owner);
 
   if (captured){
-    const ok=respawnSameType(captured);
+    const ok = respawnSameType(captured);
     if (!ok){ finalizeGame(); return; }
   }
 
@@ -560,63 +875,74 @@ function onCellClick(x,y){
 
 /* bot */
 function evalMove(owner, move){
-  const opp=(owner===BLUE)?RED:BLUE;
+  const opp = (owner===BLUE) ? RED : BLUE;
   let s=0;
-  const cellColor=state.territory[move.y][move.x];
-  if (cellColor===0) s+=1;
-  else if (cellColor===opp) s+=2;
-  if (move.capture) s+=0.6;
+  const cellColor = state.territory[move.y][move.x];
+  if (cellColor===0) s += 1.0;
+  else if (cellColor===opp) s += 2.0;
+  if (move.capture) s += 0.7;
 
   const cx=(state.n-1)/2, cy=(state.n-1)/2;
   const dist=Math.abs(move.x-cx)+Math.abs(move.y-cy);
-  s+=Math.max(0, 0.25 - dist*0.04);
+  s += Math.max(0, 0.25 - dist*0.04);
   return s;
 }
-function estimateBestBlueAfter(botPiece, botMove, capturedMaybe){
-  const saved={bx:botPiece.x, by:botPiece.y, cap: capturedMaybe ? {x:capturedMaybe.x,y:capturedMaybe.y} : null};
-  botPiece.x=botMove.x; botPiece.y=botMove.y;
-  if (capturedMaybe){ capturedMaybe.x=-99; capturedMaybe.y=-99; }
 
+function estimateBestAfter(ownerToMove){
   let best=-Infinity;
-  for (const p of state.pieces.filter(pp=>pp.owner===BLUE)){
-    for (const m of legalMovesFor(p)) best=Math.max(best, evalMove(BLUE,m));
+  for (const p of state.pieces.filter(pp=>pp.owner===ownerToMove)){
+    for (const m of legalMovesFor(p)) best=Math.max(best, evalMove(ownerToMove,m));
   }
-
-  botPiece.x=saved.bx; botPiece.y=saved.by;
-  if (capturedMaybe){ capturedMaybe.x=saved.cap.x; capturedMaybe.y=saved.cap.y; }
   return best===-Infinity?0:best;
 }
-function botMove(){
-  if (state.gameOver || state.current!==RED || state.mode!=="bot") return;
 
-  const reds=state.pieces.filter(p=>p.owner===RED);
+function botMove(){
+  if (state.gameOver || state.mode!=="bot" || state.current!==state.botColor) return;
+
+  const botPieces = state.pieces.filter(p => p.owner===state.botColor);
+  const opp = state.userColor;
+
   let bestPlan=null;
 
-  for (const p of reds){
+  for (const p of botPieces){
     for (const m of legalMovesFor(p)){
-      const captured = m.capture ? getPieceAt(m.x,m.y) : null;
-      let s=evalMove(RED,m);
-      s-=0.25*estimateBestBlueAfter(p,m,captured);
+      const captured = m.capture ? getPieceAt(m.x, m.y) : null;
+
+      // simulate quickly
+      const saved = {px:p.x, py:p.y, cap: captured ? {x:captured.x,y:captured.y} : null};
+      p.x=m.x; p.y=m.y;
+      if (captured){ captured.x=-99; captured.y=-99; }
+
+      let s = evalMove(state.botColor, m);
+      // slight lookahead penalty: allow opponent's best response
+      s -= 0.25 * estimateBestAfter(opp);
+
+      // revert
+      p.x=saved.px; p.y=saved.py;
+      if (captured){ captured.x=saved.cap.x; captured.y=saved.cap.y; }
+
       if (!bestPlan || s>bestPlan.score) bestPlan={piece:p, move:m, captured, score:s};
     }
   }
+
   if (!bestPlan){ finalizeGame(); return; }
 
   clearMarks();
-  const fromEl=document.getElementById(cellId(bestPlan.piece.x, bestPlan.piece.y));
-  const toEl=document.getElementById(cellId(bestPlan.move.x, bestPlan.move.y));
+  const fromEl = document.getElementById(cellId(bestPlan.piece.x, bestPlan.piece.y));
+  const toEl   = document.getElementById(cellId(bestPlan.move.x, bestPlan.move.y));
   if (fromEl) fromEl.classList.add("botFrom");
   if (toEl) toEl.classList.add("botTo");
 
   setTimeout(()=>{
     if (state.gameOver) return;
 
-    const {piece, move, captured}=bestPlan;
-    piece.x=move.x; piece.y=move.y;
-    colorCell(move.x, move.y, RED);
+    const {piece, move, captured} = bestPlan;
+
+    piece.x = move.x; piece.y = move.y;
+    colorCell(move.x, move.y, piece.owner);
 
     if (captured){
-      const ok=respawnSameType(captured);
+      const ok = respawnSameType(captured);
       if (!ok){ finalizeGame(); return; }
     }
 
@@ -629,72 +955,96 @@ function botMove(){
   }, BOT_SHOW_MS);
 }
 
-/* setup */
-function randomEmptyCell(){
-  const empties=[];
-  for (let y=0;y<state.n;y++) for (let x=0;x<state.n;x++) if (!isOccupied(x,y)) empties.push({x,y});
-  return empties.length ? empties[Math.floor(Math.random()*empties.length)] : null;
-}
-function placeInitialPieces(){
-  state.pieces=[];
-  const types=["rook","bishop","knight"];
-  let idx=0;
-
-  for (const owner of [BLUE, RED]){
-    for (const type of types){
-      const spot=randomEmptyCell();
-      if (!spot) return false;
-      const p={id:`${owner}_${idx++}`, owner, type, x:spot.x, y:spot.y};
-      state.pieces.push(p);
-      colorCell(spot.x, spot.y, owner);
-    }
+/* dropdown */
+function fillPieceSetDropdown(){
+  pieceSetSel.innerHTML = "";
+  for (const s of PIECE_SETS){
+    const opt = document.createElement("option");
+    opt.value = s.id;
+    opt.textContent = s.name;
+    pieceSetSel.appendChild(opt);
   }
-  return true;
-}
-function tryGenerateFairStart(maxTries){
-  for (let i=0;i<maxTries;i++){
-    initTerritory();
-    buildBoard();
-    state.pieces=[];
-    if (!placeInitialPieces()) continue;
-    if (anyImmediateCaptureExists()) continue;
-    return true;
-  }
-  return false;
+  pieceSetSel.value = state.pieceSetId;
 }
 
+function updateSetNote(extra=""){
+  const set = currentPieceSet();
+  const counts = {};
+  for (const t of set.perSide) counts[t] = (counts[t]||0) + 1;
+  const parts = Object.keys(counts).map(k => `${counts[k]}×${k}`);
+  setNote.textContent = `Per side: ${parts.join(", ")}. ${extra}`.trim();
+}
+
+/* new game */
 function newGame(){
-  state.n=Number(boardSizeSel.value);
-  state.turnLimit=Number(turnLimitSel.value);
-  state.mode=modeSel.value;
+  overlayEl.classList.remove("show");
+  reseedRng();
 
-  state.turnsLeft={ [BLUE]: state.turnLimit, [RED]: state.turnLimit };
-  state.current=BLUE;
-  state.selectedId=null;
-  state.gameOver=false;
-  state.busy=false;
+  state.n = Number(boardSizeSel.value);
+  state.turnLimit = Number(turnLimitSel.value);
+  state.mode = modeSel.value;
+  state.pieceSetId = pieceSetSel.value || state.pieceSetId;
+
+  // Randomize roles + starting side in bot mode
+  if (state.mode==="bot"){
+    state.userColor = (rand01() < 0.5) ? BLUE : RED;
+    state.botColor  = (state.userColor===BLUE) ? RED : BLUE;
+    state.current   = (rand01() < 0.5) ? BLUE : RED; // random starter (independent)
+  } else {
+    state.userColor = BLUE;
+    state.botColor  = RED;
+    state.current   = BLUE;
+  }
+
+  state.turnsLeft = { [BLUE]: state.turnLimit, [RED]: state.turnLimit };
+  state.selectedId = null;
+  state.gameOver = false;
+  state.busy = false;
   boardEl.classList.remove("disabled");
 
-  const ok=tryGenerateFairStart(180);
-  if (!ok){
-    initTerritory();
-    buildBoard();
-    state.pieces=[];
-    placeInitialPieces();
+  buildBoard();
+
+  // Strict fair start (try hard)
+  const setSize = currentPieceSet().perSide.length;
+  const tries = 1500 + setSize * 600;
+
+  const ok = generateStrictFairStart(tries);
+
+  initTerritory();
+  if (ok){
+    // color initial squares AFTER we know it is fair
+    for (const p of state.pieces) colorCell(p.x, p.y, p.owner);
+    updateSetNote("Fair start: no immediate captures.");
+  } else {
+    // This should be rare: too many pieces / too small board.
+    // Still start, but loudly tell you it's not guaranteed.
+    for (const p of state.pieces) colorCell(p.x, p.y, p.owner);
+    updateSetNote("⚠️ Could not guarantee a fair start for this board/piece count.");
   }
 
   refreshAllTerritory();
   renderPieces();
   countTerritory();
   clearMarks();
+  roleLabels();
   setTurnUI();
+
+  // If bot starts, immediately play
+  if (state.mode==="bot" && state.current===state.botColor){
+    state.busy=true;
+    boardEl.classList.add("disabled");
+    setTimeout(botMove, BOT_THINK_MS);
+  }
 }
 
 newGameBtn.addEventListener("click", newGame);
 boardSizeSel.addEventListener("change", newGame);
 turnLimitSel.addEventListener("change", newGame);
 modeSel.addEventListener("change", newGame);
+pieceSetSel.addEventListener("change", newGame);
 
+/* init */
+fillPieceSetDropdown();
 newGame();
 </script>
 </body>
