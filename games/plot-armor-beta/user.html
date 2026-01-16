@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PLOT ARMOR – Beta User</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, sans-serif; background:#0f0f0f; color:#eee; padding:16px; }
+    h1 { margin:0 0 10px; }
+    .top { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px; }
+    button { background:#222; color:#eee; border:1px solid #333; border-radius:8px; padding:6px 10px; cursor:pointer; }
+    button:hover { border-color:#666; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap:14px; }
+    .deck { background:#1b1b1b; border:1px solid #333; border-radius:10px; padding:12px; }
+    .deck h2 { margin:0 0 10px; font-size:16px; display:flex; justify-content:space-between; align-items:center; }
+    .card { background:#141414; border:1px solid #2a2a2a; border-radius:10px; padding:10px; margin-bottom:10px; }
+    .btns { margin-top:8px; display:flex; gap:6px; flex-wrap:wrap; }
+    .status { opacity:.75; font-size:12px; }
+  </style>
+</head>
+<body>
+
+  <h1>PLOT ARMOR (beta)</h1>
+
+  <div class="top">
+    <button id="rerollAll">Reroll all</button>
+    <span id="status" class="status"></span>
+  </div>
+
+  <div id="app" class="grid"></div>
+
+  <!-- Load deck files (no fetch) -->
+  <script src="cards/setting.js"></script>
+  <script src="cards/character.js"></script>
+  <script src="cards/threat.js"></script>
+  <script src="cards/ingredient.js"></script>
+  <script src="cards/plotarmor.js"></script>
+
+  <script>
+    const HAND_SIZE = 3;
+    const DECK_KEYS = [
+      ["setting", "SETTING (world+scene)"],
+      ["character", "CHARACTER"],
+      ["threat", "THREAT"],
+      ["ingredient", "INGREDIENT"],
+      ["plotarmor", "PLOT ARMOR (constraint)"]
+    ];
+
+    // Expect decks loaded into window.DECKS
+    const decks = (window.DECKS || {});
+    const hands = {};
+
+    function setStatus(msg){
+      const s = document.getElementById("status");
+      s.textContent = msg;
+      setTimeout(()=>{ if (s.textContent === msg) s.textContent = ""; }, 900);
+    }
+
+    function sampleUnique(arr, n){
+      const copy = arr.slice();
+      for (let i = copy.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy.slice(0, Math.min(n, copy.length));
+    }
+
+    async function copyToClipboard(text){
+      try { await navigator.clipboard.writeText(text); setStatus("Copied."); }
+      catch { window.prompt("Copy this:", text); }
+    }
+
+    function drawHand(deckKey){
+      const arr = decks[deckKey] || [];
+      hands[deckKey] = sampleUnique(arr, HAND_SIZE);
+    }
+
+    function rerollAll(){
+      for (const [key] of DECK_KEYS) drawHand(key);
+      render();
+    }
+
+    function useCard(deckKey, idx){
+      const card = hands[deckKey][idx];
+      if (!card) return;
+      copyToClipboard(card);
+    }
+
+    function discardCard(deckKey, idx){
+      hands[deckKey].splice(idx, 1);
+      render();
+    }
+
+    function replaceCard(deckKey, idx){
+      const arr = decks[deckKey] || [];
+      if (arr.length === 0) return;
+      hands[deckKey][idx] = arr[Math.floor(Math.random() * arr.length)];
+      render();
+    }
+
+    function render(){
+      const app = document.getElementById("app");
+      app.innerHTML = "";
+
+      for (const [key, label] of DECK_KEYS){
+        const deckDiv = document.createElement("div");
+        deckDiv.className = "deck";
+
+        const header = document.createElement("h2");
+        header.innerHTML = `<span>${label}</span>`;
+        const reroll = document.createElement("button");
+        reroll.textContent = "Reroll";
+        reroll.onclick = () => { drawHand(key); render(); };
+        header.appendChild(reroll);
+
+        deckDiv.appendChild(header);
+
+        const hand = hands[key] || [];
+        for (let i = 0; i < hand.length; i++){
+          const cardDiv = document.createElement("div");
+          cardDiv.className = "card";
+          cardDiv.textContent = hand[i];
+
+          const btns = document.createElement("div");
+          btns.className = "btns";
+
+          const bUse = document.createElement("button");
+          bUse.textContent = "USE (copy)";
+          bUse.onclick = () => useCard(key, i);
+
+          const bDiscard = document.createElement("button");
+          bDiscard.textContent = "DISCARD";
+          bDiscard.onclick = () => discardCard(key, i);
+
+          const bReplace = document.createElement("button");
+          bReplace.textContent = "REPLACE";
+          bReplace.onclick = () => replaceCard(key, i);
+
+          btns.appendChild(bUse);
+          btns.appendChild(bDiscard);
+          btns.appendChild(bReplace);
+
+          cardDiv.appendChild(btns);
+          deckDiv.appendChild(cardDiv);
+        }
+
+        app.appendChild(deckDiv);
+      }
+    }
+
+    // Basic validation
+    for (const [key] of DECK_KEYS){
+      if (!Array.isArray(decks[key])){
+        console.warn(`Deck missing: ${key}. Expected window.DECKS.${key} = [...] in cards/${key}.js`);
+        decks[key] = decks[key] || [];
+      }
+    }
+
+    document.getElementById("rerollAll").onclick = rerollAll;
+    rerollAll();
+  </script>
+
+</body>
+</html>
