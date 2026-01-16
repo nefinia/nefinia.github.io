@@ -1,0 +1,1082 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>XOR Silhouette — Stamp Puzzle (Better Hints + Overlay Solution)</title>
+  <style>
+    :root{
+      --cell: 28px;
+      --cellMini: 14px;
+      --gap: 2px;
+
+      --bg0:#060913;
+      --bg1:#0a1222;
+
+      --panelA: rgba(255,255,255,.045);
+      --panelB: rgba(255,255,255,.020);
+
+      --line: rgba(125,160,220,.18);
+      --text:#eaf1fb;
+      --muted:#9fb1c9;
+
+      --white:#f4f7fb;
+      --black:#090d15;
+
+      --accent:#7aa2ff;
+      --ok:#2dd4bf;
+      --bad:#fb7185;
+
+      --r: 18px;
+      --shadow: 0 18px 48px rgba(0,0,0,.45);
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1100px 650px at 18% 0%, rgba(122,162,255,.18), transparent 58%),
+        radial-gradient(900px 520px at 85% 5%, rgba(45,212,191,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1) 55%, var(--bg0));
+    }
+
+    .wrap{
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 470px minmax(0, 1fr); /* wider left: fixes palette clipping */
+      gap: 14px;
+      align-items: start;
+    }
+    @media (max-width: 980px){
+      .wrap{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      background: linear-gradient(180deg, var(--panelA), var(--panelB));
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+    }
+
+    .head{
+      padding: 14px 14px 12px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
+    }
+    .title{
+      margin:0;
+      font-size: 16px;
+      font-weight: 820;
+      letter-spacing: .2px;
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      flex-wrap: wrap;
+    }
+    .badge{
+      font-size: 11px;
+      font-weight: 750;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(122,162,255,.35);
+      background: rgba(122,162,255,.10);
+      color: rgba(234,241,251,.92);
+    }
+    .sub{
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 12.6px;
+      line-height: 1.35;
+    }
+
+    .body{ padding: 14px; }
+    .row{ display:flex; gap:10px; flex-wrap: wrap; align-items:center; }
+
+    .btn{
+      appearance:none;
+      border: 1px solid rgba(125,160,220,.22);
+      background: rgba(255,255,255,.03);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-weight: 760;
+      font-size: 13px;
+      transition: transform .06s ease, border-color .15s ease, background .15s ease;
+      user-select:none;
+    }
+    .btn:hover{ border-color: rgba(125,160,220,.42); background: rgba(255,255,255,.05); }
+    .btn:active{ transform: translateY(1px); }
+
+    .btn.primary{
+      border-color: rgba(122,162,255,.55);
+      background: rgba(122,162,255,.10);
+    }
+    .btn.primary:hover{ border-color: rgba(122,162,255,1); background: rgba(122,162,255,.14); }
+
+    .btn.good{
+      border-color: rgba(45,212,191,.50);
+      background: rgba(45,212,191,.10);
+    }
+    .btn.good:hover{ border-color: rgba(45,212,191,1); background: rgba(45,212,191,.14); }
+
+    .btn.toggled{
+      border-color: rgba(122,162,255,.95);
+      background: rgba(122,162,255,.16);
+    }
+
+    .btn.small{ padding: 6px 9px; font-size: 12px; border-radius: 11px; }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      padding: 2px 6px;
+      border: 1px solid rgba(125,160,220,.22);
+      border-radius: 9px;
+      color: var(--muted);
+      background: rgba(255,255,255,.03);
+    }
+
+    .chip{
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(125,160,220,.22);
+      background: rgba(255,255,255,.03);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 740;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      user-select:none;
+    }
+    select{
+      appearance:none;
+      padding: 5px 9px;
+      border-radius: 12px;
+      border: 1px solid rgba(125,160,220,.22);
+      background: rgba(255,255,255,.03);
+      color: var(--text);
+      font-weight: 760;
+      font-size: 12px;
+      cursor:pointer;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .stat{
+      border: 1px solid rgba(125,160,220,.22);
+      border-radius: 14px;
+      padding: 10px;
+      background: rgba(255,255,255,.02);
+    }
+    .stat .k{ color: var(--muted); font-size: 12px; }
+    .stat .v{ margin-top: 2px; font-size: 16px; font-weight: 860; }
+
+    .meter{
+      margin-top: 10px;
+      border: 1px solid rgba(125,160,220,.18);
+      border-radius: 999px;
+      background: rgba(0,0,0,.12);
+      overflow:hidden;
+      height: 10px;
+    }
+    .bar{
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, rgba(45,212,191,.65), rgba(122,162,255,.65));
+      transition: width .15s ease;
+    }
+
+    /* Palette: NO scroll, 4 columns, always visible */
+    .paletteWrap{
+      margin-top: 14px;
+      border: 1px solid rgba(125,160,220,.18);
+      border-radius: 16px;
+      background: rgba(0,0,0,.10);
+      padding: 10px;
+    }
+    .palette{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr); /* 4 on one line */
+      gap: 10px;
+    }
+    .piece{
+      border: 1px solid rgba(125,160,220,.22);
+      border-radius: 16px;
+      padding: 10px 10px 8px;
+      background: rgba(255,255,255,.02);
+      cursor:pointer;
+      user-select:none;
+      display:flex;
+      flex-direction: column;
+      gap: 7px;
+      align-items:center;
+      transition: border-color .15s ease, background .15s ease, transform .06s ease;
+      min-width: 0;
+    }
+    .piece:hover{ border-color: rgba(125,160,220,.42); background: rgba(255,255,255,.04); }
+    .piece:active{ transform: translateY(1px); }
+    .piece.selected{
+      border-color: rgba(122,162,255,.90);
+      background: rgba(122,162,255,.11);
+      box-shadow: 0 0 0 2px rgba(122,162,255,.22) inset;
+    }
+    .piece .name{
+      font-size: 12px;
+      font-weight: 820;
+      letter-spacing: .2px;
+      color: var(--muted);
+    }
+    canvas.thumb{
+      width: 64px; height: 64px;
+      image-rendering: pixelated;
+      border-radius: 14px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    /* Right */
+    .rightTop{
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
+    }
+    .status{
+      font-size: 13px;
+      color: var(--muted);
+      min-width: 280px;
+    }
+    .pillLine{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items:center;
+    }
+    .pill2{
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(125,160,220,.22);
+      background: rgba(255,255,255,.03);
+      color: rgba(234,241,251,.90);
+      font-size: 12px;
+      font-weight: 750;
+    }
+    .pill2.ok{ border-color: rgba(45,212,191,.55); color: rgba(45,212,191,.95); }
+    .pill2.bad{ border-color: rgba(251,113,133,.55); color: rgba(251,113,133,.95); }
+
+    .boards{
+      display:flex;
+      gap: 14px;
+      padding: 14px;
+      align-items:flex-start;
+      flex-wrap: wrap;
+    }
+    .board{
+      border: 1px solid rgba(125,160,220,.22);
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(255,255,255,.02);
+    }
+    .boardTitle{
+      margin: 0 0 10px;
+      font-size: 12px;
+      font-weight: 860;
+      letter-spacing: .3px;
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      color: rgba(234,241,251,.92);
+    }
+    .boardTitle span{
+      color: var(--muted);
+      font-weight: 720;
+      letter-spacing: 0;
+    }
+
+    .gridWrap{
+      position: relative;
+      width: fit-content;
+    }
+
+    .grid{
+      display:grid;
+      gap: var(--gap);
+      width: fit-content;
+      padding: 10px;
+      border-radius: 16px;
+      background: rgba(0,0,0,.12);
+      border: 1px solid rgba(255,255,255,.06);
+      user-select:none;
+      touch-action:none;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cell{
+      width: var(--cell);
+      height: var(--cell);
+      border-radius: 8px;
+      background: rgba(244,247,251,.96);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.12);
+      position: relative;
+      overflow: hidden;
+    }
+    .cell.on{
+      background: rgba(9,13,21,.96);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.12);
+    }
+
+    /* Hover preview */
+    .cell.ghost{
+      outline: 2px solid rgba(122,162,255,.78);
+      outline-offset: -2px;
+    }
+    .cell.ghost.bad{ outline-color: rgba(251,113,133,.85); }
+
+    /* HINT IDEA (new): mismatch highlight (actionable) */
+    .cell.mismatch::after{
+      content: "";
+      position:absolute;
+      inset: 0;
+      border-radius: 8px;
+      box-shadow: inset 0 0 0 2px rgba(251,113,133,.55);
+      background: rgba(251,113,133,.08);
+      pointer-events:none;
+    }
+
+    .mini{ padding: 8px; }
+    .mini .cell{
+      width: var(--cellMini);
+      height: var(--cellMini);
+      border-radius: 4px;
+    }
+
+    /* Solution overlay canvas sits above play grid, doesn't erase play */
+    #solCanvas{
+      position:absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events:none;
+      opacity: 0;
+      transition: opacity .15s ease;
+    }
+    #solCanvas.on{ opacity: 1; }
+
+    .footerHint{
+      padding: 0 14px 14px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .legendTiny{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <!-- LEFT -->
+    <div class="card">
+      <div class="head">
+        <h1 class="title">XOR Silhouette <span class="badge">replicate target with fewest stamps</span></h1>
+        <p class="sub">
+          Each stamp flips covered cells (XOR). Overlap flips back. Rotate with <span class="kbd">R</span>.
+          Hints now highlight <b>mismatched cells</b> (actionable). Solution is an <b>overlay</b>—it won’t erase your work.
+        </p>
+      </div>
+
+      <div class="body">
+        <div class="row">
+          <button class="btn primary" id="newLevelBtn">New Level</button>
+          <button class="btn" id="resetBtn">Reset</button>
+          <button class="btn" id="undoBtn">Undo</button>
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+          <button class="btn small" id="rotateBtn">Rotate (R)</button>
+
+          <button class="btn small" id="hintBtn" title="Toggle hint overlay (mismatches)">Hints</button>
+          <button class="btn small" id="solutionBtn" title="Toggle solution overlay (recipe silhouettes)">Show solution</button>
+
+          <span class="chip">Difficulty
+            <select id="diffSel">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </span>
+
+          <span class="chip">Grid
+            <select id="sizeSel">
+              <option value="8">8×8</option>
+              <option value="10" selected>10×10</option>
+              <option value="12">12×12</option>
+            </select>
+          </span>
+
+          <button class="btn small" id="applyBtn">Apply</button>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="k">Moves</div>
+            <div class="v" id="movesOut">0</div>
+          </div>
+          <div class="stat">
+            <div class="k">Move limit</div>
+            <div class="v" id="limitOut">—</div>
+          </div>
+        </div>
+
+        <div class="meter" title="Move budget (moves / limit)">
+          <div class="bar" id="moveBar"></div>
+        </div>
+
+        <div class="legendTiny" id="limitExplain"></div>
+
+        <div class="paletteWrap" aria-label="Pieces">
+          <div class="palette" id="palette"></div>
+        </div>
+
+        <div class="legendTiny">
+          Solution overlay: shows each generating stamp as a colored silhouette outline. Overlaps are visible. Toggle it on/off without losing your board.
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="card">
+      <div class="rightTop">
+        <div class="status" id="status">Select a piece, hover to preview, click to stamp.</div>
+        <div class="pillLine">
+          <span class="pill2" id="mismatchOut">Mismatch: —</span>
+          <span class="pill2" id="levelOut">Level: 1</span>
+          <span class="pill2" id="recipeOut">Recipe: —</span>
+          <button class="btn good" id="checkBtn">Check</button>
+        </div>
+      </div>
+
+      <div class="boards">
+        <div class="board">
+          <div class="boardTitle">Target <span>(match this)</span></div>
+          <div id="targetGrid" class="grid mini"></div>
+        </div>
+
+        <div class="board">
+          <div class="boardTitle">Your board <span>(stamp here)</span></div>
+          <div class="gridWrap">
+            <canvas id="solCanvas"></canvas>
+            <div id="playGrid" class="grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footerHint">
+        Hints: highlight cells where your board differs from the target (so you know what must change).
+        Move limit: a simple difficulty brake; it forces efficiency but doesn’t define correctness.
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // Pieces (tetrominoes)
+  const PIECES = [
+    { id: "I", cells: [[0,0],[1,0],[2,0],[3,0]] },
+    { id: "O", cells: [[0,0],[1,0],[0,1],[1,1]] },
+    { id: "T", cells: [[1,0],[0,1],[1,1],[2,1]] },
+    { id: "S", cells: [[1,0],[2,0],[0,1],[1,1]] },
+    { id: "Z", cells: [[0,0],[1,0],[1,1],[2,1]] },
+    { id: "J", cells: [[0,0],[0,1],[1,1],[2,1]] },
+    { id: "L", cells: [[2,0],[0,1],[1,1],[2,1]] },
+  ];
+
+  // Difficulty: targetStamps controls target complexity; moveLimit controls how strict you are
+  const DIFF = {
+    easy:   { targetStamps: 5,  moveLimit: 999 }, // easy = no real limit
+    medium: { targetStamps: 9,  moveLimit: 26 },
+    hard:   { targetStamps: 14, moveLimit: 28 },
+  };
+
+  // Colors for solution overlay (outlines)
+  const SOL_COLORS = [
+    "#7aa2ff","#2dd4bf","#fb7185","#fbbf24","#a78bfa","#34d399","#60a5fa",
+    "#f472b6","#fb923c","#22c55e","#93c5fd","#e879f9"
+  ];
+
+  // DOM
+  const elPalette   = document.getElementById("palette");
+  const elPlayGrid  = document.getElementById("playGrid");
+  const elTargetGrid= document.getElementById("targetGrid");
+  const elStatus    = document.getElementById("status");
+  const elMoves     = document.getElementById("movesOut");
+  const elLimit     = document.getElementById("limitOut");
+  const elMismatch  = document.getElementById("mismatchOut");
+  const elLevel     = document.getElementById("levelOut");
+  const elRecipeOut = document.getElementById("recipeOut");
+  const elMoveBar   = document.getElementById("moveBar");
+  const elLimitExplain = document.getElementById("limitExplain");
+
+  const elDiff      = document.getElementById("diffSel");
+  const elSize      = document.getElementById("sizeSel");
+
+  const elHintBtn   = document.getElementById("hintBtn");
+  const elSolutionBtn = document.getElementById("solutionBtn");
+
+  const solCanvas = document.getElementById("solCanvas");
+  const solCtx = solCanvas.getContext("2d");
+
+  // State
+  let N = 10;
+  let level = 1;
+
+  let play, target;
+  let moves = 0;
+  let moveLimit = DIFF.medium.moveLimit;
+
+  let selectedPieceId = null;
+  let rotation = 0;
+  let hover = null; // {x,y}
+  let history = []; // undo stack
+
+  // New hint: mismatch overlay
+  let hintsOn = false;
+
+  // Solution overlay (does NOT change play)
+  let solutionOn = false;
+
+  // Recipe used to build target
+  let targetRecipe = [];
+
+  // Helpers
+  function makeGrid(n, v=false){
+    return Array.from({length:n}, () => Array.from({length:n}, () => v));
+  }
+  function rotateCells(cells, r){
+    let out = cells.map(([x,y]) => [x,y]);
+    for(let k=0;k<r;k++) out = out.map(([x,y]) => [y, -x]); // 90° cw
+    const minX = Math.min(...out.map(c => c[0]));
+    const minY = Math.min(...out.map(c => c[1]));
+    return out.map(([x,y]) => [x - minX, y - minY]);
+  }
+  function getPiece(id){ return PIECES.find(p => p.id === id); }
+  function currentCells(){
+    if(!selectedPieceId) return [];
+    return rotateCells(getPiece(selectedPieceId).cells, rotation);
+  }
+  function inBounds(x,y){ return x>=0 && y>=0 && x<N && y<N; }
+  function canPlace(ax, ay, cells){
+    for(const [dx,dy] of cells){
+      const x=ax+dx, y=ay+dy;
+      if(!inBounds(x,y)) return false;
+    }
+    return true;
+  }
+  function xorStamp(board, ax, ay, cells){
+    for(const [dx,dy] of cells){
+      const x=ax+dx, y=ay+dy;
+      board[y][x] = !board[y][x];
+    }
+  }
+  function mismatchCount(){
+    let m=0;
+    for(let y=0;y<N;y++) for(let x=0;x<N;x++){
+      if(play[y][x] !== target[y][x]) m++;
+    }
+    return m;
+  }
+
+  // Render palette
+  function renderPalette(){
+    elPalette.innerHTML = "";
+    for(const p of PIECES){
+      const item = document.createElement("div");
+      item.className = "piece" + (p.id === selectedPieceId ? " selected" : "");
+      item.tabIndex = 0;
+
+      const c = document.createElement("canvas");
+      c.width = 64; c.height = 64;
+      c.className = "thumb";
+
+      const name = document.createElement("div");
+      name.className = "name";
+      name.textContent = p.id;
+
+      item.appendChild(c);
+      item.appendChild(name);
+
+      item.addEventListener("click", () => {
+        selectedPieceId = p.id;
+        rotation = 0;
+        renderPalette();
+        updateHUD();
+        renderGhost();
+      });
+
+      item.addEventListener("keydown", (e) => {
+        if(e.key === "Enter" || e.key === " "){
+          e.preventDefault();
+          selectedPieceId = p.id;
+          rotation = 0;
+          renderPalette();
+          updateHUD();
+          renderGhost();
+        }
+      });
+
+      elPalette.appendChild(item);
+      drawThumb(c, p.cells);
+    }
+  }
+  function drawThumb(canvas, baseCells){
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = "rgba(244,247,251,.92)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    const cells = rotateCells(baseCells,0);
+    const maxX = Math.max(...cells.map(c => c[0]));
+    const maxY = Math.max(...cells.map(c => c[1]));
+    const w = maxX+1, h = maxY+1;
+
+    const cellSize = Math.floor(46 / Math.max(w,h));
+    const ox = Math.floor((canvas.width - w*cellSize)/2);
+    const oy = Math.floor((canvas.height - h*cellSize)/2);
+
+    ctx.fillStyle = "rgba(9,13,21,.92)";
+    for(const [x,y] of cells){
+      ctx.fillRect(ox + x*cellSize, oy + y*cellSize, cellSize-1, cellSize-1);
+    }
+  }
+
+  // Render grids
+  function renderGrid(el, board, mini=false){
+    el.innerHTML = "";
+    el.style.gridTemplateColumns = `repeat(${N}, ${mini ? "var(--cellMini)" : "var(--cell)"})`;
+
+    for(let y=0;y<N;y++){
+      for(let x=0;x<N;x++){
+        const d = document.createElement("div");
+        d.className = "cell" + (board[y][x] ? " on" : "");
+        d.dataset.x = x;
+        d.dataset.y = y;
+
+        if(!mini && hintsOn){
+          if(play[y][x] !== target[y][x]) d.classList.add("mismatch");
+        }
+
+        el.appendChild(d);
+      }
+    }
+  }
+
+  // Ghost preview
+  function clearGhost(){
+    elPlayGrid.querySelectorAll(".cell.ghost").forEach(c => c.classList.remove("ghost","bad"));
+  }
+  function renderGhost(){
+    clearGhost();
+    if(!selectedPieceId || !hover) return;
+
+    const cells = currentCells();
+    const ok = canPlace(hover.x, hover.y, cells);
+
+    for(const [dx,dy] of cells){
+      const x=hover.x+dx, y=hover.y+dy;
+      if(!inBounds(x,y)) continue;
+      const idx = y*N + x;
+      const cellEl = elPlayGrid.children[idx];
+      cellEl.classList.add("ghost");
+      if(!ok) cellEl.classList.add("bad");
+    }
+  }
+
+  // Solution overlay: draw silhouettes (outline-only + faint fill) for each stamp in recipe
+  function resizeSolCanvasToGrid(){
+    // Canvas must match the rendered play grid area (including padding inside .grid)
+    // Easiest: measure playGrid bounding box and match it.
+    const rect = elPlayGrid.getBoundingClientRect();
+    solCanvas.width = Math.round(rect.width * devicePixelRatio);
+    solCanvas.height = Math.round(rect.height * devicePixelRatio);
+    solCanvas.style.width = rect.width + "px";
+    solCanvas.style.height = rect.height + "px";
+    solCtx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+  }
+
+function drawPolyominoOutline(ctx, step, cells, cellElAt, gridRect, cellW, cellH) {
+  // Build a fast lookup for which grid cells are in this piece
+  const set = new Set(cells.map(([dx, dy]) => `${step.x + dx},${step.y + dy}`));
+
+  ctx.beginPath();
+
+  for (const [dx, dy] of cells) {
+    const gx = step.x + dx;
+    const gy = step.y + dy;
+
+    const el = cellElAt(gx, gy);
+    if (!el) continue;
+
+    const r = el.getBoundingClientRect();
+    const px = r.left - gridRect.left;
+    const py = r.top  - gridRect.top;
+
+    // For each side: if neighbor missing, draw that edge
+    // Top
+    if (!set.has(`${gx},${gy - 1}`)) {
+      ctx.moveTo(px, py);
+      ctx.lineTo(px + cellW, py);
+    }
+    // Right
+    if (!set.has(`${gx + 1},${gy}`)) {
+      ctx.moveTo(px + cellW, py);
+      ctx.lineTo(px + cellW, py + cellH);
+    }
+    // Bottom
+    if (!set.has(`${gx},${gy + 1}`)) {
+      ctx.moveTo(px, py + cellH);
+      ctx.lineTo(px + cellW, py + cellH);
+    }
+    // Left
+    if (!set.has(`${gx - 1},${gy}`)) {
+      ctx.moveTo(px, py);
+      ctx.lineTo(px, py + cellH);
+    }
+  }
+
+  ctx.stroke();
+}
+
+function drawSolutionOverlay(){
+  resizeSolCanvasToGrid();
+  solCtx.clearRect(0,0, solCanvas.width, solCanvas.height);
+  if(!solutionOn) return;
+
+  const cell0 = elPlayGrid.querySelector(".cell");
+  if(!cell0) return;
+
+  const cellRect = cell0.getBoundingClientRect();
+  const gridRect = elPlayGrid.getBoundingClientRect();
+  const cellW = cellRect.width;
+  const cellH = cellRect.height;
+
+  const cellElAt = (x,y) => elPlayGrid.children[y*N + x];
+
+  // Make overlaps visually obvious:
+  // - multiply makes overlaps darker (very readable)
+  solCtx.save();
+  solCtx.globalCompositeOperation = "multiply";
+
+  targetRecipe.forEach((step, i) => {
+    const p = getPiece(step.pieceId);
+    const cells = rotateCells(p.cells, step.rot);
+    const col = SOL_COLORS[i % SOL_COLORS.length];
+
+    // 1) translucent fill (overlaps become darker with multiply)
+    solCtx.globalAlpha = 0.22;
+    solCtx.fillStyle = col;
+
+    for (const [dx, dy] of cells) {
+      const x = step.x + dx;
+      const y = step.y + dy;
+      if (!inBounds(x,y)) continue;
+
+      const el = cellElAt(x,y);
+      if (!el) continue;
+
+      const r = el.getBoundingClientRect();
+      const px = r.left - gridRect.left;
+      const py = r.top  - gridRect.top;
+
+      // Slight inset to avoid fighting the cell’s own rounded corners
+      solCtx.fillRect(px + 1, py + 1, cellW - 2, cellH - 2);
+    }
+
+    // 2) Single perimeter outline around the tetromino (not per-cell)
+    solCtx.globalAlpha = 0.95;
+    solCtx.strokeStyle = col;
+    solCtx.lineWidth = 3;
+    solCtx.lineJoin = "round";
+    solCtx.lineCap = "round";
+
+    drawPolyominoOutline(solCtx, step, cells, cellElAt, gridRect, cellW, cellH);
+
+    // Optional stamp index label
+    const anchorEl = cellElAt(step.x, step.y);
+    if (anchorEl) {
+      const ar = anchorEl.getBoundingClientRect();
+      const ax = ar.left - gridRect.left + 5;
+      const ay = ar.top  - gridRect.top + 13;
+      solCtx.globalAlpha = 0.95;
+      solCtx.font = "800 11px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      solCtx.fillStyle = col;
+      solCtx.fillText(String(i+1), ax, ay);
+    }
+  });
+
+  solCtx.restore();
+}
+  // HUD
+  function updateHUD(message) {
+    const mm = mismatchCount();
+
+    elMoves.textContent = String(moves);
+    elLimit.textContent = (moveLimit >= 999) ? "∞" : String(moveLimit);
+    elLevel.textContent = `Level: ${level}`;
+    elMismatch.textContent = `Mismatch: ${mm}`;
+    elRecipeOut.textContent = `Recipe: ${targetRecipe.length}`;
+
+    elMismatch.classList.remove("ok", "bad");
+    if (mm === 0) elMismatch.classList.add("ok");
+    else if (moveLimit < 999 && moves >= moveLimit) elMismatch.classList.add("bad");
+
+    // Move bar + explanation
+    if (moveLimit >= 999) {
+      elMoveBar.style.width = "0%";
+      elLimitExplain.textContent =
+        "Move limit is off on Easy (∞). Medium/Hard give a budget to push efficiency.";
+    } else {
+      const pct = Math.min(100, Math.round((moves / moveLimit) * 100));
+      elMoveBar.style.width = pct + "%";
+      elLimitExplain.textContent =
+        `Move limit = your budget. You are at ${moves}/${moveLimit}. Matching the target is still the real objective.`;
+    }
+
+    if (message) {
+      elStatus.textContent = message;
+      return;
+    }
+    if (!selectedPieceId) {
+      elStatus.textContent = "Select a piece, hover to preview, click to stamp.";
+    } else {
+      elStatus.textContent = `Selected: ${selectedPieceId} • Rotation: ${rotation * 90}° • Click to stamp (XOR).`;
+    }
+  }
+
+  // Target generation + recipe stored
+  function generateTargetWithRecipe(diffKey) {
+    const { targetStamps } = DIFF[diffKey];
+    const t = makeGrid(N, false);
+    const recipe = [];
+
+    for (let i = 0; i < targetStamps; i++) {
+      const p = PIECES[Math.floor(Math.random() * PIECES.length)];
+      const rot = Math.floor(Math.random() * 4);
+      const cells = rotateCells(p.cells, rot);
+
+      let placed = false;
+      for (let tries = 0; tries < 140; tries++) {
+        const ax = Math.floor(Math.random() * N);
+        const ay = Math.floor(Math.random() * N);
+        if (canPlace(ax, ay, cells)) {
+          xorStamp(t, ax, ay, cells);
+          recipe.push({ pieceId: p.id, rot, x: ax, y: ay });
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) i--;
+    }
+    return { t, recipe };
+  }
+
+  function rerenderAll() {
+    renderGrid(elTargetGrid, target, true);
+    renderGrid(elPlayGrid, play, false);
+    renderGhost();
+
+    // overlay
+    solCanvas.classList.toggle("on", solutionOn);
+    drawSolutionOverlay();
+
+    updateHUD();
+  }
+
+  // Game flow
+  function startLevel(newLevel = false) {
+    if (newLevel) level++;
+
+    const d = elDiff.value;
+    moveLimit = DIFF[d].moveLimit;
+
+    const out = generateTargetWithRecipe(d);
+    target = out.t;
+    targetRecipe = out.recipe;
+
+    play = makeGrid(N, false);
+    moves = 0;
+    history = [];
+    hover = null;
+
+    // solution overlay stays off by default per level
+    solutionOn = false;
+    elSolutionBtn.classList.remove("toggled");
+    elSolutionBtn.textContent = "Show solution";
+
+    rerenderAll();
+  }
+
+  function stampAt(ax, ay) {
+    if (!selectedPieceId) return;
+
+    // If move limit is enabled, stop stamping at limit (still checkable)
+    if (moveLimit < 999 && moves >= moveLimit) {
+      updateHUD("Move limit reached. You can still inspect/hint/solution. Reset or New Level.");
+      setTimeout(() => updateHUD(), 950);
+      return;
+    }
+
+    const cells = currentCells();
+    if (!canPlace(ax, ay, cells)) {
+      updateHUD("Out of bounds — keep the whole piece inside the grid.");
+      setTimeout(() => updateHUD(), 800);
+      return;
+    }
+
+    xorStamp(play, ax, ay, cells);
+    history.push({ pieceId: selectedPieceId, rot: rotation, x: ax, y: ay });
+    moves++;
+
+    rerenderAll();
+
+    const mm = mismatchCount();
+    if (mm === 0) updateHUD(`Matched. Moves: ${moves}.`);
+  }
+
+  function undo() {
+    const last = history.pop();
+    if (!last) return;
+
+    const cells = rotateCells(getPiece(last.pieceId).cells, last.rot);
+    xorStamp(play, last.x, last.y, cells);
+    moves = Math.max(0, moves - 1);
+
+    rerenderAll();
+  }
+
+  function reset() {
+    play = makeGrid(N, false);
+    moves = 0;
+    history = [];
+    hover = null;
+    rerenderAll();
+  }
+
+  function rotateSelected() {
+    if (!selectedPieceId) return;
+    rotation = (rotation + 1) % 4;
+    updateHUD();
+    renderGhost();
+  }
+
+  function applySettings() {
+    N = Number(elSize.value);
+    play = makeGrid(N, false);
+    target = makeGrid(N, false);
+    moves = 0;
+    history = [];
+    hover = null;
+    level = 1;
+
+    // turn off overlays
+    solutionOn = false;
+    hintsOn = false;
+    elHintBtn.classList.remove("toggled");
+    elSolutionBtn.classList.remove("toggled");
+    elSolutionBtn.textContent = "Show solution";
+
+    renderPalette();
+    startLevel(false);
+
+    // Ensure overlay aligns after layout changes
+    setTimeout(() => { if (solutionOn) drawSolutionOverlay(); }, 0);
+  }
+
+  function toggleHints() {
+    hintsOn = !hintsOn;
+    elHintBtn.classList.toggle("toggled", hintsOn);
+    rerenderAll();
+  }
+
+  function toggleSolution() {
+    solutionOn = !solutionOn;
+    elSolutionBtn.classList.toggle("toggled", solutionOn);
+    elSolutionBtn.textContent = solutionOn ? "Hide solution" : "Show solution";
+    rerenderAll();
+  }
+
+  // Events
+  elPlayGrid.addEventListener("mousemove", (e) => {
+    const cell = e.target.closest(".cell");
+    if (!cell) return;
+    hover = { x: Number(cell.dataset.x), y: Number(cell.dataset.y) };
+    renderGhost();
+  });
+  elPlayGrid.addEventListener("mouseleave", () => {
+    hover = null;
+    clearGhost();
+  });
+  elPlayGrid.addEventListener("click", (e) => {
+    const cell = e.target.closest(".cell");
+    if (!cell) return;
+    stampAt(Number(cell.dataset.x), Number(cell.dataset.y));
+  });
+
+  document.getElementById("newLevelBtn").addEventListener("click", () => startLevel(true));
+  document.getElementById("resetBtn").addEventListener("click", reset);
+  document.getElementById("undoBtn").addEventListener("click", undo);
+  document.getElementById("rotateBtn").addEventListener("click", rotateSelected);
+  document.getElementById("applyBtn").addEventListener("click", applySettings);
+
+  elHintBtn.addEventListener("click", toggleHints);
+  elSolutionBtn.addEventListener("click", toggleSolution);
+
+  document.getElementById("checkBtn").addEventListener("click", () => {
+    const mm = mismatchCount();
+    if (mm === 0) updateHUD(`Matched. Moves: ${moves}.`);
+    else updateHUD(`Not matched yet. Mismatch: ${mm}.`);
+    setTimeout(() => updateHUD(), 900);
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "r" || e.key === "R") rotateSelected();
+    if (e.key === "h" || e.key === "H") toggleHints();
+    if (e.key === "s" || e.key === "S") toggleSolution();
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") { e.preventDefault(); undo(); }
+  });
+
+  // Keep the solution overlay aligned if the window changes size
+  window.addEventListener("resize", () => {
+    if (solutionOn) drawSolutionOverlay();
+  });
+
+  // Init
+  function init() {
+    renderPalette();
+    startLevel(false);
+  }
+  init();
+})();
+</script>
+</body>
+</html>
