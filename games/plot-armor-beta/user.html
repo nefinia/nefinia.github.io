@@ -86,11 +86,6 @@
       copyToClipboard(card);
     }
 
-    function discardCard(deckKey, idx){
-      hands[deckKey].splice(idx, 1);
-      render();
-    }
-
     function replaceCard(deckKey, idx){
       const arr = decks[deckKey] || [];
       if (arr.length === 0) return;
@@ -128,16 +123,11 @@
           bUse.textContent = "USE (copy)";
           bUse.onclick = () => useCard(key, i);
 
-          const bDiscard = document.createElement("button");
-          bDiscard.textContent = "DISCARD";
-          bDiscard.onclick = () => discardCard(key, i);
-
           const bReplace = document.createElement("button");
           bReplace.textContent = "REPLACE";
           bReplace.onclick = () => replaceCard(key, i);
 
           btns.appendChild(bUse);
-          btns.appendChild(bDiscard);
           btns.appendChild(bReplace);
 
           cardDiv.appendChild(btns);

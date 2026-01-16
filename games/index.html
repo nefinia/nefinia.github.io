@@ -152,7 +152,7 @@
         Move like a chess queen and stay alive.
         Every move changes what remains possible.
       </p>
-      <a class="play" href="queen_survival.html" target='_blank'>Play</a>
+      <a class="play" href="queen_survival.html" target="_blank">Play</a>
     </div>
 
     <!-- Tint Tactics -->
@@ -165,7 +165,7 @@
         A strategy puzzle about color, contrast, and local interactions.
         What looks similar may not behave the same.
       </p>
-      <a class="play" href="tint_tactics.html" target='_blank'>Play</a>
+      <a class="play" href="tint_tactics.html" target="_blank">Play</a>
     </div>
 
     <!-- XOR -->
@@ -178,7 +178,19 @@
         Recreate a silhouette by stamping shapes.
         Overlaps cancel. Order doesn’t save you.
       </p>
-      <a class="play" href="xor.html" target='_blank'>Play</a>
+      <a class="play" href="xor.html" target="_blank">Play</a>
+    </div>
+
+    <!-- Plot Armor -->
+    <div class="game">
+      <div class="thumbWrap">
+        <canvas id="thumb-plot" width="96" height="96"></canvas>
+      </div>
+      <h2>Plot Armor</h2>
+      <p class="desc">
+        Draw absurd movie logic ingredients and survive impossible threats.
+      </p>
+      <a class="play" href="plot-armor-beta/index.html" target="_blank">Play</a>
     </div>
 
   </section>
@@ -210,6 +222,7 @@ function rint(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
       ctx.fillRect(px,py,cell-1,cell-1);
       if(x===qx && y===qy){
         ctx.fillStyle = "#7aa2ff";
+        ctx.font = "bold 10px system-ui, sans-serif";
         ctx.fillText("Q", px+3, py+10);
       }
     }
@@ -258,9 +271,9 @@ function rint(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
     [[1,0],[0,1],[1,1],[2,1]]
   ];
 
-  stamps.forEach((cells,i)=>{
+  stamps.forEach(()=>{
     const ax = rint(1,3), ay = rint(1,3);
-    cells.forEach(([dx,dy])=>{
+    stamps[rint(0,stamps.length-1)].forEach(([dx,dy])=>{
       board[ay+dy][ax+dx] ^= true;
     });
   });
@@ -271,6 +284,51 @@ function rint(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
       ctx.fillRect(pad+x*cell, pad+y*cell, cell-1, cell-1);
     }
   }
+})();
+
+/* Plot Armor preview */
+(function(){
+  const c = document.getElementById("thumb-plot");
+  const ctx = c.getContext("2d");
+
+  ctx.fillStyle = "#0a0f25";
+  ctx.fillRect(0,0,c.width,c.height);
+
+  const pad = 8;
+  const panelW = 22, panelH = 28, gap = 6;
+
+  for(let i=0;i<3;i++){
+    const x = pad + i*(panelW+gap);
+    const y = pad;
+    ctx.fillStyle = ["#e8ecff","#1b2550","#e8ecff"][i];
+    ctx.fillRect(x,y,panelW,panelH);
+    ctx.fillStyle = "#0a0f25";
+    ctx.fillRect(x+2,y+2,panelW-4,panelH-4);
+
+    ctx.fillStyle = "#7aa2ff";
+    ctx.fillRect(x+4, y+6 + i*4, 4, 4);
+
+    ctx.fillStyle = "#e8ecff";
+    ctx.fillRect(x+12, y+10, 2, 10);
+    ctx.fillRect(x+10, y+18, 6, 2);
+  }
+
+  ctx.fillStyle = "#e63946";
+  ctx.beginPath();
+  ctx.arc(72, 70, 10, 0, Math.PI*2);
+  ctx.fill();
+
+  ctx.fillStyle = "#e8ecff";
+  ctx.font = "bold 12px system-ui, sans-serif";
+  ctx.fillText("!", 69, 74);
+
+  ctx.fillStyle = "rgba(122,162,255,.9)";
+  ctx.beginPath();
+  ctx.moveTo(20, 62);
+  ctx.lineTo(34, 62);
+  ctx.lineTo(27, 78);
+  ctx.closePath();
+  ctx.fill();
 })();
 </script>
 </body>
