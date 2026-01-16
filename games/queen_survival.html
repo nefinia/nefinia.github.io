@@ -7,9 +7,9 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-20EEFX7Q6N');
 </script>
+
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Queen Survival</title>
@@ -113,6 +113,23 @@
 
   .muted{ color:#444; font-size:13px; margin-top:8px; }
   .over{ color:#a00; font-weight:700; }
+
+  /* Instructions box (kept minimal, matching current aesthetic) */
+  #howto{
+    width:min(100vw - 20px, 520px);
+    margin:10px auto 0;
+    text-align:left;
+    background:#fff;
+    border:1px solid #ddd;
+    border-radius:10px;
+    padding:10px 12px;
+    box-sizing:border-box;
+    font-size:13px;
+    color:#333;
+  }
+  #howto b{ font-weight:700; }
+  #howto ul{ margin:6px 0 0 18px; padding:0; }
+  #howto li{ margin:4px 0; }
 </style>
 </head>
 
@@ -155,6 +172,19 @@
 </div>
 
 <div class="muted" id="msg">Pick an enemy count and press Start.</div>
+
+<!-- Simple player-facing instructions -->
+<div id="howto">
+  <b>How to play</b>
+  <ul>
+    <li>You control the <b>white queen ♕</b>.</li>
+    <li>Tap a square to move like a chess queen (any distance, straight or diagonal). You cannot jump over pieces.</li>
+    <li>After your move, <b>one black piece moves</b>.</li>
+    <li>Capture points: Queen 9, Rook 5, Bishop 3, Knight 3, Pawn 1.</li>
+    <li><b>If the queen gets captured, the game ends immediately.</b></li>
+    <li>Game also ends when the timer reaches 0.</li>
+  </ul>
+</div>
 
 <script>
 /* =========================
@@ -589,16 +619,8 @@ function enemyTurnSmart() {
     decrementCooldowns();
 
     setTimeout(() => {
-      score -= 9;
-      floatingDeltaOverQueen(-9);
-
-      const p = randomEmptySquare();
-      if (!p) { stopGame(true); return; }
-
-      queen.x = p.x; queen.y = p.y;
-      placePieceEl(queen.id, queen.x, queen.y);
-
-      redrawAll();
+      // GAME OVER on queen capture
+      stopGame(true, "The queen was captured.");
     }, 150);
 
     return;
@@ -629,7 +651,7 @@ function tick() {
   timeLeftMs -= 250;
   if (timeLeftMs <= 0) {
     timeLeftMs = 0;
-    stopGame(true);
+    stopGame(true, "Time's up.");
     return;
   }
   redrawAll();
@@ -709,7 +731,7 @@ function pauseToggle() {
   }
 }
 
-function stopGame(fromTimeoutOrEnd = false) {
+function stopGame(fromTimeoutOrEnd = false, reason = "") {
   if (status === "idle" || status === "stopped") return;
 
   status = "stopped";
@@ -726,7 +748,7 @@ function stopGame(fromTimeoutOrEnd = false) {
   pauseBtn.textContent = "Pause";
 
   if (fromTimeoutOrEnd) {
-    msgEl.textContent = "Game over. Press Start to play again.";
+    msgEl.textContent = reason ? `Game over — ${reason} Press Start to play again.` : "Game over. Press Start to play again.";
     msgEl.className = "muted over";
   }
 
@@ -735,7 +757,6 @@ function stopGame(fromTimeoutOrEnd = false) {
 
 /* =========================
    Main turn (white then black)
-   Fix: move queen BEFORE spawning new enemy to prevent overlap
 ========================= */
 function onCell(x,y) {
   if (status !== "running") return;
@@ -759,7 +780,7 @@ function onCell(x,y) {
 
   if (delta !== 0) floatingDeltaOverQueen(delta);
 
-  // now spawn replacement enemy (fair + can't move immediately)
+  // replacement enemy can't move immediately
   if (victim) {
     spawnEnemy({ avoidImmediateAttack: true, cooldown: 1 });
   }
@@ -777,7 +798,7 @@ function onCell(x,y) {
 ========================= */
 startBtn.addEventListener("click", startGame);
 pauseBtn.addEventListener("click", pauseToggle);
-stopBtn.addEventListener("click", () => stopGame(false));
+stopBtn.addEventListener("click", () => stopGame(false, ""));
 
 enemyCountSel.addEventListener("change", () => {
   refreshBestDisplay();

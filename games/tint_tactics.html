@@ -16,24 +16,39 @@
 
 <style>
   :root{
-    --cell: 54px;
-    --gap: 2px;
     --n: 8;
+    --cell: 56px;
+    --gap: 2px;
 
-    /* checked board */
-    --sq-light: #f7f7f7;
-    --sq-dark:  #e4e4e4;
+    /* Board (soft, neutral) */
+    --sq-light: #f6f6f4;
+    --sq-dark:  #e3e4e6;
+    --grid-bg:  #2f2f31;
 
-    /* pale territory tints */
-    --tint-blue: rgba(11, 87, 208, 0.16);
-    --tint-red:  rgba(176, 0, 32, 0.16);
+    /* Territory as inner border (no fill) */
+    --own-blue: rgba(26, 95, 196, 0.85);
+    --own-red:  rgba(176, 35, 55, 0.85);
+    --own-w:    6px;         /* thickness */
+    --own-r:    10px;        /* corner radius of mark */
 
-    /* piece colors */
-    --blue: #0b57d0;
-    --red:  #b00020;
+    /* Pieces (darker, filled glyphs) */
+    --blue: #1a5fc4;
+    --red:  #b02337;
 
-    --grid-bg: #333;
-    --frame: #222;
+    /* UI */
+    --frame: #202124;
+    --panel: #ffffff;
+    --panelBorder: rgba(0,0,0,0.12);
+    --shadow: 0 10px 30px rgba(0,0,0,0.10);
+    --radius: 14px;
+
+    /* Turn accent */
+    --turn-blue: rgba(26, 95, 196, 0.35);
+    --turn-red:  rgba(176, 35, 55, 0.35);
+
+    /* Motion */
+    --t-move: 140ms;
+    --t-claim: 180ms;
   }
 
   body{
@@ -44,29 +59,35 @@
     color:#111;
     text-align:center;
   }
-  h2{ margin:6px 0 8px; }
+  h2{
+    margin:6px 0 10px;
+    letter-spacing:0.2px;
+  }
 
+  /* ===== Top rules card ===== */
   #rules{
     width:min(100vw - 20px, 980px);
     margin:0 auto 10px;
     text-align:left;
-    background:#fff;
-    border:1px solid #e6e6e6;
-    border-radius:12px;
+    background:var(--panel);
+    border:1px solid var(--panelBorder);
+    border-radius: var(--radius);
     padding:10px 12px;
     line-height:1.35;
     font-size:13px;
     color:#222;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
   }
   #rules b{ font-weight:800; }
   #rules ul{ margin:6px 0 0 18px; padding:0; }
   #rules li{ margin:3px 0; }
 
+  /* ===== HUD ===== */
   #hud{
     display:flex;
     flex-wrap:wrap;
     justify-content:center;
-    gap:10px 14px;
+    gap:10px 12px;
     align-items:center;
     margin-bottom:10px;
   }
@@ -75,30 +96,49 @@
     gap:8px;
     align-items:center;
     padding:8px 10px;
-    border:1px solid #ddd;
+    border:1px solid var(--panelBorder);
     border-radius:999px;
-    background:#fff;
+    background:var(--panel);
     white-space:nowrap;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
   }
   .label{ color:#444; font-size:13px; }
-  .value{ font-weight:800; font-size:16px; }
+  .value{ font-weight:800; font-size:15px; }
   .p1{ color:var(--blue); }
   .p2{ color:var(--red); }
 
   button, select{
     font-size:14px;
     padding:7px 10px;
+    border-radius:10px;
+    border:1px solid var(--panelBorder);
+    background:#fff;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.04);
   }
+  button{
+    cursor:pointer;
+    font-weight:700;
+  }
+  button:hover{ filter:brightness(0.98); }
 
   #wrap{ width:min(100vw - 20px, 560px); margin:0 auto; }
 
-  /* frame */
+  /* ===== Board frame + turn accent ===== */
   #board{
     display:inline-block;
     border:2px solid var(--frame);
     background:var(--grid-bg);
     padding:2px;
     box-sizing:content-box;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    transition: box-shadow 180ms ease, border-color 180ms ease;
+  }
+  #board.turnBlue{
+    box-shadow: 0 0 0 5px var(--turn-blue), var(--shadow);
+  }
+  #board.turnRed{
+    box-shadow: 0 0 0 5px var(--turn-red), var(--shadow);
   }
 
   #grid{
@@ -107,8 +147,11 @@
     grid-template-rows: repeat(var(--n), var(--cell));
     gap: var(--gap);
     background:var(--grid-bg);
+    border-radius: 14px;
+    overflow:hidden;
   }
 
+  /* ===== Cells ===== */
   .cell{
     position:relative;
     width:var(--cell);
@@ -123,60 +166,86 @@
     line-height:1;
     background: var(--sq-light);
     font-family: "Apple Color Emoji","Segoe UI Symbol", system-ui, sans-serif;
+    transition: transform 90ms ease;
   }
   .cell.parity1{ background: var(--sq-dark); }
+  .cell:active{ transform: scale(0.99); }
 
-  /* territory overlay keeps check pattern visible */
-  .cell.c1{
-    background-image: linear-gradient(var(--tint-blue), var(--tint-blue));
-    background-blend-mode: multiply;
+  /* Territory mark: inner border via ::after (no fill) */
+  .cell::after{
+    content:"";
+    position:absolute;
+    inset: 7px;                 /* inner margin */
+    border-radius: var(--own-r);
+    border: var(--own-w) solid transparent;
+    pointer-events:none;
+    opacity:0;
+    transform: scale(0.96);
+    transition: opacity var(--t-claim) ease, transform var(--t-claim) ease;
   }
-  .cell.c2{
-    background-image: linear-gradient(var(--tint-red), var(--tint-red));
-    background-blend-mode: multiply;
+  .cell.c1::after{
+    border-color: var(--own-blue);
+    opacity: 1;
+    transform: scale(1);
+  }
+  .cell.c2::after{
+    border-color: var(--own-red);
+    opacity: 1;
+    transform: scale(1);
   }
 
-  /* selection + hints */
+  /* Selection + move hints (cleaner) */
   .sel{
-    outline: 3px solid rgba(0,0,0,0.45);
+    outline: 3px solid rgba(0,0,0,0.50);
     outline-offset: -3px;
   }
   .hint{
-    outline: 3px solid rgba(0,0,0,0.18);
+    outline: 3px solid rgba(0,0,0,0.15);
     outline-offset: -3px;
   }
   .hintCapture{
-    outline: 3px solid rgba(0,0,0,0.18);
+    outline: 3px solid rgba(0,0,0,0.15);
     outline-offset: -3px;
     box-shadow: inset 0 0 0 999px rgba(0,0,0,0.05);
   }
 
-  /* bot animation */
+  /* Bot animation cues */
   .botFrom{
-    outline: 3px solid rgba(176,0,32,0.45);
+    outline: 3px solid rgba(176,35,55,0.55);
     outline-offset:-3px;
   }
   .botTo{
-    outline: 3px solid rgba(176,0,32,0.25);
+    outline: 3px solid rgba(176,35,55,0.25);
     outline-offset:-3px;
-    box-shadow: inset 0 0 0 999px rgba(176,0,32,0.07);
+    box-shadow: inset 0 0 0 999px rgba(176,35,55,0.06);
   }
 
-  /* Pieces: filled glyphs (black-piece Unicode) colored via CSS */
+  /* Pieces */
   .piece{
-    font-weight:800;
-    text-shadow: 0 1px 0 rgba(0,0,0,0.10);
+    font-weight:900;
+    text-shadow:
+      0 1px 0 rgba(0,0,0,0.10),
+      0 6px 18px rgba(0,0,0,0.08);
+    transform: translateZ(0);
   }
   .pieceBlue{ color: var(--blue); }
   .pieceRed { color: var(--red); }
 
+  /* subtle "your turn" glow on your pieces (only in bot mode) */
+  .youTurnBlue .pieceBlue{ filter: drop-shadow(0 0 6px rgba(26,95,196,0.20)); }
+  .youTurnRed  .pieceRed { filter: drop-shadow(0 0 6px rgba(176,35,55,0.20)); }
+
   .disabled{
     opacity:0.72;
     pointer-events:none;
-    filter: grayscale(0.10);
+    filter: grayscale(0.08);
   }
 
-  .msg{ margin-top:10px; font-size:13px; color:#444; }
+  .msg{
+    margin-top:10px;
+    font-size:13px;
+    color:#444;
+  }
   .legend{
     margin-top:8px;
     display:flex;
@@ -193,12 +262,12 @@
     vertical-align:middle;
     margin-right:6px;
     border:1px solid rgba(0,0,0,0.18);
+    background: rgba(0,0,0,0.05);
   }
-  .dot1{ background: var(--tint-blue); }
-  .dot2{ background: var(--tint-red); }
+  .dot1{ box-shadow: inset 0 0 0 4px var(--own-blue); background:transparent; }
+  .dot2{ box-shadow: inset 0 0 0 4px var(--own-red);  background:transparent; }
 
   .smallNote{ font-size:12px; color:#555; margin-top:6px; }
-
   option{ font-family: "Apple Color Emoji", "Segoe UI Symbol", system-ui, sans-serif; }
 
   /* ===== Game Over modal ===== */
@@ -208,17 +277,19 @@
     display:none;
     align-items:center;
     justify-content:center;
-    background: rgba(0,0,0,0.45);
+    background: rgba(0,0,0,0.48);
     z-index: 9999;
     padding: 18px;
   }
   #overlay.show{ display:flex; }
+  #overlay.show ~ * { } /* noop */
+
   #modal{
     width:min(92vw, 520px);
     border-radius:16px;
     background:#fff;
-    border:2px solid rgba(0,0,0,0.15);
-    box-shadow: 0 14px 50px rgba(0,0,0,0.25);
+    border:1px solid rgba(0,0,0,0.14);
+    box-shadow: 0 18px 60px rgba(0,0,0,0.28);
     padding: 16px 16px 14px;
     text-align:left;
   }
@@ -230,18 +301,18 @@
     margin: 8px 0 12px;
     padding: 10px 12px;
     border-radius: 12px;
-    font-weight: 850;
+    font-weight: 900;
     font-size: 18px;
-    letter-spacing: 0.2px;
-    border: 1px solid rgba(0,0,0,0.12);
+    letter-spacing: 0.3px;
+    border: 1px solid rgba(0,0,0,0.10);
   }
   #winnerBanner.blue{
     color: var(--blue);
-    background: rgba(11,87,208,0.10);
+    background: rgba(26,95,196,0.10);
   }
   #winnerBanner.red{
     color: var(--red);
-    background: rgba(176,0,32,0.10);
+    background: rgba(176,35,55,0.10);
   }
   #winnerBanner.draw{
     color: #222;
@@ -260,6 +331,11 @@
     gap: 10px;
     justify-content:flex-end;
   }
+
+  /* Better “game over” feel: dim board under overlay */
+  body.gameOver #board{
+    filter: grayscale(0.10) brightness(0.96);
+  }
 </style>
 </head>
 
@@ -270,11 +346,11 @@
   <b>Goal:</b> Win by the selected win condition.
   <ul>
     <li>Move like chess. No check rules.</li>
-    <li>Your <b>destination square</b> becomes your color (overwrites the opponent’s color).</li>
-    <li>If you capture an enemy piece, it <b>respawns as the same type</b> on a random empty square. Respawning does <b>not</b> color the square.</li>
-    <li><b>Fair respawn:</b> a respawn square is chosen so the respawned piece has <b>no immediate captures</b> and is <b>not immediately capturable</b>, if possible.</li>
+    <li>Your <b>destination square</b> becomes your color (overwrites the opponent’s mark).</li>
+    <li>If you capture an enemy piece, it <b>respawns as the same type</b> on a random empty square. Respawning does <b>not</b> claim the square.</li>
+    <li><b>Fair respawn:</b> prefers squares where the respawned piece has <b>no immediate captures</b> and is <b>not attacked</b>, if possible.</li>
     <li><b>Fair start:</b> initial positions are generated so <b>no immediate captures</b> are possible for either side.</li>
-    <li><b>Vs Bot:</b> your color and the starting side are randomized (shown in the HUD).</li>
+    <li><b>Vs Bot:</b> your color and the starting side are randomized (shown below).</li>
   </ul>
 </div>
 
@@ -357,8 +433,8 @@
 </div>
 
 <div class="legend">
-  <span><span class="dot dot1"></span>Blue territory</span>
-  <span><span class="dot dot2"></span>Red territory</span>
+  <span><span class="dot dot1"></span>Blue-owned squares</span>
+  <span><span class="dot dot2"></span>Red-owned squares</span>
 </div>
 
 <div class="msg" id="msg">Click a piece, then a highlighted destination.</div>
@@ -395,17 +471,17 @@ const GLYPH = {
 };
 
 const PIECE_SETS = [
-  { id:"mini3",    name:"♜ ♝ ♞",              perSide:["rook","bishop","knight"] },
-  { id:"classic6", name:"♜ ♞ ♞ ♝ ♝ ♚",        perSide:["rook","knight","knight","bishop","bishop","king"] },
-  { id:"queen4",   name:"♛ ♜ ♝ ♞",            perSide:["queen","rook","bishop","knight"] },
-  { id:"queen5k",  name:"♛ ♜ ♝ ♞ ♚",          perSide:["queen","rook","bishop","knight","king"] },
-  { id:"queen6",   name:"♛ ♜ ♞ ♞ ♝ ♚",        perSide:["queen","rook","knight","knight","bishop","king"] },
-  { id:"pawnsLite6", name:"♜ ♝ ♞ ♚ ♟ ♟",      perSide:["rook","bishop","knight","king","pawn","pawn"] },
-  { id:"pawnsPlus8", name:"♛ ♜ ♝ ♞ ♚ ♟ ♟ ♟",  perSide:["queen","rook","bishop","knight","king","pawn","pawn","pawn"] }
+  { id:"mini3",      name:"♜ ♝ ♞",              perSide:["rook","bishop","knight"] },
+  { id:"classic6",   name:"♜ ♞ ♞ ♝ ♝ ♚",        perSide:["rook","knight","knight","bishop","bishop","king"] },
+  { id:"queen4",     name:"♛ ♜ ♝ ♞",            perSide:["queen","rook","bishop","knight"] },
+  { id:"queen5k",    name:"♛ ♜ ♝ ♞ ♚",          perSide:["queen","rook","bishop","knight","king"] },
+  { id:"queen6",     name:"♛ ♜ ♞ ♞ ♝ ♚",        perSide:["queen","rook","knight","knight","bishop","king"] },
+  { id:"pawnsLite6", name:"♜ ♝ ♞ ♚ ♟ ♟",        perSide:["rook","bishop","knight","king","pawn","pawn"] },
+  { id:"pawnsPlus8", name:"♛ ♜ ♝ ♞ ♚ ♟ ♟ ♟",    perSide:["queen","rook","bishop","knight","king","pawn","pawn","pawn"] }
 ];
 
-const BOT_THINK_MS = 450;
-const BOT_SHOW_MS  = 420;
+const BOT_THINK_MS = 420;
+const BOT_SHOW_MS  = 260;
 
 /* === RNG (per game) === */
 let RNG_SEED = 0;
@@ -413,7 +489,6 @@ function reseedRng(){
   RNG_SEED = (Date.now() ^ ((Math.random()*1e9)|0)) >>> 0;
 }
 function rand01(){
-  // xorshift32
   RNG_SEED ^= (RNG_SEED << 13); RNG_SEED >>>= 0;
   RNG_SEED ^= (RNG_SEED >>> 17); RNG_SEED >>>= 0;
   RNG_SEED ^= (RNG_SEED << 5);  RNG_SEED >>>= 0;
@@ -438,11 +513,10 @@ const state = {
   gameOver: false,
   busy: false,
   mode: "bot",
-  winMode: "turns", // "turns" | "line"
+  winMode: "turns",
   territory: [],
   pieces: [],
   pieceSetId: "queen5k",
-
   userColor: BLUE,
   botColor: RED
 };
@@ -468,7 +542,6 @@ const botColorText = document.getElementById("botColorText");
 const turnsLeftPill = document.getElementById("turnsLeftPill");
 const turnLimitPill = document.getElementById("turnLimitPill");
 
-/* overlay */
 const overlayEl = document.getElementById("overlay");
 const winnerBannerEl = document.getElementById("winnerBanner");
 const finalBlueEl = document.getElementById("finalBlue");
@@ -497,6 +570,7 @@ function cellId(x,y){ return `c_${x}_${y}`; }
 function getPieceAt(x,y){ return state.pieces.find(p => p.x===x && p.y===y) || null; }
 function isOccupied(x,y){ return !!getPieceAt(x,y); }
 
+/* UI */
 function clearMarks(){
   for (let y=0;y<state.n;y++){
     for (let x=0;x<state.n;x++){
@@ -505,7 +579,6 @@ function clearMarks(){
     }
   }
 }
-
 function cssColorName(owner){
   return owner===BLUE ? `<span class="p1">Blue</span>` : `<span class="p2">Red</span>`;
 }
@@ -518,6 +591,17 @@ function roleLabels(){
   youColorText.innerHTML = cssColorName(state.userColor);
   botColorText.innerHTML = cssColorName(state.botColor);
 }
+function setBoardTurnAccent(){
+  boardEl.classList.remove("turnBlue","turnRed");
+  if (state.current===BLUE) boardEl.classList.add("turnBlue");
+  if (state.current===RED)  boardEl.classList.add("turnRed");
+
+  // subtle glow on your pieces when it's your turn (bot mode)
+  document.body.classList.remove("youTurnBlue","youTurnRed");
+  if (state.mode==="bot" && state.current===state.userColor){
+    document.body.classList.add(state.userColor===BLUE ? "youTurnBlue" : "youTurnRed");
+  }
+}
 
 function setTurnUI(){
   turnTextEl.innerHTML = cssColorName(state.current);
@@ -527,13 +611,15 @@ function setTurnUI(){
   turnsLeftPill.style.display = usingTurns ? "flex" : "none";
   turnLimitPill.style.display = usingTurns ? "flex" : "none";
 
+  setBoardTurnAccent();
+
   if (state.gameOver) return;
 
   if (state.mode==="bot"){
     const isBotTurn = (state.current === state.botColor);
-    msgEl.textContent = isBotTurn ? "Bot is thinking…" : "Your turn: click a piece, then a highlighted destination.";
+    msgEl.textContent = isBotTurn ? "Bot is thinking…" : "Your turn: select a piece, then a highlighted destination.";
   }else{
-    msgEl.textContent = "Click a piece, then a highlighted destination.";
+    msgEl.textContent = "Select a piece, then a highlighted destination.";
   }
 }
 
@@ -546,7 +632,7 @@ function applyTerritoryClass(el, owner){
   if (owner===BLUE) el.classList.add("c1");
   else if (owner===RED) el.classList.add("c2");
 }
-function colorCell(x,y, owner){
+function claimCell(x,y, owner){
   state.territory[y][x] = owner;
   const el = document.getElementById(cellId(x,y));
   if (el) applyTerritoryClass(el, owner);
@@ -632,7 +718,7 @@ function renderPieces(){
   }
 }
 
-/* ===== move generation (legal captures depend on occupancy) ===== */
+/* moves (legal captures depend on occupancy) */
 function rayMoves(p, dirs){
   const moves = [];
   for (const [dx,dy] of dirs){
@@ -700,9 +786,7 @@ function legalMovesFor(p){
   return [];
 }
 
-/* ===== Attack detection (does NOT require a target piece to exist) =====
-   This is the critical fix: respawn safety must use "attacked squares" not capture flags.
-*/
+/* attack detection (critical for fair respawn) */
 function attacksSquare(piece, tx, ty){
   if (piece.x===tx && piece.y===ty) return false;
 
@@ -713,23 +797,20 @@ function attacksSquare(piece, tx, ty){
     const ax = Math.abs(dx), ay = Math.abs(dy);
     return (ax===2 && ay===1) || (ax===1 && ay===2);
   }
-
   if (piece.type==="king"){
     return Math.max(Math.abs(dx), Math.abs(dy)) === 1;
   }
-
   if (piece.type==="pawn"){
     const dir = (piece.owner===BLUE) ? -1 : 1;
     return (dy === dir) && (Math.abs(dx) === 1);
   }
 
-  // sliders
   function rayAttacks(stepX, stepY){
     let x = piece.x + stepX;
     let y = piece.y + stepY;
     while (inBounds(x,y)){
-      if (x===tx && y===ty) return true;          // target reached before blockage
-      if (isOccupied(x,y)) return false;          // blocked by any piece
+      if (x===tx && y===ty) return true;
+      if (isOccupied(x,y)) return false;
       x += stepX; y += stepY;
     }
     return false;
@@ -740,26 +821,18 @@ function attacksSquare(piece, tx, ty){
     if (dy===0 && dx!==0) return rayAttacks(Math.sign(dx), 0);
     return false;
   }
-
   if (piece.type==="bishop"){
-    if (Math.abs(dx)===Math.abs(dy) && dx!==0){
-      return rayAttacks(Math.sign(dx), Math.sign(dy));
-    }
+    if (Math.abs(dx)===Math.abs(dy) && dx!==0) return rayAttacks(Math.sign(dx), Math.sign(dy));
     return false;
   }
-
   if (piece.type==="queen"){
     if (dx===0 && dy!==0) return rayAttacks(0, Math.sign(dy));
     if (dy===0 && dx!==0) return rayAttacks(Math.sign(dx), 0);
-    if (Math.abs(dx)===Math.abs(dy) && dx!==0){
-      return rayAttacks(Math.sign(dx), Math.sign(dy));
-    }
+    if (Math.abs(dx)===Math.abs(dy) && dx!==0) return rayAttacks(Math.sign(dx), Math.sign(dy));
     return false;
   }
-
   return false;
 }
-
 function squareAttackedByOwner(owner, x, y){
   for (const p of state.pieces){
     if (p.owner !== owner) continue;
@@ -768,7 +841,7 @@ function squareAttackedByOwner(owner, x, y){
   return false;
 }
 
-/* ===== strict fair start ===== */
+/* strict fair start */
 function anyImmediateCaptureExists(){
   for (const p of state.pieces){
     for (const m of legalMovesFor(p)){
@@ -777,12 +850,10 @@ function anyImmediateCaptureExists(){
   }
   return false;
 }
-
 function currentPieceSet(){
   return PIECE_SETS.find(s => s.id===state.pieceSetId) || PIECE_SETS[0];
 }
-
-function placePiecesNoColor(){
+function placePiecesNoClaim(){
   state.pieces = [];
   const set = currentPieceSet();
   let idx = 0;
@@ -809,28 +880,24 @@ function placePiecesNoColor(){
   }
   return true;
 }
-
 function generateStrictFairStart(maxTries){
   for (let i=0;i<maxTries;i++){
     state.pieces = [];
-    if (!placePiecesNoColor()) continue;
+    if (!placePiecesNoClaim()) continue;
     if (!anyImmediateCaptureExists()) return true;
   }
   return false;
 }
 
-/* ===== respawn fairness (FIXED) =====
+/* respawn fairness:
    Tier A: respawned piece has no immediate captures AND is not attacked by opponent.
-   Tier B: no immediate captures (but may be attacked).
+   Tier B: no immediate captures.
    Tier C: any empty square.
 */
 function canRespawnedPieceCaptureImmediately(type, owner, x, y){
-  // Temporarily evaluate captures from (x,y) against current board pieces.
-  // This does not require inserting the piece into state; rayMoves uses getPieceAt for enemy detection.
   const temp = {id:"tmp", owner, type, x, y};
   return legalMovesFor(temp).some(m => m.capture);
 }
-
 function pickRandomRespawnSquareFair(type, owner){
   const opp = (owner===BLUE) ? RED : BLUE;
 
@@ -850,7 +917,6 @@ function pickRandomRespawnSquareFair(type, owner){
   for (const s of empties){
     const noImmediateCapture = !canRespawnedPieceCaptureImmediately(type, owner, s.x, s.y);
     const notAttackedByOpp   = !squareAttackedByOwner(opp, s.x, s.y);
-
     if (noImmediateCapture) tierB.push(s);
     if (noImmediateCapture && notAttackedByOpp) tierA.push(s);
   }
@@ -859,12 +925,11 @@ function pickRandomRespawnSquareFair(type, owner){
     if (!list.length) return null;
     shuffleInPlace(list);
     const k = Math.min(24, list.length);
-    return list[Math.floor(rand01()*k)];
+    return list[Math.floor(rand01() * k)];
   }
 
   return pickFrom(tierA) || pickFrom(tierB) || pickFrom(empties);
 }
-
 function respawnSameType(capturedPiece){
   const spot = pickRandomRespawnSquareFair(capturedPiece.type, capturedPiece.owner);
   if (!spot) return false;
@@ -873,7 +938,7 @@ function respawnSameType(capturedPiece){
   return true;
 }
 
-/* ===== end / overlay ===== */
+/* end / overlay */
 function showGameOverOverlay(a,b,verdict){
   finalBlueEl.textContent = a;
   finalRedEl.textContent = b;
@@ -897,8 +962,8 @@ function showGameOverOverlay(a,b,verdict){
     winnerBannerEl.textContent = "DRAW";
   }
   overlayEl.classList.add("show");
+  document.body.classList.add("gameOver");
 }
-
 function finalizeGameByTerritory(){
   state.gameOver=true;
   state.busy=false;
@@ -914,7 +979,6 @@ function finalizeGameByTerritory(){
   msgEl.textContent=`Game over. Blue: ${a} • Red: ${b}. ${verdict}.`;
   showGameOverOverlay(a,b,verdict);
 }
-
 function finalizeGameImmediate(winnerOwner){
   state.gameOver=true;
   state.busy=false;
@@ -928,6 +992,7 @@ function finalizeGameImmediate(winnerOwner){
   showGameOverOverlay(a,b,verdict);
 }
 
+/* turn / bot */
 function switchTurn(){
   if (state.winMode === "turns"){
     state.turnsLeft[state.current]-=1;
@@ -954,7 +1019,7 @@ function switchTurn(){
   }
 }
 
-/* hints */
+/* move hints */
 function highlightMoves(piece){
   for (const m of legalMovesFor(piece)){
     const el = document.getElementById(cellId(m.x,m.y));
@@ -968,7 +1033,6 @@ function canSelectPiece(p){
   if (state.mode==="bot") return p.owner===state.userColor;
   return p.owner===state.current;
 }
-
 function onCellClick(x,y){
   if (state.gameOver || state.busy) return;
   if (state.mode==="bot" && state.current===state.botColor) return;
@@ -1001,8 +1065,9 @@ function onCellClick(x,y){
   clearMarks();
   const captured = legal.capture ? getPieceAt(x,y) : null;
 
+  // execute
   piece.x = x; piece.y = y;
-  colorCell(x,y, piece.owner);
+  claimCell(x,y, piece.owner);
 
   if (captured){
     const ok = respawnSameType(captured);
@@ -1038,10 +1103,8 @@ function evalMove(owner, move){
   const cx=(state.n-1)/2, cy=(state.n-1)/2;
   const dist=Math.abs(move.x-cx)+Math.abs(move.y-cy);
   s += Math.max(0, 0.25 - dist*0.04);
-
   return s;
 }
-
 function estimateBestAfter(ownerToMove){
   let best=-Infinity;
   for (const p of state.pieces.filter(pp=>pp.owner===ownerToMove)){
@@ -1049,7 +1112,6 @@ function estimateBestAfter(ownerToMove){
   }
   return best===-Infinity?0:best;
 }
-
 function botMove(){
   if (state.gameOver || state.mode!=="bot" || state.current!==state.botColor) return;
 
@@ -1082,7 +1144,7 @@ function botMove(){
   const fromEl = document.getElementById(cellId(bestPlan.piece.x, bestPlan.piece.y));
   const toEl   = document.getElementById(cellId(bestPlan.move.x, bestPlan.move.y));
   if (fromEl) fromEl.classList.add("botFrom");
-  if (toEl) toEl.classList.add("botTo");
+  if (toEl)   toEl.classList.add("botTo");
 
   setTimeout(()=>{
     if (state.gameOver) return;
@@ -1090,7 +1152,7 @@ function botMove(){
     const {piece, move, captured} = bestPlan;
 
     piece.x = move.x; piece.y = move.y;
-    colorCell(move.x, move.y, piece.owner);
+    claimCell(move.x, move.y, piece.owner);
 
     if (captured){
       const ok = respawnSameType(captured);
@@ -1130,6 +1192,7 @@ function updateSetNote(extra=""){
 /* new game */
 function newGame(){
   overlayEl.classList.remove("show");
+  document.body.classList.remove("gameOver");
   reseedRng();
 
   state.n = Number(boardSizeSel.value);
@@ -1158,34 +1221,29 @@ function newGame(){
   buildBoard();
 
   const setSize = currentPieceSet().perSide.length;
-  const tries = 1800 + setSize * 800;
+  const tries = 2000 + setSize * 850;
 
   let ok = false;
-
-  // Try to also avoid "already a line" at start in line-mode.
   for (let attempt=0; attempt<tries; attempt++){
     ok = generateStrictFairStart(1);
     if (!ok) continue;
 
     initTerritory();
-    for (const p of state.pieces) colorCell(p.x, p.y, p.owner);
+    for (const p of state.pieces) claimCell(p.x, p.y, p.owner);
 
     if (state.winMode === "line"){
-      if (hasFullRowOrCol(BLUE) || hasFullRowOrCol(RED)){
-        continue;
-      }
+      if (hasFullRowOrCol(BLUE) || hasFullRowOrCol(RED)) continue;
     }
     break;
   }
 
   if (!ok){
-    // fallback (rare): still start, but warn
     initTerritory();
     generateStrictFairStart(tries);
-    for (const p of state.pieces) colorCell(p.x, p.y, p.owner);
+    for (const p of state.pieces) claimCell(p.x, p.y, p.owner);
     updateSetNote("⚠️ Could not guarantee a fully fair start for this board/piece count.");
   } else {
-    updateSetNote("Fair start: no immediate captures. Respawns avoid attacked squares when possible.");
+    updateSetNote("Fair start: no immediate captures. Territory is marked by inner borders.");
   }
 
   refreshAllTerritory();
@@ -1202,7 +1260,7 @@ function newGame(){
   }
 }
 
-/* init */
+/* wiring */
 newGameBtn.addEventListener("click", newGame);
 boardSizeSel.addEventListener("change", newGame);
 turnLimitSel.addEventListener("change", newGame);
