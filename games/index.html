@@ -181,7 +181,21 @@
       <a class="play" href="xor.html" target="_blank">Play</a>
     </div>
 
-    <!-- Plot Armor -->
+    <!-- NEW: Maxwell Demon (second to last) -->
+    <div class="game">
+      <div class="thumbWrap">
+        <canvas id="thumb-demon" width="96" height="96"></canvas>
+      </div>
+      <h2>Maxwell Demon</h2>
+      <p class="desc">
+        A thermodynamics thought experiment turned into a timing game.
+        Open brief “windows” in a wall to separate two particle colors.
+      </p>
+      <!-- change filename if yours is different -->
+      <a class="play" href="maxwell_demon.html" target="_blank">Play</a>
+    </div>
+
+    <!-- Plot Armor (last) -->
     <div class="game">
       <div class="thumbWrap">
         <canvas id="thumb-plot" width="96" height="96"></canvas>
@@ -284,6 +298,55 @@ function rint(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
       ctx.fillRect(pad+x*cell, pad+y*cell, cell-1, cell-1);
     }
   }
+})();
+
+/* NEW: Maxwell Demon preview */
+(function(){
+  const c = document.getElementById("thumb-demon");
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = "#0a0f25";
+  ctx.fillRect(0,0,c.width,c.height);
+
+  // background split tint
+  ctx.fillStyle = "rgba(255,77,109,0.10)";
+  ctx.fillRect(0,0,48,96);
+  ctx.fillStyle = "rgba(77,155,255,0.10)";
+  ctx.fillRect(48,0,48,96);
+
+  // central wall with a few "open slices"
+  const wallX = 48;
+  ctx.strokeStyle = "#24315a";
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(wallX, 6); ctx.lineTo(wallX, 90); ctx.stroke();
+
+  // openings (green-ish)
+  const opens = [18, 44, 70];
+  ctx.strokeStyle = "rgba(183,255,207,0.85)";
+  ctx.lineWidth = 6;
+  opens.forEach(y=>{
+    ctx.beginPath();
+    ctx.moveTo(wallX, y-6);
+    ctx.lineTo(wallX, y+6);
+    ctx.stroke();
+  });
+
+  // particles
+  function dot(x,y,col){
+    ctx.beginPath();
+    ctx.fillStyle = col;
+    ctx.arc(x,y,3,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  for(let i=0;i<7;i++){
+    dot(rint(8,42), rint(10,86), "#ff4d6d");
+    dot(rint(54,88), rint(10,86), "#4d9bff");
+  }
+
+  // little "demon" icon (stylized)
+  ctx.fillStyle = "#e8ecff";
+  ctx.font = "bold 12px system-ui, sans-serif";
+  ctx.fillText("Δ", 6, 16);
 })();
 
 /* Plot Armor preview */

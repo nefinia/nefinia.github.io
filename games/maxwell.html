@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-20EEFX7Q6N"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-20EEFX7Q6N');
+</script>
+
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Maxwell Demon – Window Gate Wall</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e7eefc; --muted:#9bb0d1; --line:#223049; }
+    html, body { margin:0; background:var(--bg); color:var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; height:100%; }
+    .wrap { display:flex; flex-direction:column; min-height:100vh; min-height:100dvh; }
+
+    .topbar{
+      display:flex; gap:10px; align-items:center; padding:10px 12px;
+      background:linear-gradient(180deg, rgba(17,24,36,.95), rgba(17,24,36,.7));
+      border-bottom:1px solid var(--line);
+      flex-wrap: wrap;
+      z-index: 2;
+    }
+    .btn{
+      background:#182235; color:var(--text); border:1px solid var(--line);
+      border-radius:12px; padding:10px 12px; font-weight:750;
+      touch-action: manipulation; user-select: none; cursor:pointer;
+    }
+    .btn:active{ transform: translateY(1px); }
+    .pill{
+      padding:8px 10px; border:1px solid var(--line); border-radius:999px; color:var(--muted);
+      font-variant-numeric: tabular-nums; white-space: nowrap; user-select:none;
+    }
+    .spacer{ flex:1; }
+
+    .sliderRow{
+      display:flex; align-items:center; gap:8px;
+      padding:6px 10px; border:1px solid var(--line); border-radius:12px;
+      background:#0f1622; color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      user-select:none;
+    }
+    input[type="range"]{ width: 128px; }
+    select{
+      background:#0f1622; color:var(--text);
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:8px 10px;
+      font-weight:750;
+      user-select:none;
+    }
+
+    .canvasWrap{ position:relative; flex:1; min-height:260px; }
+    canvas{ width:100%; height:100%; display:block; touch-action:none; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+   <div class="intro">
+    <h1>Maxwell’s Demon (as a game)</h1>
+    <p>
+      In the 1860s, physicist James Clerk Maxwell proposed a thought experiment: a tiny “demon” watches
+      molecules in a gas and opens a door at the right moments, seemingly creating order from randomness
+      (and teasing the second law of thermodynamics).
+    </p>
+    <p>
+      This game turns that idea into a control problem. Particles drift like a warm gas. A wall splits the box.
+      You can’t move particles directly—you only open brief “windows” in the wall by clicking/tapping near it.
+      Your goal is to increase the separation score as fast as possible (Reach %) or maximize it in 60 seconds.
+    </p>
+  </div>
+
+  <div id="topbar" class="topbar">
+    <button id="pauseBtn" class="btn">Pause</button>
+    <button id="resetBtn" class="btn">Reset</button>
+
+    <div class="sliderRow" title="Simulation speed">
+      <span>Speed</span>
+      <input id="speedSlider" type="range" min="0.25" max="10" step="0.25" value="3">
+      <span id="speedLabel">3.00×</span>
+    </div>
+
+    <div class="sliderRow" title="Particles per color (total = 2×)">
+      <span>Particles</span>
+      <input id="countSlider" type="range" min="10" max="80" step="5" value="30">
+      <span id="countLabel">30+30</span>
+    </div>
+
+    <div class="sliderRow" title="Particle radius">
+      <span>Size</span>
+      <input id="radiusSlider" type="range" min="3" max="10" step="0.5" value="5">
+      <span id="radiusLabel">5.0</span>
+    </div>
+
+    <div class="sliderRow" title="Brownian motion strength (random acceleration)">
+      <span>Noise</span>
+      <input id="noiseSlider" type="range" min="0" max="1400" step="25" value="760">
+      <span id="noiseLabel">760</span>
+    </div>
+
+    <div class="sliderRow" title="Number of gate slices (vertical resolution)">
+      <span>Slices</span>
+      <input id="gatesSlider" type="range" min="8" max="60" step="1" value="24">
+      <span id="gatesLabel">24</span>
+    </div>
+
+    <div class="sliderRow" title="Tap opens a window spanning this many slices (odd)">
+      <span>Window</span>
+      <input id="windowSlider" type="range" min="1" max="15" step="2" value="5">
+      <span id="windowLabel">5</span>
+    </div>
+
+    <div class="sliderRow" title="Tap latching duration (how long the window stays open)">
+      <span>Latch</span>
+      <input id="latchSlider" type="range" min="80" max="1500" step="20" value="520">
+      <span id="latchLabel">520ms</span>
+    </div>
+
+    <div class="sliderRow" title="Win mode">
+      <span>Mode</span>
+      <select id="modeSelect">
+        <option value="target" selected>Reach % (stopwatch)</option>
+        <option value="timetrial">60s Best %</option>
+      </select>
+    </div>
+
+    <div class="sliderRow" title="Target separation for Reach % mode">
+      <span>Target</span>
+      <input id="targetSlider" type="range" min="55" max="90" step="1" value="60">
+      <span id="targetLabel">60%</span>
+    </div>
+
+    <div id="timerPill" class="pill">Time: 0.0s</div>
+    <div id="scorePill" class="pill">Separation: 50.0%</div>
+    <div id="statusPill" class="pill">Click/tap near wall to open a window</div>
+
+    <div class="spacer"></div>
+  </div>
+
+  <div id="canvasWrap" class="canvasWrap">
+    <canvas id="c"></canvas>
+  </div>
+</div>
+
+<script>
+(() => {
+  const statusPill = document.getElementById('statusPill');
+  window.addEventListener('error', (e) => { statusPill.textContent = `Error: ${e.message}`; });
+
+  const topbar = document.getElementById('topbar');
+  const canvasWrap = document.getElementById('canvasWrap');
+
+  // ========= Parameters =========
+  const cfg = {
+    nPerColor: 30,
+    radius: 5.0,
+    maxSpeed: 560,
+    jitter: 760,
+    damping: 0.987,
+    collide: true,
+    simSpeed: 3.0
+  };
+
+  const rules = {
+    targetHoldSeconds: 1.0,
+    trialSeconds: 60.0
+  };
+
+  // ========= Round state (declare early) =========
+  let elapsed = 0;                 // stopwatch for target mode
+  let timeLeft = rules.trialSeconds; // countdown for timetrial mode
+  let bestFrac = 0;
+  let roundOver = false;
+  let targetHold = 0;
+  let targetPct = 0.60;
+
+  // ========= DOM =========
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d', { alpha: false });
+
+  const pauseBtn = document.getElementById('pauseBtn');
+  const resetBtn = document.getElementById('resetBtn');
+
+  const speedSlider = document.getElementById('speedSlider');
+  const speedLabel = document.getElementById('speedLabel');
+
+  const countSlider = document.getElementById('countSlider');
+  const countLabel = document.getElementById('countLabel');
+
+  const radiusSlider = document.getElementById('radiusSlider');
+  const radiusLabel = document.getElementById('radiusLabel');
+
+  const noiseSlider = document.getElementById('noiseSlider');
+  const noiseLabel = document.getElementById('noiseLabel');
+
+  const gatesSlider = document.getElementById('gatesSlider');
+  const gatesLabel = document.getElementById('gatesLabel');
+
+  const windowSlider = document.getElementById('windowSlider');
+  const windowLabel = document.getElementById('windowLabel');
+
+  const latchSlider = document.getElementById('latchSlider');
+  const latchLabel = document.getElementById('latchLabel');
+
+  const modeSelect = document.getElementById('modeSelect');
+  const targetSlider = document.getElementById('targetSlider');
+  const targetLabel = document.getElementById('targetLabel');
+
+  const timerPill = document.getElementById('timerPill');
+  const scorePill = document.getElementById('scorePill');
+
+  // ========= Utilities =========
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+  function setStatus(msg, ttlMs = 1600) {
+    statusPill.textContent = msg;
+    window.clearTimeout(setStatus._t);
+    if (ttlMs > 0) setStatus._t = window.setTimeout(() => {
+      statusPill.textContent = "Click/tap near wall to open a window";
+    }, ttlMs);
+  }
+
+  function fmtS(t){ return `${Math.max(0, t).toFixed(1)}s`; }
+
+  // ========= World =========
+  const world = {
+    w: 0, h: 0,
+    midX: 0,
+    wallThickness: 2,
+    nSlices: 24,
+    sliceH: 0,
+    openUntil: [],
+    latchMs: 520,
+    windowSlices: 5
+  };
+
+  function ensureSlices() {
+    world.openUntil = new Array(world.nSlices).fill(0);
+    world.sliceH = world.h / world.nSlices;
+  }
+
+  function layoutCanvasWrap() {
+    const barH = topbar.getBoundingClientRect().height || 0;
+    const avail = Math.max(260, Math.floor(window.innerHeight - barH));
+    canvasWrap.style.height = avail + "px";
+  }
+
+  function resizeCanvasToBox() {
+    layoutCanvasWrap();
+    const rect = canvas.getBoundingClientRect();
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    canvas.width  = Math.max(1, Math.floor(rect.width  * dpr));
+    canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    world.w = rect.width;
+    world.h = rect.height;
+    world.midX = Math.floor(world.w / 2);
+    world.sliceH = world.h / world.nSlices;
+  }
+
+  // ========= Particles =========
+  const particles = [];
+  function resetParticlesRandomMix() {
+    particles.length = 0;
+    const pad = 16;
+    for (let i = 0; i < cfg.nPerColor * 2; i++) {
+      const color = (i < cfg.nPerColor) ? 0 : 1;
+      particles.push({
+        x: rand(pad, world.w - pad),
+        y: rand(pad, world.h - pad),
+        vx: rand(-180, 180),
+        vy: rand(-180, 180),
+        color
+      });
+    }
+  }
+
+  // ========= Gate input (window opening) =========
+  function pointerPos(ev) {
+    const rect = canvas.getBoundingClientRect();
+    return { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
+  }
+  function sliceIndexAt(y) {
+    const i = Math.floor(y / world.sliceH);
+    return clamp(i, 0, world.nSlices - 1);
+  }
+  function isNearWall(x) { return Math.abs(x - world.midX) < 26; }
+  function sliceIsOpen(i, nowMs) { return nowMs < world.openUntil[i]; }
+
+  function openWindowAt(y, nowMs) {
+    const idx = sliceIndexAt(y);
+    const span = world.windowSlices;          // odd: 1,3,5...
+    const half = Math.floor(span / 2);
+    for (let i = idx - half; i <= idx + half; i++) {
+      const j = clamp(i, 0, world.nSlices - 1);
+      world.openUntil[j] = nowMs + world.latchMs; // force-open (refresh)
+    }
+  }
+
+  canvas.addEventListener('pointerdown', (ev) => {
+    canvas.setPointerCapture(ev.pointerId);
+    const { x, y } = pointerPos(ev);
+    if (!isNearWall(x)) return;
+    openWindowAt(y, performance.now());
+  });
+
+  // Optional: drag to "paint" openings
+  let painting = false;
+  canvas.addEventListener('pointermove', (ev) => {
+    if (!painting) return;
+    const { x, y } = pointerPos(ev);
+    if (!isNearWall(x)) return;
+    openWindowAt(y, performance.now());
+  });
+  canvas.addEventListener('pointerup', () => { painting = false; });
+  canvas.addEventListener('pointercancel', () => { painting = false; });
+  canvas.addEventListener('pointerdown', (ev) => {
+    // if you click near wall, start paint
+    const { x } = pointerPos(ev);
+    if (isNearWall(x)) painting = true;
+  });
+
+  // ========= UI =========
+  let paused = false;
+  pauseBtn.addEventListener('click', () => {
+    paused = !paused;
+    pauseBtn.textContent = paused ? "Resume" : "Pause";
+    setStatus(paused ? "Paused" : "Running", 800);
+  });
+
+  function resetRoundState(keepParticles) {
+    elapsed = 0;
+    timeLeft = rules.trialSeconds;
+    bestFrac = 0;
+    roundOver = false;
+    targetHold = 0;
+    if (!keepParticles) resetParticlesRandomMix();
+    world.openUntil.fill(0);
+  }
+
+  function resetAll(announce) {
+    resizeCanvasToBox();
+    ensureSlices();
+    resetRoundState(false);
+    paused = false;
+    pauseBtn.textContent = "Pause";
+    if (announce) setStatus("Reset", 800);
+  }
+  resetBtn.addEventListener('click', () => resetAll(true));
+
+  function setSpeed(v, silent=false){
+    cfg.simSpeed = clamp(v, 0.1, 16);
+    speedLabel.textContent = `${cfg.simSpeed.toFixed(2)}×`;
+    if (!silent) setStatus("Speed updated", 600);
+  }
+  function setCount(n, silent=false){
+    cfg.nPerColor = clamp(n, 5, 250);
+    countLabel.textContent = `${cfg.nPerColor}+${cfg.nPerColor}`;
+    if (!silent) { resetAll(false); setStatus("Particle count changed", 900); }
+  }
+  function setRadius(r, silent=false){
+    cfg.radius = clamp(r, 2, 14);
+    radiusLabel.textContent = cfg.radius.toFixed(1);
+    if (!silent) { resetAll(false); setStatus("Particle size changed", 900); }
+  }
+  function setNoise(j, silent=false){
+    cfg.jitter = clamp(j, 0, 8000);
+    noiseLabel.textContent = `${Math.round(cfg.jitter)}`;
+    if (!silent) setStatus("Noise updated", 600);
+  }
+  function setSlices(n, silent=false){
+    world.nSlices = clamp(n, 6, 120);
+    gatesLabel.textContent = String(world.nSlices);
+    ensureSlices();
+    resizeCanvasToBox();
+    if (!silent) { resetRoundState(true); setStatus("Slices updated", 800); }
+  }
+  function setWindowSlices(n, silent=false){
+    world.windowSlices = clamp(n, 1, 51);
+    // ensure odd
+    if (world.windowSlices % 2 === 0) world.windowSlices += 1;
+    windowLabel.textContent = String(world.windowSlices);
+    if (!silent) setStatus("Window size updated", 600);
+  }
+  function setLatch(ms, silent=false){
+    world.latchMs = clamp(ms, 40, 6000);
+    latchLabel.textContent = `${Math.round(world.latchMs)}ms`;
+    if (!silent) setStatus("Latch updated", 600);
+  }
+  function setTarget(pctInt, silent=false){
+    targetPct = clamp(pctInt / 100, 0.5, 0.99);
+    targetLabel.textContent = `${Math.round(targetPct * 100)}%`;
+    if (!silent) setStatus("Target updated", 600);
+  }
+
+  speedSlider.addEventListener('input', () => setSpeed(Number(speedSlider.value)));
+  countSlider.addEventListener('input', () => setCount(Number(countSlider.value)));
+  radiusSlider.addEventListener('input', () => setRadius(Number(radiusSlider.value)));
+  noiseSlider.addEventListener('input', () => setNoise(Number(noiseSlider.value)));
+  gatesSlider.addEventListener('input', () => setSlices(Number(gatesSlider.value)));
+  windowSlider.addEventListener('input', () => setWindowSlices(Number(windowSlider.value)));
+  latchSlider.addEventListener('input', () => setLatch(Number(latchSlider.value)));
+  targetSlider.addEventListener('input', () => setTarget(Number(targetSlider.value)));
+
+  modeSelect.addEventListener('change', () => {
+    resetRoundState(true);
+    setStatus("Mode changed", 700);
+  });
+
+  // ========= Physics =========
+  function wallBounceAndSlices(p, nowMs) {
+    const r = cfg.radius;
+
+    // outer walls
+    if (p.x < r) { p.x = r; p.vx = Math.abs(p.vx); }
+    if (p.x > world.w - r) { p.x = world.w - r; p.vx = -Math.abs(p.vx); }
+    if (p.y < r) { p.y = r; p.vy = Math.abs(p.vy); }
+    if (p.y > world.h - r) { p.y = world.h - r; p.vy = -Math.abs(p.vy); }
+
+    // mid-wall slices
+    const dx = p.x - world.midX;
+    const inWallBand = Math.abs(dx) < (r + world.wallThickness);
+    if (!inWallBand) return;
+
+    const idx = sliceIndexAt(p.y);
+    const open = sliceIsOpen(idx, nowMs);
+    if (!open) {
+      if (dx < 0) { p.x = world.midX - (r + world.wallThickness); p.vx = -Math.abs(p.vx); }
+      else        { p.x = world.midX + (r + world.wallThickness); p.vx =  Math.abs(p.vx); }
+    }
+  }
+
+  function particleCollisions() {
+    const r = cfg.radius;
+    const minDist = 2 * r;
+    const minDist2 = minDist * minDist;
+
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const a = particles[i], b = particles[j];
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const d2 = dx*dx + dy*dy;
+        if (d2 >= minDist2 || d2 === 0) continue;
+
+        const d = Math.sqrt(d2);
+        const nx = dx / d, ny = dy / d;
+
+        const overlap = (minDist - d) * 0.5;
+        a.x -= nx * overlap; a.y -= ny * overlap;
+        b.x += nx * overlap; b.y += ny * overlap;
+
+        const rvx = b.vx - a.vx, rvy = b.vy - a.vy;
+        const vn = rvx * nx + rvy * ny;
+        if (vn > 0) continue;
+        const impulse = -vn;
+        a.vx -= impulse * nx; a.vy -= impulse * ny;
+        b.vx += impulse * nx; b.vy += impulse * ny;
+      }
+    }
+  }
+
+  function step(dt, nowMs) {
+    const s = cfg.simSpeed;
+    for (const p of particles) {
+      p.vx = (p.vx * cfg.damping) + (Math.random()*2 - 1) * cfg.jitter * dt;
+      p.vy = (p.vy * cfg.damping) + (Math.random()*2 - 1) * cfg.jitter * dt;
+
+      const sp = Math.hypot(p.vx, p.vy);
+      if (sp > cfg.maxSpeed) {
+        const k = cfg.maxSpeed / sp;
+        p.vx *= k; p.vy *= k;
+      }
+
+      p.x += p.vx * dt * s;
+      p.y += p.vy * dt * s;
+
+      wallBounceAndSlices(p, nowMs);
+    }
+    if (cfg.collide) particleCollisions();
+  }
+
+  // ========= Scoring / goals =========
+  function separationScore() {
+    // same metric as before: (red-left + blue-right)/total
+    let correct = 0;
+    for (const p of particles) {
+      const left = p.x < world.midX;
+      if (p.color === 0 && left) correct++;
+      if (p.color === 1 && !left) correct++;
+    }
+    return correct / (particles.length || 1);
+  }
+
+  function updateGoals(dt, frac) {
+    if (roundOver) return;
+
+    const mode = modeSelect.value;
+
+    if (mode === "target") {
+      if (!paused) elapsed += dt;
+
+      if (frac >= targetPct) targetHold += dt;
+      else targetHold = Math.max(0, targetHold - dt * 0.8);
+
+      timerPill.textContent = `Time: ${fmtS(elapsed)}`;
+
+      if (targetHold >= rules.targetHoldSeconds) {
+        roundOver = true;
+        setStatus(`Solved in ${fmtS(elapsed)} (≥${Math.round(targetPct*100)}%)`, 2400);
+      }
+      return;
+    }
+
+    // timetrial: 60s countdown, best separation
+    if (!paused) timeLeft -= dt;
+    if (frac > bestFrac) bestFrac = frac;
+
+    timerPill.textContent = `Time: ${fmtS(timeLeft)}`;
+    if (timeLeft <= 0) {
+      roundOver = true; timeLeft = 0;
+      setStatus(`Best: ${(bestFrac*100).toFixed(1)}%`, 2400);
+    }
+  }
+
+  // ========= Render =========
+  function draw(frac, nowMs) {
+    ctx.fillStyle = "#070b10";
+    ctx.fillRect(0, 0, world.w, world.h);
+
+    // subtle region tint
+    ctx.fillStyle = "rgba(255, 90, 90, 0.030)";
+    ctx.fillRect(0, 0, world.midX, world.h);
+    ctx.fillStyle = "rgba(90, 150, 255, 0.030)";
+    ctx.fillRect(world.midX, 0, world.w - world.midX, world.h);
+
+    // wall + open window highlight
+    const x = world.midX;
+    for (let i = 0; i < world.nSlices; i++) {
+      const y0 = i * world.sliceH;
+      const y1 = (i + 1) * world.sliceH;
+      const open = sliceIsOpen(i, nowMs);
+
+      // base wall
+      ctx.strokeStyle = open ? "rgba(183,255,207,0.18)" : "#223049";
+      ctx.lineWidth = world.wallThickness;
+      ctx.beginPath();
+      ctx.moveTo(x, y0);
+      ctx.lineTo(x, y1);
+      ctx.stroke();
+
+      // halo
+      ctx.save();
+      ctx.globalAlpha = open ? 0.26 : 0.10;
+      ctx.strokeStyle = open ? "#b7ffcf" : "#ffd6b7";
+      ctx.lineWidth = open ? 12 : 8;
+      ctx.beginPath();
+      ctx.moveTo(x, y0 + 3);
+      ctx.lineTo(x, y1 - 3);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // particles
+    for (const p of particles) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, cfg.radius, 0, Math.PI * 2);
+      ctx.fillStyle = (p.color === 0) ? "#ff4d6d" : "#4d9bff";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.12)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    scorePill.textContent = `Separation: ${(frac * 100).toFixed(1)}%`;
+
+    if (paused) {
+      ctx.save();
+      ctx.fillStyle = "rgba(7,11,16,0.35)";
+      ctx.fillRect(0, 0, world.w, world.h);
+      ctx.fillStyle = "rgba(231,238,252,0.85)";
+      ctx.font = "800 18px system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+      ctx.fillText("Paused", 14, 28);
+      ctx.restore();
+    }
+  }
+
+  // ========= Loop =========
+  let lastT = 0;
+  function frame(t) {
+    const rawDt = (t - lastT) / 1000;
+    const dt = Math.min(0.033, Math.max(0.001, rawDt || 0.016));
+    lastT = t;
+
+    const nowMs = performance.now();
+    if (!paused && !roundOver) step(dt, nowMs);
+
+    const frac = separationScore();
+    updateGoals(dt, frac);
+    draw(frac, nowMs);
+
+    requestAnimationFrame(frame);
+  }
+
+  // ========= Init =========
+  function init() {
+    // apply defaults silently
+    world.nSlices = Number(gatesSlider.value);
+    world.windowSlices = Number(windowSlider.value);
+    if (world.windowSlices % 2 === 0) world.windowSlices += 1;
+
+    cfg.simSpeed = Number(speedSlider.value);
+    cfg.nPerColor = Number(countSlider.value);
+    cfg.radius = Number(radiusSlider.value);
+    cfg.jitter = Number(noiseSlider.value);
+    world.latchMs = Number(latchSlider.value);
+    targetPct = Number(targetSlider.value) / 100;
+
+    // reflect in UI labels
+    setSpeed(cfg.simSpeed, true);
+    countLabel.textContent = `${cfg.nPerColor}+${cfg.nPerColor}`;
+    radiusLabel.textContent = cfg.radius.toFixed(1);
+    noiseLabel.textContent = `${Math.round(cfg.jitter)}`;
+    gatesLabel.textContent = String(world.nSlices);
+    windowLabel.textContent = String(world.windowSlices);
+    latchLabel.textContent = `${Math.round(world.latchMs)}ms`;
+    targetLabel.textContent = `${Math.round(targetPct*100)}%`;
+
+    resizeCanvasToBox();
+    ensureSlices();
+    resetRoundState(false);
+
+    requestAnimationFrame(frame);
+    setStatus("Running", 700);
+  }
+
+  window.addEventListener('resize', () => {
+    resizeCanvasToBox();
+    ensureSlices();
+    for (const p of particles) {
+      p.x = clamp(p.x, cfg.radius, world.w - cfg.radius);
+      p.y = clamp(p.y, cfg.radius, world.h - cfg.radius);
+    }
+  });
+
+  init();
+})();
+</script>
+
+
+
+
+</body>
+</html>
