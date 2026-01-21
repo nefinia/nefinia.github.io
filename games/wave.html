@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wave Interference Puzzle (prototype)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body {
+    margin: 0;
+    background: #0b1020;
+    color: #eef2ff;
+    font-family: system-ui, sans-serif;
+  }
+  canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    cursor: crosshair;
+  }
+  .hint {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #aab3d6;
+    font-size: 14px;
+    opacity: 0.8;
+  }
+</style>
+</head>
+
+<body>
+<canvas id="c"></canvas>
+<div class="hint">Click to drop a rock • Waves interfere • Walls reflect</div>
+
+<script>
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+
+function resize(){
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resize);
+resize();
+
+/* ---------- parameters ---------- */
+const WAVELENGTH = 60;
+const SPEED = 120;
+const DAMPING = 0.995;
+const GRID = 4;     // spatial sampling
+const rocks = [];
+
+/* ---------- drop rocks ---------- */
+canvas.addEventListener("click", e => {
+  const r = canvas.getBoundingClientRect();
+  rocks.push({
+    x: e.clientX - r.left,
+    y: e.clientY - r.top,
+    amp: 1.0,
+    t0: performance.now() / 1000
+  });
+});
+
+/* ---------- wave evaluation ---------- */
+function field(x, y, t){
+  let v = 0;
+  for(const r of rocks){
+    const dx = x - r.x;
+    const dy = y - r.y;
+    const d  = Math.hypot(dx, dy);
+    const phase = (d / WAVELENGTH - (t - r.t0) * SPEED / WAVELENGTH);
+    v += r.amp * Math.sin(2 * Math.PI * phase) * Math.exp(-d * 0.01);
+  }
+  return v;
+}
+
+/* ---------- render ---------- */
+function draw(t){
+  t /= 1000;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  for(let y=0;y<canvas.height;y+=GRID){
+    for(let x=0;x<canvas.width;x+=GRID){
+      const v = field(x,y,t);
+      const a = Math.min(Math.abs(v),1);
+      if(v>0){
+        ctx.fillStyle = `rgba(255,80,80,${a})`;
+      }else{
+        ctx.fillStyle = `rgba(80,120,255,${a})`;
+      }
+      ctx.fillRect(x,y,GRID,GRID);
+    }
+  }
+
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>

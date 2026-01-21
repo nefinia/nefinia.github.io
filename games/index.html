@@ -181,7 +181,20 @@
       <a class="play" href="xor.html" target="_blank">Play</a>
     </div>
 
-    <!-- NEW: Maxwell Demon (second to last) -->
+    <!-- NEW: Lumen Logic -->
+    <div class="game">
+      <div class="thumbWrap">
+        <canvas id="thumb-lumen" width="96" height="96"></canvas>
+      </div>
+      <h2>Lumen Logic</h2>
+      <p class="desc">
+        Place emitters on a walled grid. Light decays by distance and adds up.
+        Match every target value exactly.
+      </p>
+      <a class="play" href="lumen_logic.html" target="_blank">Play</a>
+    </div>
+
+    <!-- Maxwell Demon -->
     <div class="game">
       <div class="thumbWrap">
         <canvas id="thumb-demon" width="96" height="96"></canvas>
@@ -191,7 +204,6 @@
         A thermodynamics thought experiment turned into a timing game.
         Open brief “windows” in a wall to separate two particle colors.
       </p>
-      <!-- change filename if yours is different -->
       <a class="play" href="maxwell.html" target="_blank">Play</a>
     </div>
 
@@ -300,7 +312,64 @@ function rint(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
   }
 })();
 
-/* NEW: Maxwell Demon preview */
+/* Lumen Logic preview */
+(function(){
+  const c = document.getElementById("thumb-lumen");
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = "#0a0f25";
+  ctx.fillRect(0,0,c.width,c.height);
+
+  const n = 7;
+  const cell = 10;
+  const pad = 8;
+
+  // faint cells
+  for(let y=0;y<n;y++){
+    for(let x=0;x<n;x++){
+      ctx.fillStyle = "rgba(232,236,255,0.10)";
+      ctx.fillRect(pad+x*cell, pad+y*cell, cell-1, cell-1);
+    }
+  }
+
+  // a few walls
+  ctx.strokeStyle = "#24315a";
+  ctx.lineWidth = 2;
+  function wall(x1,y1,x2,y2){
+    ctx.beginPath();
+    ctx.moveTo(pad+x1*cell, pad+y1*cell);
+    ctx.lineTo(pad+x2*cell, pad+y2*cell);
+    ctx.stroke();
+  }
+  wall(2,1,2,5);
+  wall(4,2,6,2);
+  wall(1,4,4,4);
+
+  // emitters
+  function emitter(x,y){
+    const cx = pad + x*cell + 4.5;
+    const cy = pad + y*cell + 4.5;
+    const g = ctx.createRadialGradient(cx,cy,0,cx,cy,16);
+    g.addColorStop(0,"rgba(255,210,122,0.75)");
+    g.addColorStop(1,"rgba(255,210,122,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(cx,cy,16,0,Math.PI*2); ctx.fill();
+
+    ctx.fillStyle = "#ffd27a";
+    ctx.beginPath(); ctx.arc(cx,cy,3.2,0,Math.PI*2); ctx.fill();
+  }
+  emitter(1,1);
+  emitter(5,5);
+
+  // targets
+  ctx.fillStyle = "rgba(122,162,255,0.95)";
+  ctx.font = "bold 10px ui-monospace, Menlo, Monaco, Consolas, monospace";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("9", pad+3*cell+4.5, pad+3*cell+4.5);
+  ctx.fillText("7", pad+5*cell+4.5, pad+2*cell+4.5);
+})();
+
+/* Maxwell Demon preview */
 (function(){
   const c = document.getElementById("thumb-demon");
   const ctx = c.getContext("2d");

@@ -1,0 +1,1014 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Discrete Emitters — Unique Sum Mazes</title>
+<style>
+  :root{
+    --bg:#0b1020;
+    --panel: rgba(14, 22, 46, 0.92);
+    --ink:#eef2ff;
+    --muted:#aab3d6;
+    --accent:#7aa2ff;
+    --ok:#7cff9b;
+    --bad:#ff6b6b;
+    --gold:#ffd27a;
+  }
+  html,body{
+    height:100%;margin:0;background:var(--bg);color:var(--ink);
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    overflow:hidden;
+  }
+  #wrap{position:fixed;inset:0;display:grid;grid-template-rows:auto 1fr;}
+  #top{
+    padding:10px 10px 8px;
+    display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+    background: linear-gradient(180deg, rgba(14,22,46,0.98), rgba(14,22,46,0.72));
+    border-bottom:1px solid rgba(255,255,255,0.10);
+    backdrop-filter: blur(10px);
+  }
+  button, select{
+    background:rgba(255,255,255,0.07);
+    color:var(--ink);
+    border:1px solid rgba(255,255,255,0.14);
+    border-radius:12px;
+    padding:10px 12px;
+    font-size:14px;
+    cursor:pointer;
+    user-select:none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:active{transform:translateY(1px);}
+  button.primary{border-color:rgba(122,162,255,0.65);}
+  select{padding:10px 10px;}
+  .pill{
+    padding:8px 12px;border-radius:999px;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.10);
+    color:rgba(220,230,255,0.92);
+    font-size:14px;
+    white-space:nowrap;
+  }
+  .pill strong{color:var(--ink);}
+  .pill.ok{border-color:rgba(124,255,155,0.6);}
+  .pill.bad{border-color:rgba(255,107,107,0.6);}
+  .pill.gold{border-color:rgba(255,210,122,0.55); color:rgba(255,235,200,0.95);}
+
+  #board{position:relative;overflow:hidden;}
+  #c{width:100%;height:100%;display:block;touch-action:none;}
+
+  #hintBar{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    padding:8px 10px 10px;
+    gap:10px;
+    background:rgba(0,0,0,0.18);
+    border-bottom:1px solid rgba(255,255,255,0.06);
+  }
+  #hintChip{
+    display:flex;align-items:center;gap:10px;
+    background:rgba(0,0,0,0.28);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:999px;
+    padding:8px 12px;
+    font-size:13px;
+    color:rgba(220,230,255,0.92);
+    max-width:min(880px, 96vw);
+  }
+  #hintChip .x{
+    border:1px solid rgba(255,255,255,0.14);
+    background:rgba(255,255,255,0.06);
+    padding:2px 8px;
+    border-radius:999px;
+    cursor:pointer;
+    user-select:none;
+  }
+
+  @media (max-width: 520px){
+    button, select{font-size:13px;padding:9px 10px;border-radius:11px;}
+    .pill{font-size:13px;padding:7px 10px;}
+  }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="top">
+    <select id="size">
+      <option value="7">7×7</option>
+      <option value="8">8×8</option>
+      <option value="9" selected>9×9</option>
+      <option value="10">10×10</option>
+      <option value="11">11×11</option>
+      <option value="12">12×12</option>
+      <option value="13">13×13</option>
+    </select>
+
+    <select id="difficulty">
+      <option value="easy">Easy</option>
+      <option value="medium" selected>Medium</option>
+      <option value="hard">Hard</option>
+      <option value="cruel">Cruel</option>
+    </select>
+
+    <button id="new" class="primary">New puzzle</button>
+    <button id="next" class="primary">Next level</button>
+    <button id="clear">Clear emitters</button>
+
+    <div class="pill gold">Level: <strong id="level">1</strong></div>
+    <div class="pill">Emitters: <strong id="used">0</strong>/<strong id="K">0</strong></div>
+    <div class="pill">Clues matched: <strong id="match">0</strong>/<strong id="cluesN">0</strong></div>
+    <div class="pill" id="status">Status: <strong>In progress</strong></div>
+  </div>
+
+  <div id="board">
+    <div id="hintBar">
+      <div id="hintChip">
+        Tap cells to place/remove emitters • Numbers are sums • Walls block spread • Match all target cells exactly • Unique solution (exactly K emitters)
+        <span class="x" id="hintX">✕</span>
+      </div>
+    </div>
+    <canvas id="c"></canvas>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   Discrete Emitters — Unique Sum Mazes (fixed + harder)
+   - Size and difficulty are separate controls
+   - Exact K emitters + UNIQUE solution enforced on Medium+
+   - Numbers always shown (current sums)
+   - Clues are target cells (badges); all must match to solve
+   - Mobile: grid always scales to fit visible canvas
+   ========================================================= */
+
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+
+const ui = {
+  size: document.getElementById("size"),
+  difficulty: document.getElementById("difficulty"),
+  newBtn: document.getElementById("new"),
+  nextBtn: document.getElementById("next"),
+  clearBtn: document.getElementById("clear"),
+  level: document.getElementById("level"),
+  used: document.getElementById("used"),
+  K: document.getElementById("K"),
+  match: document.getElementById("match"),
+  cluesN: document.getElementById("cluesN"),
+  status: document.getElementById("status"),
+  board: document.getElementById("board"),
+  hintBar: document.getElementById("hintBar"),
+  hintX: document.getElementById("hintX"),
+  hintChip: document.getElementById("hintChip"),
+};
+
+const DIFF = {
+  easy:  { enforceUnique:false, mazeEdits:0.08, clueFrac:[0.12,0.18], overlapWant:0.45, avoidExtremes:true,  allowZeroClues:false, maxAttempts:120 },
+  medium:{ enforceUnique:true,  mazeEdits:0.10, clueFrac:[0.10,0.16], overlapWant:0.70, avoidExtremes:true,  allowZeroClues:false, maxAttempts:260 },
+  hard:  { enforceUnique:true,  mazeEdits:0.12, clueFrac:[0.08,0.13], overlapWant:0.78, avoidExtremes:true,  allowZeroClues:false, maxAttempts:420 },
+  cruel: { enforceUnique:true,  mazeEdits:0.14, clueFrac:[0.06,0.10], overlapWant:0.84, avoidExtremes:true,  allowZeroClues:false, maxAttempts:650 },
+};
+
+let dpr = 1;
+let W = 0, H = 0;
+
+let cols = 9, rows = 9;
+let cell = 28, ox = 0, oy = 0, wallW = 3.2;
+
+const N=1, E=2, Sbit=4, Wbit=8;
+
+let levelIndex = 1;
+
+// Puzzle parameters
+let EMIT_STRENGTH = 8; // S
+let K = 3;
+
+let walls, emitters, field;
+let clues = [];          // {i, target}
+let solution = [];       // hidden indices for debug purposes only
+let dirty = true;
+
+function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+function randi(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
+function idx(x,y){ return y*cols + x; }
+function inb(x,y){ return x>=0 && x<cols && y>=0 && y<rows; }
+
+function ensureArrays(){
+  walls = new Uint8Array(cols*rows);
+  emitters = new Uint8Array(cols*rows);
+  field = new Int16Array(cols*rows);
+}
+
+function countEmitters(){
+  let c=0;
+  for(let i=0;i<emitters.length;i++) c += emitters[i];
+  return c;
+}
+
+function hasWall(i, dirBit){ return (walls[i] & dirBit) !== 0; }
+
+function step(i, dir){
+  const x = i % cols;
+  const y = (i / cols) | 0;
+  if(dir===N){
+    if(y===0) return -1;
+    if(hasWall(i, N)) return -1;
+    return idx(x,y-1);
+  }
+  if(dir===E){
+    if(x===cols-1) return -1;
+    if(hasWall(i, E)) return -1;
+    return idx(x+1,y);
+  }
+  if(dir===Sbit){
+    if(y===rows-1) return -1;
+    if(hasWall(i, Sbit)) return -1;
+    return idx(x,y+1);
+  }
+  if(x===0) return -1;
+  if(hasWall(i, Wbit)) return -1;
+  return idx(x-1,y);
+}
+
+/* ---------- Layout / resizing ---------- */
+function resizeCanvasToBoard(){
+  dpr = Math.min(2, window.devicePixelRatio || 1);
+
+  const br = ui.board.getBoundingClientRect();
+  const hr = ui.hintBar.getBoundingClientRect();
+  W = Math.max(1, Math.floor(br.width));
+  H = Math.max(1, Math.floor(br.height - hr.height));
+
+  canvas.style.width = W + "px";
+  canvas.style.height = H + "px";
+  canvas.width = Math.floor(W * dpr);
+  canvas.height = Math.floor(H * dpr);
+
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(dpr, dpr);
+
+  computeLayout();
+  dirty = true;
+}
+
+function computeLayout(){
+  const pad = 10;
+  const minCell = 16;
+  const maxCell = 60;
+
+  const maxCellW = (W - 2*pad) / cols;
+  const maxCellH = (H - 2*pad) / rows;
+
+  cell = Math.floor(clamp(Math.min(maxCellW, maxCellH), minCell, maxCell));
+  ox = Math.floor((W - cols*cell)/2);
+  oy = Math.floor((H - rows*cell)/2);
+
+  wallW = clamp(cell*0.13, 2.2, 5.0);
+}
+
+/* ---------- Maze generation ---------- */
+function initAllWalls(){
+  for(let i=0;i<walls.length;i++) walls[i] = N|E|Sbit|Wbit;
+}
+function carvePassage(a, b){
+  const ax = a % cols, ay = (a/cols)|0;
+  const bx = b % cols, by = (b/cols)|0;
+  if(bx===ax && by===ay-1){ walls[a] &= ~N;    walls[b] &= ~Sbit; }
+  else if(bx===ax+1 && by===ay){ walls[a] &= ~E;    walls[b] &= ~Wbit; }
+  else if(bx===ax && by===ay+1){ walls[a] &= ~Sbit; walls[b] &= ~N; }
+  else if(bx===ax-1 && by===ay){ walls[a] &= ~Wbit; walls[b] &= ~E; }
+}
+function generateMaze(mazeEditsFrac){
+  initAllWalls();
+
+  // perfect maze via DFS
+  const visited = new Uint8Array(cols*rows);
+  const stack = [];
+  const start = idx(randi(0,cols-1), randi(0,rows-1));
+  visited[start]=1;
+  stack.push(start);
+
+  while(stack.length){
+    const cur = stack[stack.length-1];
+    const x = cur % cols, y = (cur/cols)|0;
+
+    const nbrs = [];
+    if(y>0){ const n=idx(x,y-1); if(!visited[n]) nbrs.push(n); }
+    if(x<cols-1){ const e=idx(x+1,y); if(!visited[e]) nbrs.push(e); }
+    if(y<rows-1){ const s=idx(x,y+1); if(!visited[s]) nbrs.push(s); }
+    if(x>0){ const w=idx(x-1,y); if(!visited[w]) nbrs.push(w); }
+
+    if(!nbrs.length) stack.pop();
+    else{
+      const nxt = nbrs[randi(0,nbrs.length-1)];
+      carvePassage(cur, nxt);
+      visited[nxt]=1;
+      stack.push(nxt);
+    }
+  }
+
+  // chunky edits: add/remove some walls randomly (keeps corridor weirdness)
+  const edits = Math.floor(cols*rows*mazeEditsFrac);
+  for(let t=0;t<edits;t++){
+    const x=randi(1,cols-2), y=randi(1,rows-2);
+    const i=idx(x,y);
+    const dir = [N,E,Sbit,Wbit][randi(0,3)];
+    const j = step(i, dir);
+    if(j<0) continue;
+
+    if(Math.random()<0.56){
+      // add wall
+      if(dir===N){ walls[i]|=N; walls[j]|=Sbit; }
+      if(dir===E){ walls[i]|=E; walls[j]|=Wbit; }
+      if(dir===Sbit){ walls[i]|=Sbit; walls[j]|=N; }
+      if(dir===Wbit){ walls[i]|=Wbit; walls[j]|=E; }
+    }else{
+      // carve
+      carvePassage(i,j);
+    }
+  }
+
+  // enforce outer borders
+  for(let x=0;x<cols;x++){
+    walls[idx(x,0)] |= N;
+    walls[idx(x,rows-1)] |= Sbit;
+  }
+  for(let y=0;y<rows;y++){
+    walls[idx(0,y)] |= Wbit;
+    walls[idx(cols-1,y)] |= E;
+  }
+}
+
+/* ---------- Field computation (BFS per emitter) ---------- */
+function recomputeField(){
+  field.fill(0);
+  const maxD = EMIT_STRENGTH - 1;
+  const distArr = new Int16Array(cols*rows);
+
+  for(let i=0;i<emitters.length;i++){
+    if(!emitters[i]) continue;
+
+    distArr.fill(-1);
+    const q = [i];
+    distArr[i]=0;
+
+    for(let qi=0; qi<q.length; qi++){
+      const v = q[qi];
+      const d = distArr[v];
+      const add = EMIT_STRENGTH - d;
+      if(add>0) field[v] += add;
+      if(d>=maxD) continue;
+
+      const n1 = step(v, N);
+      const n2 = step(v, E);
+      const n3 = step(v, Sbit);
+      const n4 = step(v, Wbit);
+      if(n1>=0 && distArr[n1]===-1){ distArr[n1]=d+1; q.push(n1); }
+      if(n2>=0 && distArr[n2]===-1){ distArr[n2]=d+1; q.push(n2); }
+      if(n3>=0 && distArr[n3]===-1){ distArr[n3]=d+1; q.push(n3); }
+      if(n4>=0 && distArr[n4]===-1){ distArr[n4]=d+1; q.push(n4); }
+    }
+  }
+}
+
+/* ---------- Hidden solution selection (deliberately NOT max-spread only) ---------- */
+function placeHiddenSolution(){
+  emitters.fill(0);
+
+  // mix: some spread + some "not too spread" to increase overlaps
+  const chosen = [];
+  const total = cols*rows;
+
+  // pick first uniformly
+  chosen.push(randi(0,total-1));
+
+  while(chosen.length < K){
+    let best=-1, bestScore=-1;
+
+    for(let t=0;t<900;t++){
+      const i = randi(0,total-1);
+      if(chosen.includes(i)) continue;
+
+      // distances to existing
+      let dmin = 1e9, dmax = 0, dsum = 0;
+      for(const j of chosen){
+        const dx = (i%cols)-(j%cols);
+        const dy = ((i/cols)|0)-((j/cols)|0);
+        const d = Math.abs(dx)+Math.abs(dy);
+        dmin = Math.min(dmin, d);
+        dmax = Math.max(dmax, d);
+        dsum += d;
+      }
+
+      // prefer moderate distances (forces overlaps), but avoid clumping too hard
+      const target = (cols+rows)*0.33;
+      const score =
+        1.4 * (1 - Math.abs((dsum/chosen.length) - target) / (target+1)) +
+        0.6 * Math.min(dmin/3, 1) +
+        0.15 * Math.random();
+
+      if(score > bestScore){ bestScore = score; best = i; }
+    }
+
+    chosen.push(best);
+  }
+
+  for(const i of chosen) emitters[i]=1;
+  recomputeField();
+  return chosen.slice();
+}
+
+function overlapCountsForSolution(emitterPositions){
+  const maxD = EMIT_STRENGTH - 1;
+  const counts = new Uint8Array(cols*rows);
+  const distArr = new Int16Array(cols*rows);
+
+  for(const src of emitterPositions){
+    distArr.fill(-1);
+    const q = [src];
+    distArr[src]=0;
+
+    for(let qi=0; qi<q.length; qi++){
+      const v = q[qi];
+      const d = distArr[v];
+      const add = EMIT_STRENGTH - d;
+      if(add>0) counts[v] = (counts[v] + 1) | 0;
+      if(d>=maxD) continue;
+
+      const n1 = step(v, N);
+      const n2 = step(v, E);
+      const n3 = step(v, Sbit);
+      const n4 = step(v, Wbit);
+      if(n1>=0 && distArr[n1]===-1){ distArr[n1]=d+1; q.push(n1); }
+      if(n2>=0 && distArr[n2]===-1){ distArr[n2]=d+1; q.push(n2); }
+      if(n3>=0 && distArr[n3]===-1){ distArr[n3]=d+1; q.push(n3); }
+      if(n4>=0 && distArr[n4]===-1){ distArr[n4]=d+1; q.push(n4); }
+    }
+  }
+  return counts;
+}
+
+function buildClues(emitterPositions, cfg){
+  clues = [];
+
+  let globalMax = 0;
+  for(let i=0;i<field.length;i++) globalMax = Math.max(globalMax, field[i]);
+
+  const overlap = overlapCountsForSolution(emitterPositions);
+
+  const total = cols*rows;
+  const frac = (cfg.clueFrac[0] + Math.random()*(cfg.clueFrac[1]-cfg.clueFrac[0]));
+  const clueCount = clamp(Math.floor(total*frac), 6, Math.floor(total*0.22));
+  const wantOverlap = Math.floor(clueCount * cfg.overlapWant);
+
+  const cand = [];
+  for(let i=0;i<total;i++){
+    const t = field[i];
+
+    if(!cfg.allowZeroClues && t===0) continue;
+
+    // "harder": mostly overlap cells + midrange targets
+    const ov = overlap[i];
+
+    // avoid obvious giveaways
+    if(cfg.avoidExtremes){
+      if(t >= globalMax - 1) continue;
+      if(t >= EMIT_STRENGTH - 1 && t <= EMIT_STRENGTH + 1) continue;
+      if(t <= 1) continue;
+    }
+
+    const mid = 1 - Math.abs((t / (globalMax||1)) - 0.60);
+    const ovBoost = (ov>=3) ? 0.85 : (ov===2 ? 0.60 : 0.08);
+    const score = 2.2*mid + ovBoost + 0.25*Math.random();
+
+    cand.push({i, score, ov, t});
+  }
+
+  cand.sort((a,b)=>b.score-a.score);
+
+  const picked = new Set();
+  let gotOverlap = 0;
+
+  function okSpacing(i){
+    // spacing soft: only reject very close picks; allows ambiguity
+    const min = (cols<=9 ? 1 : 2);
+    for(const j of picked){
+      const dx = (i%cols)-(j%cols);
+      const dy = ((i/cols)|0)-((j/cols)|0);
+      if(Math.abs(dx)+Math.abs(dy) < min) return false;
+    }
+    return true;
+  }
+
+  // pick overlap-heavy first
+  for(const c of cand){
+    if(picked.size >= clueCount) break;
+    if(gotOverlap >= wantOverlap) break;
+    if(c.ov < 2) continue;
+    if(!okSpacing(c.i)) continue;
+    picked.add(c.i);
+    gotOverlap++;
+  }
+
+  // fill remaining
+  for(const c of cand){
+    if(picked.size >= clueCount) break;
+    if(picked.has(c.i)) continue;
+    if(!okSpacing(c.i)) continue;
+    picked.add(c.i);
+  }
+
+  // if not enough, allow some zeros (rare) or fallback any non-extreme cell
+  let guard = 0;
+  while(picked.size < clueCount && guard++ < 1200){
+    const i = randi(0,total-1);
+    if(picked.has(i)) continue;
+    if(!okSpacing(i)) continue;
+    if(cfg.avoidExtremes){
+      const t = field[i];
+      if(t===0 && !cfg.allowZeroClues) continue;
+      if(t >= globalMax - 1) continue;
+    }
+    picked.add(i);
+  }
+
+  clues = Array.from(picked).map(i => ({i, target: field[i]}));
+}
+
+/* ---------- Uniqueness solver: count solutions up to 2 ---------- */
+function precomputeContribsForClues(){
+  const C = clues.length;
+  const total = cols*rows;
+
+  const contrib = new Int8Array(total * C);
+  const maxD = EMIT_STRENGTH - 1;
+  const distArr = new Int16Array(total);
+
+  for(let src=0; src<total; src++){
+    distArr.fill(-1);
+    const q = [src];
+    distArr[src]=0;
+
+    for(let qi=0; qi<q.length; qi++){
+      const v=q[qi];
+      const d=distArr[v];
+      if(d>=maxD) continue;
+
+      const n1 = step(v, N);
+      const n2 = step(v, E);
+      const n3 = step(v, Sbit);
+      const n4 = step(v, Wbit);
+      if(n1>=0 && distArr[n1]===-1){ distArr[n1]=d+1; q.push(n1); }
+      if(n2>=0 && distArr[n2]===-1){ distArr[n2]=d+1; q.push(n2); }
+      if(n3>=0 && distArr[n3]===-1){ distArr[n3]=d+1; q.push(n3); }
+      if(n4>=0 && distArr[n4]===-1){ distArr[n4]=d+1; q.push(n4); }
+    }
+
+    for(let ci=0; ci<C; ci++){
+      const cellIdx = clues[ci].i;
+      const d = distArr[cellIdx];
+      const add = (d>=0 && d<=maxD) ? (EMIT_STRENGTH - d) : 0;
+      contrib[src*C + ci] = add;
+    }
+  }
+  return {contrib, C};
+}
+
+function countSolutionsUpTo2(){
+  const C = clues.length;
+  if(C===0) return 0;
+
+  const total = cols*rows;
+  const targets = new Int16Array(C);
+  for(let ci=0; ci<C; ci++) targets[ci] = clues[ci].target;
+
+  const {contrib} = precomputeContribsForClues();
+
+  const maxPerClue = new Int16Array(C);
+  for(let ci=0; ci<C; ci++){
+    let m = 0;
+    for(let src=0; src<total; src++) m = Math.max(m, contrib[src*C + ci]);
+    maxPerClue[ci] = m;
+  }
+
+  const candidates = [];
+  for(let src=0; src<total; src++){
+    let sum=0, nonzero=0;
+    for(let ci=0; ci<C; ci++){
+      const v = contrib[src*C + ci];
+      sum += v;
+      if(v) nonzero++;
+    }
+    if(nonzero>0) candidates.push({src, sum});
+  }
+  candidates.sort((a,b)=>b.sum-a.sum);
+
+  const used = new Uint8Array(total);
+  const cur = new Int16Array(C);
+  let solCount = 0;
+
+  function prune(depth){
+    const remain = K - depth;
+    for(let ci=0; ci<C; ci++){
+      const v = cur[ci];
+      if(v > targets[ci]) return true;
+      if(v + remain * maxPerClue[ci] < targets[ci]) return true;
+    }
+    return false;
+  }
+
+  function dfs(startIdx, depth){
+    if(solCount>=2) return;
+    if(prune(depth)) return;
+
+    if(depth === K){
+      for(let ci=0; ci<C; ci++){
+        if(cur[ci] !== targets[ci]) return;
+      }
+      solCount++;
+      return;
+    }
+
+    for(let k = startIdx; k < candidates.length; k++){
+      const src = candidates[k].src;
+      if(used[src]) continue;
+
+      used[src]=1;
+      for(let ci=0; ci<C; ci++) cur[ci] += contrib[src*C + ci];
+
+      dfs(k+1, depth+1);
+
+      for(let ci=0; ci<C; ci++) cur[ci] -= contrib[src*C + ci];
+      used[src]=0;
+
+      if(solCount>=2) return;
+    }
+  }
+
+  dfs(0, 0);
+  return solCount;
+}
+
+/* ---------- Generator ---------- */
+function deriveParamsFromSizeAndDifficulty(size, diffKey){
+  // size: 7..13; difficulty bumps strength and K, but not monotonically by size
+  const d = DIFF[diffKey];
+
+  // Strength: larger grids need slightly more reach; difficulty adds reach too
+  const baseS = 5 + Math.floor((size-7)*0.6);
+  const diffBoost = diffKey==="easy" ? 0 : diffKey==="medium" ? 1 : diffKey==="hard" ? 2 : 3;
+  EMIT_STRENGTH = clamp(baseS + diffBoost + randi(0,1), 5, 10);
+
+  // K: scale with size, but not too large (solver cost)
+  const baseK = 2 + Math.floor((size-7)*0.45);
+  const kBoost = diffKey==="easy" ? 0 : diffKey==="medium" ? 1 : diffKey==="hard" ? 1 : 2;
+  K = clamp(baseK + kBoost + (Math.random()<0.35?1:0), 2, Math.min(6, Math.floor(size*0.55)));
+
+  // Keep K solvable with constraints
+  if(size>=12 && diffKey==="cruel") K = clamp(K, 4, 6);
+}
+
+function generatePuzzle(){
+  const size = parseInt(ui.size.value, 10);
+  const diffKey = ui.difficulty.value;
+  const cfg = DIFF[diffKey];
+
+  cols = size; rows = size;
+  ensureArrays();
+  computeLayout();
+
+  deriveParamsFromSizeAndDifficulty(size, diffKey);
+
+  let accepted = false;
+  let tries = 0;
+
+  while(!accepted && tries++ < cfg.maxAttempts){
+    generateMaze(cfg.mazeEdits);
+
+    solution = placeHiddenSolution();
+    buildClues(solution, cfg);
+
+    if(cfg.enforceUnique){
+      const sol = countSolutionsUpTo2();
+      if(sol === 1) accepted = true;
+    }else{
+      accepted = true;
+    }
+  }
+
+  // fallback: if uniqueness couldn't be found, relax clue selection slightly but still playable
+  if(!accepted){
+    const relaxed = {...cfg, enforceUnique:false, avoidExtremes:false};
+    generateMaze(cfg.mazeEdits);
+    solution = placeHiddenSolution();
+    buildClues(solution, relaxed);
+  }
+
+  emitters.fill(0);
+  recomputeField();
+
+  ui.K.textContent = String(K);
+  ui.cluesN.textContent = String(clues.length);
+  dirty = true;
+}
+
+/* ---------- Drawing ---------- */
+function cellRect(i){
+  const x = i % cols;
+  const y = (i / cols) | 0;
+  return {
+    x: ox + x*cell,
+    y: oy + y*cell,
+    w: cell, h: cell,
+    cx: ox + x*cell + cell/2,
+    cy: oy + y*cell + cell/2
+  };
+}
+
+function drawBackground(){
+  ctx.fillStyle = "#0b1020";
+  ctx.fillRect(0,0,W,H);
+
+  ctx.save();
+  ctx.globalAlpha = 0.08;
+  for(let i=0;i<90;i++){
+    const x = (Math.sin(i*999.13)+1)*0.5*W;
+    const y = (Math.sin(i*333.71)+1)*0.5*H;
+    ctx.fillStyle = "rgba(255,255,255,0.7)";
+    ctx.fillRect(x, y, 1.2, 1.2);
+  }
+  ctx.restore();
+
+  const g = ctx.createRadialGradient(W*0.5,H*0.55, Math.min(W,H)*0.15, W*0.5,H*0.55, Math.max(W,H)*0.85);
+  g.addColorStop(0, "rgba(0,0,0,0)");
+  g.addColorStop(1, "rgba(0,0,0,0.45)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,W,H);
+}
+
+function drawGridAndNumbers(){
+  let maxV = 0;
+  for(let i=0;i<field.length;i++) maxV = Math.max(maxV, field[i]);
+
+  for(let i=0;i<cols*rows;i++){
+    const r = cellRect(i);
+    const v = field[i];
+
+    const t = maxV ? (v/maxV) : 0;
+    const a = 0.10 + 0.22 * t;
+
+    ctx.fillStyle = "rgba(255,255,255,0.03)";
+    ctx.fillRect(r.x, r.y, r.w, r.h);
+
+    ctx.fillStyle = `rgba(122,162,255,${a})`;
+    ctx.fillRect(r.x, r.y, r.w, r.h);
+
+    ctx.strokeStyle = "rgba(255,255,255,0.06)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(r.x+0.5, r.y+0.5, r.w-1, r.h-1);
+
+    ctx.fillStyle = "rgba(230,238,255,0.78)";
+    ctx.font = `${Math.max(10, Math.floor(cell*0.32))}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(String(v), r.cx, r.cy + cell*0.10);
+  }
+}
+
+function roundRect(ctx, x, y, w, h, r){
+  r = Math.min(r, w/2, h/2);
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y, x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r);
+  ctx.arcTo(x, y, x+w, y, r);
+  ctx.closePath();
+}
+
+function drawCluesAndEmitters(){
+  let matched = 0;
+
+  for(const c of clues){
+    if(field[c.i] === c.target) matched++;
+  }
+
+  for(const c of clues){
+    const r = cellRect(c.i);
+    const ok = field[c.i] === c.target;
+    const tooHigh = field[c.i] > c.target;
+
+    ctx.save();
+    ctx.translate(r.x, r.y);
+    const pad = Math.max(3, Math.floor(cell*0.10));
+    const bw = Math.floor(cell*0.62);
+    const bh = Math.floor(cell*0.44);
+
+    ctx.fillStyle = ok ? "rgba(124,255,155,0.22)" : (tooHigh ? "rgba(255,107,107,0.18)" : "rgba(122,162,255,0.14)");
+    ctx.strokeStyle = ok ? "rgba(124,255,155,0.65)" : (tooHigh ? "rgba(255,107,107,0.60)" : "rgba(122,162,255,0.50)");
+    ctx.lineWidth = 2;
+
+    roundRect(ctx, pad, pad, bw, bh, Math.max(6, Math.floor(cell*0.14)));
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(240,245,255,0.95)";
+    ctx.font = `${Math.max(12, Math.floor(cell*0.36))}px system-ui`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(String(c.target), pad + bw/2, pad + bh/2);
+    ctx.restore();
+  }
+
+  for(let i=0;i<emitters.length;i++){
+    if(!emitters[i]) continue;
+    const r = cellRect(i);
+
+    const grad = ctx.createRadialGradient(r.cx, r.cy, 0, r.cx, r.cy, cell*0.85);
+    grad.addColorStop(0, "rgba(255,235,200,0.60)");
+    grad.addColorStop(1, "rgba(255,210,122,0)");
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(r.cx, r.cy, cell*0.85, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = "rgba(255,235,200,0.95)";
+    ctx.strokeStyle = "rgba(255,210,122,0.75)";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(r.cx, r.cy, Math.max(7, cell*0.22), 0, Math.PI*2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(10,16,36,0.85)";
+    ctx.font = `${Math.max(11, Math.floor(cell*0.34))}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(String(EMIT_STRENGTH), r.cx, r.cy);
+  }
+
+  return matched;
+}
+
+function drawWalls(){
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  for(let i=0;i<cols*rows;i++){
+    const x = i % cols;
+    const y = (i / cols) | 0;
+    const px = ox + x*cell;
+    const py = oy + y*cell;
+
+    ctx.strokeStyle = "rgba(255,255,255,0.78)";
+    ctx.lineWidth = wallW;
+
+    if(hasWall(i, N)){
+      ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + cell, py); ctx.stroke();
+    }
+    if(hasWall(i, E)){
+      ctx.beginPath(); ctx.moveTo(px + cell, py); ctx.lineTo(px + cell, py + cell); ctx.stroke();
+    }
+    if(hasWall(i, Sbit)){
+      ctx.beginPath(); ctx.moveTo(px, py + cell); ctx.lineTo(px + cell, py + cell); ctx.stroke();
+    }
+    if(hasWall(i, Wbit)){
+      ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px, py + cell); ctx.stroke();
+    }
+  }
+
+  ctx.globalAlpha = 0.18;
+  ctx.strokeStyle = "rgba(122,162,255,1)";
+  ctx.lineWidth = Math.max(1.5, wallW*0.35);
+  for(let i=0;i<cols*rows;i++){
+    const x = i % cols;
+    const y = (i / cols) | 0;
+    const px = ox + x*cell;
+    const py = oy + y*cell;
+    if(hasWall(i, N)){ ctx.beginPath(); ctx.moveTo(px, py+1); ctx.lineTo(px + cell, py+1); ctx.stroke(); }
+    if(hasWall(i, E)){ ctx.beginPath(); ctx.moveTo(px + cell-1, py); ctx.lineTo(px + cell-1, py + cell); ctx.stroke(); }
+    if(hasWall(i, Sbit)){ ctx.beginPath(); ctx.moveTo(px, py + cell-1); ctx.lineTo(px + cell, py + cell-1); ctx.stroke(); }
+    if(hasWall(i, Wbit)){ ctx.beginPath(); ctx.moveTo(px+1, py); ctx.lineTo(px+1, py + cell); ctx.stroke(); }
+  }
+
+  ctx.restore();
+}
+
+/* ---------- HUD ---------- */
+function updateHUD(matched){
+  ui.level.textContent = String(levelIndex);
+  ui.K.textContent = String(K);
+
+  const used = countEmitters();
+  ui.used.textContent = String(used);
+
+  ui.cluesN.textContent = String(clues.length);
+  ui.match.textContent = String(matched);
+
+  const allMatch = (matched === clues.length);
+  const allPlaced = (used === K);
+
+  const st = ui.status;
+  st.classList.remove("pill","ok","bad");
+  st.classList.add("pill");
+
+  if(allMatch && allPlaced){
+    st.classList.add("ok");
+    st.innerHTML = `Status: <strong>Solved</strong>`;
+  }else{
+    st.classList.add("bad");
+    st.innerHTML = `Status: <strong>In progress</strong>`;
+  }
+}
+
+/* ---------- Interaction ---------- */
+function canvasToCell(x,y){
+  if(x < ox || y < oy || x >= ox + cols*cell || y >= oy + rows*cell) return -1;
+  const gx = Math.floor((x - ox) / cell);
+  const gy = Math.floor((y - oy) / cell);
+  if(!inb(gx,gy)) return -1;
+  return idx(gx,gy);
+}
+
+function toggleEmitter(i){
+  const used = countEmitters();
+  if(emitters[i]){
+    emitters[i] = 0;
+  }else{
+    if(used >= K) return;
+    emitters[i] = 1;
+  }
+  recomputeField();
+  dirty = true;
+}
+
+canvas.addEventListener("pointerdown", (e)=>{
+  const r = canvas.getBoundingClientRect();
+  const x = e.clientX - r.left;
+  const y = e.clientY - r.top;
+  const i = canvasToCell(x,y);
+  if(i >= 0) toggleEmitter(i);
+});
+
+/* ---------- Buttons ---------- */
+ui.hintX.addEventListener("click", ()=>{
+  ui.hintChip.style.display = "none";
+  resizeCanvasToBoard();
+});
+
+ui.clearBtn.addEventListener("click", ()=>{
+  emitters.fill(0);
+  recomputeField();
+  dirty = true;
+});
+
+ui.newBtn.addEventListener("click", ()=>{
+  levelIndex = 1;
+  generatePuzzle();
+});
+
+ui.nextBtn.addEventListener("click", ()=>{
+  levelIndex++;
+  generatePuzzle();
+});
+
+ui.difficulty.addEventListener("change", ()=>{
+  levelIndex = 1;
+  generatePuzzle();
+});
+
+ui.size.addEventListener("change", ()=>{
+  levelIndex = 1;
+  generatePuzzle();
+});
+
+/* ---------- Main loop ---------- */
+function draw(){
+  drawBackground();
+  drawGridAndNumbers();
+  const matched = drawCluesAndEmitters();
+  drawWalls();
+  updateHUD(matched);
+}
+
+function tick(){
+  if(dirty){
+    draw();
+    dirty = false;
+  }
+  requestAnimationFrame(tick);
+}
+
+/* ---------- Init ---------- */
+window.addEventListener("resize", resizeCanvasToBoard);
+resizeCanvasToBoard();
+generatePuzzle();
+recomputeField();
+dirty = true;
+tick();
+</script>
+</body>
+</html>
