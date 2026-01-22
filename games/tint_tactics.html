@@ -7,9 +7,9 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-20EEFX7Q6N');
 </script>
+
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Tint Tactics</title>
@@ -20,35 +20,43 @@
     --cell: 56px;
     --gap: 2px;
 
-    /* Board (soft, neutral) */
-    --sq-light: #f6f6f4;
-    --sq-dark:  #e3e4e6;
-    --grid-bg:  #2f2f31;
+    /* Board (more chess-like contrast, neutral frame) */
+    --sq-light: #f3f4f6;
+    --sq-dark:  #b7c0cc;
+    --grid-bg:  #1f232b;
 
-    /* Territory as inner border (no fill) */
-    --own-blue: rgba(26, 95, 196, 0.85);
-    --own-red:  rgba(176, 35, 55, 0.85);
-    --own-w:    6px;         /* thickness */
-    --own-r:    10px;        /* corner radius of mark */
+    /* Territory overlay (subtle) */
+    --own-blue: rgba(11, 61, 145, 0.4);
+    --own-red:  rgba(127, 16, 37, 0.4);
 
-    /* Pieces (darker, filled glyphs) */
-    --blue: #1a5fc4;
-    --red:  #b02337;
+    /* Pieces (darker tones) */
+    --blue: #0b3d91;
+    --red:  #7f1025;
 
     /* UI */
-    --frame: #202124;
+    --frame: #1f232b;
     --panel: #ffffff;
     --panelBorder: rgba(0,0,0,0.12);
     --shadow: 0 10px 30px rgba(0,0,0,0.10);
     --radius: 14px;
 
     /* Turn accent */
-    --turn-blue: rgba(26, 95, 196, 0.35);
-    --turn-red:  rgba(176, 35, 55, 0.35);
+    --turn-blue: rgba(11, 61, 145, 0.18);
+    --turn-red:  rgba(127, 16, 37, 0.18);
 
     /* Motion */
     --t-move: 140ms;
     --t-claim: 180ms;
+
+    /* Outlines (selection + hints) */
+    --olw: 3px; /* outline width */
+    --sel-ol: rgba(0,0,0,0.55);
+    /* darker borders for allowed cells when a piece is selected */
+    --hint-ol: rgba(0,0,0,0.34);
+    --hintcap-ol: rgba(0,0,0,0.38);
+
+    --bot-from-ol: rgba(127,16,37,0.62);
+    --bot-to-ol: rgba(127,16,37,0.30);
   }
 
   body{
@@ -128,17 +136,17 @@
     display:inline-block;
     border:2px solid var(--frame);
     background:var(--grid-bg);
-    padding:2px;
+    padding:3px;
     box-sizing:content-box;
-    border-radius: 16px;
+    border-radius: 12px;
     box-shadow: var(--shadow);
     transition: box-shadow 180ms ease, border-color 180ms ease;
   }
   #board.turnBlue{
-    box-shadow: 0 0 0 5px var(--turn-blue), var(--shadow);
+    box-shadow: 0 0 0 4px var(--turn-blue), var(--shadow);
   }
   #board.turnRed{
-    box-shadow: 0 0 0 5px var(--turn-red), var(--shadow);
+    box-shadow: 0 0 0 4px var(--turn-red), var(--shadow);
   }
 
   #grid{
@@ -147,7 +155,7 @@
     grid-template-rows: repeat(var(--n), var(--cell));
     gap: var(--gap);
     background:var(--grid-bg);
-    border-radius: 14px;
+    border-radius: 10px;
     overflow:hidden;
   }
 
@@ -167,57 +175,48 @@
     background: var(--sq-light);
     font-family: "Apple Color Emoji","Segoe UI Symbol", system-ui, sans-serif;
     transition: transform 90ms ease;
+    border-radius: 8px;
+    overflow: hidden;
   }
   .cell.parity1{ background: var(--sq-dark); }
   .cell:active{ transform: scale(0.99); }
 
-  /* Territory mark: inner border via ::after (no fill) */
+  /* Territory mark: full-cell translucent overlay */
   .cell::after{
     content:"";
     position:absolute;
-    inset: 7px;                 /* inner margin */
-    border-radius: var(--own-r);
-    border: var(--own-w) solid transparent;
+    inset: 0;
     pointer-events:none;
-    opacity:0;
-    transform: scale(0.96);
-    transition: opacity var(--t-claim) ease, transform var(--t-claim) ease;
+    opacity: 0;
+    transition: opacity var(--t-claim) ease;
   }
-  .cell.c1::after{
-    border-color: var(--own-blue);
-    opacity: 1;
-    transform: scale(1);
-  }
-  .cell.c2::after{
-    border-color: var(--own-red);
-    opacity: 1;
-    transform: scale(1);
-  }
+  .cell.c1::after{ background: var(--own-blue); opacity: 1; }
+  .cell.c2::after{ background: var(--own-red);  opacity: 1; }
 
-  /* Selection + move hints (cleaner) */
+  /* Selection + move hints */
   .sel{
-    outline: 3px solid rgba(0,0,0,0.50);
-    outline-offset: -3px;
+    outline: var(--olw) solid var(--sel-ol);
+    outline-offset: calc(-1 * var(--olw));
   }
   .hint{
-    outline: 3px solid rgba(0,0,0,0.15);
-    outline-offset: -3px;
+    outline: var(--olw) solid var(--hint-ol);
+    outline-offset: calc(-1 * var(--olw));
   }
   .hintCapture{
-    outline: 3px solid rgba(0,0,0,0.15);
-    outline-offset: -3px;
-    box-shadow: inset 0 0 0 999px rgba(0,0,0,0.05);
+    outline: var(--olw) solid var(--hintcap-ol);
+    outline-offset: calc(-1 * var(--olw));
+    box-shadow: inset 0 0 0 999px rgba(0,0,0,0.06);
   }
 
   /* Bot animation cues */
   .botFrom{
-    outline: 3px solid rgba(176,35,55,0.55);
-    outline-offset:-3px;
+    outline: var(--olw) solid var(--bot-from-ol);
+    outline-offset: calc(-1 * var(--olw));
   }
   .botTo{
-    outline: 3px solid rgba(176,35,55,0.25);
-    outline-offset:-3px;
-    box-shadow: inset 0 0 0 999px rgba(176,35,55,0.06);
+    outline: var(--olw) solid var(--bot-to-ol);
+    outline-offset: calc(-1 * var(--olw));
+    box-shadow: inset 0 0 0 999px rgba(127,16,37,0.06);
   }
 
   /* Pieces */
@@ -232,8 +231,8 @@
   .pieceRed { color: var(--red); }
 
   /* subtle "your turn" glow on your pieces (only in bot mode) */
-  .youTurnBlue .pieceBlue{ filter: drop-shadow(0 0 6px rgba(26,95,196,0.20)); }
-  .youTurnRed  .pieceRed { filter: drop-shadow(0 0 6px rgba(176,35,55,0.20)); }
+  .youTurnBlue .pieceBlue{ filter: drop-shadow(0 0 6px rgba(11,61,145,0.18)); }
+  .youTurnRed  .pieceRed { filter: drop-shadow(0 0 6px rgba(127,16,37,0.18)); }
 
   .disabled{
     opacity:0.72;
@@ -264,8 +263,8 @@
     border:1px solid rgba(0,0,0,0.18);
     background: rgba(0,0,0,0.05);
   }
-  .dot1{ box-shadow: inset 0 0 0 4px var(--own-blue); background:transparent; }
-  .dot2{ box-shadow: inset 0 0 0 4px var(--own-red);  background:transparent; }
+  .dot1{ box-shadow: inset 0 0 0 4px rgba(11,61,145,0.35); background:transparent; }
+  .dot2{ box-shadow: inset 0 0 0 4px rgba(127,16,37,0.35);  background:transparent; }
 
   .smallNote{ font-size:12px; color:#555; margin-top:6px; }
   option{ font-family: "Apple Color Emoji", "Segoe UI Symbol", system-ui, sans-serif; }
@@ -282,7 +281,6 @@
     padding: 18px;
   }
   #overlay.show{ display:flex; }
-  #overlay.show ~ * { } /* noop */
 
   #modal{
     width:min(92vw, 520px);
@@ -308,11 +306,11 @@
   }
   #winnerBanner.blue{
     color: var(--blue);
-    background: rgba(26,95,196,0.10);
+    background: rgba(11,61,145,0.10);
   }
   #winnerBanner.red{
     color: var(--red);
-    background: rgba(176,35,55,0.10);
+    background: rgba(127,16,37,0.10);
   }
   #winnerBanner.draw{
     color: #222;
@@ -335,6 +333,14 @@
   /* Better “game over” feel: dim board under overlay */
   body.gameOver #board{
     filter: grayscale(0.10) brightness(0.96);
+  }
+
+  /* Mobile: reduce outline thickness + slightly tighter rounding */
+  @media (max-width: 520px){
+    :root{ --olw: 2px; }
+    #board{ padding:2px; border-radius: 10px; }
+    #grid{ border-radius: 8px; }
+    .cell{ border-radius: 7px; }
   }
 </style>
 </head>
@@ -596,13 +602,11 @@ function setBoardTurnAccent(){
   if (state.current===BLUE) boardEl.classList.add("turnBlue");
   if (state.current===RED)  boardEl.classList.add("turnRed");
 
-  // subtle glow on your pieces when it's your turn (bot mode)
   document.body.classList.remove("youTurnBlue","youTurnRed");
   if (state.mode==="bot" && state.current===state.userColor){
     document.body.classList.add(state.userColor===BLUE ? "youTurnBlue" : "youTurnRed");
   }
 }
-
 function setTurnUI(){
   turnTextEl.innerHTML = cssColorName(state.current);
   turnsLeftEl.textContent = state.turnsLeft[state.current];
@@ -889,11 +893,7 @@ function generateStrictFairStart(maxTries){
   return false;
 }
 
-/* respawn fairness:
-   Tier A: respawned piece has no immediate captures AND is not attacked by opponent.
-   Tier B: no immediate captures.
-   Tier C: any empty square.
-*/
+/* respawn fairness */
 function canRespawnedPieceCaptureImmediately(type, owner, x, y){
   const temp = {id:"tmp", owner, type, x, y};
   return legalMovesFor(temp).some(m => m.capture);
@@ -1065,7 +1065,7 @@ function onCellClick(x,y){
   clearMarks();
   const captured = legal.capture ? getPieceAt(x,y) : null;
 
-  // execute
+  /* execute move */
   piece.x = x; piece.y = y;
   claimCell(x,y, piece.owner);
 
@@ -1243,7 +1243,7 @@ function newGame(){
     for (const p of state.pieces) claimCell(p.x, p.y, p.owner);
     updateSetNote("⚠️ Could not guarantee a fully fair start for this board/piece count.");
   } else {
-    updateSetNote("Fair start: no immediate captures. Territory is marked by inner borders.");
+    updateSetNote("Fair start: no immediate captures. Territory is shown by subtle tint.");
   }
 
   refreshAllTerritory();

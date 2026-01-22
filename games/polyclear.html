@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PolyClear Duel — Match (Rounds) + 3×3 Delineated</title>
+<style>
+  :root{
+    --bg:#0b1020;
+    --panel:#121a33;
+    --border:rgba(255,255,255,.10);
+    --text:#eef2ff;
+    --muted:#aab3d6;
+    --p1:#ff5a7a;
+    --p2:#4dd3ff;
+    --empty:#1a2446;
+    --grid:#20305a;
+    --gridBold:#3b4c8a;
+    --shadow: 0 12px 30px rgba(0,0,0,.35);
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    padding:16px;
+    background:radial-gradient(900px 600px at 20% 0%, #18265a 0%, var(--bg) 55%);
+    color:var(--text);
+    font-family:system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Noto Sans", sans-serif;
+    display:flex;
+    justify-content:center;
+  }
+  .wrap{
+    width:min(980px, 100%);
+    display:grid;
+    grid-template-columns: 1fr 300px;
+    gap:14px;
+    align-items:start;
+  }
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+    border:1px solid var(--border);
+    border-radius:18px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .hd{
+    padding:14px 14px 10px;
+    border-bottom:1px solid rgba(255,255,255,.08);
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    align-items:flex-start;
+  }
+  .title{ font-weight:800; font-size:16px; letter-spacing:.2px; }
+  .sub{ margin-top:2px; font-size:12px; color:var(--muted); line-height:1.3; }
+  .body{ padding:14px; }
+  canvas{ display:block; width:100%; height:auto; }
+  .side .body{ display:flex; flex-direction:column; gap:12px; }
+  .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  button, select{
+    background:rgba(255,255,255,.06);
+    color:var(--text);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:12px;
+    padding:9px 10px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  button:hover{ background:rgba(255,255,255,.10); }
+  button:disabled{ opacity:.5; cursor:not-allowed; }
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:7px 10px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(0,0,0,.18);
+    font-size:12px;
+    color:var(--muted);
+    white-space:nowrap;
+  }
+  .dot{
+    width:10px; height:10px; border-radius:50%;
+    background:var(--empty);
+    border:1px solid rgba(255,255,255,.15);
+  }
+  .dot.p1{ background:var(--p1); }
+  .dot.p2{ background:var(--p2); }
+  .kv{
+    display:grid;
+    grid-template-columns: 1fr auto;
+    gap:8px 10px;
+    font-size:13px;
+    color:var(--muted);
+  }
+  .kv b{ color:var(--text); }
+  .scoreBox{
+    padding:10px 12px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,.10);
+    background:rgba(0,0,0,.18);
+  }
+  .scoreLine{
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-size:13px; color:var(--muted);
+    margin-top:6px;
+  }
+  .scoreLine:first-child{ margin-top:0; }
+  .scoreLine b{ color:var(--text); font-size:18px; }
+  .banner{
+    padding:10px 12px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,.10);
+    background:rgba(255,255,255,.04);
+    font-weight:800;
+    line-height:1.25;
+  }
+  .banner.p1{ border-color: rgba(255,90,122,.45); }
+  .banner.p2{ border-color: rgba(77,211,255,.45); }
+  .banner.tie{ border-color: rgba(255,255,255,.18); }
+  .hint{
+    font-size:12px;
+    color:var(--muted);
+    line-height:1.35;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="card">
+    <div class="hd">
+      <div>
+        <div class="title">PolyClear Duel — Match Mode</div>
+        <div class="sub">
+          9×9 board with bold 3×3 mini-grids. Turns draw from a shared random bag.
+          You can overwrite enemy cells, but cannot place on your own cells.
+          Score only from clearing: rows, columns, and 3×3 mini-grids.
+        </div>
+      </div>
+      <div class="row">
+        <span class="pill" id="roundPill">Round 1 / 3</span>
+        <span class="pill" id="turnPill"><span class="dot p1"></span> P1 turn</span>
+      </div>
+    </div>
+    <div class="body">
+      <canvas id="board" width="720" height="720"></canvas>
+      <div class="hint" style="margin-top:10px;">
+        Click to place. No rotation controls: each drawn piece comes with a random locked rotation.
+      </div>
+    </div>
+  </div>
+
+  <div class="card side">
+    <div class="hd">
+      <div>
+        <div class="title">Match Controls</div>
+        <div class="sub">Play several rounds; match winner decided at the end.</div>
+      </div>
+    </div>
+    <div class="body">
+
+      <div class="row">
+        <button id="newMatchBtn">New match</button>
+        <button id="nextRoundBtn" disabled>Next round</button>
+      </div>
+
+      <div class="kv">
+        <div>Rounds (match length)</div>
+        <div>
+          <select id="roundsSel">
+            <option>3</option>
+            <option>5</option>
+            <option>7</option>
+          </select>
+        </div>
+
+        <div>Bags per round</div>
+        <div>
+          <select id="bagsSel">
+            <option>2</option>
+            <option selected>3</option>
+            <option>4</option>
+            <option>5</option>
+          </select>
+        </div>
+
+        <div>Mode</div>
+        <div>
+          <select id="modeSel">
+            <option value="pvp" selected>PvP (local)</option>
+            <option value="bot">P1 vs Bot</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="scoreBox">
+        <div class="pill" style="margin-bottom:10px;">Match totals</div>
+        <div class="scoreLine"><span><span class="dot p1"></span> Player 1</span><b id="matchP1">0</b></div>
+        <div class="scoreLine"><span><span class="dot p2"></span> Player 2</span><b id="matchP2">0</b></div>
+      </div>
+
+      <div class="scoreBox">
+        <div class="pill" style="margin-bottom:10px;">Round score (this round)</div>
+        <div class="scoreLine"><span><span class="dot p1"></span> Player 1</span><b id="roundP1">0</b></div>
+        <div class="scoreLine"><span><span class="dot p2"></span> Player 2</span><b id="roundP2">0</b></div>
+      </div>
+
+      <div class="scoreBox">
+        <div class="pill" style="margin-bottom:10px;">Current piece</div>
+        <canvas id="piece" width="260" height="180"></canvas>
+      </div>
+
+      <div id="banner" class="banner" style="display:none;"></div>
+
+      <div class="hint">
+        Scoring:
+        <ul style="margin:6px 0 0 18px; padding:0;">
+          <li>Clear a full <b>row</b>: +9</li>
+          <li>Clear a full <b>column</b>: +9</li>
+          <li>Clear a full <b>3×3 mini-grid</b>: +9</li>
+          <li>If multiple clears happen from one move, points stack.</li>
+        </ul>
+        Round ends when the shared bag is empty (or if a piece draw yields no legal placement, it’s discarded and play continues).
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+(() => {
+  // ====== Constants ======
+  const SIZE = 9;
+  const EMPTY = 0, P1 = 1, P2 = 2;
+
+  const COLORS = {
+    [EMPTY]: css('--empty'),
+    [P1]: css('--p1'),
+    [P2]: css('--p2'),
+    grid: css('--grid'),
+    gridBold: css('--gridBold'),
+    panel: css('--panel'),
+  };
+
+  // Tetrominoes (4 cells each)
+  const SHAPES = [
+    { name:'I', cells:[[0,0],[1,0],[2,0],[3,0]] },
+    { name:'O', cells:[[0,0],[1,0],[0,1],[1,1]] },
+    { name:'T', cells:[[0,0],[1,0],[2,0],[1,1]] },
+    { name:'Z', cells:[[0,0],[1,0],[1,1],[2,1]] },
+    { name:'S', cells:[[1,0],[2,0],[0,1],[1,1]] },
+    { name:'J', cells:[[0,0],[0,1],[1,1],[2,1]] },
+    { name:'L', cells:[[2,0],[0,1],[1,1],[2,1]] },
+  ];
+
+  // ====== DOM ======
+  const boardCv = document.getElementById('board');
+  const boardCtx = boardCv.getContext('2d');
+  const pieceCv = document.getElementById('piece');
+  const pieceCtx = pieceCv.getContext('2d');
+
+  const newMatchBtn = document.getElementById('newMatchBtn');
+  const nextRoundBtn = document.getElementById('nextRoundBtn');
+
+  const roundsSel = document.getElementById('roundsSel');
+  const bagsSel = document.getElementById('bagsSel');
+  const modeSel = document.getElementById('modeSel');
+
+  const matchP1El = document.getElementById('matchP1');
+  const matchP2El = document.getElementById('matchP2');
+  const roundP1El = document.getElementById('roundP1');
+  const roundP2El = document.getElementById('roundP2');
+
+  const roundPill = document.getElementById('roundPill');
+  const turnPill = document.getElementById('turnPill');
+  const banner = document.getElementById('banner');
+
+  // ====== State ======
+  let mode = 'pvp';
+
+  let matchRounds = 3;
+  let bagsPerRound = 3;
+
+  let roundIndex = 0; // 0-based
+  let matchTotals = { [P1]:0, [P2]:0 };
+
+  let board = null; // 2D array
+  let bag = [];     // queue of pieces
+  let currentPiece = null; // {name, baseCells, rot}
+  let player = P1;
+  let roundScore = { [P1]:0, [P2]:0 };
+
+  let hover = null;     // {x,y} anchor
+  let roundEnded = false;
+  let matchEnded = false;
+
+  // ====== Utilities ======
+  function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+  function shuffle(a){
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function cloneCells(cells){ return cells.map(([x,y])=>[x,y]); }
+
+  function normalize(cells){
+    const minX = Math.min(...cells.map(c=>c[0]));
+    const minY = Math.min(...cells.map(c=>c[1]));
+    return cells.map(([x,y])=>[x-minX,y-minY]);
+  }
+
+  function rotate90(cells){
+    // rotate clockwise around origin then normalize
+    const maxX = Math.max(...cells.map(c=>c[0]));
+    const out = cells.map(([x,y])=>[y, maxX - x]);
+    return normalize(out);
+  }
+
+  function rotate(cells, r){
+    let out = normalize(cloneCells(cells));
+    for(let i=0;i<r;i++) out = rotate90(out);
+    return out;
+  }
+
+  function idx(x,y){ return y*SIZE + x; }
+
+  // ====== Bag / Piece ======
+  function makeRoundBag(bagsCount){
+    // each "bag" = 7 tetrominoes, each with random locked rotation
+    let pieces = [];
+    for(let b=0;b<bagsCount;b++){
+      const oneBag = SHAPES.map(s => ({
+        name: s.name,
+        base: cloneCells(s.cells),
+        rot: Math.floor(Math.random()*4) // locked
+      }));
+      shuffle(oneBag);
+      pieces = pieces.concat(oneBag);
+    }
+    // shared queue: pop from end (fast)
+    return pieces;
+  }
+
+  function drawNextPiece(){
+    if (bag.length === 0){
+      currentPiece = null;
+      return;
+    }
+    currentPiece = bag.pop();
+  }
+
+  function pieceCells(){
+    return rotate(currentPiece.base, currentPiece.rot);
+  }
+
+  // ====== Rules ======
+  function inBounds(x,y){ return x>=0 && y>=0 && x<SIZE && y<SIZE; }
+
+  function legalAt(anchorX, anchorY, p){
+    const cells = pieceCells();
+    for(const [dx,dy] of cells){
+      const x = anchorX + dx, y = anchorY + dy;
+      if (!inBounds(x,y)) return false;
+      if (board[y][x] === p) return false; // cannot place on own
+    }
+    return true; // can overwrite enemy or empty
+  }
+
+  function anyLegalMoveForCurrent(p){
+    if (!currentPiece) return false;
+    for(let y=0;y<SIZE;y++){
+      for(let x=0;x<SIZE;x++){
+        if (legalAt(x,y,p)) return true;
+      }
+    }
+    return false;
+  }
+
+  function applyPlacement(anchorX, anchorY, p){
+    const cells = pieceCells();
+    for(const [dx,dy] of cells){
+      const x = anchorX + dx, y = anchorY + dy;
+      board[y][x] = p; // overwrite allowed
+    }
+  }
+
+  function cellsToClearForPlayer(p){
+    const toClear = new Set();
+
+    // Full rows
+    for(let y=0;y<SIZE;y++){
+      let ok = true;
+      for(let x=0;x<SIZE;x++){
+        if (board[y][x] !== p){ ok = false; break; }
+      }
+      if (ok){
+        for(let x=0;x<SIZE;x++) toClear.add(idx(x,y));
+      }
+    }
+
+    // Full cols
+    for(let x=0;x<SIZE;x++){
+      let ok = true;
+      for(let y=0;y<SIZE;y++){
+        if (board[y][x] !== p){ ok = false; break; }
+      }
+      if (ok){
+        for(let y=0;y<SIZE;y++) toClear.add(idx(x,y));
+      }
+    }
+
+    // Full 3×3 mini-grids (delineated)
+    for(let gy=0; gy<3; gy++){
+      for(let gx=0; gx<3; gx++){
+        let ok = true;
+        for(let y=0;y<3;y++){
+          for(let x=0;x<3;x++){
+            if (board[gy*3 + y][gx*3 + x] !== p){ ok = false; break; }
+          }
+          if (!ok) break;
+        }
+        if (ok){
+          for(let y=0;y<3;y++){
+            for(let x=0;x<3;x++){
+              toClear.add(idx(gx*3 + x, gy*3 + y));
+            }
+          }
+        }
+      }
+    }
+
+    return toClear;
+  }
+
+  function scoreFromClears(toClear){
+    // +9 per completed structure (row, col, 3×3). We compute completions directly.
+    // This avoids weirdness if a cell belongs to multiple clears (it can).
+    // A single move can clear multiple rows/cols/grids; each is worth 9.
+    let points = 0;
+
+    // rows
+    for(let y=0;y<SIZE;y++){
+      let ok = true;
+      for(let x=0;x<SIZE;x++){
+        if (!toClear.has(idx(x,y))) { ok = false; break; }
+      }
+      if (ok) points += 9;
+    }
+
+    // cols
+    for(let x=0;x<SIZE;x++){
+      let ok = true;
+      for(let y=0;y<SIZE;y++){
+        if (!toClear.has(idx(x,y))) { ok = false; break; }
+      }
+      if (ok) points += 9;
+    }
+
+    // 3×3 grids
+    for(let gy=0; gy<3; gy++){
+      for(let gx=0; gx<3; gx++){
+        let ok = true;
+        for(let y=0;y<3;y++){
+          for(let x=0;x<3;x++){
+            if (!toClear.has(idx(gx*3 + x, gy*3 + y))) { ok = false; break; }
+          }
+          if (!ok) break;
+        }
+        if (ok) points += 9;
+      }
+    }
+    return points;
+  }
+
+  function clearCells(toClear){
+    toClear.forEach(k => {
+      const x = k % SIZE;
+      const y = Math.floor(k / SIZE);
+      board[y][x] = EMPTY;
+    });
+  }
+
+  // ====== Round / Match Flow ======
+  function startRound(){
+    board = Array.from({length:SIZE}, ()=>Array(SIZE).fill(EMPTY));
+    bag = makeRoundBag(bagsPerRound);
+    roundScore = { [P1]:0, [P2]:0 };
+    player = P1;
+    roundEnded = false;
+    banner.style.display = 'none';
+
+    drawNextPiece();
+
+    // If the very first piece is unplayable (rare but possible late constraints; here board is empty so always playable)
+    updateAll();
+
+    if (mode === 'bot' && player === P2) setTimeout(botMove, 120);
+  }
+
+  function endRound(reasonText){
+    roundEnded = true;
+
+    // Add round score into match totals
+    matchTotals[P1] += roundScore[P1];
+    matchTotals[P2] += roundScore[P2];
+
+    // Decide whether match ended
+    const lastRound = (roundIndex >= matchRounds - 1);
+    if (lastRound){
+      matchEnded = true;
+      const m1 = matchTotals[P1], m2 = matchTotals[P2];
+      banner.style.display = 'block';
+      if (m1 > m2){
+        banner.className = 'banner p1';
+        banner.textContent = `Match over. Player 1 wins (${m1} vs ${m2}).`;
+      } else if (m2 > m1){
+        banner.className = 'banner p2';
+        banner.textContent = `Match over. Player 2 wins (${m2} vs ${m1}).`;
+      } else {
+        banner.className = 'banner tie';
+        banner.textContent = `Match over. Tie (${m1} vs ${m2}).`;
+      }
+      nextRoundBtn.disabled = true;
+    } else {
+      banner.style.display = 'block';
+      banner.className = 'banner tie';
+      banner.textContent = `Round ${roundIndex+1} over. ${reasonText} Click “Next round”.`;
+      nextRoundBtn.disabled = false;
+    }
+
+    updateAll();
+  }
+
+  function nextRound(){
+    if (matchEnded) return;
+    if (!roundEnded) return;
+    roundIndex++;
+    startRound();
+    nextRoundBtn.disabled = true;
+  }
+
+  function discardUnplayableAndAdvance(){
+    // If the drawn piece is not playable for the current player, discard it (burn it) and switch turns.
+    // This keeps the round moving without introducing complicated skip logic.
+    if (!currentPiece) return;
+
+    if (!anyLegalMoveForCurrent(player)){
+      // burn piece
+      drawNextPiece();
+      // switch player even if piece burned
+      player = (player === P1) ? P2 : P1;
+
+      // If bag is empty after burning + switching, end round
+      if (!currentPiece){
+        endRound('Bag emptied.');
+        return;
+      }
+      // If still unplayable for next player, keep burning until playable or bag empty.
+      // Safety cap to avoid infinite loops.
+      let guard = 0;
+      while(currentPiece && !anyLegalMoveForCurrent(player) && guard < 1000){
+        drawNextPiece();
+        player = (player === P1) ? P2 : P1;
+        guard++;
+      }
+      if (!currentPiece){
+        endRound('Bag emptied.');
+        return;
+      }
+    }
+  }
+
+  function takeTurnPlace(anchorX, anchorY){
+    if (matchEnded || roundEnded) return;
+    if (!currentPiece) return;
+
+    if (!legalAt(anchorX, anchorY, player)) return;
+
+    applyPlacement(anchorX, anchorY, player);
+
+    // Check clears and scoring
+    const toClear = cellsToClearForPlayer(player);
+    if (toClear.size > 0){
+      const pts = scoreFromClears(toClear);
+      roundScore[player] += pts;
+      clearCells(toClear);
+    }
+
+    // Next piece and switch player
+    drawNextPiece();
+    player = (player === P1) ? P2 : P1;
+
+    // Handle unplayable pieces by burning them
+    if (!currentPiece){
+      endRound('Bag emptied.');
+      return;
+    }
+    discardUnplayableAndAdvance();
+
+    updateAll();
+
+    if (!roundEnded && mode === 'bot' && player === P2){
+      setTimeout(botMove, 120);
+    }
+  }
+
+  // ====== Bot ======
+  function botMove(){
+    if (matchEnded || roundEnded) return;
+    if (!currentPiece) return;
+
+    // Very simple: sample placements; choose the one that gives the most immediate points.
+    // (Cheap but not dumb.)
+    let best = null;
+    let bestPts = -1;
+    const cells = pieceCells();
+
+    for(let y=0;y<SIZE;y++){
+      for(let x=0;x<SIZE;x++){
+        if (!legalAt(x,y,P2)) continue;
+
+        // simulate
+        const snapshot = board.map(row => row.slice());
+        for(const [dx,dy] of cells){
+          board[y+dy][x+dx] = P2;
+        }
+        const toClear = cellsToClearForPlayer(P2);
+        const pts = toClear.size ? scoreFromClears(toClear) : 0;
+
+        // revert
+        board = snapshot;
+
+        if (pts > bestPts){
+          bestPts = pts;
+          best = {x,y};
+        }
+      }
+    }
+
+    if (best){
+      takeTurnPlace(best.x, best.y);
+      return;
+    }
+
+    // If no legal placement, discard flow will handle it
+    discardUnplayableAndAdvance();
+    updateAll();
+  }
+
+  // ====== Rendering ======
+  function resizeCanvases(){
+    boardCv.width = 720; boardCv.height = 720;
+    pieceCv.width = 260; pieceCv.height = 180;
+  }
+
+  function drawBoard(){
+    const W = boardCv.width, H = boardCv.height;
+    boardCtx.clearRect(0,0,W,H);
+    boardCtx.fillStyle = COLORS.panel;
+    boardCtx.fillRect(0,0,W,H);
+
+    const cell = Math.floor(Math.min(W,H) / SIZE);
+    const ox = Math.floor((W - cell*SIZE)/2);
+    const oy = Math.floor((H - cell*SIZE)/2);
+
+    // Fill cells
+    for(let y=0;y<SIZE;y++){
+      for(let x=0;x<SIZE;x++){
+        boardCtx.fillStyle = COLORS[board[y][x]];
+        boardCtx.fillRect(ox + x*cell, oy + y*cell, cell, cell);
+      }
+    }
+
+    // Light grid lines
+    boardCtx.strokeStyle = COLORS.grid;
+    boardCtx.lineWidth = 1;
+    for(let i=0;i<=SIZE;i++){
+      const x = ox + i*cell + 0.5;
+      const y = oy + i*cell + 0.5;
+      boardCtx.beginPath();
+      boardCtx.moveTo(x, oy);
+      boardCtx.lineTo(x, oy + SIZE*cell);
+      boardCtx.stroke();
+
+      boardCtx.beginPath();
+      boardCtx.moveTo(ox, y);
+      boardCtx.lineTo(ox + SIZE*cell, y);
+      boardCtx.stroke();
+    }
+
+    // Bold delineation every 3 cells (3×3 mini-grids)
+    boardCtx.strokeStyle = COLORS.gridBold;
+    boardCtx.lineWidth = 3;
+    for(let i=0;i<=SIZE;i+=3){
+      const x = ox + i*cell + 0.5;
+      const y = oy + i*cell + 0.5;
+
+      boardCtx.beginPath();
+      boardCtx.moveTo(x, oy);
+      boardCtx.lineTo(x, oy + SIZE*cell);
+      boardCtx.stroke();
+
+      boardCtx.beginPath();
+      boardCtx.moveTo(ox, y);
+      boardCtx.lineTo(ox + SIZE*cell, y);
+      boardCtx.stroke();
+    }
+
+    // Hover preview
+    if (!matchEnded && !roundEnded && hover && currentPiece){
+      const ghost = (player===P1) ? 'rgba(255,90,122,.35)' : 'rgba(77,211,255,.35)';
+      const bad = 'rgba(255,255,255,.10)';
+      const ok = legalAt(hover.x, hover.y, player);
+      const cells = pieceCells();
+
+      boardCtx.fillStyle = ok ? ghost : bad;
+      for(const [dx,dy] of cells){
+        const x = hover.x + dx, y = hover.y + dy;
+        if (!inBounds(x,y)) continue;
+        boardCtx.fillRect(ox + x*cell, oy + y*cell, cell, cell);
+      }
+    }
+
+    // Outer border
+    boardCtx.strokeStyle = 'rgba(255,255,255,.18)';
+    boardCtx.lineWidth = 2;
+    boardCtx.strokeRect(ox + 1, oy + 1, SIZE*cell - 2, SIZE*cell - 2);
+  }
+
+  function drawPiece(){
+    pieceCtx.clearRect(0,0,pieceCv.width,pieceCv.height);
+    pieceCtx.fillStyle = 'rgba(0,0,0,.18)';
+    pieceCtx.fillRect(0,0,pieceCv.width,pieceCv.height);
+
+    if (!currentPiece) return;
+
+    const cells = pieceCells();
+    const maxX = Math.max(...cells.map(c=>c[0]));
+    const maxY = Math.max(...cells.map(c=>c[1]));
+    const w = maxX + 1, h = maxY + 1;
+
+    const pad = 18;
+    const cell = Math.floor(Math.min((pieceCv.width - 2*pad)/w, (pieceCv.height - 2*pad)/h));
+    const ox = Math.floor((pieceCv.width - cell*w)/2);
+    const oy = Math.floor((pieceCv.height - cell*h)/2);
+
+    pieceCtx.fillStyle = (player===P1) ? COLORS[P1] : COLORS[P2];
+    for(const [x,y] of cells){
+      pieceCtx.fillRect(ox + x*cell, oy + y*cell, cell-2, cell-2);
+    }
+
+    pieceCtx.fillStyle = 'rgba(255,255,255,.75)';
+    pieceCtx.font = '12px system-ui, sans-serif';
+    pieceCtx.fillText(`Piece: ${currentPiece.name}  |  rot: ${currentPiece.rot*90}° (locked)`, 12, 18);
+    pieceCtx.fillText(`Bag remaining: ${bag.length}`, 12, 34);
+  }
+
+  function updateHUD(){
+    roundPill.textContent = `Round ${roundIndex+1} / ${matchRounds}`;
+    turnPill.innerHTML = `<span class="dot ${player===P1?'p1':'p2'}"></span> ${player===P1?'P1':'P2'} turn`;
+
+    matchP1El.textContent = matchTotals[P1];
+    matchP2El.textContent = matchTotals[P2];
+    roundP1El.textContent = roundScore[P1];
+    roundP2El.textContent = roundScore[P2];
+  }
+
+  function updateAll(){
+    drawBoard();
+    drawPiece();
+    updateHUD();
+  }
+
+  // ====== Input ======
+  function boardToCell(evt){
+    const rect = boardCv.getBoundingClientRect();
+    const mx = evt.clientX - rect.left;
+    const my = evt.clientY - rect.top;
+
+    const sx = boardCv.width / rect.width;
+    const sy = boardCv.height / rect.height;
+
+    const W = boardCv.width, H = boardCv.height;
+    const cell = Math.floor(Math.min(W,H) / SIZE);
+    const ox = Math.floor((W - cell*SIZE)/2);
+    const oy = Math.floor((H - cell*SIZE)/2);
+
+    const x = Math.floor((mx*sx - ox)/cell);
+    const y = Math.floor((my*sy - oy)/cell);
+
+    return {x,y};
+  }
+
+  boardCv.addEventListener('mousemove', (e) => {
+    if (matchEnded || roundEnded) return;
+    const {x,y} = boardToCell(e);
+    hover = {x,y};
+    drawBoard();
+  });
+
+  boardCv.addEventListener('mouseleave', () => {
+    hover = null;
+    drawBoard();
+  });
+
+  boardCv.addEventListener('click', (e) => {
+    if (matchEnded || roundEnded) return;
+    if (mode === 'bot' && player === P2) return;
+    const {x,y} = boardToCell(e);
+    takeTurnPlace(x,y);
+  });
+
+  // ====== Match Controls ======
+  function startMatch(){
+    mode = modeSel.value;
+    matchRounds = parseInt(roundsSel.value, 10);
+    bagsPerRound = parseInt(bagsSel.value, 10);
+
+    roundIndex = 0;
+    matchTotals = { [P1]:0, [P2]:0 };
+    matchEnded = false;
+    nextRoundBtn.disabled = true;
+
+    resizeCanvases();
+    startRound();
+  }
+
+  newMatchBtn.addEventListener('click', startMatch);
+  nextRoundBtn.addEventListener('click', nextRound);
+
+  modeSel.addEventListener('change', () => { mode = modeSel.value; });
+
+  // ====== Boot ======
+  resizeCanvases();
+  startMatch();
+})();
+</script>
+</body>
+</html>
