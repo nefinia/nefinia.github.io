@@ -207,6 +207,32 @@
       <a class="play" href="maxwell.html" target="_blank">Play</a>
     </div>
 
+    <!-- NEW: PolyPaint -->
+    <div class="game">
+      <div class="thumbWrap">
+        <canvas id="thumb-polypaint" width="96" height="96"></canvas>
+      </div>
+      <h2>PolyPaint</h2>
+      <p class="desc">
+        Two players paint the board with polyominoes from a shared pool.
+        Overwrite opponents, aim for maximum coverage.
+      </p>
+      <a class="play" href="polypaint.html" target="_blank">Play</a>
+    </div>
+
+    <!-- NEW: PolyClear -->
+    <div class="game">
+      <div class="thumbWrap">
+        <canvas id="thumb-polyclear" width="96" height="96"></canvas>
+      </div>
+      <h2>PolyClear</h2>
+      <p class="desc">
+        A duel variant inspired by 9×9 clearing puzzles.
+        Clear rows, columns, and 3×3 blocks for points.
+      </p>
+      <a class="play" href="polyclear.html" target="_blank">Play</a>
+    </div>
+
     <!-- Plot Armor (last) -->
     <div class="game">
       <div class="thumbWrap">
@@ -416,6 +442,65 @@ function rint(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
   ctx.fillStyle = "#e8ecff";
   ctx.font = "bold 12px system-ui, sans-serif";
   ctx.fillText("Δ", 6, 16);
+})();
+
+/* PolyPaint preview */
+(function(){
+  const c = document.getElementById("thumb-polypaint");
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = "#0a0f25";
+  ctx.fillRect(0,0,c.width,c.height);
+
+  const n = 6, cell = 12, pad = 8;
+  for(let y=0;y<n;y++){
+    for(let x=0;x<n;x++){
+      ctx.fillStyle = "rgba(232,236,255,0.10)";
+      ctx.fillRect(pad+x*cell, pad+y*cell, cell-1, cell-1);
+    }
+  }
+  // two colored blobs
+  ctx.fillStyle = "rgba(255,90,122,0.75)";
+  [[1,1],[2,1],[1,2],[2,2],[3,2]].forEach(([x,y])=>{
+    ctx.fillRect(pad+x*cell, pad+y*cell, cell-1, cell-1);
+  });
+  ctx.fillStyle = "rgba(77,211,255,0.75)";
+  [[3,3],[4,3],[3,4],[4,4],[2,4]].forEach(([x,y])=>{
+    ctx.fillRect(pad+x*cell, pad+y*cell, cell-1, cell-1);
+  });
+})();
+
+/* PolyClear preview */
+(function(){
+  const c = document.getElementById("thumb-polyclear");
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = "#0a0f25";
+  ctx.fillRect(0,0,c.width,c.height);
+
+  const n = 6, cell = 12, pad = 8;
+
+  // mini-grid lines (every 3)
+  ctx.strokeStyle = "rgba(59,76,138,0.9)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(pad, pad, 3*cell-1, 3*cell-1);
+  ctx.strokeRect(pad+3*cell, pad, 3*cell-1, 3*cell-1);
+  ctx.strokeRect(pad, pad+3*cell, 3*cell-1, 3*cell-1);
+  ctx.strokeRect(pad+3*cell, pad+3*cell, 3*cell-1, 3*cell-1);
+
+  // some filled cells
+  for(let y=0;y<n;y++){
+    for(let x=0;x<n;x++){
+      ctx.fillStyle = "rgba(232,236,255,0.10)";
+      ctx.fillRect(pad+x*cell, pad+y*cell, cell-1, cell-1);
+    }
+  }
+  ctx.fillStyle = "rgba(255,90,122,0.75)";
+  [[0,0],[1,0],[2,0],[0,1],[1,1],[2,1]].forEach(([x,y])=>{
+    ctx.fillRect(pad+x*cell, pad+y*cell, cell-1, cell-1);
+  });
+  ctx.fillStyle = "rgba(77,211,255,0.75)";
+  [[3,3],[4,3],[5,3],[3,4],[4,4]].forEach(([x,y])=>{
+    ctx.fillRect(pad+x*cell, pad+y*cell, cell-1, cell-1);
+  });
 })();
 
 /* Plot Armor preview */
