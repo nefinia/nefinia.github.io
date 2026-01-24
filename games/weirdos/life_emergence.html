@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Life Emergence</title>
+<style>
+  body {
+    margin: 0;
+    background: #0b0f1a;
+    color: #dfe6ff;
+    font-family: system-ui, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  canvas {
+    background: radial-gradient(#111833, #070b14);
+    border-radius: 12px;
+    box-shadow: 0 0 40px rgba(100,150,255,0.2);
+  }
+
+  .overlay {
+    position: absolute;
+    text-align: center;
+    font-size: 32px;
+    color: #b8ffcc;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.5s;
+  }
+
+  .overlay.show {
+    opacity: 1;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="grid" width="480" height="480"></canvas>
+<div class="overlay" id="winText">Life emerges</div>
+
+<script>
+const SIZE = 12;
+const CELL = 40;
+const TURNS_FOR_LIFE = 3;
+
+const canvas = document.getElementById("grid");
+const ctx = canvas.getContext("2d");
+const winText = document.getElementById("winText");
+
+let turn = 0;
+let lifeCounter = 0;
+let gameWon = false;
+
+// --- Cell state ---
+function makeCell() {
+  return {
+    gas: Math.random() < 0.15 ? 2 : 1, // weak filament
+    heat: 0,
+    metal: false,
+    star: null, // "blue" | "yellow" | "red"
+    age: 0
+  };
+}
+
+let grid = Array.from({ length: SIZE }, () =>
+  Array.from({ length: SIZE }, makeCell)
+);
+
+// --- Rendering ---
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  for (let y = 0; y < SIZE; y++) {
+    for (let x = 0; x < SIZE; x++) {
+      const c = grid[y][x];
+      const cx = x * CELL + CELL / 2;
+      const cy = y * CELL + CELL / 2;
+
+      // Gas
+      if (c.gas > 0) {
+        ctx.fillStyle = c.gas === 2 ? "rgba(120,160,255,0.15)" : "rgba(80,120,255,0.08)";
+        ctx.beginPath();
+        ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Metals
+      if (c.metal) {
+        ctx.fillStyle = "rgba(255,255,200,0.25)";
+        ctx.beginPath();
+        ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Heat
+      if (c.heat > 0) {
+        ctx.strokeStyle = "rgba(255,120,80,0.3)";
+        ctx.beginPath();
+        ctx.arc(cx, cy, 18, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // Stars
+      if (c.star) {
+        const colors = {
+          blue: "#6fb7ff",
+          yellow: "#ffd96f",
+          red: "#ff7a7a"
+        };
+        ctx.fillStyle = colors[c.star];
+        ctx.beginPath();
+        ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+}
+
+// --- Game logic ---
+function neighbors(x, y) {
+  return [
+    [x-1,y],[x+1,y],[x,y-1],[x,y+1]
+  ].filter(([nx,ny]) => nx>=0 && ny>=0 && nx<SIZE && ny<SIZE);
+}
+
+function step() {
+  turn++;
+
+  // Gas smoothing
+  for (let y = 0; y < SIZE; y++) {
+    for (let x = 0; x < SIZE; x++) {
+      const c = grid[y][x];
+      if (c.gas === 2) {
+        const ns = neighbors(x,y);
+        const [nx,ny] = ns[Math.floor(Math.random()*ns.length)];
+        grid[ny][nx].gas = Math.min(2, grid[ny][nx].gas + 1);
+        c.gas = 1;
+      }
+    }
+  }
+
+  // Star evolution
+  for (let y = 0; y < SIZE; y++) {
+    for (let x = 0; x < SIZE; x++) {
+      const c = grid[y][x];
+      if (!c.star) continue;
+
+      c.age++;
+
+      if (c.star === "blue") c.heat = 1;
+      if (c.star === "yellow") c.heat = 0;
+
+      if (c.star === "blue" && c.age >= 3) {
+        // Supernova
+        neighbors(x,y).forEach(([nx,ny]) => {
+          grid[ny][nx].metal = true;
+          grid[ny][nx].heat = 1;
+        });
+        c.star = null;
+        c.heat = 0;
+        c.metal = true;
+      }
+    }
+  }
+
+  checkLife();
+  draw();
+}
+
+function checkLife() {
+  let valid = false;
+
+  for (let y = 0; y < SIZE; y++) {
+    for (let x = 0; x < SIZE; x++) {
+      const c = grid[y][x];
+      if ((c.star === "yellow" || c.star === "red") &&
+          c.metal &&
+          c.heat === 0) {
+        valid = true;
+      }
+    }
+  }
+
+  if (valid) lifeCounter++;
+  else lifeCounter = 0;
+
+  if (lifeCounter >= TURNS_FOR_LIFE && !gameWon) {
+    gameWon = true;
+    winText.classList.add("show");
+  }
+}
+
+// --- Interaction ---
+canvas.addEventListener("click", e => {
+  if (gameWon) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const x = Math.floor((e.clientX - rect.left) / CELL);
+  const y = Math.floor((e.clientY - rect.top) / CELL);
+
+  const c = grid[y][x];
+  if (c.star || c.gas === 0 || c.heat) return;
+
+  // Star type by gas density
+  c.star = c.gas === 2 ? "blue" : "yellow";
+  c.age = 0;
+  c.gas = 0;
+
+  step();
+});
+
+draw();
+</script>
+
+</body>
+</html>

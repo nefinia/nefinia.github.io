@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DJ GROOVE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  :root{
+    --bg:#070a18;
+    --panel:#0f1433;
+    --lane:#12184a;
+    --hit:#ffffff33;
+    --good:#5cffc9;
+    --bad:#ff6b6b;
+    --accent:#6b86ff;
+  }
+
+  body{
+    margin:0;
+    background:radial-gradient(circle at top,#1a2040,var(--bg));
+    color:#eef;
+    font-family:system-ui,sans-serif;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+  }
+
+  .app{
+    width:1000px;
+    height:620px;
+    background:var(--panel);
+    border-radius:22px;
+    box-shadow:0 40px 100px rgba(0,0,0,.7);
+    display:grid;
+    grid-template-columns:3fr 1.4fr;
+    overflow:hidden;
+  }
+
+  .left{
+    padding:18px;
+    display:flex;
+    flex-direction:column;
+  }
+
+  h1{margin:0;font-weight:700}
+  .subtitle{opacity:.8;font-size:14px;margin-bottom:10px}
+
+  canvas{
+    background:#0b1028;
+    border-radius:18px;
+    margin-top:8px;
+  }
+
+  .pads{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:10px;
+    margin-top:12px;
+  }
+
+  .pad{
+    background:linear-gradient(145deg,#202a66,#141b48);
+    border-radius:14px;
+    padding:12px;
+    text-align:center;
+    font-weight:700;
+    border:2px solid #2f3a88;
+    transition:transform .05s, box-shadow .1s, background .1s;
+  }
+
+  .pad span{
+    display:block;
+    font-size:12px;
+    opacity:.8;
+    margin-top:4px;
+  }
+
+  .pad.active{
+    background:linear-gradient(145deg,var(--accent),#4c63d9);
+    transform:scale(.96);
+    box-shadow:0 0 20px var(--accent);
+  }
+
+  .right{
+    padding:18px;
+    background:#0c1130;
+  }
+
+  .box{
+    background:#12184a;
+    border-radius:14px;
+    padding:14px;
+    margin-bottom:14px;
+    font-size:14px;
+  }
+
+  .score{
+    font-size:28px;
+    font-weight:800;
+  }
+
+  .meter{
+    height:14px;
+    background:#1a215a;
+    border-radius:7px;
+    overflow:hidden;
+    margin-top:6px;
+  }
+
+  .meter>div{
+    height:100%;
+    background:linear-gradient(90deg,#5cffc9,#ffd86b,#ff6b6b);
+    width:60%;
+    transition:width .2s;
+  }
+
+  .start{
+    margin-top:10px;
+    background:#2c3a8f;
+    border-radius:14px;
+    padding:12px;
+    text-align:center;
+    font-weight:800;
+    cursor:pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="left">
+    <h1>DJ GROOVE</h1>
+    <div class="subtitle">Trigger musical changes on the beat. Keep the crowd alive.</div>
+
+    <canvas id="game" width="720" height="360"></canvas>
+
+    <div class="pads">
+      <div class="pad" id="A">A<span>Rhythm</span></div>
+      <div class="pad" id="Z">Z<span>Harmony</span></div>
+      <div class="pad" id="O">O<span>Groove</span></div>
+      <div class="pad" id="P">P<span>Drop</span></div>
+      <div class="pad" id="E">E<span>FX</span></div>
+      <div class="pad" id="I">I<span>Transition</span></div>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="box">
+      <b>How to play</b><br><br>
+      Blocks fall in each lane.<br>
+      Press the matching key on the beat.<br><br>
+      Good timing → smooth evolution.<br>
+      Bad timing → awkward groove.<br><br>
+      Don’t kill the vibe.
+    </div>
+
+    <div class="score" id="score">Score: 0</div>
+    <div class="meter"><div id="energy"></div></div>
+    <div class="start" id="start">SPACE — Start / Stop</div>
+  </div>
+</div>
+
+<script>
+/* =======================
+   CONSTANTS & STATE
+======================= */
+const LANES = ["A","Z","O","P","E","I"];
+const laneActions = {
+  A:"RHYTHM",
+  Z:"HARMONY",
+  O:"GROOVE",
+  P:"DROP",
+  E:"FX",
+  I:"TRANSITION"
+};
+
+const BPM = 124;
+const BEAT = 60 / BPM;
+const HIT_WINDOW = 28;
+
+let running=false, beat=0, nextBeat=0;
+let score=0, energy=0.6;
+
+/* =======================
+   AUDIO (simple but layered)
+======================= */
+const AC = window.AudioContext || window.webkitAudioContext;
+const ctx = new AC();
+
+function kick(){
+  const o=ctx.createOscillator(), g=ctx.createGain();
+  o.frequency.setValueAtTime(120,ctx.currentTime);
+  o.frequency.exponentialRampToValueAtTime(40,ctx.currentTime+.15);
+  g.gain.value=.8*energy;
+  o.connect(g).connect(ctx.destination);
+  o.start(); o.stop(ctx.currentTime+.2);
+}
+
+function hat(){
+  const b=ctx.createBuffer(1,ctx.sampleRate*.05,ctx.sampleRate);
+  const d=b.getChannelData(0);
+  for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+  const s=ctx.createBufferSource(), g=ctx.createGain();
+  s.buffer=b; g.gain.value=.12*energy;
+  s.connect(g).connect(ctx.destination);
+  s.start(); s.stop(ctx.currentTime+.05);
+}
+
+function synth(){
+  const o=ctx.createOscillator(), g=ctx.createGain();
+  o.type="sawtooth";
+  o.frequency.value=110*Math.pow(2,Math.floor(Math.random()*5)/12);
+  g.gain.value=.18*energy;
+  o.connect(g).connect(ctx.destination);
+  o.start(); o.stop(ctx.currentTime+BEAT);
+}
+
+/* =======================
+   TRANSPORT
+======================= */
+function music(){
+  if(!running) return;
+  if(ctx.currentTime>=nextBeat){
+    beat++;
+    kick();
+    if(beat%2===0) hat();
+    if(Math.random()<energy) synth();
+    nextBeat+=BEAT;
+  }
+  requestAnimationFrame(music);
+}
+
+/* =======================
+   GAME CANVAS
+======================= */
+const canvas=document.getElementById("game");
+const g=canvas.getContext("2d");
+const laneW=canvas.width/LANES.length;
+const hitY=300;
+
+let cues=[];
+
+function spawnCue(){
+  const lane=Math.floor(Math.random()*LANES.length);
+  cues.push({lane,y:-40,hit:false});
+}
+
+setInterval(spawnCue,1200);
+
+function applyEffect(lane,good){
+  if(good){
+    score+=15;
+    energy=Math.min(1,energy+.05);
+  }else{
+    score-=10;
+    energy=Math.max(.2,energy-.08);
+  }
+}
+
+/* =======================
+   INPUT
+======================= */
+const keyDown={};
+window.addEventListener("keydown",e=>{
+  const k=e.key.toUpperCase();
+  if(k===" "){
+    running=!running;
+    ctx.resume();
+    if(running){nextBeat=ctx.currentTime;music();}
+    return;
+  }
+  if(!LANES.includes(k))return;
+  keyDown[k]=true;
+  document.getElementById(k).classList.add("active");
+
+  cues.forEach(c=>{
+    if(!c.hit && LANES[c.lane]===k && Math.abs(c.y-hitY)<HIT_WINDOW){
+      c.hit=true;
+      applyEffect(k,true);
+    }
+  });
+});
+
+window.addEventListener("keyup",e=>{
+  const k=e.key.toUpperCase();
+  if(!LANES.includes(k))return;
+  keyDown[k]=false;
+  document.getElementById(k).classList.remove("active");
+});
+
+/* =======================
+   RENDER LOOP
+======================= */
+function draw(){
+  g.clearRect(0,0,canvas.width,canvas.height);
+
+  // lanes
+  LANES.forEach((l,i)=>{
+    g.fillStyle="#ffffff08";
+    g.fillRect(i*laneW,0,laneW,canvas.height);
+    g.fillStyle="#ffffff55";
+    g.fillText(laneActions[l],i*laneW+10,20);
+  });
+
+  // hit line
+  g.strokeStyle="#ffffff55";
+  g.beginPath();
+  g.moveTo(0,hitY);
+  g.lineTo(canvas.width,hitY);
+  g.stroke();
+
+  // cues
+  cues.forEach(c=>{
+    c.y+=2.6;
+    const x=c.lane*laneW;
+    g.fillStyle=c.hit?"#444": "#6b86ff";
+    g.fillRect(x+12,c.y,laneW-24,36);
+
+    if(!c.hit && c.y>hitY+HIT_WINDOW){
+      c.hit=true;
+      applyEffect(c.lane,false);
+    }
+  });
+
+  document.getElementById("score").textContent="Score: "+score;
+  document.getElementById("energy").style.width=(energy*100)+"%";
+
+  requestAnimationFrame(draw);
+}
+draw();
+</script>
+</body>
+</html>
