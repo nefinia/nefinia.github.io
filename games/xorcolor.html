@@ -1,0 +1,1299 @@
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>CMY XOR Stamps (10×10)</title>
+<style>
+  :root{
+    --bg:#0b1020;
+    --panel:#121a33;
+    --panel2:#0f1730;
+    --border:#24315a;
+    --text:#eef2ff;
+    --muted:#aab3d6;
+    --accent:#7aa2ff;
+    --good:#31d0aa;
+    --bad:#ff6b6b;
+    --radius:16px;
+    --shadow: 0 12px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    background:
+      radial-gradient(1200px 800px at 20% 10%, rgba(122,162,255,.18), transparent 55%),
+      radial-gradient(1200px 800px at 80% 20%, rgba(49,208,170,.12), transparent 50%),
+      var(--bg);
+    color:var(--text);
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:18px}
+  h1{font-size:20px;margin:0 0 6px}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 14px;line-height:1.35}
+  .grid{
+    display:grid;
+    gap:14px;
+    grid-template-columns: 1.35fr .9fr;
+    align-items:start;
+  }
+  @media (max-width: 980px){
+    .grid{grid-template-columns:1fr}
+  }
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .card .hd{
+    padding:12px 14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    background:rgba(0,0,0,.16);
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .title{font-weight:650;font-size:13px;letter-spacing:.2px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .bd{padding:12px 14px}
+  canvas{
+    width:100%;
+    height:auto;
+    display:block;
+    background:rgba(0,0,0,.18);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:14px;
+    touch-action:none;
+  }
+  .two{
+    display:grid;
+    gap:12px;
+    grid-template-columns: 1fr 1fr;
+  }
+  @media (max-width: 980px){ .two{grid-template-columns:1fr} }
+  .btn{
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.10);
+    color:var(--text);
+    border-radius:12px;
+    padding:8px 10px;
+    font-size:13px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .btn:hover{border-color: rgba(255,255,255,.18)}
+  .btn.primary{background:rgba(122,162,255,.14);border-color:rgba(122,162,255,.28)}
+  .btn.good{background:rgba(49,208,170,.14);border-color:rgba(49,208,170,.28)}
+  .btn.bad{background:rgba(255,107,107,.14);border-color:rgba(255,107,107,.28)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .pill{
+    padding:6px 10px;border-radius:999px;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.10);
+    color:var(--muted);
+    font-size:12px;
+  }
+  .pill.good{color:var(--good); border-color:rgba(49,208,170,.25); background:rgba(49,208,170,.10)}
+  .pill.bad{color:var(--bad); border-color:rgba(255,107,107,.25); background:rgba(255,107,107,.10)}
+  .controls{
+    display:grid;gap:10px;
+    grid-template-columns: 1fr;
+  }
+  .section{
+    border:1px solid rgba(255,255,255,.08);
+    background:rgba(0,0,0,.14);
+    border-radius:14px;
+    padding:10px;
+  }
+  .section .st{font-size:12px;color:var(--muted);margin-bottom:8px}
+  .stampGrid{
+    display:grid; gap:8px;
+    grid-template-columns: repeat(9, minmax(0, 1fr));
+  }
+  @media (max-width:980px){
+    .stampGrid{grid-template-columns: repeat(5, minmax(0, 1fr));}
+  }
+  .stampBtn{
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.10);
+    color:var(--text);
+    border-radius:12px;
+    padding:10px 8px;
+    font-size:13px;
+    cursor:pointer;
+    text-align:center;
+  }
+  .stampBtn small{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+  .stampBtn.sel{border-color:rgba(122,162,255,.45);background:rgba(122,162,255,.12)}
+  .colorRow{display:flex;gap:10px;flex-wrap:wrap}
+  .radio{
+    display:flex;gap:8px;align-items:center;
+    padding:8px 10px;border-radius:12px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.10);
+    cursor:pointer;
+    user-select:none;
+    font-size:13px;
+  }
+  .radio.sel{border-color:rgba(122,162,255,.45);background:rgba(122,162,255,.12)}
+  .sw{width:14px;height:14px;border-radius:4px;border:1px solid rgba(255,255,255,.18)}
+  .sw.c{background:rgb(0,210,255)}
+  .sw.m{background:rgb(255,0,170)}
+  .sw.y{background:rgb(255,230,0)}
+  input[type="text"]{
+    width:100%;
+    padding:10px 10px;
+    border-radius:12px;
+    background:rgba(0,0,0,.18);
+    border:1px solid rgba(255,255,255,.10);
+    color:var(--text);
+    font-size:13px;
+    outline:none;
+  }
+  select{
+    padding:8px 10px;border-radius:12px;
+    background:rgba(0,0,0,.18);
+    border:1px solid rgba(255,255,255,.10);
+    color:var(--text);
+    font-size:13px;
+    outline:none;
+  }
+
+  /* SOLVED overlay */
+  .solvedOverlay{
+    position:fixed; inset:0;
+    display:none;
+    align-items:center; justify-content:center;
+    background:rgba(3,6,14,.72);
+    backdrop-filter: blur(6px);
+    z-index:50;
+  }
+  .solvedCard{
+    width:min(520px, 92vw);
+    border-radius:22px;
+    border:1px solid rgba(49,208,170,.35);
+    background:
+      radial-gradient(800px 420px at 30% 20%, rgba(49,208,170,.20), transparent 60%),
+      radial-gradient(700px 420px at 80% 60%, rgba(122,162,255,.18), transparent 60%),
+      rgba(10,14,30,.92);
+    box-shadow: 0 22px 70px rgba(0,0,0,.55);
+    padding:18px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .solvedCard h2{margin:4px 0 6px;font-size:26px;letter-spacing:.6px}
+  .solvedCard p{margin:0;color:var(--muted);line-height:1.4}
+  .burst{
+    position:absolute; inset:-40%;
+    background: conic-gradient(from 0deg,
+      rgba(49,208,170,.0),
+      rgba(49,208,170,.35),
+      rgba(122,162,255,.28),
+      rgba(49,208,170,.0));
+    filter: blur(18px);
+    animation: spin 6s linear infinite;
+    opacity:.55;
+    pointer-events:none;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .solvedActions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+
+  /* Solution modal */
+  .modal{
+    position:fixed; inset:0;
+    display:none;
+    align-items:center; justify-content:center;
+    background:rgba(3,6,14,.70);
+    backdrop-filter: blur(6px);
+    z-index:60;
+  }
+  .modalCard{
+    width:min(860px, 94vw);
+    border-radius:22px;
+    border:1px solid rgba(255,255,255,.12);
+    background: rgba(10,14,30,.92);
+    box-shadow: 0 22px 70px rgba(0,0,0,.55);
+    overflow:hidden;
+  }
+  .modalHd{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:12px 14px;
+    border-bottom:1px solid rgba(255,255,255,.08);
+    background: rgba(255,255,255,.03);
+  }
+  .modalHd b{font-size:13px}
+  .modalBd{padding:12px 14px}
+  .modalGrid{display:grid;gap:12px;grid-template-columns: 1.1fr .9fr}
+  @media (max-width: 980px){ .modalGrid{grid-template-columns:1fr} }
+  #solutionCanvas{height:auto}
+  .mini{font-size:12px;color:var(--muted);line-height:1.4}
+  .sliderRow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  input[type="range"]{width:260px}
+  .kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>CMY XOR Stamps (10×10)</h1>
+  <p class="sub">
+    Place a stamp + choose a base color (C/M/Y). Each covered cell toggles that bit (XOR, mod 2).
+    Overlaps can create or cancel colors. Goal in Challenge: match the target exactly.
+  </p>
+
+  <div class="grid">
+    <!-- LEFT: CANVASES -->
+    <div class="card">
+      <div class="hd">
+        <div class="row">
+          <span class="title">Board</span>
+          <span id="modePill" class="pill">Mode: Free</span>
+          <span id="statusPill" class="pill">Wrong cells: —</span>
+        </div>
+        <div class="row">
+          <button id="modeBtn" class="btn">Mode: Free</button>
+          <button id="resetBtn" class="btn">Reset board</button>
+          <button id="undoBtn" class="btn">Undo</button>
+          <button id="redoBtn" class="btn">Redo</button>
+          <button id="rotBtn" class="btn">Rotate (R)</button>
+          <button id="flipBtn" class="btn">Flip (F)</button>
+          <button id="fitBtn" class="btn">Fit (0)</button>
+        </div>
+      </div>
+      <div class="bd">
+        <div class="two">
+          <div>
+            <div class="row" style="justify-content:space-between;margin:0 0 8px">
+              <span class="pill">Moves: <span id="moves">0</span></span>
+              <span class="pill">Stamp: <span id="stampName">I</span> · Orient: <span id="orient">0°</span><span id="flipTag"></span></span>
+            </div>
+            <canvas id="boardCanvas"></canvas>
+          </div>
+          <div>
+            <div class="row" style="justify-content:space-between;margin:0 0 8px">
+              <span class="pill">Target (Challenge)</span>
+              <span class="pill">Difficulty: <span id="diffLabel">—</span></span>
+            </div>
+            <canvas id="targetCanvas" style="width:260px;height:260px"></canvas>
+            <div class="row" style="margin-top:10px">
+              <button id="newTargetBtn" class="btn primary">New target</button>
+              <select id="diffSel" title="Difficulty">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+              <button id="showSolutionBtn" class="btn" disabled>Show solution</button>
+            </div>
+            <div class="mini" style="margin-top:8px">
+              In Challenge mode, the target is generated from a hidden sequence of stamp placements with overlaps.
+              “Show solution” replays that sequence like a little video.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: TOOLS -->
+    <div class="card">
+      <div class="hd">
+        <span class="title">Share / load a target (Challenge mode)</span>
+        <span class="pill kbd">Keys: R rotate · F flip · Z undo · Y redo · 0 fit</span>
+      </div>
+      <div class="bd">
+        <div class="controls">
+
+          <div class="section">
+            <div class="st">Target code</div>
+            <input id="codeBox" type="text" value="" placeholder="Target code will appear here…" />
+            <div class="row" style="margin-top:10px">
+              <button id="setTargetFromBoardBtn" class="btn">Set target from board</button>
+              <button id="clearTargetBtn" class="btn">Clear target</button>
+              <button id="copyTargetBtn" class="btn">Copy target code</button>
+              <button id="loadTargetBtn" class="btn">Load target code</button>
+            </div>
+            <div class="mini" style="margin-top:8px">
+              Codes include the target grid and (when available) the hidden generation steps so “Show solution” works after loading.
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="st">Stamp shape</div>
+            <div id="stampGrid" class="stampGrid"></div>
+          </div>
+
+          <div class="section">
+            <div class="st">Stamp color (base bit)</div>
+            <div class="colorRow">
+              <div class="radio" data-color="C"><span class="sw c"></span> Cyan <span class="kbd">100</span></div>
+              <div class="radio" data-color="M"><span class="sw m"></span> Magenta <span class="kbd">010</span></div>
+              <div class="radio" data-color="Y"><span class="sw y"></span> Yellow <span class="kbd">001</span></div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="st">How XOR color works (CMY bits)</div>
+            <div class="mini">
+              Each cell stores (c,m,y) with bits in {0,1}. Placing a Cyan stamp toggles c, Magenta toggles m, Yellow toggles y.
+              Overlap is XOR (bitwise mod 2): same bit twice cancels.
+            </div>
+            <div class="mini" style="margin-top:8px">
+              000 empty · 100 cyan · 010 magenta · 001 yellow · 110 blue · 101 green · 011 red · 111 black
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SOLVED overlay -->
+<div id="solvedOverlay" class="solvedOverlay" role="dialog" aria-modal="true">
+  <div class="solvedCard">
+    <div class="burst"></div>
+    <h2>SOLVED</h2>
+    <p>You matched the target exactly. XOR chaos temporarily obeyed you.</p>
+    <div class="solvedActions">
+      <button id="solvedCloseBtn" class="btn good">Continue</button>
+      <button id="solvedNewBtn" class="btn primary">New target</button>
+      <button id="solvedShowBtn" class="btn">Show solution</button>
+    </div>
+  </div>
+</div>
+
+<!-- Solution modal -->
+<div id="solutionModal" class="modal" role="dialog" aria-modal="true">
+  <div class="modalCard">
+    <div class="modalHd">
+      <b>Solution replay</b>
+      <button id="closeSolModal" class="btn">Close</button>
+    </div>
+    <div class="modalBd">
+      <div class="modalGrid">
+        <div>
+          <canvas id="solutionCanvas" style="width:100%;height:auto"></canvas>
+        </div>
+        <div>
+          <div class="mini">
+            This is the exact stamp sequence that generated the target. It’s not a “solver” algorithm; it’s the recipe.
+          </div>
+          <div class="row" style="margin-top:10px">
+            <button id="playBtn" class="btn primary">Play</button>
+            <button id="pauseBtn" class="btn">Pause</button>
+            <button id="stepBtn" class="btn">Step</button>
+            <button id="restartBtn" class="btn">Restart</button>
+          </div>
+
+          <div class="sliderRow" style="margin-top:10px">
+            <span class="pill">Step: <span id="stepNow">0</span>/<span id="stepTot">0</span></span>
+            <input id="stepSlider" type="range" min="0" max="0" value="0" />
+          </div>
+
+          <div class="sliderRow" style="margin-top:10px">
+            <span class="pill">Speed</span>
+            <input id="speedSlider" type="range" min="1" max="8" value="4" />
+            <span class="pill"><span id="speedLbl">x1.0</span></span>
+          </div>
+
+          <div class="row" style="margin-top:10px">
+            <button id="applyToBoardBtn" class="btn good">Apply full solution to board</button>
+          </div>
+
+          <div class="mini" style="margin-top:10px">
+            Tip: overlaps are the whole point. Look for places where a second stamp “erases” a color channel.
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  // -----------------------
+  // Constants + utilities
+  // -----------------------
+  const N = 10;
+
+  const C_BIT = 4; // 100
+  const M_BIT = 2; // 010
+  const Y_BIT = 1; // 001
+
+  const COLORS = {
+    0: "rgb(245,247,255)",   // empty (paper/white-ish)
+    1: "rgb(255,230,0)",     // Y
+    2: "rgb(255,0,170)",     // M
+    3: "rgb(255,70,70)",     // R = M^Y
+    4: "rgb(0,210,255)",     // C
+    5: "rgb(0,210,90)",      // G = C^Y
+    6: "rgb(70,120,255)",    // B = C^M
+    7: "rgb(20,20,25)"       // K = C^M^Y
+  };
+
+  const deepCloneGrid = g => g.map(r => r.slice());
+
+  function makeGrid(fill=0){
+    return Array.from({length:N}, () => Array.from({length:N}, () => fill));
+  }
+
+  function gridsEqual(a,b){
+    for(let y=0;y<N;y++){
+      for(let x=0;x<N;x++){
+        if(a[y][x] !== b[y][x]) return false;
+      }
+    }
+    return true;
+  }
+
+  function countWrong(board, target){
+    if(!target) return null;
+    let wrong = 0;
+    for(let y=0;y<N;y++){
+      for(let x=0;x<N;x++){
+        if(board[y][x] !== target[y][x]) wrong++;
+      }
+    }
+    return wrong;
+  }
+
+  function randInt(a,b){ // inclusive a..b
+    return a + Math.floor(Math.random() * (b-a+1));
+  }
+
+  // Prefer crypto randomness when available
+  function rand(){
+    if (window.crypto && crypto.getRandomValues) {
+      const u = new Uint32Array(1);
+      crypto.getRandomValues(u);
+      return u[0] / 2**32;
+    }
+    return Math.random();
+  }
+  function randi(a,b){ return a + Math.floor(rand()*(b-a+1)); }
+
+  // -----------------------
+  // Stamp definitions (5x5)
+  // 1 = covered cell
+  // -----------------------
+  const STAMPS = [
+    {name:"I", mat:[
+      [0,0,1,0,0],
+      [0,0,1,0,0],
+      [0,0,1,0,0],
+      [0,0,1,0,0],
+      [0,0,1,0,0],
+    ]},
+    {name:"O", mat:[
+      [0,1,1,1,0],
+      [1,1,0,1,1],
+      [1,0,0,0,1],
+      [1,1,0,1,1],
+      [0,1,1,1,0],
+    ]},
+    {name:"T", mat:[
+      [1,1,1,1,1],
+      [0,0,1,0,0],
+      [0,0,1,0,0],
+      [0,0,1,0,0],
+      [0,0,1,0,0],
+    ]},
+    {name:"L", mat:[
+      [1,0,0,0,0],
+      [1,0,0,0,0],
+      [1,0,0,0,0],
+      [1,0,0,0,0],
+      [1,1,1,1,1],
+    ]},
+    {name:"J", mat:[
+      [0,0,0,0,1],
+      [0,0,0,0,1],
+      [0,0,0,0,1],
+      [0,0,0,0,1],
+      [1,1,1,1,1],
+    ]},
+    {name:"S", mat:[
+      [0,1,1,1,1],
+      [1,1,1,1,0],
+      [0,0,1,1,0],
+      [0,1,1,1,1],
+      [1,1,1,1,0],
+    ]},
+    {name:"Z", mat:[
+      [1,1,1,1,0],
+      [0,1,1,1,1],
+      [0,0,1,1,0],
+      [1,1,1,1,0],
+      [0,1,1,1,1],
+    ]},
+    {name:"+", mat:[
+      [0,0,1,0,0],
+      [0,0,1,0,0],
+      [1,1,1,1,1],
+      [0,0,1,0,0],
+      [0,0,1,0,0],
+    ]},
+    {name:"U", mat:[
+      [1,0,0,0,1],
+      [1,0,0,0,1],
+      [1,0,0,0,1],
+      [1,0,0,0,1],
+      [0,1,1,1,0],
+    ]},
+  ];
+
+  function rot90(mat){
+    const h = mat.length, w = mat[0].length;
+    const out = Array.from({length:w}, () => Array(h).fill(0));
+    for(let y=0;y<h;y++) for(let x=0;x<w;x++) out[x][h-1-y] = mat[y][x];
+    return out;
+  }
+  function flipH(mat){
+    return mat.map(r => r.slice().reverse());
+  }
+  function orientMat(baseMat, rotSteps, flipped){
+    let m = baseMat;
+    if(flipped) m = flipH(m);
+    for(let i=0;i<rotSteps;i++) m = rot90(m);
+    return m;
+  }
+
+  // -----------------------
+  // Canvas sizing (fix)
+  // -----------------------
+  function fitCanvasToCSS(canvas) {
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width < 2 || rect.height < 2) return false;
+    const w = Math.max(1, Math.round(rect.width * dpr));
+    const h = Math.max(1, Math.round(rect.height * dpr));
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w; canvas.height = h;
+    }
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // draw in CSS px
+    ctx.imageSmoothingEnabled = false;
+    return true;
+  }
+
+  // -----------------------
+  // State
+  // -----------------------
+  const boardCanvas = document.getElementById("boardCanvas");
+  const targetCanvas = document.getElementById("targetCanvas");
+  const solCanvas = document.getElementById("solutionCanvas");
+
+  let board = makeGrid(0);
+  let target = null;         // grid or null
+  let targetRecipe = null;   // {diff, steps:[...]} or null
+  let challenge = false;
+  let moves = 0;
+
+  // stamp selection + orientation
+  let stampIdx = 0;
+  let rotSteps = 0;   // 0..3
+  let flipped = false;
+  let colorKey = "C";
+
+  // Undo/redo (store board grids)
+  const undoStack = [];
+  const redoStack = [];
+
+  // View (simple: fit-to-canvas with margins)
+  let zoom = 1;
+  let panX = 0, panY = 0;
+  let dragging = false;
+  let dragStart = null;
+
+  // -----------------------
+  // UI elements
+  // -----------------------
+  const modeBtn = document.getElementById("modeBtn");
+  const modePill = document.getElementById("modePill");
+  const statusPill = document.getElementById("statusPill");
+  const movesEl = document.getElementById("moves");
+  const stampNameEl = document.getElementById("stampName");
+  const orientEl = document.getElementById("orient");
+  const flipTagEl = document.getElementById("flipTag");
+  const diffLabel = document.getElementById("diffLabel");
+
+  const resetBtn = document.getElementById("resetBtn");
+  const undoBtn = document.getElementById("undoBtn");
+  const redoBtn = document.getElementById("redoBtn");
+  const rotBtn = document.getElementById("rotBtn");
+  const flipBtn = document.getElementById("flipBtn");
+  const fitBtn = document.getElementById("fitBtn");
+
+  const stampGrid = document.getElementById("stampGrid");
+  const radios = Array.from(document.querySelectorAll(".radio"));
+
+  const codeBox = document.getElementById("codeBox");
+  const setTargetFromBoardBtn = document.getElementById("setTargetFromBoardBtn");
+  const clearTargetBtn = document.getElementById("clearTargetBtn");
+  const copyTargetBtn = document.getElementById("copyTargetBtn");
+  const loadTargetBtn = document.getElementById("loadTargetBtn");
+
+  const diffSel = document.getElementById("diffSel");
+  const newTargetBtn = document.getElementById("newTargetBtn");
+  const showSolutionBtn = document.getElementById("showSolutionBtn");
+
+  // Solved overlay
+  const solvedOverlay = document.getElementById("solvedOverlay");
+  const solvedCloseBtn = document.getElementById("solvedCloseBtn");
+  const solvedNewBtn = document.getElementById("solvedNewBtn");
+  const solvedShowBtn = document.getElementById("solvedShowBtn");
+
+  // Solution modal
+  const solutionModal = document.getElementById("solutionModal");
+  const closeSolModal = document.getElementById("closeSolModal");
+  const playBtn = document.getElementById("playBtn");
+  const pauseBtn = document.getElementById("pauseBtn");
+  const stepBtn = document.getElementById("stepBtn");
+  const restartBtn = document.getElementById("restartBtn");
+  const applyToBoardBtn = document.getElementById("applyToBoardBtn");
+  const stepNowEl = document.getElementById("stepNow");
+  const stepTotEl = document.getElementById("stepTot");
+  const stepSlider = document.getElementById("stepSlider");
+  const speedSlider = document.getElementById("speedSlider");
+  const speedLbl = document.getElementById("speedLbl");
+
+  // Replay state
+  let replayTimer = null;
+  let replayStep = 0;
+  let replayGrid = makeGrid(0);
+
+  // -----------------------
+  // Rendering
+  // -----------------------
+  function colorFromBits(v){ return COLORS[v] || COLORS[0]; }
+
+  function drawGrid(ctx, grid, opts={}){
+    const {showDiff=false, diffGrid=null} = opts;
+
+    const rect = ctx.canvas.getBoundingClientRect();
+    const W = rect.width, H = rect.height;
+
+    // Simple padding and cell size
+    const pad = 14;
+    const cell = Math.floor(Math.min((W-2*pad)/N, (H-2*pad)/N));
+    const gridW = cell*N;
+    const gridH = cell*N;
+
+    const ox = Math.floor((W - gridW)/2) + panX;
+    const oy = Math.floor((H - gridH)/2) + panY;
+
+    // Apply zoom around center (simple)
+    ctx.save();
+    ctx.translate(W/2, H/2);
+    ctx.scale(zoom, zoom);
+    ctx.translate(-W/2, -H/2);
+
+    // Background
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = "rgba(0,0,0,.16)";
+    ctx.fillRect(0,0,W,H);
+
+    // Cells
+    for(let y=0;y<N;y++){
+      for(let x=0;x<N;x++){
+        const v = grid[y][x];
+        const px = ox + x*cell;
+        const py = oy + y*cell;
+        ctx.fillStyle = colorFromBits(v);
+        ctx.fillRect(px, py, cell, cell);
+
+        // Optional mismatch highlight
+        if(showDiff && diffGrid){
+          const bad = diffGrid[y][x];
+          if(bad){
+            ctx.fillStyle = "rgba(255,107,107,.18)";
+            ctx.fillRect(px, py, cell, cell);
+          }
+        }
+
+        // subtle grid lines
+        ctx.strokeStyle = "rgba(10,12,20,.35)";
+        ctx.strokeRect(px+.5, py+.5, cell-1, cell-1);
+      }
+    }
+
+    // Border
+    ctx.strokeStyle = "rgba(255,255,255,.14)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(ox+.5, oy+.5, gridW-1, gridH-1);
+
+    ctx.restore();
+
+    return {cell, ox, oy, W, H};
+  }
+
+  function drawBoard(){
+    const ctx = boardCanvas.getContext("2d");
+    const diff = (challenge && target) ? buildDiffGrid(board, target) : null;
+    drawGrid(ctx, board, {showDiff: !!diff, diffGrid: diff});
+  }
+
+  function drawTarget(){
+    const ctx = targetCanvas.getContext("2d");
+    const g = target || makeGrid(0);
+    // Draw without board pan/zoom (use neutral view)
+    const saved = {zoom, panX, panY};
+    zoom = 1; panX = 0; panY = 0;
+    drawGrid(ctx, g);
+    zoom = saved.zoom; panX = saved.panX; panY = saved.panY;
+  }
+
+  function drawSolution(){
+    const ctx = solCanvas.getContext("2d");
+    const saved = {zoom, panX, panY};
+    zoom = 1; panX = 0; panY = 0;
+    drawGrid(ctx, replayGrid);
+    zoom = saved.zoom; panX = saved.panX; panY = saved.panY;
+  }
+
+  function buildDiffGrid(a,b){
+    const out = Array.from({length:N}, () => Array(N).fill(false));
+    for(let y=0;y<N;y++) for(let x=0;x<N;x++) out[y][x] = (a[y][x] !== b[y][x]);
+    return out;
+  }
+
+  function refreshAll(){
+    // Ensure canvases are sized
+    fitCanvasToCSS(boardCanvas);
+    fitCanvasToCSS(targetCanvas);
+    fitCanvasToCSS(solCanvas);
+
+    drawBoard();
+    drawTarget();
+    if(solutionModal.style.display === "flex") drawSolution();
+
+    // UI updates
+    stampNameEl.textContent = STAMPS[stampIdx].name;
+    orientEl.textContent = (rotSteps*90) + "°";
+    flipTagEl.textContent = flipped ? " · flipped" : "";
+    movesEl.textContent = moves;
+
+    modePill.textContent = "Mode: " + (challenge ? "Challenge" : "Free");
+    modeBtn.textContent = "Mode: " + (challenge ? "Challenge" : "Free");
+
+    if(challenge && target){
+      const wrong = countWrong(board, target);
+      statusPill.textContent = "Wrong cells: " + wrong;
+      statusPill.className = "pill " + (wrong === 0 ? "good" : "bad");
+      if(wrong === 0) showSolved();
+    }else{
+      statusPill.textContent = "Wrong cells: —";
+      statusPill.className = "pill";
+    }
+
+    diffLabel.textContent = targetRecipe?.diff ? targetRecipe.diff : (target ? "custom" : "—");
+    showSolutionBtn.disabled = !(targetRecipe && targetRecipe.steps && targetRecipe.steps.length);
+
+    undoBtn.disabled = undoStack.length === 0;
+    redoBtn.disabled = redoStack.length === 0;
+  }
+
+  // -----------------------
+  // Placement logic
+  // -----------------------
+  function colorBitFromKey(k){
+    if(k === "C") return C_BIT;
+    if(k === "M") return M_BIT;
+    return Y_BIT;
+  }
+
+  function pushUndo(){
+    undoStack.push(deepCloneGrid(board));
+    if(undoStack.length > 200) undoStack.shift();
+    redoStack.length = 0;
+  }
+
+  function applyStamp(grid, cx, cy, stampIndex, rot, flip, bit){
+    const base = STAMPS[stampIndex].mat;
+    const mat = orientMat(base, rot, flip);
+    const h = mat.length, w = mat[0].length;
+    const ox = cx - Math.floor(w/2);
+    const oy = cy - Math.floor(h/2);
+
+    for(let y=0;y<h;y++){
+      for(let x=0;x<w;x++){
+        if(!mat[y][x]) continue;
+        const gx = ox + x;
+        const gy = oy + y;
+        if(gx<0 || gx>=N || gy<0 || gy>=N) continue;
+        grid[gy][gx] ^= bit;
+      }
+    }
+  }
+
+  function placeAtCell(x, y){
+    pushUndo();
+    applyStamp(board, x, y, stampIdx, rotSteps, flipped, colorBitFromKey(colorKey));
+    moves++;
+    refreshAll();
+  }
+
+  function canvasToCell(canvas, evt){
+    const rect = canvas.getBoundingClientRect();
+    const x = (evt.clientX - rect.left);
+    const y = (evt.clientY - rect.top);
+
+    // Match drawGrid cell sizing logic
+    const W = rect.width, H = rect.height;
+    const pad = 14;
+    const cell = Math.floor(Math.min((W-2*pad)/N, (H-2*pad)/N));
+    const gridW = cell*N;
+    const gridH = cell*N;
+    const ox0 = Math.floor((W - gridW)/2) + panX;
+    const oy0 = Math.floor((H - gridH)/2) + panY;
+
+    // Apply inverse zoom (center zoom)
+    const zx = (x - W/2)/zoom + W/2;
+    const zy = (y - H/2)/zoom + H/2;
+
+    const gx = Math.floor((zx - ox0)/cell);
+    const gy = Math.floor((zy - oy0)/cell);
+    if(gx<0||gx>=N||gy<0||gy>=N) return null;
+    return {gx, gy};
+  }
+
+  // -----------------------
+  // Target generation (interesting overlaps + difficulty)
+  // -----------------------
+  function filledCells(grid){
+    const pts = [];
+    for(let y=0;y<N;y++) for(let x=0;x<N;x++) if(grid[y][x] !== 0) pts.push({x,y});
+    return pts;
+  }
+
+  function genTarget(diff){
+    // difficulty knobs
+    const cfg = {
+      easy:   {steps:[6,10],  stamps:[0,2,3,7,8], colors:["C","M","Y"], overlapP:0.45, rotP:0.25, flipP:0.10},
+      medium: {steps:[10,18], stamps:[0,1,2,3,4,7,8], colors:["C","M","Y"], overlapP:0.60, rotP:0.55, flipP:0.25},
+      hard:   {steps:[18,30], stamps:[0,1,2,3,4,5,6,7,8], colors:["C","M","Y"], overlapP:0.75, rotP:0.85, flipP:0.45},
+    }[diff] || null;
+
+    if(!cfg) return;
+
+    const g = makeGrid(0);
+    const stepsN = randi(cfg.steps[0], cfg.steps[1]);
+    const steps = [];
+
+    for(let i=0;i<stepsN;i++){
+      const stamp = cfg.stamps[randi(0, cfg.stamps.length-1)];
+      const color = cfg.colors[randi(0, cfg.colors.length-1)];
+      const rot = (rand() < cfg.rotP) ? randi(0,3) : 0;
+      const flip = (rand() < cfg.flipP);
+
+      // choose a placement with overlaps:
+      // with overlapP, sample near existing filled cell; else anywhere
+      let cx, cy;
+      const filled = filledCells(g);
+      if(filled.length && rand() < cfg.overlapP){
+        const p = filled[randi(0, filled.length-1)];
+        cx = Math.min(N-1, Math.max(0, p.x + randi(-2,2)));
+        cy = Math.min(N-1, Math.max(0, p.y + randi(-2,2)));
+      }else{
+        cx = randi(0,N-1);
+        cy = randi(0,N-1);
+      }
+
+      applyStamp(g, cx, cy, stamp, rot, flip, colorBitFromKey(color));
+      steps.push({cx, cy, stamp, rot, flip, color});
+    }
+
+    // Avoid boring targets (too empty or too full)
+    // Quick heuristic: require at least 16 non-empty cells
+    let nonEmpty = 0;
+    for(let y=0;y<N;y++) for(let x=0;x<N;x++) if(g[y][x] !== 0) nonEmpty++;
+    if(nonEmpty < 16){
+      // Try once more with a slightly higher step count
+      return genTarget(diff === "easy" ? "medium" : diff);
+    }
+
+    target = g;
+    targetRecipe = { v: 2, diff, steps };
+    challenge = true;
+
+    encodeTargetToBox();
+    refreshAll();
+  }
+
+  // -----------------------
+  // Encoding / decoding target code (v2 JSON base64)
+  // Includes: target grid + recipe steps (if any)
+  // -----------------------
+  function encodeTargetToBox(){
+    if(!target){
+      codeBox.value = "";
+      return;
+    }
+    const payload = {
+      v: 2,
+      n: N,
+      target,
+      recipe: targetRecipe ? targetRecipe : null
+    };
+    const json = JSON.stringify(payload);
+    const b64 = btoa(unescape(encodeURIComponent(json)));
+    codeBox.value = b64;
+  }
+
+  function decodeFromBox(){
+    const txt = (codeBox.value || "").trim();
+    if(!txt) return null;
+
+    try{
+      const json = decodeURIComponent(escape(atob(txt)));
+      const obj = JSON.parse(json);
+
+      if(obj && obj.v === 2 && obj.n === N && obj.target){
+        target = obj.target;
+        targetRecipe = obj.recipe && obj.recipe.steps ? obj.recipe : null;
+        challenge = true;
+        refreshAll();
+        return true;
+      }
+    }catch(e){
+      // fall through
+    }
+
+    alert("Could not load this target code (wrong format).");
+    return false;
+  }
+
+  // -----------------------
+  // Solved UI
+  // -----------------------
+  function showSolved(){
+    if(!challenge || !target) return;
+    // Avoid re-show spam: only show if overlay not already open
+    if(solvedOverlay.style.display === "flex") return;
+    solvedOverlay.style.display = "flex";
+  }
+  function hideSolved(){
+    solvedOverlay.style.display = "none";
+  }
+
+  // -----------------------
+  // Solution replay
+  // -----------------------
+  function openSolution(){
+    if(!(targetRecipe && targetRecipe.steps && targetRecipe.steps.length)){
+      alert("No solution recipe available for this target.");
+      return;
+    }
+    solutionModal.style.display = "flex";
+    stopReplay();
+    replayStep = 0;
+    replayGrid = makeGrid(0);
+    stepTotEl.textContent = targetRecipe.steps.length;
+    stepSlider.max = String(targetRecipe.steps.length);
+    stepSlider.value = "0";
+    stepNowEl.textContent = "0";
+    refreshAll();
+    drawSolution();
+  }
+
+  function closeSolution(){
+    solutionModal.style.display = "none";
+    stopReplay();
+  }
+
+  function applyStep(stepIndex){
+    if(!targetRecipe) return;
+    if(stepIndex <= 0){
+      replayGrid = makeGrid(0);
+      replayStep = 0;
+      return;
+    }
+    // rebuild to that step (fast enough, steps <= 30)
+    replayGrid = makeGrid(0);
+    for(let i=0;i<stepIndex;i++){
+      const s = targetRecipe.steps[i];
+      applyStamp(replayGrid, s.cx, s.cy, s.stamp, s.rot, s.flip, colorBitFromKey(s.color));
+    }
+    replayStep = stepIndex;
+  }
+
+  function syncReplayUI(){
+    stepNowEl.textContent = String(replayStep);
+    stepSlider.value = String(replayStep);
+    drawSolution();
+  }
+
+  function stepForward(){
+    if(!targetRecipe) return;
+    if(replayStep >= targetRecipe.steps.length) return;
+    replayStep++;
+    applyStep(replayStep);
+    syncReplayUI();
+  }
+
+  function stopReplay(){
+    if(replayTimer){ clearInterval(replayTimer); replayTimer = null; }
+  }
+
+  function startReplay(){
+    if(!targetRecipe) return;
+    stopReplay();
+    const speed = Number(speedSlider.value); // 1..8
+    const ms = Math.round(520 / (speed/4));  // roughly x1 at 4
+    replayTimer = setInterval(() => {
+      if(replayStep >= targetRecipe.steps.length){
+        stopReplay();
+        return;
+      }
+      stepForward();
+    }, ms);
+  }
+
+  function setSpeedLabel(){
+    const v = Number(speedSlider.value);
+    const x = (v/4).toFixed(1);
+    speedLbl.textContent = "x" + x;
+  }
+
+  // -----------------------
+  // Event wiring
+  // -----------------------
+  function buildStampButtons(){
+    stampGrid.innerHTML = "";
+    STAMPS.forEach((s, i) => {
+      const b = document.createElement("button");
+      b.className = "stampBtn" + (i===stampIdx ? " sel" : "");
+      b.type = "button";
+      b.innerHTML = `${s.name}<small>#${i+1}</small>`;
+      b.addEventListener("click", () => {
+        stampIdx = i;
+        Array.from(document.querySelectorAll(".stampBtn")).forEach((el, j) => {
+          el.classList.toggle("sel", j===stampIdx);
+        });
+        refreshAll();
+      });
+      stampGrid.appendChild(b);
+    });
+  }
+
+  function setColor(k){
+    colorKey = k;
+    radios.forEach(r => r.classList.toggle("sel", r.dataset.color === k));
+    refreshAll();
+  }
+
+  radios.forEach(r => {
+    r.addEventListener("click", () => setColor(r.dataset.color));
+  });
+
+  modeBtn.addEventListener("click", () => {
+    challenge = !challenge;
+    refreshAll();
+  });
+
+  resetBtn.addEventListener("click", () => {
+    pushUndo();
+    board = makeGrid(0);
+    moves = 0;
+    refreshAll();
+  });
+
+  undoBtn.addEventListener("click", () => {
+    if(!undoStack.length) return;
+    redoStack.push(deepCloneGrid(board));
+    board = undoStack.pop();
+    moves = Math.max(0, moves-1);
+    refreshAll();
+  });
+
+  redoBtn.addEventListener("click", () => {
+    if(!redoStack.length) return;
+    undoStack.push(deepCloneGrid(board));
+    board = redoStack.pop();
+    moves++;
+    refreshAll();
+  });
+
+  rotBtn.addEventListener("click", () => {
+    rotSteps = (rotSteps + 1) % 4;
+    refreshAll();
+  });
+
+  flipBtn.addEventListener("click", () => {
+    flipped = !flipped;
+    refreshAll();
+  });
+
+  fitBtn.addEventListener("click", () => {
+    zoom = 1;
+    panX = 0; panY = 0;
+    refreshAll();
+  });
+
+  // Board interaction: click places stamp; drag pans; wheel zoom
+  boardCanvas.addEventListener("pointerdown", (e) => {
+    boardCanvas.setPointerCapture(e.pointerId);
+    dragging = true;
+    dragStart = {x:e.clientX, y:e.clientY, panX, panY, moved:false};
+  });
+
+  boardCanvas.addEventListener("pointermove", (e) => {
+    if(!dragging || !dragStart) return;
+    const dx = e.clientX - dragStart.x;
+    const dy = e.clientY - dragStart.y;
+    if(Math.abs(dx)+Math.abs(dy) > 4) dragStart.moved = true;
+    panX = dragStart.panX + dx;
+    panY = dragStart.panY + dy;
+    drawBoard();
+  });
+
+  boardCanvas.addEventListener("pointerup", (e) => {
+    if(!dragging) return;
+    dragging = false;
+
+    // treat as click if not moved
+    if(dragStart && !dragStart.moved){
+      const cell = canvasToCell(boardCanvas, e);
+      if(cell) placeAtCell(cell.gx, cell.gy);
+    }
+    dragStart = null;
+  });
+
+  boardCanvas.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    const delta = Math.sign(e.deltaY);
+    const factor = delta > 0 ? 0.92 : 1.08;
+    zoom = Math.max(0.65, Math.min(2.6, zoom * factor));
+    drawBoard();
+  }, {passive:false});
+
+  // Target tools
+  setTargetFromBoardBtn.addEventListener("click", () => {
+    target = deepCloneGrid(board);
+    targetRecipe = null; // custom (no recipe)
+    challenge = true;
+    encodeTargetToBox();
+    refreshAll();
+  });
+
+  clearTargetBtn.addEventListener("click", () => {
+    target = null;
+    targetRecipe = null;
+    encodeTargetToBox();
+    refreshAll();
+  });
+
+  copyTargetBtn.addEventListener("click", async () => {
+    try{
+      await navigator.clipboard.writeText(codeBox.value || "");
+      copyTargetBtn.textContent = "Copied";
+      setTimeout(() => copyTargetBtn.textContent = "Copy target code", 800);
+    }catch(e){
+      alert("Clipboard not available. Copy manually.");
+    }
+  });
+
+  loadTargetBtn.addEventListener("click", () => {
+    decodeFromBox();
+  });
+
+  newTargetBtn.addEventListener("click", () => {
+    genTarget(diffSel.value);
+  });
+
+  showSolutionBtn.addEventListener("click", () => openSolution());
+
+  // Solved overlay buttons
+  solvedCloseBtn.addEventListener("click", hideSolved);
+  solvedNewBtn.addEventListener("click", () => {
+    hideSolved();
+    genTarget(diffSel.value);
+  });
+  solvedShowBtn.addEventListener("click", () => {
+    hideSolved();
+    openSolution();
+  });
+  solvedOverlay.addEventListener("click", (e) => {
+    if(e.target === solvedOverlay) hideSolved();
+  });
+
+  // Solution modal controls
+  closeSolModal.addEventListener("click", closeSolution);
+  solutionModal.addEventListener("click", (e) => {
+    if(e.target === solutionModal) closeSolution();
+  });
+
+  playBtn.addEventListener("click", startReplay);
+  pauseBtn.addEventListener("click", stopReplay);
+  stepBtn.addEventListener("click", () => { stopReplay(); stepForward(); });
+  restartBtn.addEventListener("click", () => { stopReplay(); replayStep = 0; applyStep(0); syncReplayUI(); });
+
+  stepSlider.addEventListener("input", () => {
+    stopReplay();
+    const v = Number(stepSlider.value);
+    applyStep(v);
+    replayStep = v;
+    syncReplayUI();
+  });
+
+  speedSlider.addEventListener("input", () => {
+    setSpeedLabel();
+    if(replayTimer) startReplay();
+  });
+
+  applyToBoardBtn.addEventListener("click", () => {
+    if(!targetRecipe) return;
+    pushUndo();
+    // Apply full recipe to board from empty
+    board = makeGrid(0);
+    for(const s of targetRecipe.steps){
+      applyStamp(board, s.cx, s.cy, s.stamp, s.rot, s.flip, colorBitFromKey(s.color));
+    }
+    moves++;
+    refreshAll();
+  });
+
+  // Keyboard shortcuts
+  window.addEventListener("keydown", (e) => {
+    if(solutionModal.style.display === "flex"){
+      if(e.key === "Escape"){ closeSolution(); return; }
+    }
+    if(e.key === "r" || e.key === "R"){ rotSteps = (rotSteps+1)%4; refreshAll(); }
+    if(e.key === "f" || e.key === "F"){ flipped = !flipped; refreshAll(); }
+    if(e.key === "z" || e.key === "Z"){ undoBtn.click(); }
+    if(e.key === "y" || e.key === "Y"){ redoBtn.click(); }
+    if(e.key === "0"){ fitBtn.click(); }
+  });
+
+  window.addEventListener("resize", () => requestAnimationFrame(refreshAll));
+
+  // -----------------------
+  // Init
+  // -----------------------
+  function init(){
+    buildStampButtons();
+    setColor("C");
+    diffSel.value = "medium";
+    setSpeedLabel();
+
+    // Set a default target once (so it doesn't feel empty)
+    genTarget("medium");
+    // reset board clean
+    board = makeGrid(0);
+    moves = 0;
+    undoStack.length = 0;
+    redoStack.length = 0;
+
+    requestAnimationFrame(refreshAll);
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
+```

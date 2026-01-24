@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Beep Buddy Quest</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bubblegum+Sans&family=Fredoka:wght@400;600;700&display=swap');
+
+    :root {
+      --bg-1: #ffefd5;
+      --bg-2: #b8f1ff;
+      --bg-3: #ffe3f0;
+      --ink: #2b2a34;
+      --muted: #5f6272;
+      --accent: #ff6f61;
+      --accent-2: #2fb8ff;
+      --accent-3: #36c36a;
+      --panel: rgba(255, 255, 255, 0.78);
+      --panel-2: rgba(255, 255, 255, 0.9);
+      --stroke: rgba(43, 42, 52, 0.12);
+      --shadow: 0 16px 36px rgba(55, 66, 92, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Fredoka', system-ui, sans-serif;
+      color: var(--ink);
+      min-height: 100vh;
+      background: radial-gradient(circle at 12% 20%, #ffffff, transparent 55%),
+        radial-gradient(circle at 80% 10%, #fff7c0, transparent 50%),
+        linear-gradient(140deg, var(--bg-1), var(--bg-2) 45%, var(--bg-3));
+      overflow-x: hidden;
+    }
+
+    .glow {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 80% 20%, rgba(255, 111, 97, 0.2), transparent 45%),
+        radial-gradient(circle at 10% 70%, rgba(47, 184, 255, 0.2), transparent 55%);
+      mix-blend-mode: multiply;
+      z-index: 0;
+    }
+
+    header {
+      position: relative;
+      z-index: 1;
+      padding: 32px 6vw 12px;
+    }
+
+    header h1 {
+      font-family: 'Bubblegum Sans', cursive;
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    header p {
+      margin-top: 10px;
+      max-width: 680px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      padding: 18px 6vw 80px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 2px solid var(--stroke);
+      box-shadow: var(--shadow);
+      border-radius: 18px;
+      padding: 20px;
+      backdrop-filter: blur(8px);
+      animation: floatIn 0.9s ease both;
+    }
+
+    .panel h2 {
+      font-size: 1.1rem;
+      margin-bottom: 14px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 12px 0;
+    }
+
+    .row label {
+      flex: 1;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .row input[type="number"],
+    .row select {
+      background: var(--panel-2);
+      color: var(--ink);
+      border: 1px solid var(--stroke);
+      border-radius: 10px;
+      padding: 6px 10px;
+      width: 90px;
+    }
+
+    .row .value {
+      width: 120px;
+      text-align: right;
+      color: var(--accent-3);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .btn {
+      border: 2px solid rgba(43, 42, 52, 0.15);
+      background: linear-gradient(135deg, #ffb15e, #ff6f61);
+      color: var(--ink);
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      font-weight: 600;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn.secondary {
+      background: #ffffff;
+      color: var(--muted);
+    }
+
+    .btn.toggle {
+      background: rgba(255, 255, 255, 0.7);
+      color: var(--muted);
+    }
+
+    .btn.toggle.active {
+      background: linear-gradient(135deg, rgba(74, 209, 255, 0.35), rgba(255, 179, 71, 0.35));
+      color: #1b1e2b;
+      border-color: rgba(74, 209, 255, 0.45);
+    }
+
+    .btn.ghost {
+      background: #ffffff;
+      color: var(--accent-2);
+    }
+
+    .meter {
+      height: 14px;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .meter span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent-3), var(--accent));
+      transition: width 0.3s ease;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .pad-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .pad {
+      border: 2px dashed rgba(43, 42, 52, 0.15);
+      background: #ffffff;
+      padding: 12px;
+      border-radius: 14px;
+    }
+
+    .pad h3 {
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .stepper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .stepper .btn {
+      min-width: 56px;
+    }
+
+    .stepper .readout {
+      min-width: 90px;
+      text-align: center;
+      font-weight: 700;
+      color: var(--accent-2);
+    }
+
+    .window {
+      background: #fffef5;
+      border: 2px solid rgba(43, 42, 52, 0.12);
+      border-radius: 16px;
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .bars {
+      display: grid;
+      gap: 8px;
+    }
+
+    .bar {
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .bar span {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .bar .track {
+      height: 14px;
+      background: rgba(43, 42, 52, 0.1);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar .fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #2fb8ff, #36c36a);
+      transition: width 0.2s ease;
+    }
+
+    .bar .fill.target {
+      background: linear-gradient(90deg, #ffb15e, #ff6f61);
+      opacity: 0.6;
+    }
+
+    .status {
+      margin-top: 12px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .viz-canvas {
+      width: 100%;
+      height: 240px;
+      border-radius: 16px;
+      border: 2px solid rgba(43, 42, 52, 0.12);
+      background: radial-gradient(700px 380px at 20% 20%, rgba(122, 162, 255, 0.16), transparent 65%),
+        rgba(0, 0, 0, 0.2);
+    }
+
+    .legend-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    .legend-dot.target {
+      background: rgba(250, 218, 170, 0.9);
+      box-shadow: 0 0 8px rgba(255, 177, 94, 0.7);
+    }
+
+    .legend-dot.player {
+      background: rgba(74, 209, 255, 0.95);
+      box-shadow: 0 0 8px rgba(74, 209, 255, 0.7);
+    }
+
+    footer {
+      padding: 18px 6vw 36px;
+      color: var(--muted);
+    }
+
+    @keyframes floatIn {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .pad-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="glow"></div>
+  <header>
+    <h1>Beep Buddy Quest</h1>
+    <p>Catch the silly beep, then mash the buttons until your sound matches. It is a tiny game, not a science class.</p>
+  </header>
+  <main>
+    <section class="panel">
+      <h2>Game Buttons</h2>
+      <div class="row">
+        <button class="btn" id="newRound">New Beep</button>
+        <button class="btn secondary" id="playTarget">Hold Beep</button>
+        <button class="btn secondary" id="playUser">Hold Mine</button>
+        <button class="btn ghost" id="stopAll">Stop</button>
+      </div>
+      <div class="row">
+        <button class="btn" id="scoreRound">Did I Win?</button>
+      </div>
+      <div class="row">
+        <label class="pill"><input type="checkbox" id="revealTarget" /> Reveal the secret</label>
+        <div class="value" id="targetFreqVal">??? Hz</div>
+      </div>
+      <div class="status" id="roundInfo">Ready. Start a new round.</div>
+    </section>
+
+    <section class="panel">
+      <h2>Toy Synth Pads</h2>
+      <div class="pad-grid">
+        <div class="pad">
+          <h3>Pitch Buttons</h3>
+          <div class="stepper">
+            <button class="btn secondary" id="freqDownBig">-10 Hz</button>
+            <button class="btn secondary" id="freqDown">-1 Hz</button>
+            <div class="readout" id="rootFreqVal">440 Hz</div>
+            <button class="btn secondary" id="freqUp">+1 Hz</button>
+            <button class="btn secondary" id="freqUpBig">+10 Hz</button>
+          </div>
+        </div>
+        <div class="pad">
+          <h3>Fine Wiggle</h3>
+          <div class="stepper">
+            <button class="btn secondary" id="fineDown">-5c</button>
+            <div class="readout" id="fineTuneVal">0c</div>
+            <button class="btn secondary" id="fineUp">+5c</button>
+          </div>
+        </div>
+        <div class="pad">
+          <h3>Detune Sprinkle</h3>
+          <div class="stepper">
+            <button class="btn secondary" id="detuneDown">-2c</button>
+            <div class="readout" id="detuneVal">0c</div>
+            <button class="btn secondary" id="detuneUp">+2c</button>
+          </div>
+        </div>
+        <div class="pad">
+          <h3>Harmonic Goo</h3>
+          <div class="stepper">
+            <button class="btn secondary" id="harmLess">Less</button>
+            <div class="readout" id="harmLevelVal">2nd: 20%</div>
+            <button class="btn secondary" id="harmMore">More</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Frequency Window</h2>
+      <div class="window">
+        <div class="row">
+          <span class="pill">Actual: <strong id="actualFreqVal">440.0 Hz</strong></span>
+          <span class="pill">Target: <strong id="targetFreqTiny">??? Hz</strong></span>
+        </div>
+        <div class="bars" id="userBars">
+          <div class="bar"><span>Fund</span><div class="track"><div class="fill" data-bar="u0"></div></div></div>
+          <div class="bar"><span>2nd</span><div class="track"><div class="fill" data-bar="u1"></div></div></div>
+          <div class="bar"><span>3rd</span><div class="track"><div class="fill" data-bar="u2"></div></div></div>
+          <div class="bar"><span>4th</span><div class="track"><div class="fill" data-bar="u3"></div></div></div>
+          <div class="bar"><span>5th</span><div class="track"><div class="fill" data-bar="u4"></div></div></div>
+          <div class="bar"><span>6th</span><div class="track"><div class="fill" data-bar="u5"></div></div></div>
+        </div>
+        <div class="bars" id="targetBars">
+          <div class="bar"><span>Fund</span><div class="track"><div class="fill target" data-bar="t0"></div></div></div>
+          <div class="bar"><span>2nd</span><div class="track"><div class="fill target" data-bar="t1"></div></div></div>
+          <div class="bar"><span>3rd</span><div class="track"><div class="fill target" data-bar="t2"></div></div></div>
+          <div class="bar"><span>4th</span><div class="track"><div class="fill target" data-bar="t3"></div></div></div>
+          <div class="bar"><span>5th</span><div class="track"><div class="fill target" data-bar="t4"></div></div></div>
+          <div class="bar"><span>6th</span><div class="track"><div class="fill target" data-bar="t5"></div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Visual Playground</h2>
+      <canvas id="viz" class="viz-canvas"></canvas>
+      <div class="row">
+        <button class="btn toggle active" id="vizSpectrum">Spectrum</button>
+        <button class="btn toggle" id="vizWave">Waveform</button>
+        <div class="spacer"></div>
+        <span class="pill"><span class="legend-dot target"></span>Target</span>
+        <span class="pill"><span class="legend-dot player"></span>You</span>
+      </div>
+      <div class="status" id="vizHint">Target trace appears after you play the beep.</div>
+    </section>
+
+    <section class="panel">
+      <h2>Score</h2>
+      <div class="row">
+        <span class="pill">Score: <strong id="score">0</strong></span>
+        <span class="pill">Streak: <strong id="streak">0</strong></span>
+      </div>
+      <div class="meter">
+        <span id="meterFill"></span>
+      </div>
+      <div class="status" id="feedback">No score yet.</div>
+    </section>
+  </main>
+  <footer>
+    Tip: Hold the beep, then hold your beep. Mash buttons until it sounds the same.
+  </footer>
+
+  <script>
+    const ui = (id) => document.getElementById(id);
+
+    const controls = {
+      newRound: ui('newRound'),
+      playTarget: ui('playTarget'),
+      playUser: ui('playUser'),
+      stopAll: ui('stopAll'),
+      scoreRound: ui('scoreRound'),
+      revealTarget: ui('revealTarget'),
+      freqDownBig: ui('freqDownBig'),
+      freqDown: ui('freqDown'),
+      freqUp: ui('freqUp'),
+      freqUpBig: ui('freqUpBig'),
+      fineDown: ui('fineDown'),
+      fineUp: ui('fineUp'),
+      detuneDown: ui('detuneDown'),
+      detuneUp: ui('detuneUp'),
+      harmLess: ui('harmLess'),
+      harmMore: ui('harmMore'),
+      vizSpectrum: ui('vizSpectrum'),
+      vizWave: ui('vizWave')
+    };
+
+    const values = {
+      rootFreqVal: ui('rootFreqVal'),
+      fineTuneVal: ui('fineTuneVal'),
+      detuneVal: ui('detuneVal'),
+      actualFreqVal: ui('actualFreqVal'),
+      targetFreqVal: ui('targetFreqVal'),
+      targetFreqTiny: ui('targetFreqTiny'),
+      harmLevelVal: ui('harmLevelVal'),
+      roundInfo: ui('roundInfo'),
+      score: ui('score'),
+      streak: ui('streak'),
+      meterFill: ui('meterFill'),
+      feedback: ui('feedback')
+    };
+
+    let audioCtx = null;
+    let userSynth = null;
+    let targetSynth = null;
+    let activeUser = null;
+    let activeTarget = null;
+    let rootFreq = 440;
+    let fineTune = 0;
+    let detune = 0;
+    let harmLevel = 2;
+    let gameState = {
+      round: null,
+      score: 0,
+      streak: 0
+    };
+
+    const harmSteps = [
+      [0.05, 0.03, 0.02, 0.01, 0.0],
+      [0.1, 0.05, 0.04, 0.02, 0.01],
+      [0.2, 0.1, 0.05, 0.03, 0.02],
+      [0.35, 0.2, 0.1, 0.06, 0.04]
+    ];
+
+    let vizMode = 'spectrum';
+    const targetSnapshot = {
+      spectrum: null,
+      waveform: null,
+      level: 0
+    };
+
+    const normalizeDb = (data, min = -95, max = -20) => {
+      const out = new Float32Array(data.length);
+      const span = max - min;
+      for (let i = 0; i < data.length; i += 1) {
+        out[i] = Math.min(1, Math.max(0, (data[i] - min) / span));
+      }
+      return out;
+    };
+
+    const rmsLevel = (timeData) => {
+      let sum = 0;
+      for (let i = 0; i < timeData.length; i += 1) {
+        sum += timeData[i] * timeData[i];
+      }
+      return Math.min(1, Math.sqrt(sum / timeData.length));
+    };
+
+    class AdditiveSynth {
+      constructor(ctx, analyser) {
+        this.ctx = ctx;
+        this.output = ctx.createGain();
+        this.filter = ctx.createBiquadFilter();
+        this.analyser = analyser || ctx.createAnalyser();
+        this.filter.type = 'lowpass';
+        this.output.gain.value = 0.5;
+        this.filter.frequency.value = 6000;
+        this.analyser.fftSize = 2048;
+        this.analyser.smoothingTimeConstant = 0.75;
+        this.filter.connect(this.analyser);
+        this.analyser.connect(this.output);
+        this.output.connect(ctx.destination);
+        this.active = [];
+      }
+
+      updateFilter(cutoff) {
+        this.filter.frequency.setTargetAtTime(cutoff, this.ctx.currentTime, 0.02);
+      }
+
+      startHold(params) {
+        this.stopAll();
+        const voices = params.frequencies.map((freq) => this.createVoice(freq, params, true));
+        this.active = voices;
+        return voices;
+      }
+
+      updateHold(params) {
+        this.updateFilter(params.cutoff);
+        this.active.forEach((voice, index) => {
+          const freq = params.frequencies[index] || params.frequencies[0];
+          voice.oscillators.forEach((osc, i) => {
+            osc.frequency.setTargetAtTime(freq * (i + 1), this.ctx.currentTime, 0.02);
+          });
+          voice.gains.forEach((gain, i) => {
+            const amp = i === 0 ? 1 : params.harmonics[i - 1] || 0;
+            gain.gain.setTargetAtTime(amp, this.ctx.currentTime, 0.02);
+          });
+        });
+      }
+
+      createVoice(freq, params, hold) {
+        const amp = this.ctx.createGain();
+        amp.gain.value = 0.0001;
+        amp.connect(this.filter);
+
+        const oscillators = [];
+        const gains = [];
+        const harmonics = [1, ...params.harmonics];
+
+        harmonics.forEach((h, index) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq * (index + 1);
+          gain.gain.value = h;
+          osc.connect(gain);
+          gain.connect(amp);
+          osc.start();
+          oscillators.push(osc);
+          gains.push(gain);
+        });
+
+        if (hold) {
+          const now = this.ctx.currentTime;
+          const a = params.attack;
+          const d = params.decay;
+          const s = params.sustain;
+          amp.gain.cancelScheduledValues(now);
+          amp.gain.setValueAtTime(0.0001, now);
+          amp.gain.linearRampToValueAtTime(1, now + a);
+          amp.gain.linearRampToValueAtTime(s, now + a + d);
+        }
+
+        return { oscillators, gains, amp };
+      }
+
+      stopAll() {
+        const now = this.ctx.currentTime;
+        this.active.forEach((voice) => {
+          voice.amp.gain.cancelScheduledValues(now);
+          voice.amp.gain.setTargetAtTime(0.0001, now, 0.05);
+          voice.oscillators.forEach((osc) => osc.stop(now + 0.3));
+        });
+        this.active = [];
+      }
+    }
+
+    const ensureAudio = async () => {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const makeAnalyser = () => {
+          const analyser = audioCtx.createAnalyser();
+          analyser.fftSize = 2048;
+          analyser.smoothingTimeConstant = 0.8;
+          return analyser;
+        };
+        userSynth = new AdditiveSynth(audioCtx, makeAnalyser());
+        targetSynth = new AdditiveSynth(audioCtx, makeAnalyser());
+      }
+      if (audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+      }
+    };
+
+    const getTunedFrequency = () => {
+      return rootFreq * Math.pow(2, (fineTune + detune) / 1200);
+    };
+
+    const getUserParams = () => {
+      const tuned = getTunedFrequency();
+      const frequencies = [tuned];
+
+      return {
+        frequencies,
+        harmonics: harmSteps[harmLevel],
+        attack: 0.05,
+        decay: 0.2,
+        sustain: 0.7,
+        release: 0.4,
+        cutoff: 7000
+      };
+    };
+
+    const updateActualFrequency = () => {
+      values.actualFreqVal.textContent = `${getTunedFrequency().toFixed(1)} Hz`;
+    };
+
+    const updateReadouts = () => {
+      values.rootFreqVal.textContent = `${rootFreq} Hz`;
+      values.fineTuneVal.textContent = `${fineTune}c`;
+      values.detuneVal.textContent = `${detune}c`;
+      values.harmLevelVal.textContent = `2nd: ${Math.round(harmSteps[harmLevel][0] * 100)}%`;
+      updateActualFrequency();
+      if (activeUser) {
+        userSynth.updateHold(getUserParams());
+      }
+    };
+
+    const updateSpectrumWindow = () => {
+      const userH = [1, ...getUserParams().harmonics];
+      const targetH = gameState.round ? [1, ...gameState.round.harmonics] : [1, 0, 0, 0, 0, 0];
+      userH.forEach((val, i) => {
+        const bar = document.querySelector(`[data-bar="u${i}"]`);
+        if (bar) bar.style.width = `${Math.min(1, val) * 100}%`;
+      });
+      targetH.forEach((val, i) => {
+        const bar = document.querySelector(`[data-bar="t${i}"]`);
+        if (bar) bar.style.width = `${Math.min(1, val) * 100}%`;
+      });
+    };
+
+    const captureTargetSnapshot = () => {
+      if (!targetSynth) return;
+      const analyser = targetSynth.analyser;
+      const freq = new Float32Array(analyser.frequencyBinCount);
+      analyser.getFloatFrequencyData(freq);
+      targetSnapshot.spectrum = normalizeDb(freq);
+
+      const time = new Float32Array(analyser.fftSize);
+      analyser.getFloatTimeDomainData(time);
+      targetSnapshot.waveform = time;
+      targetSnapshot.level = rmsLevel(time);
+    };
+
+    const randomBetween = (min, max) => Math.random() * (max - min) + min;
+
+    const createRound = () => {
+      const base = randomBetween(180, 740);
+      const harmonics = [0.1, 0.05, 0.05, 0.03, 0.02].map((val) => val * randomBetween(0.5, 1.4));
+
+      const round = {
+        root: base,
+        harmonics: harmonics
+      };
+
+      gameState.round = round;
+      values.roundInfo.textContent = 'New beep ready. Catch it if you can.';
+      values.feedback.textContent = 'Listen to the beep, then match it.';
+      values.targetFreqVal.textContent = controls.revealTarget.checked ? `${round.root.toFixed(1)} Hz` : '??? Hz';
+      values.targetFreqTiny.textContent = values.targetFreqVal.textContent;
+      updateSpectrumWindow();
+    };
+
+    const playTargetHold = async () => {
+      if (!gameState.round) return;
+      await ensureAudio();
+      const round = gameState.round;
+      const base = round.root;
+      const settings = {
+        frequencies: [base],
+        harmonics: round.harmonics,
+        attack: 0.05,
+        decay: 0.2,
+        sustain: 0.7,
+        release: 0.4,
+        cutoff: 7000
+      };
+
+      targetSynth.startHold(settings);
+      activeTarget = true;
+      setTimeout(() => {
+        if (activeTarget) captureTargetSnapshot();
+      }, 120);
+    };
+
+    const playUserHold = async () => {
+      await ensureAudio();
+      const params = getUserParams();
+      userSynth.updateFilter(params.cutoff);
+      activeUser = true;
+      userSynth.startHold(params);
+    };
+
+    const stopAll = () => {
+      if (userSynth) userSynth.stopAll();
+      if (targetSynth) targetSynth.stopAll();
+      activeUser = false;
+      activeTarget = false;
+      controls.playUser.textContent = 'Hold Mine';
+      controls.playTarget.textContent = 'Hold Beep';
+    };
+
+    const scoreRound = () => {
+      if (!gameState.round) return;
+      const params = getUserParams();
+      const round = gameState.round;
+      let score = 0;
+      let message = '';
+
+      const userFreq = params.frequencies[0];
+      const cents = 1200 * Math.log2(userFreq / round.root);
+      const freqScore = Math.max(0, 100 - (Math.abs(cents) / 20) * 100);
+
+      const targetH = round.harmonics;
+      const userH = params.harmonics;
+      const dot = targetH.reduce((sum, val, i) => sum + val * userH[i], 0);
+      const magT = Math.sqrt(targetH.reduce((sum, val) => sum + val * val, 0));
+      const magU = Math.sqrt(userH.reduce((sum, val) => sum + val * val, 0));
+      const sim = magT && magU ? dot / (magT * magU) : 0;
+
+      const harmonicScore = sim * 100;
+      const weight = 0.4;
+      score = Math.round(freqScore * (1 - weight) + harmonicScore * weight);
+      message = `You are ${Math.abs(cents).toFixed(1)}c off. Harmonics: ${(sim * 100).toFixed(0)}%.`;
+
+      values.score.textContent = score;
+      values.meterFill.style.width = `${score}%`;
+      values.feedback.textContent = message + (score > 80 ? ' You caught it!' : ' Keep button mashing.');
+
+      if (score > 80) {
+        gameState.streak += 1;
+      } else {
+        gameState.streak = 0;
+      }
+      values.streak.textContent = gameState.streak;
+    };
+
+    const viz = ui('viz');
+    const vizCtx = viz ? viz.getContext('2d') : null;
+
+    const resizeViz = () => {
+      if (!viz || !vizCtx) return;
+      const dpr = window.devicePixelRatio || 1;
+      const rect = viz.getBoundingClientRect();
+      viz.width = rect.width * dpr;
+      viz.height = rect.height * dpr;
+      vizCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    const drawSpectrum = (norm, color, alpha, w, h) => {
+      if (!norm) return;
+      vizCtx.save();
+      vizCtx.globalAlpha = alpha;
+      vizCtx.strokeStyle = color;
+      vizCtx.lineWidth = 2;
+      vizCtx.beginPath();
+      const step = Math.max(1, Math.floor(norm.length / 220));
+      for (let i = 0; i < norm.length; i += step) {
+        const x = (i / (norm.length - 1)) * w;
+        const y = h - (norm[i] * (h * 0.8) + h * 0.1);
+        if (i === 0) vizCtx.moveTo(x, y);
+        else vizCtx.lineTo(x, y);
+      }
+      vizCtx.stroke();
+      vizCtx.restore();
+    };
+
+    const drawWave = (wave, color, alpha, w, h) => {
+      if (!wave) return;
+      vizCtx.save();
+      vizCtx.globalAlpha = alpha;
+      vizCtx.strokeStyle = color;
+      vizCtx.lineWidth = 2;
+      vizCtx.beginPath();
+      const step = Math.max(1, Math.floor(wave.length / 400));
+      for (let i = 0; i < wave.length; i += step) {
+        const x = (i / (wave.length - 1)) * w;
+        const y = h * 0.5 + wave[i] * (h * 0.32);
+        if (i === 0) vizCtx.moveTo(x, y);
+        else vizCtx.lineTo(x, y);
+      }
+      vizCtx.stroke();
+      vizCtx.restore();
+    };
+
+    const drawOrbs = (targetLevel, playerLevel, w, h) => {
+      const base = h * 0.14;
+      const tRadius = base + targetLevel * h * 0.25;
+      const pRadius = base + playerLevel * h * 0.28;
+      vizCtx.save();
+      vizCtx.globalAlpha = 0.8;
+      vizCtx.fillStyle = 'rgba(255, 177, 94, 0.25)';
+      vizCtx.beginPath();
+      vizCtx.arc(w * 0.25, h * 0.82, tRadius, 0, Math.PI * 2);
+      vizCtx.fill();
+      vizCtx.fillStyle = 'rgba(74, 209, 255, 0.3)';
+      vizCtx.beginPath();
+      vizCtx.arc(w * 0.75, h * 0.82, pRadius, 0, Math.PI * 2);
+      vizCtx.fill();
+      vizCtx.restore();
+    };
+
+    const drawViz = () => {
+      if (!vizCtx || !viz) return;
+      const dpr = window.devicePixelRatio || 1;
+      const w = viz.width / dpr;
+      const h = viz.height / dpr;
+      vizCtx.clearRect(0, 0, w, h);
+
+      vizCtx.save();
+      vizCtx.globalAlpha = 0.25;
+      vizCtx.strokeStyle = 'rgba(255,255,255,0.35)';
+      vizCtx.lineWidth = 1;
+      for (let i = 1; i < 6; i += 1) {
+        const y = (h * i) / 6;
+        vizCtx.beginPath();
+        vizCtx.moveTo(0, y);
+        vizCtx.lineTo(w, y);
+        vizCtx.stroke();
+      }
+      vizCtx.restore();
+
+      let playerSpectrum = null;
+      let playerWave = null;
+      let playerLevel = 0;
+
+      if (audioCtx && userSynth) {
+        const analyser = userSynth.analyser;
+        const freq = new Float32Array(analyser.frequencyBinCount);
+        analyser.getFloatFrequencyData(freq);
+        playerSpectrum = normalizeDb(freq);
+
+        const time = new Float32Array(analyser.fftSize);
+        analyser.getFloatTimeDomainData(time);
+        playerWave = time;
+        playerLevel = rmsLevel(time);
+      }
+
+      if (vizMode === 'spectrum') {
+        drawSpectrum(targetSnapshot.spectrum, 'rgba(250, 218, 170, 0.85)', 0.85, w, h);
+        drawSpectrum(playerSpectrum, 'rgba(74, 209, 255, 0.95)', 1, w, h);
+      } else {
+        drawWave(targetSnapshot.waveform, 'rgba(250, 218, 170, 0.85)', 0.7, w, h);
+        drawWave(playerWave, 'rgba(74, 209, 255, 0.95)', 1, w, h);
+      }
+
+      drawOrbs(targetSnapshot.level, playerLevel, w, h);
+
+      requestAnimationFrame(drawViz);
+    };
+
+    const attach = () => {
+      controls.newRound.addEventListener('click', createRound);
+      controls.playTarget.addEventListener('click', async () => {
+        if (activeTarget) {
+          targetSynth.stopAll();
+          activeTarget = false;
+          controls.playTarget.textContent = 'Hold Beep';
+          return;
+        }
+        await playTargetHold();
+        if (activeTarget) controls.playTarget.textContent = 'Stop Beep';
+      });
+      controls.playUser.addEventListener('click', async () => {
+        if (activeUser) {
+          userSynth.stopAll();
+          activeUser = false;
+          controls.playUser.textContent = 'Hold Mine';
+          return;
+        }
+        await playUserHold();
+        controls.playUser.textContent = 'Stop Mine';
+      });
+      controls.stopAll.addEventListener('click', stopAll);
+      controls.scoreRound.addEventListener('click', scoreRound);
+      controls.revealTarget.addEventListener('change', () => {
+        if (!gameState.round) return;
+        values.targetFreqVal.textContent = controls.revealTarget.checked
+          ? `${gameState.round.root.toFixed(1)} Hz`
+          : '??? Hz';
+        values.targetFreqTiny.textContent = values.targetFreqVal.textContent;
+      });
+
+      const step = (nextValue, min, max, setter) => {
+        setter(Math.min(max, Math.max(min, nextValue)));
+        updateReadouts();
+        updateSpectrumWindow();
+      };
+
+      controls.freqDownBig.addEventListener('click', () => step(rootFreq - 10, 110, 880, (val) => (rootFreq = val)));
+      controls.freqDown.addEventListener('click', () => step(rootFreq - 1, 110, 880, (val) => (rootFreq = val)));
+      controls.freqUp.addEventListener('click', () => step(rootFreq + 1, 110, 880, (val) => (rootFreq = val)));
+      controls.freqUpBig.addEventListener('click', () => step(rootFreq + 10, 110, 880, (val) => (rootFreq = val)));
+      controls.fineDown.addEventListener('click', () => step(fineTune - 5, -50, 50, (val) => (fineTune = val)));
+      controls.fineUp.addEventListener('click', () => step(fineTune + 5, -50, 50, (val) => (fineTune = val)));
+      controls.detuneDown.addEventListener('click', () => step(detune - 2, -20, 20, (val) => (detune = val)));
+      controls.detuneUp.addEventListener('click', () => step(detune + 2, -20, 20, (val) => (detune = val)));
+      controls.harmLess.addEventListener('click', () => step(harmLevel - 1, 0, harmSteps.length - 1, (val) => (harmLevel = val)));
+      controls.harmMore.addEventListener('click', () => step(harmLevel + 1, 0, harmSteps.length - 1, (val) => (harmLevel = val)));
+
+      updateReadouts();
+      updateSpectrumWindow();
+    };
+
+    attach();
+  </script>
+</body>
+</html>

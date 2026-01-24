@@ -1,0 +1,889 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>XOR Pixel Art</title>
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#121a33; --border:#24315a;
+      --text:#eef2ff; --muted:#aab3d6; --accent:#7aa2ff;
+      --radius:16px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      background:var(--bg); color:var(--text);
+      display:flex; min-height:100vh;
+    }
+    .wrap{
+      width:min(1100px, 100%);
+      margin:0 auto;
+      padding:18px;
+      display:grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap:14px;
+    }
+    @media (max-width: 900px){
+      .wrap{ grid-template-columns:1fr; }
+    }
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:14px;
+    }
+    h1{ margin:0 0 8px; font-size:20px; letter-spacing:.2px; }
+    .sub{ color:var(--muted); font-size:13px; line-height:1.35; }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .btn{
+      appearance:none; border:1px solid var(--border);
+      background:rgba(255,255,255,0.04);
+      color:var(--text);
+      padding:8px 10px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:600;
+      font-size:13px;
+    }
+    .btn:hover{ border-color:#3450a1; }
+    .btn.primary{ border-color:#3557c7; background:rgba(122,162,255,0.12); }
+    .btn.danger{ border-color:#7a2e2e; background:rgba(255,90,90,0.10); }
+    .kv{ display:flex; gap:10px; flex-wrap:wrap; }
+    .pill{
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.03);
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .pill strong{ color:var(--text); font-weight:700; }
+    canvas{
+      width:100%;
+      height:auto;
+      background:#0e1630;
+      border:1px solid var(--border);
+      border-radius:14px;
+      touch-action:none; /* allow custom pan/zoom */
+      display:block;
+    }
+    .grid2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 900px){
+      .grid2{ grid-template-columns:1fr; }
+    }
+    .label{ font-size:12px; color:var(--muted); margin:8px 0 6px; }
+    .stampbar{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap:8px;
+    }
+    @media (max-width: 520px){
+      .stampbar{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+    }
+    .stamp{
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.03);
+      border-radius:12px;
+      padding:8px;
+      cursor:pointer;
+      min-height:70px;
+      position:relative;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      justify-content:space-between;
+    }
+    .stamp.active{ outline:2px solid rgba(122,162,255,0.5); }
+    .stamp small{ color:var(--muted); font-size:11px; }
+    .stamp svg{
+      width:100%;
+      height:40px;
+      display:block;
+    }
+    .sep{ height:1px; background:rgba(255,255,255,0.06); margin:12px 0; }
+    .hint{ color:var(--muted); font-size:12px; line-height:1.35; }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .tiny{ font-size:11px; color:var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>XOR Pixel Art</h1>
+      <div class="sub">
+        Place stamps to recreate the target pixel art. Overlaps cancel (XOR).
+        Left-click/tap to place. Two-finger/pinch to zoom on mobile; drag with one finger to pan.
+      </div>
+
+      <div class="sep"></div>
+
+      <div class="grid2">
+        <div>
+          <div class="label">Your canvas (editable)</div>
+          <canvas id="play" width="640" height="640"></canvas>
+        </div>
+        <div>
+          <div class="label">Target image (match exactly)</div>
+          <canvas id="target" width="640" height="640"></canvas>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+
+      <div class="row">
+        <button class="btn primary" id="newBtn">New puzzle</button>
+        <button class="btn" id="resetBtn">Reset</button>
+        <button class="btn" id="undoBtn">Undo</button>
+        <button class="btn" id="redoBtn">Redo</button>
+        <button class="btn" id="hintBtn">Toggle diff overlay</button>
+        <button class="btn" id="zoomFitBtn">Fit</button>
+      </div>
+
+      <div style="margin-top:10px" class="kv">
+        <div class="pill">Moves: <strong id="moves">0</strong></div>
+        <div class="pill">Wrong pixels: <strong id="wrong">0</strong></div>
+        <div class="pill">Grid: <strong id="grid">16×16</strong></div>
+        <div class="pill">Seed: <strong class="mono" id="seed">—</strong></div>
+      </div>
+
+      <div style="margin-top:10px" class="hint">
+        Shortcuts: <span class="mono">R</span> rotate stamp, <span class="mono">F</span> flip stamp, <span class="mono">Z</span> undo, <span class="mono">Y</span> redo, <span class="mono">N</span> new, <span class="mono">0</span> fit.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">Stamps</div>
+      <div class="stampbar" id="stampbar"></div>
+
+      <div class="sep"></div>
+
+      <div class="label">Stamp transform</div>
+      <div class="row">
+        <button class="btn" id="rotBtn">Rotate (R)</button>
+        <button class="btn" id="flipBtn">Flip (F)</button>
+        <button class="btn" id="clearTransformBtn">Clear</button>
+      </div>
+
+      <div class="sep"></div>
+
+      <div class="label">How it works</div>
+      <div class="hint">
+        Each stamp is a binary mask. Placing it toggles pixels under its <strong>filled</strong> cells.
+        If two filled cells overlap, they toggle twice and return to the original state—so overlaps “cancel”.
+      </div>
+
+      <div class="sep"></div>
+
+      <div class="label">Difficulty knobs (optional)</div>
+      <div class="row">
+        <button class="btn" id="sizeBtn">Toggle size</button>
+        <button class="btn" id="themeBtn">Toggle theme</button>
+      </div>
+      <div class="tiny" style="margin-top:8px">
+        This demo uses a tiny built-in pixel-art library and a fixed stamp set.
+        Next step would be: generator + solvability/difficulty grading.
+      </div>
+    </div>
+  </div>
+
+<script>
+/* =========================
+   XOR Pixel Art — single-file demo
+   - Two colors (off/on).
+   - Stamps toggle pixels (XOR).
+   - Target is binary pixel art.
+   - Pan/zoom on the play canvas.
+   ========================= */
+
+const Play = {
+  N: 16,
+  cell: 32,            // internal pixel size on canvas; recomputed on fit
+  pad: 16,
+  showDiff: false,
+  theme: "animals",    // animals | space
+  seed: 0,
+  zoom: 1,
+  panX: 0,
+  panY: 0,
+  dragging: false,
+  lastPt: null,
+  activeStampId: 0,
+  rot: 0,              // 0..3
+  flip: false,         // horizontal
+  history: [],
+  future: []
+};
+
+const playCanvas = document.getElementById("play");
+const targCanvas = document.getElementById("target");
+const pctx = playCanvas.getContext("2d");
+const tctx = targCanvas.getContext("2d");
+
+const elMoves = document.getElementById("moves");
+const elWrong = document.getElementById("wrong");
+const elGrid  = document.getElementById("grid");
+const elSeed  = document.getElementById("seed");
+
+function mulberry32(a){
+  return function(){
+    let t = a += 0x6D2B79F5;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function randInt(rng, lo, hi){ // inclusive lo, exclusive hi
+  return Math.floor(rng() * (hi - lo)) + lo;
+}
+
+/* ---------- Pixel art library (binary) ----------
+   Each is an array of strings of '0'/'1'. We'll resample to N×N by nearest-neighbor.
+   Keep them simple, connected, readable.
+*/
+const ART = {
+  animals: [
+    {
+      name: "cat",
+      w: 16, h: 16,
+      rows: [
+        "0000000011000000",
+        "0000000111100000",
+        "0000001111110000",
+        "0000011100111000",
+        "0000111000011100",
+        "0001110000001110",
+        "0011100011100111",
+        "0011000111110011",
+        "0110001111111001",
+        "0110011111111101",
+        "0110011111111101",
+        "0110001111111001",
+        "0011000111110011",
+        "0011100011100111",
+        "0001110000001110",
+        "0000111000011100"
+      ]
+    },
+    {
+      name: "fish",
+      w: 16, h: 16,
+      rows: [
+        "0000000000000000",
+        "0000000011100000",
+        "0000000111110000",
+        "0000001111111000",
+        "0000011111111100",
+        "0000111111111110",
+        "0011111111111111",
+        "0111111111111111",
+        "0011111111111111",
+        "0000111111111110",
+        "0000011111111100",
+        "0000001111111000",
+        "0000000111110000",
+        "0000000011100000",
+        "0000000000000000",
+        "0000000000000000"
+      ]
+    },
+    {
+      name: "owl",
+      w: 16, h: 16,
+      rows: [
+        "0000000111100000",
+        "0000001111110000",
+        "0000011100111000",
+        "0000111000011100",
+        "0001110011001110",
+        "0011100111100111",
+        "0011001111110011",
+        "0110011111111001",
+        "0110011011011001",
+        "0110011111111001",
+        "0011001111110011",
+        "0011100111100111",
+        "0001110000001110",
+        "0000111000011100",
+        "0000011100111000",
+        "0000001111110000"
+      ]
+    }
+  ],
+  space: [
+    {
+      name: "rocket",
+      w: 16, h: 16,
+      rows: [
+        "0000000011000000",
+        "0000000111100000",
+        "0000001111110000",
+        "0000011111111000",
+        "0000111111111100",
+        "0000111111111100",
+        "0000011111111000",
+        "0000001111110000",
+        "0000000111100000",
+        "0000000111100000",
+        "0000001111110000",
+        "0000011111111000",
+        "0000110111101100",
+        "0001100011000110",
+        "0011000000000011",
+        "0000000000000000"
+      ]
+    },
+    {
+      name: "planet",
+      w: 16, h: 16,
+      rows: [
+        "0000000111100000",
+        "0000011111111000",
+        "0000111111111100",
+        "0001111111111110",
+        "0011111111111111",
+        "0011111111111111",
+        "0111111111111111",
+        "0111111111111111",
+        "0111111111111111",
+        "0111111111111111",
+        "0011111111111111",
+        "0011111111111111",
+        "0001111111111110",
+        "0000111111111100",
+        "0000011111111000",
+        "0000000111100000"
+      ]
+    },
+    {
+      name: "telescope",
+      w: 16, h: 16,
+      rows: [
+        "0000000000000000",
+        "0000001111110000",
+        "0000011111111000",
+        "0000111111111100",
+        "0000001111110000",
+        "0000000111100000",
+        "0000000011000000",
+        "0000000011000000",
+        "0000000011000000",
+        "0000000011000000",
+        "0000000111100000",
+        "0000001111110000",
+        "0000011100111000",
+        "0000111000011100",
+        "0001110000001110",
+        "0000000000000000"
+      ]
+    }
+  ]
+};
+
+/* ---------- Stamp library ----------
+   Each stamp is a list of filled cells in its local coordinates, plus width/height.
+   Keep a compact but expressive set.
+*/
+const STAMPS = [
+  { id:0, name:"Line-3",  w:3, h:1, cells:[[0,0],[1,0],[2,0]] },
+  { id:1, name:"Line-4",  w:4, h:1, cells:[[0,0],[1,0],[2,0],[3,0]] },
+  { id:2, name:"L-3",     w:2, h:2, cells:[[0,0],[0,1],[1,1]] },
+  { id:3, name:"Corner",  w:3, h:3, cells:[[0,0],[0,1],[0,2],[1,2],[2,2]] },
+  { id:4, name:"Zig",     w:3, h:2, cells:[[0,0],[1,0],[1,1],[2,1]] },
+  { id:5, name:"Block2",  w:2, h:2, cells:[[0,0],[1,0],[0,1],[1,1]] },
+  { id:6, name:"Plus",    w:3, h:3, cells:[[1,0],[0,1],[1,1],[2,1],[1,2]] },
+  { id:7, name:"Hollow",  w:3, h:3, cells:[[0,0],[1,0],[2,0],[0,1],[2,1],[0,2],[1,2],[2,2]] }
+];
+
+function transformStamp(stamp, rot, flip){
+  // returns {w,h,cells} transformed (cells as [x,y])
+  let cells = stamp.cells.map(([x,y]) => [x,y]);
+  let w = stamp.w, h = stamp.h;
+
+  // flip horizontally in local coords
+  if (flip){
+    cells = cells.map(([x,y]) => [w-1-x, y]);
+  }
+
+  // rotate rot times 90° clockwise
+  for (let k=0;k<rot;k++){
+    cells = cells.map(([x,y]) => [h-1-y, x]);
+    const nw = h, nh = w;
+    w = nw; h = nh;
+  }
+
+  // normalize to min (0,0)
+  let minX = Infinity, minY = Infinity;
+  for (const [x,y] of cells){ minX=Math.min(minX,x); minY=Math.min(minY,y); }
+  cells = cells.map(([x,y]) => [x-minX, y-minY]);
+  // recompute bounds
+  let maxX=0, maxY=0;
+  for (const [x,y] of cells){ maxX=Math.max(maxX,x); maxY=Math.max(maxY,y); }
+  w = maxX+1; h = maxY+1;
+
+  return { w, h, cells };
+}
+
+function stampSVG(stamp){
+  // tiny preview in an SVG grid
+  const s = 10, pad = 2;
+  const W = stamp.w*s + pad*2, H = stamp.h*s + pad*2;
+  let rects = "";
+  for (const [x,y] of stamp.cells){
+    rects += `<rect x="${pad + x*s}" y="${pad + y*s}" width="${s-1}" height="${s-1}" rx="2" ry="2" fill="rgba(238,242,255,0.9)" />`;
+  }
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${rects}</svg>`;
+}
+
+function buildStampBar(){
+  const bar = document.getElementById("stampbar");
+  bar.innerHTML = "";
+  for (const st of STAMPS){
+    const div = document.createElement("div");
+    div.className = "stamp";
+    div.dataset.id = st.id;
+    div.innerHTML = `
+      <div style="display:flex; justify-content:space-between; gap:8px; align-items:center">
+        <strong style="font-size:12px">${st.name}</strong>
+        <small class="mono">#${st.id+1}</small>
+      </div>
+      ${stampSVG(st)}
+      <small>tap to select</small>
+    `;
+    div.addEventListener("click", () => {
+      Play.activeStampId = st.id;
+      refreshStampSelection();
+      drawAll();
+    });
+    bar.appendChild(div);
+  }
+  refreshStampSelection();
+}
+function refreshStampSelection(){
+  document.querySelectorAll(".stamp").forEach(el => {
+    el.classList.toggle("active", Number(el.dataset.id) === Play.activeStampId);
+  });
+}
+
+/* ---------- Board state ---------- */
+function makeGrid(N, fill=0){
+  const a = new Array(N);
+  for (let y=0;y<N;y++){
+    a[y] = new Uint8Array(N);
+    if (fill) a[y].fill(fill);
+  }
+  return a;
+}
+let board = makeGrid(Play.N, 0);
+let target = makeGrid(Play.N, 0);
+
+function cloneGrid(g){
+  const N = g.length;
+  const out = new Array(N);
+  for (let y=0;y<N;y++){
+    out[y] = new Uint8Array(g[y]); // copy
+  }
+  return out;
+}
+
+function setN(newN){
+  Play.N = newN;
+  board = makeGrid(Play.N, 0);
+  target = makeGrid(Play.N, 0);
+  Play.history = [];
+  Play.future = [];
+  Play.zoom = 1; Play.panX = 0; Play.panY = 0;
+  elGrid.textContent = `${Play.N}×${Play.N}`;
+  fitView();
+}
+
+function resampleArtToTarget(art, N){
+  // nearest neighbor from art.w×art.h to N×N
+  const out = makeGrid(N, 0);
+  for (let y=0;y<N;y++){
+    for (let x=0;x<N;x++){
+      const sx = Math.floor(x * art.w / N);
+      const sy = Math.floor(y * art.h / N);
+      out[y][x] = art.rows[sy][sx] === "1" ? 1 : 0;
+    }
+  }
+  return out;
+}
+
+function pickPuzzle(seed){
+  Play.seed = seed >>> 0;
+  elSeed.textContent = String(Play.seed);
+  const rng = mulberry32(Play.seed);
+  const lib = ART[Play.theme];
+  const art = lib[randInt(rng, 0, lib.length)];
+  target = resampleArtToTarget(art, Play.N);
+  board = makeGrid(Play.N, 0);
+  Play.history = [];
+  Play.future = [];
+  updateStats();
+  drawAll();
+  drawTarget();
+}
+
+function newPuzzle(){
+  const seed = (Math.random() * 2**32) >>> 0;
+  pickPuzzle(seed);
+}
+
+function toggleTheme(){
+  Play.theme = (Play.theme === "animals") ? "space" : "animals";
+  newPuzzle();
+}
+
+function toggleSize(){
+  const next = (Play.N === 16) ? 24 : (Play.N === 24 ? 12 : 16);
+  setN(next);
+  newPuzzle();
+}
+
+/* ---------- Apply stamp (XOR) ---------- */
+function applyStampAt(cellX, cellY){
+  const stamp = STAMPS.find(s => s.id === Play.activeStampId);
+  const tr = transformStamp(stamp, Play.rot, Play.flip);
+
+  // center stamp on (cellX,cellY) by anchoring its top-left so that (0,0) maps to cellX,cellY
+  // You can change this to center-based placement if you prefer.
+  const x0 = cellX;
+  const y0 = cellY;
+
+  pushHistory();
+
+  for (const [dx,dy] of tr.cells){
+    const x = x0 + dx;
+    const y = y0 + dy;
+    if (x<0 || y<0 || x>=Play.N || y>=Play.N) continue;
+    board[y][x] ^= 1;
+  }
+
+  Play.future = [];
+  updateStats();
+  drawAll();
+}
+
+function pushHistory(){
+  Play.history.push(cloneGrid(board));
+  if (Play.history.length > 200) Play.history.shift();
+}
+
+function undo(){
+  if (!Play.history.length) return;
+  Play.future.push(cloneGrid(board));
+  board = Play.history.pop();
+  updateStats();
+  drawAll();
+}
+function redo(){
+  if (!Play.future.length) return;
+  Play.history.push(cloneGrid(board));
+  board = Play.future.pop();
+  updateStats();
+  drawAll();
+}
+
+/* ---------- Stats ---------- */
+function countWrong(){
+  let wrong = 0;
+  for (let y=0;y<Play.N;y++){
+    for (let x=0;x<Play.N;x++){
+      if (board[y][x] !== target[y][x]) wrong++;
+    }
+  }
+  return wrong;
+}
+function updateStats(){
+  elMoves.textContent = String(Play.history.length);
+  elWrong.textContent = String(countWrong());
+}
+
+/* ---------- Drawing ---------- */
+function fitView(){
+  // compute a "fit" zoom that shows the full grid with padding
+  const N = Play.N;
+  const W = playCanvas.width;
+  const H = playCanvas.height;
+  const usable = Math.min(W, H) - Play.pad*2;
+  Play.cell = Math.floor(usable / N);
+  Play.zoom = 1;
+  Play.panX = 0;
+  Play.panY = 0;
+}
+
+function worldToScreen(px, py){
+  return {
+    x: (px + Play.panX) * Play.zoom,
+    y: (py + Play.panY) * Play.zoom
+  };
+}
+function screenToWorld(sx, sy){
+  return {
+    x: sx / Play.zoom - Play.panX,
+    y: sy / Play.zoom - Play.panY
+  };
+}
+
+function drawGrid(ctx, grid, opts={}){
+  const N = Play.N;
+  const cell = Play.cell;
+  const pad = Play.pad;
+
+  ctx.save();
+  ctx.clearRect(0,0,ctx.canvas.width, ctx.canvas.height);
+
+  // background
+  ctx.fillStyle = "#0e1630";
+  ctx.fillRect(0,0,ctx.canvas.width, ctx.canvas.height);
+
+  // apply pan/zoom for play canvas only
+  if (opts.transform){
+    ctx.translate(0,0);
+    ctx.scale(Play.zoom, Play.zoom);
+    ctx.translate(Play.panX, Play.panY);
+  }
+
+  // board frame
+  const gw = N*cell;
+  const gh = N*cell;
+  const fx = pad, fy = pad;
+
+  // frame
+  ctx.fillStyle = "rgba(255,255,255,0.02)";
+  ctx.fillRect(fx-6, fy-6, gw+12, gh+12);
+
+  // pixels
+  for (let y=0;y<N;y++){
+    for (let x=0;x<N;x++){
+      const v = grid[y][x];
+      ctx.fillStyle = v ? "#eef2ff" : "rgba(0,0,0,0)";
+      if (v){
+        ctx.fillRect(fx + x*cell, fy + y*cell, cell, cell);
+      }
+    }
+  }
+
+  // diff overlay (play board only)
+  if (opts.diff){
+    for (let y=0;y<N;y++){
+      for (let x=0;x<N;x++){
+        if (board[y][x] !== target[y][x]){
+          ctx.fillStyle = "rgba(255,90,90,0.18)";
+          ctx.fillRect(fx + x*cell, fy + y*cell, cell, cell);
+        }
+      }
+    }
+  }
+
+  // gridlines
+  ctx.strokeStyle = "rgba(170,179,214,0.20)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let i=0;i<=N;i++){
+    ctx.moveTo(fx + i*cell, fy);
+    ctx.lineTo(fx + i*cell, fy + gh);
+    ctx.moveTo(fx, fy + i*cell);
+    ctx.lineTo(fx + gw, fy + i*cell);
+  }
+  ctx.stroke();
+
+  // stamp preview under cursor
+  if (opts.preview && opts.cursorCell){
+    const stamp = STAMPS.find(s => s.id === Play.activeStampId);
+    const tr = transformStamp(stamp, Play.rot, Play.flip);
+    const x0 = opts.cursorCell.x;
+    const y0 = opts.cursorCell.y;
+    ctx.fillStyle = "rgba(122,162,255,0.22)";
+    for (const [dx,dy] of tr.cells){
+      const x = x0 + dx, y = y0 + dy;
+      if (x<0 || y<0 || x>=N || y>=N) continue;
+      ctx.fillRect(fx + x*cell, fy + y*cell, cell, cell);
+    }
+  }
+
+  ctx.restore();
+}
+
+let cursorCell = null;
+
+function drawAll(){
+  drawGrid(pctx, board, { transform:true, diff:Play.showDiff, preview:true, cursorCell });
+}
+function drawTarget(){
+  drawGrid(tctx, target, { transform:false });
+}
+
+/* ---------- Interaction: pointer + zoom ---------- */
+function getCellFromEvent(ev){
+  const rect = playCanvas.getBoundingClientRect();
+  const sx = (ev.clientX - rect.left) * (playCanvas.width / rect.width);
+  const sy = (ev.clientY - rect.top) * (playCanvas.height / rect.height);
+  const w = screenToWorld(sx, sy);
+
+  const x = Math.floor((w.x - Play.pad) / Play.cell);
+  const y = Math.floor((w.y - Play.pad) / Play.cell);
+  return { x, y, sx, sy };
+}
+
+playCanvas.addEventListener("pointerdown", (ev) => {
+  playCanvas.setPointerCapture(ev.pointerId);
+  const c = getCellFromEvent(ev);
+  // If inside grid: place on tap/click; else start drag
+  const inside = (c.x>=0 && c.y>=0 && c.x<Play.N && c.y<Play.N);
+
+  // Right click or shift+drag to pan
+  const panMode = (ev.button === 2) || ev.shiftKey;
+
+  if (inside && !panMode){
+    applyStampAt(c.x, c.y);
+  } else {
+    Play.dragging = true;
+    Play.lastPt = { sx:c.sx, sy:c.sy };
+  }
+});
+
+playCanvas.addEventListener("pointermove", (ev) => {
+  const c = getCellFromEvent(ev);
+  const inside = (c.x>=0 && c.y>=0 && c.x<Play.N && c.y<Play.N);
+  cursorCell = inside ? { x:c.x, y:c.y } : null;
+
+  if (Play.dragging && Play.lastPt){
+    const dx = (c.sx - Play.lastPt.sx) / Play.zoom;
+    const dy = (c.sy - Play.lastPt.sy) / Play.zoom;
+    Play.panX += dx;
+    Play.panY += dy;
+    Play.lastPt = { sx:c.sx, sy:c.sy };
+  }
+  drawAll();
+});
+
+playCanvas.addEventListener("pointerup", (ev) => {
+  Play.dragging = false;
+  Play.lastPt = null;
+});
+
+playCanvas.addEventListener("contextmenu", (e) => e.preventDefault());
+
+// Wheel zoom (desktop)
+playCanvas.addEventListener("wheel", (ev) => {
+  ev.preventDefault();
+  const rect = playCanvas.getBoundingClientRect();
+  const sx = (ev.clientX - rect.left) * (playCanvas.width / rect.width);
+  const sy = (ev.clientY - rect.top) * (playCanvas.height / rect.height);
+
+  const before = screenToWorld(sx, sy);
+  const factor = Math.exp(-ev.deltaY * 0.0012);
+  const newZoom = Math.max(0.6, Math.min(4.0, Play.zoom * factor));
+  Play.zoom = newZoom;
+  const after = screenToWorld(sx, sy);
+
+  // adjust pan so zoom centers around pointer
+  Play.panX += (after.x - before.x);
+  Play.panY += (after.y - before.y);
+
+  drawAll();
+}, { passive:false });
+
+// Pinch zoom (basic)
+let pinch = null;
+playCanvas.addEventListener("touchstart", (ev) => {
+  if (ev.touches.length === 2){
+    const rect = playCanvas.getBoundingClientRect();
+    const t0 = ev.touches[0], t1 = ev.touches[1];
+    const p0 = {
+      x:(t0.clientX-rect.left) * (playCanvas.width/rect.width),
+      y:(t0.clientY-rect.top)  * (playCanvas.height/rect.height)
+    };
+    const p1 = {
+      x:(t1.clientX-rect.left) * (playCanvas.width/rect.width),
+      y:(t1.clientY-rect.top)  * (playCanvas.height/rect.height)
+    };
+    const cx = (p0.x + p1.x)/2, cy = (p0.y + p1.y)/2;
+    pinch = {
+      d: Math.hypot(p1.x-p0.x, p1.y-p0.y),
+      zoom: Play.zoom,
+      center: { x:cx, y:cy }
+    };
+  }
+}, { passive:true });
+
+playCanvas.addEventListener("touchmove", (ev) => {
+  if (!pinch || ev.touches.length !== 2) return;
+  const rect = playCanvas.getBoundingClientRect();
+  const t0 = ev.touches[0], t1 = ev.touches[1];
+  const p0 = {
+    x:(t0.clientX-rect.left) * (playCanvas.width/rect.width),
+    y:(t0.clientY-rect.top)  * (playCanvas.height/rect.height)
+  };
+  const p1 = {
+    x:(t1.clientX-rect.left) * (playCanvas.width/rect.width),
+    y:(t1.clientY-rect.top)  * (playCanvas.height/rect.height)
+  };
+  const d = Math.hypot(p1.x-p0.x, p1.y-p0.y);
+  const factor = d / pinch.d;
+
+  const sx = pinch.center.x, sy = pinch.center.y;
+  const before = screenToWorld(sx, sy);
+
+  Play.zoom = Math.max(0.6, Math.min(4.0, pinch.zoom * factor));
+
+  const after = screenToWorld(sx, sy);
+  Play.panX += (after.x - before.x);
+  Play.panY += (after.y - before.y);
+  drawAll();
+}, { passive:true });
+
+playCanvas.addEventListener("touchend", () => { pinch = null; }, { passive:true });
+
+/* ---------- Controls ---------- */
+document.getElementById("newBtn").addEventListener("click", newPuzzle);
+document.getElementById("resetBtn").addEventListener("click", () => {
+  board = makeGrid(Play.N, 0);
+  Play.history = [];
+  Play.future = [];
+  updateStats(); drawAll();
+});
+document.getElementById("undoBtn").addEventListener("click", undo);
+document.getElementById("redoBtn").addEventListener("click", redo);
+document.getElementById("hintBtn").addEventListener("click", () => {
+  Play.showDiff = !Play.showDiff;
+  drawAll();
+});
+document.getElementById("zoomFitBtn").addEventListener("click", () => { fitView(); drawAll(); });
+
+document.getElementById("rotBtn").addEventListener("click", () => { Play.rot = (Play.rot+1)%4; drawAll(); });
+document.getElementById("flipBtn").addEventListener("click", () => { Play.flip = !Play.flip; drawAll(); });
+document.getElementById("clearTransformBtn").addEventListener("click", () => { Play.rot=0; Play.flip=false; drawAll(); });
+
+document.getElementById("sizeBtn").addEventListener("click", toggleSize);
+document.getElementById("themeBtn").addEventListener("click", toggleTheme);
+
+window.addEventListener("keydown", (ev) => {
+  const k = ev.key.toLowerCase();
+  if (k === "r"){ Play.rot = (Play.rot+1)%4; drawAll(); }
+  else if (k === "f"){ Play.flip = !Play.flip; drawAll(); }
+  else if (k === "z"){ undo(); }
+  else if (k === "y"){ redo(); }
+  else if (k === "n"){ newPuzzle(); }
+  else if (k === "0"){ fitView(); drawAll(); }
+});
+
+/* ---------- Init ---------- */
+(function init(){
+  buildStampBar();
+  setN(16);
+  fitView();
+  pickPuzzle((Date.now() >>> 0) ^ 0xA5A5A5A5);
+  drawTarget();
+  drawAll();
+})();
+</script>
+</body>
+</html>
+```

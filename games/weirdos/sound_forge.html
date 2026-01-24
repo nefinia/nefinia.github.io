@@ -1,0 +1,1109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Sound Forge — Perception Game (Prototype)</title>
+<style>
+  :root{
+    --bg:#0b1020;
+    --panel:#121a33;
+    --panel2:#0f1730;
+    --border:#24315a;
+    --text:#eef2ff;
+    --muted:#aab3d6;
+    --accent:#7aa2ff;
+    --good:#3ddc97;
+    --bad:#ff5c7a;
+    --radius:16px;
+    --shadow: 0 12px 32px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    background: radial-gradient(1200px 800px at 20% 10%, rgba(122,162,255,.18), transparent 55%),
+                radial-gradient(1000px 700px at 90% 20%, rgba(61,220,151,.14), transparent 60%),
+                var(--bg);
+    color:var(--text);
+  }
+  .wrap{
+    max-width:1200px;
+    margin:0 auto;
+    padding:18px;
+    display:grid;
+    gap:14px;
+    grid-template-columns: 420px 1fr;
+  }
+  header{
+    grid-column:1/-1;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:12px;
+    padding:12px 14px;
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    border:1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  header .title{
+    display:flex; align-items:baseline; gap:12px;
+  }
+  header h1{
+    margin:0;
+    font-weight:750;
+    letter-spacing:.2px;
+    font-size:18px;
+  }
+  header .tag{
+    font-size:12px;
+    color:var(--muted);
+    padding:4px 8px;
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:999px;
+    background: rgba(255,255,255,.04);
+  }
+  header .status{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    color:var(--muted);
+    font-size:12px;
+  }
+
+  .card{
+    background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+    border:1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .left{
+    padding:14px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .right{
+    padding:14px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+
+  .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+  .row > *{flex:0 0 auto;}
+  .spacer{flex:1}
+
+  .btn{
+    border:1px solid rgba(255,255,255,.18);
+    background: rgba(255,255,255,.06);
+    color:var(--text);
+    border-radius: 12px;
+    padding:9px 11px;
+    cursor:pointer;
+    user-select:none;
+    transition: transform .06s ease, background .15s ease, border-color .15s ease;
+    font-weight:650;
+    font-size:13px;
+  }
+  .btn:hover{ background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.25); }
+  .btn:active{ transform: translateY(1px); }
+  .btn.primary{
+    background: rgba(122,162,255,.18);
+    border-color: rgba(122,162,255,.45);
+  }
+  .btn.good{
+    background: rgba(61,220,151,.14);
+    border-color: rgba(61,220,151,.45);
+  }
+  .btn.bad{
+    background: rgba(255,92,122,.12);
+    border-color: rgba(255,92,122,.45);
+  }
+  .pill{
+    display:inline-flex;
+    gap:8px;
+    align-items:center;
+    padding:6px 10px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.15);
+    background: rgba(0,0,0,.18);
+    color:var(--muted);
+    font-size:12px;
+  }
+  .pill strong{color:var(--text); font-weight:750;}
+  select, input[type="range"]{
+    accent-color: var(--accent);
+  }
+  select{
+    background: rgba(0,0,0,.22);
+    color: var(--text);
+    border:1px solid rgba(255,255,255,.18);
+    border-radius: 12px;
+    padding:8px 10px;
+    font-weight:600;
+  }
+
+  .group{
+    padding:12px;
+    background: rgba(0,0,0,.18);
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: 14px;
+  }
+  .group h2{
+    margin:0 0 8px;
+    font-size:13px;
+    color: var(--muted);
+    font-weight:750;
+    letter-spacing:.2px;
+    text-transform: uppercase;
+  }
+  .control{
+    display:grid;
+    grid-template-columns: 130px 1fr 64px;
+    gap:10px;
+    align-items:center;
+    padding:7px 0;
+  }
+  .control label{
+    font-size:13px;
+    color: var(--text);
+    font-weight:650;
+  }
+  .control .val{
+    text-align:right;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+    font-size:12px;
+  }
+  .smallnote{
+    color: var(--muted);
+    font-size:12px;
+    line-height:1.35;
+  }
+
+  canvas{
+    width:100%;
+    height:380px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: radial-gradient(900px 450px at 30% 10%, rgba(122,162,255,.10), transparent 55%),
+                rgba(0,0,0,.25);
+  }
+
+  .scorebox{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .bigscore{
+    font-size:28px;
+    font-weight:900;
+    letter-spacing:.3px;
+  }
+  .meter{
+    width:220px;
+    height:10px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.06);
+    overflow:hidden;
+  }
+  .meter > div{
+    height:100%;
+    width:0%;
+    background: linear-gradient(90deg, rgba(255,92,122,.9), rgba(122,162,255,.9), rgba(61,220,151,.9));
+  }
+  .kbd{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size:11px;
+    padding:2px 6px;
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:8px;
+    background: rgba(0,0,0,.25);
+    color: var(--muted);
+  }
+  .divider{
+    height:1px;
+    background: rgba(255,255,255,.12);
+    margin:10px 0;
+  }
+
+  @media (max-width: 980px){
+    .wrap{grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="card">
+      <div class="title">
+        <h1>Sound Forge</h1>
+        <span class="tag">Canvas + Web Audio • single-file prototype</span>
+      </div>
+      <div class="status">
+        <span class="pill">Audio: <strong id="audioState">locked</strong></span>
+        <span class="pill">A/B: <strong id="abState">Player</strong></span>
+        <span class="pill">Level: <strong id="levelName">0 — Pitch</strong></span>
+      </div>
+    </header>
+
+    <section class="card left">
+      <div class="row">
+        <button class="btn primary" id="btnStart">Enable Audio</button>
+        <button class="btn" id="btnNew">New Target</button>
+        <div class="spacer"></div>
+        <select id="levelSelect" title="Level">
+          <option value="0">Level 0 — Pitch (sine)</option>
+          <option value="1">Level 1 — Instrument ID (presets)</option>
+          <option value="2">Level 2 — Harmonics (manual)</option>
+          <option value="3" disabled>Level 3 — Chords (coming soon)</option>
+          <option value="4" disabled>Level 4 — Chords + timbre (coming soon)</option>
+          <option value="5" disabled>Level 5 — Mixtures (coming soon)</option>
+          <option value="6" disabled>Level 6 — Envelopes + vibrato (coming soon)</option>
+        </select>
+      </div>
+
+      <div class="group">
+        <h2>Play & Compare</h2>
+        <div class="row">
+          <button class="btn" id="btnPlayTarget">Play Target (A)</button>
+          <button class="btn" id="btnPlayPlayer">Play Player (B)</button>
+          <button class="btn" id="btnAB">Toggle A/B <span class="kbd">Space</span></button>
+          <button class="btn good" id="btnScore">Score</button>
+          <div class="spacer"></div>
+          <span class="pill">Hold note: <strong id="holdState">off</strong></span>
+          <button class="btn" id="btnHold">Hold</button>
+        </div>
+        <div class="smallnote">
+          Scoring is objective: it compares pitch and spectral shape (FFT) with level-dependent weights.
+          For fairness, scoring captures both spectra silently for ~0.4 s (your ears are spared).
+        </div>
+      </div>
+
+      <div class="group" id="groupSynth">
+        <h2>Player Synth</h2>
+
+        <div class="control" id="ctlFreq">
+          <label for="freq">Frequency</label>
+          <input id="freq" type="range" min="80" max="1000" value="440" step="1"/>
+          <div class="val"><span id="freqVal">440</span> Hz</div>
+        </div>
+
+        <div class="control" id="ctlGain">
+          <label for="gain">Loudness</label>
+          <input id="gain" type="range" min="0" max="1" value="0.35" step="0.01"/>
+          <div class="val"><span id="gainVal">0.35</span></div>
+        </div>
+
+        <div class="control" id="ctlPreset">
+          <label for="preset">Instrument preset</label>
+          <select id="preset">
+            <option value="flute">Flute-ish (near sine)</option>
+            <option value="clarinet">Clarinet-ish (odd harmonics)</option>
+            <option value="violin">Violin-ish (rich)</option>
+            <option value="piano">Piano-ish (bright + snap)</option>
+          </select>
+          <div class="val" id="presetHint">preset</div>
+        </div>
+
+        <div class="control" id="ctlNoise">
+          <label for="noise">Breath/Noise</label>
+          <input id="noise" type="range" min="0" max="1" value="0.00" step="0.01"/>
+          <div class="val"><span id="noiseVal">0.00</span></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div id="harmonicsBox" style="display:none">
+          <div class="smallnote" style="margin-bottom:8px">
+            Level 2: shape timbre by setting harmonic amplitudes (1st harmonic = fundamental).
+          </div>
+          <div id="harmonicSliders"></div>
+        </div>
+      </div>
+
+      <div class="group">
+        <h2>Score</h2>
+        <div class="scorebox">
+          <div class="bigscore"><span id="scoreNum">—</span></div>
+          <div class="meter" aria-label="score meter"><div id="meterFill"></div></div>
+          <span class="pill">Pitch: <strong id="pitchScore">—</strong></span>
+          <span class="pill">Spectrum: <strong id="specScore">—</strong></span>
+        </div>
+        <div class="smallnote" id="scoreMsg">
+          Tip: use A/B quickly, then score once you think you’re close.
+        </div>
+      </div>
+
+      <div class="smallnote">
+        Keyboard: <span class="kbd">Space</span> toggles A/B • <span class="kbd">S</span> scores • <span class="kbd">N</span> new target
+      </div>
+    </section>
+
+    <section class="card right">
+      <div class="group">
+        <h2>Visual Feedback (FFT Spectrum)</h2>
+        <canvas id="viz" width="1000" height="380"></canvas>
+        <div class="row" style="margin-top:8px">
+          <span class="pill">Target spectrum: <strong>gray</strong></span>
+          <span class="pill">Player spectrum: <strong style="color:var(--accent)">blue</strong></span>
+          <div class="spacer"></div>
+          <span class="pill">FFT size: <strong id="fftSize">2048</strong></span>
+        </div>
+      </div>
+
+      <div class="group">
+        <h2>Design Notes</h2>
+        <div class="smallnote">
+          This prototype is deliberately modular:
+          <br>• Levels are configs (weights + what controls are enabled).
+          <br>• “Instrument identity” is parametric (harmonics + envelope + noise), not samples.
+          <br>• Scoring uses pitch error + spectral distance on analyser FFT bins.
+          <br><br>
+          Coming levels (3–6) fit naturally by switching from one oscillator to multiple voices and adding ADSR/vibrato to the player chain.
+        </div>
+      </div>
+    </section>
+  </div>
+
+<script>
+(() => {
+  // -----------------------------
+  // Utilities
+  // -----------------------------
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  const lerp = (a,b,t) => a + (b-a)*t;
+
+  function dbToLin(db){ return Math.pow(10, db/20); }
+
+  // Normalize Float32Array into [0,1] (in dB domain already from analyser data).
+  function normalizeSpectrumDb(dbArray, minDb=-100, maxDb=-20){
+    const out = new Float32Array(dbArray.length);
+    const span = maxDb - minDb;
+    for(let i=0;i<dbArray.length;i++){
+      out[i] = clamp((dbArray[i] - minDb) / span, 0, 1);
+    }
+    return out;
+  }
+
+  // Spectral distance: mean absolute difference on normalized magnitudes.
+  function spectralDistance(aNorm, bNorm, lo=2, hi=null){
+    const n = aNorm.length;
+    const end = hi ?? n;
+    let s = 0, c = 0;
+    for(let i=lo;i<end;i++){
+      s += Math.abs(aNorm[i] - bNorm[i]);
+      c++;
+    }
+    return c ? s/c : 1;
+  }
+
+  // Convert distance to score [0,1] with a soft curve.
+  function distToScore(d){
+    // d~0 => 1, d~0.35 => ~0.3, d~0.6 => small
+    const x = clamp(1 - d / 0.45, 0, 1);
+    return Math.pow(x, 1.4);
+  }
+
+  function freqScore(playerHz, targetHz){
+    const cents = 1200 * Math.log2(playerHz/targetHz);
+    const absC = Math.abs(cents);
+    // 0 cents => 1, 50 cents => ~0.25, 100 cents => near 0
+    const x = clamp(1 - absC/80, 0, 1);
+    return Math.pow(x, 1.7);
+  }
+
+  // -----------------------------
+  // Level definitions
+  // -----------------------------
+  const LEVELS = {
+    0: {
+      name: "0 — Pitch",
+      enabled: { preset:false, harmonics:false, noise:false },
+      weights: { pitch:0.75, spectrum:0.25 },
+      target: () => ({
+        freq: randomFrom([196, 220, 246.94, 261.63, 293.66, 329.63, 392, 440, 493.88]),
+        instrument: "flute",
+        harmonics: presetHarmonics("flute"),
+        noise: 0.0,
+        env: presetEnv("flute"),
+      })
+    },
+    1: {
+      name: "1 — Instrument ID (presets)",
+      enabled: { preset:true, harmonics:false, noise:true },
+      weights: { pitch:0.45, spectrum:0.55 },
+      target: () => {
+        const inst = randomFrom(["flute","clarinet","violin","piano"]);
+        return {
+          freq: randomFrom([196, 220, 261.63, 293.66, 329.63, 392, 440]),
+          instrument: inst,
+          harmonics: presetHarmonics(inst),
+          noise: inst==="flute" ? 0.05 : (inst==="violin" ? 0.02 : (inst==="piano" ? 0.01 : 0.00)),
+          env: presetEnv(inst),
+        };
+      }
+    },
+    2: {
+      name: "2 — Harmonics (manual)",
+      enabled: { preset:false, harmonics:true, noise:true },
+      weights: { pitch:0.25, spectrum:0.75 },
+      target: () => {
+        const base = randomFrom([196, 220, 261.63, 293.66, 329.63, 392, 440]);
+        const amps = randomHarmonics(10);
+        return {
+          freq: base,
+          instrument: "custom",
+          harmonics: amps,
+          noise: Math.random()*0.08,
+          env: { a:0.01+Math.random()*0.06, d:0.06+Math.random()*0.14, s:0.75+Math.random()*0.2, r:0.06+Math.random()*0.2 },
+        };
+      }
+    }
+  };
+
+  function randomFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+  // -----------------------------
+  // Parametric instrument models
+  // -----------------------------
+  function presetHarmonics(name){
+    // Return amplitudes for harmonics 1..N (index 0 unused).
+    const N = 10;
+    const a = new Array(N+1).fill(0);
+    a[1] = 1.0;
+
+    if(name === "flute"){
+      // near sine, tiny overtones
+      for(let k=2;k<=N;k++) a[k] = 0.08 * Math.pow(0.35, k-2);
+    } else if(name === "clarinet"){
+      // odd harmonics dominant
+      for(let k=2;k<=N;k++){
+        if(k%2===1) a[k] = 0.65 * Math.pow(0.72, (k-3)/2);
+        else a[k] = 0.05 * Math.pow(0.6, (k-2)/2);
+      }
+    } else if(name === "violin"){
+      // rich spectrum, slower rolloff
+      for(let k=2;k<=N;k++) a[k] = 0.9 * Math.pow(0.82, k-2);
+      // mild formant-ish bump around 3–5
+      a[3] *= 1.15; a[4] *= 1.22; a[5] *= 1.12;
+    } else if(name === "piano"){
+      // bright but fast decay in time (handled by env); harmonic tilt
+      for(let k=2;k<=N;k++) a[k] = 1.0 * Math.pow(0.78, k-2);
+      a[2] *= 1.25; a[3] *= 1.15;
+    } else {
+      for(let k=2;k<=N;k++) a[k] = 0.2 * Math.pow(0.7, k-2);
+    }
+    // Normalize so max is 1
+    const mx = Math.max(...a);
+    for(let k=1;k<=N;k++) a[k] /= mx;
+    return a;
+  }
+
+  function presetEnv(name){
+    if(name === "flute")    return { a:0.06, d:0.10, s:0.90, r:0.10 };
+    if(name === "clarinet") return { a:0.03, d:0.08, s:0.88, r:0.12 };
+    if(name === "violin")   return { a:0.05, d:0.12, s:0.92, r:0.18 };
+    if(name === "piano")    return { a:0.005, d:0.12, s:0.0, r:0.10 };
+    return { a:0.02, d:0.10, s:0.85, r:0.12 };
+  }
+
+  function randomHarmonics(N=10){
+    const a = new Array(N+1).fill(0);
+    a[1] = 1.0;
+    // Make a smooth-ish random spectral tilt with some bumps.
+    const tilt = 0.65 + Math.random()*0.25;
+    for(let k=2;k<=N;k++){
+      const bump = (Math.random()<0.25) ? (0.3 + Math.random()*0.8) : 1.0;
+      a[k] = bump * Math.pow(tilt, k-1);
+    }
+    // occasional odd/even bias
+    const mode = Math.floor(Math.random()*3);
+    if(mode===1){
+      for(let k=2;k<=N;k++) if(k%2===0) a[k] *= 0.55;
+    } else if(mode===2){
+      for(let k=2;k<=N;k++) if(k%2===1) a[k] *= 0.60;
+    }
+    const mx = Math.max(...a);
+    for(let k=1;k<=N;k++) a[k] /= mx;
+    return a;
+  }
+
+  // -----------------------------
+  // Audio Engine (two parallel synths: target + player)
+  // -----------------------------
+  let ctx = null;
+  let master = null;
+  let targetOut = null, playerOut = null;
+  let targetAnalyser = null, playerAnalyser = null;
+  let targetChain = null, playerChain = null;
+  let audioUnlocked = false;
+
+  const FFT_SIZE = 2048;
+
+  function ensureAudio(){
+    if(ctx) return;
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    master = ctx.createGain();
+    master.gain.value = 0.9;
+    master.connect(ctx.destination);
+
+    targetOut = ctx.createGain();
+    playerOut = ctx.createGain();
+    // default: player audible, target muted (A/B toggle controls this)
+    targetOut.gain.value = 0.0;
+    playerOut.gain.value = 1.0;
+
+    targetAnalyser = ctx.createAnalyser();
+    playerAnalyser = ctx.createAnalyser();
+    targetAnalyser.fftSize = FFT_SIZE;
+    playerAnalyser.fftSize = FFT_SIZE;
+    targetAnalyser.smoothingTimeConstant = 0.75;
+    playerAnalyser.smoothingTimeConstant = 0.75;
+
+    // target chain -> analyser -> targetOut -> master
+    // player chain -> analyser -> playerOut -> master
+    targetAnalyser.connect(targetOut);
+    playerAnalyser.connect(playerOut);
+    targetOut.connect(master);
+    playerOut.connect(master);
+
+    document.getElementById("fftSize").textContent = String(FFT_SIZE);
+  }
+
+  function stopChain(chain){
+    if(!chain) return;
+    try{ chain.stop(); }catch(e){}
+  }
+
+  function buildSynthChain(params){
+    // params: {freq, harmonics[], noise, env{a,d,s,r}, gain}
+    const now = ctx.currentTime;
+
+    const node = {};
+    const out = ctx.createGain();
+    out.gain.value = 0;
+
+    // Oscillator w/ PeriodicWave (additive partials)
+    const osc = ctx.createOscillator();
+    osc.frequency.value = params.freq;
+
+    const harmonics = params.harmonics || presetHarmonics("flute");
+    const N = harmonics.length - 1;
+
+    // periodic wave arrays: real/imag of Fourier series.
+    // imag[k] sets sine components; real[k] would set cosine components.
+    const real = new Float32Array(N+1);
+    const imag = new Float32Array(N+1);
+    for(let k=1;k<=N;k++){
+      imag[k] = harmonics[k] || 0;
+      real[k] = 0;
+    }
+    const wave = ctx.createPeriodicWave(real, imag, { disableNormalization: false });
+    osc.setPeriodicWave(wave);
+
+    // Optional noise (white noise into gain)
+    let noiseSrc = null, noiseGain = null;
+    if((params.noise || 0) > 0.0001){
+      const bufferSize = 2 * ctx.sampleRate;
+      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for(let i=0;i<bufferSize;i++) data[i] = (Math.random()*2 - 1);
+      noiseSrc = ctx.createBufferSource();
+      noiseSrc.buffer = noiseBuffer;
+      noiseSrc.loop = true;
+      noiseGain = ctx.createGain();
+      noiseGain.gain.value = params.noise;
+      noiseSrc.connect(noiseGain);
+      noiseGain.connect(out);
+    }
+
+    // Envelope on output gain (ADSR)
+    const env = params.env || {a:0.02,d:0.12,s:0.85,r:0.12};
+    const peak = params.gain ?? 0.35;
+    out.gain.cancelScheduledValues(now);
+    out.gain.setValueAtTime(0.0001, now);
+    out.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), now + env.a);
+    const sustainLevel = Math.max(0.0001, peak * env.s);
+    out.gain.exponentialRampToValueAtTime(sustainLevel, now + env.a + env.d);
+
+    // Route osc to out
+    osc.connect(out);
+
+    let stopped = false;
+    node.stop = () => {
+      if(stopped) return;
+      stopped = true;
+      const t = ctx.currentTime;
+      // release
+      out.gain.cancelScheduledValues(t);
+      out.gain.setValueAtTime(Math.max(0.0001, out.gain.value), t);
+      out.gain.exponentialRampToValueAtTime(0.0001, t + env.r);
+      const stopAt = t + env.r + 0.02;
+      osc.stop(stopAt);
+      if(noiseSrc) noiseSrc.stop(stopAt);
+      // disconnect later
+      setTimeout(() => {
+        try{ osc.disconnect(); }catch(e){}
+        try{ out.disconnect(); }catch(e){}
+        if(noiseSrc) try{ noiseSrc.disconnect(); }catch(e){}
+        if(noiseGain) try{ noiseGain.disconnect(); }catch(e){}
+      }, (env.r*1000 + 80));
+    };
+
+    node.start = () => {
+      osc.start();
+      if(noiseSrc) noiseSrc.start();
+    };
+
+    node.output = out;
+    node.osc = osc;
+    node.env = env;
+    return node;
+  }
+
+  // -----------------------------
+  // Game state
+  // -----------------------------
+  const state = {
+    level: 0,
+    targetParams: null,
+    hold: false,
+    ab: "player", // "target" or "player"
+    // snapshots for drawing
+    targetSnapNorm: null,
+    playerSnapNorm: null,
+  };
+
+  function setAB(mode){
+    state.ab = mode;
+    if(!audioUnlocked) return;
+    if(mode === "target"){
+      targetOut.gain.value = 1.0;
+      playerOut.gain.value = 0.0;
+      document.getElementById("abState").textContent = "Target";
+    } else {
+      targetOut.gain.value = 0.0;
+      playerOut.gain.value = 1.0;
+      document.getElementById("abState").textContent = "Player";
+    }
+  }
+
+  function applyLevelUI(){
+    const L = LEVELS[state.level];
+    document.getElementById("levelName").textContent = L.name;
+    document.getElementById("ctlPreset").style.display = L.enabled.preset ? "grid" : "none";
+    document.getElementById("ctlNoise").style.display = L.enabled.noise ? "grid" : "none";
+    document.getElementById("harmonicsBox").style.display = L.enabled.harmonics ? "block" : "none";
+
+    // Frequency always relevant in these early levels
+    document.getElementById("ctlFreq").style.display = "grid";
+  }
+
+  function newTarget(){
+    const L = LEVELS[state.level];
+    state.targetParams = L.target();
+    // reset score display
+    setScoreUI(null);
+    // capture a clean target snapshot for display (silent)
+    if(audioUnlocked) captureSpectraSilent().catch(()=>{});
+  }
+
+  // -----------------------------
+  // UI wiring
+  // -----------------------------
+  const el = (id) => document.getElementById(id);
+
+  function readPlayerParams(){
+    const freq = +el("freq").value;
+    const gain = +el("gain").value;
+    const noise = +el("noise").value;
+
+    let harmonics = null;
+    let env = null;
+
+    if(state.level === 2){
+      harmonics = readHarmonicsFromUI();
+      env = { a:0.02, d:0.10, s:0.90, r:0.12 };
+    } else {
+      const preset = el("preset").value;
+      harmonics = presetHarmonics(preset);
+      env = presetEnv(preset);
+    }
+
+    // In level 0, force near-sine and no noise
+    if(state.level === 0){
+      harmonics = presetHarmonics("flute");
+    }
+
+    // In level 1, preset allowed, noise allowed; else if hidden, noise forced 0
+    const L = LEVELS[state.level];
+    const finalNoise = L.enabled.noise ? noise : 0.0;
+
+    return { freq, gain, noise: finalNoise, harmonics, env };
+  }
+
+  function playTarget(){
+    if(!audioUnlocked || !state.targetParams) return;
+    stopChain(targetChain);
+    const t = {
+      freq: state.targetParams.freq,
+      gain: +el("gain").value, // keep loudness consistent for A/B
+      harmonics: state.targetParams.harmonics,
+      noise: state.targetParams.noise ?? 0,
+      env: state.targetParams.env
+    };
+    targetChain = buildSynthChain(t);
+    targetChain.output.connect(targetAnalyser);
+    targetChain.start();
+    if(!state.hold){
+      setTimeout(()=> stopChain(targetChain), 650);
+    }
+  }
+
+  function playPlayer(){
+    if(!audioUnlocked) return;
+    stopChain(playerChain);
+    const p = readPlayerParams();
+    playerChain = buildSynthChain(p);
+    playerChain.output.connect(playerAnalyser);
+    playerChain.start();
+    if(!state.hold){
+      setTimeout(()=> stopChain(playerChain), 650);
+    }
+  }
+
+  function stopBoth(){
+    stopChain(targetChain);
+    stopChain(playerChain);
+  }
+
+  function toggleHold(){
+    state.hold = !state.hold;
+    el("holdState").textContent = state.hold ? "on" : "off";
+    if(!state.hold) stopBoth();
+  }
+
+  // -----------------------------
+  // Harmonic sliders (Level 2)
+  // -----------------------------
+  const HN = 10;
+  function initHarmonicUI(){
+    const box = el("harmonicSliders");
+    box.innerHTML = "";
+    for(let k=1;k<=HN;k++){
+      const row = document.createElement("div");
+      row.className = "control";
+      const lab = document.createElement("label");
+      lab.textContent = `Harmonic ${k}`;
+      lab.htmlFor = `h${k}`;
+
+      const r = document.createElement("input");
+      r.type = "range";
+      r.min = "0";
+      r.max = "1";
+      r.step = "0.01";
+      r.value = (k===1) ? "1" : "0";
+      r.id = `h${k}`;
+
+      const val = document.createElement("div");
+      val.className = "val";
+      val.innerHTML = `<span id="h${k}v">${r.value}</span>`;
+
+      r.addEventListener("input", () => {
+        el(`h${k}v`).textContent = (+r.value).toFixed(2);
+      });
+
+      row.appendChild(lab);
+      row.appendChild(r);
+      row.appendChild(val);
+      box.appendChild(row);
+    }
+  }
+
+  function readHarmonicsFromUI(){
+    const a = new Array(HN+1).fill(0);
+    for(let k=1;k<=HN;k++){
+      a[k] = +el(`h${k}`).value;
+    }
+    // normalize max to 1 (avoid trivial loudness cheating)
+    const mx = Math.max(...a.slice(1));
+    if(mx > 0){
+      for(let k=1;k<=HN;k++) a[k] /= mx;
+    }
+    return a;
+  }
+
+  function setHarmonicsUI(amps){
+    for(let k=1;k<=HN;k++){
+      const v = amps[k] ?? 0;
+      el(`h${k}`).value = v.toFixed(2);
+      el(`h${k}v`).textContent = (+el(`h${k}`).value).toFixed(2);
+    }
+  }
+
+  // -----------------------------
+  // Scoring: capture spectra silently then compute similarity
+  // -----------------------------
+  const tFreqDb = () => new Float32Array(targetAnalyser.frequencyBinCount);
+  const pFreqDb = () => new Float32Array(playerAnalyser.frequencyBinCount);
+
+  async function captureSpectraSilent(){
+    // Ensure both chains exist but are inaudible while we capture analyser data
+    if(!audioUnlocked || !state.targetParams) return;
+
+    const prevAB = state.ab;
+
+    // Make both outputs silent
+    const prevTG = targetOut.gain.value;
+    const prevPG = playerOut.gain.value;
+    targetOut.gain.value = 0.0;
+    playerOut.gain.value = 0.0;
+
+    // Build both chains fresh for clean capture
+    stopBoth();
+
+    const target = {
+      freq: state.targetParams.freq,
+      gain: 0.30,
+      harmonics: state.targetParams.harmonics,
+      noise: state.targetParams.noise ?? 0,
+      env: state.targetParams.env
+    };
+    const player = (() => {
+      const p = readPlayerParams();
+      return { ...p, gain: 0.30 };
+    })();
+
+    targetChain = buildSynthChain(target);
+    playerChain = buildSynthChain(player);
+    targetChain.output.connect(targetAnalyser);
+    playerChain.output.connect(playerAnalyser);
+    targetChain.start();
+    playerChain.start();
+
+    // Accumulate a few frames
+    const frames = 24;
+    const tAcc = new Float32Array(targetAnalyser.frequencyBinCount);
+    const pAcc = new Float32Array(playerAnalyser.frequencyBinCount);
+    const tTmp = tFreqDb();
+    const pTmp = pFreqDb();
+
+    for(let f=0; f<frames; f++){
+      targetAnalyser.getFloatFrequencyData(tTmp);
+      playerAnalyser.getFloatFrequencyData(pTmp);
+      for(let i=0;i<tAcc.length;i++){
+        tAcc[i] += tTmp[i];
+        pAcc[i] += pTmp[i];
+      }
+      await new Promise(r => setTimeout(r, 16));
+    }
+    for(let i=0;i<tAcc.length;i++){
+      tAcc[i] /= frames;
+      pAcc[i] /= frames;
+    }
+
+    // Stop chains
+    stopBoth();
+
+    // Restore audibility
+    targetOut.gain.value = prevTG;
+    playerOut.gain.value = prevPG;
+    setAB(prevAB);
+
+    // Save snapshots for drawing
+    state.targetSnapNorm = normalizeSpectrumDb(tAcc);
+    state.playerSnapNorm = normalizeSpectrumDb(pAcc);
+  }
+
+  async function scoreNow(){
+    if(!audioUnlocked || !state.targetParams) return;
+
+    await captureSpectraSilent();
+
+    const L = LEVELS[state.level];
+
+    const pHz = +el("freq").value;
+    const tHz = state.targetParams.freq;
+    const pitch = freqScore(pHz, tHz);
+
+    const a = state.targetSnapNorm;
+    const b = state.playerSnapNorm;
+
+    // ignore very low bins (DC + rumble) and the top tail
+    const dist = spectralDistance(a, b, 3, Math.floor(a.length*0.85));
+    const spec = distToScore(dist);
+
+    const total = clamp(L.weights.pitch*pitch + L.weights.spectrum*spec, 0, 1);
+
+    setScoreUI({
+      total, pitch, spec,
+      debug: { dist, cents: 1200*Math.log2(pHz/tHz) }
+    });
+
+    // After scoring, show player in A/B (feels nicer)
+    setAB("player");
+  }
+
+  function setScoreUI(s){
+    if(!s){
+      el("scoreNum").textContent = "—";
+      el("pitchScore").textContent = "—";
+      el("specScore").textContent = "—";
+      el("meterFill").style.width = "0%";
+      el("scoreMsg").textContent = "Tip: use A/B quickly, then score once you think you’re close.";
+      return;
+    }
+    const pct = Math.round(s.total*100);
+    el("scoreNum").textContent = `${pct}`;
+    el("pitchScore").textContent = `${Math.round(s.pitch*100)}`;
+    el("specScore").textContent = `${Math.round(s.spec*100)}`;
+    el("meterFill").style.width = `${pct}%`;
+
+    let msg = "";
+    if(pct >= 90) msg = "Very close. Your spectrum is nearly sitting on top of the target.";
+    else if(pct >= 70) msg = "Close. A small pitch tweak or spectral tilt should do it.";
+    else if(pct >= 45) msg = "In range, but not locked. Use A/B and chase the biggest mismatch.";
+    else msg = "Far. Start with pitch; then match brightness (higher harmonics).";
+    el("scoreMsg").textContent = msg;
+  }
+
+  // -----------------------------
+  // Visualization (Canvas)
+  // -----------------------------
+  const canvas = el("viz");
+  const g = canvas.getContext("2d");
+
+  function draw(){
+    const w = canvas.width, h = canvas.height;
+    g.clearRect(0,0,w,h);
+
+    // grid
+    g.globalAlpha = 0.75;
+    g.strokeStyle = "rgba(255,255,255,0.10)";
+    g.lineWidth = 1;
+    for(let i=1;i<=5;i++){
+      const y = (h*i)/6;
+      g.beginPath(); g.moveTo(0,y); g.lineTo(w,y); g.stroke();
+    }
+    for(let i=1;i<=10;i++){
+      const x = (w*i)/11;
+      g.beginPath(); g.moveTo(x,0); g.lineTo(x,h); g.stroke();
+    }
+    g.globalAlpha = 1;
+
+    // If audio running, sample player analyser live for responsiveness.
+    if(audioUnlocked){
+      const pTmp = pFreqDb();
+      playerAnalyser.getFloatFrequencyData(pTmp);
+      state.playerSnapNorm = normalizeSpectrumDb(pTmp);
+      // target snapshot stays as last captured (or null).
+    }
+
+    // helper for spectrum polyline
+    function drawSpectrum(norm, color, alpha=1){
+      if(!norm) return;
+      g.strokeStyle = color;
+      g.globalAlpha = alpha;
+      g.lineWidth = 2;
+      g.beginPath();
+      const n = norm.length;
+      const end = Math.floor(n*0.85);
+      for(let i=0;i<end;i++){
+        const x = (i/(end-1))*w;
+        const y = h - (norm[i]* (h*0.90) + h*0.05);
+        if(i===0) g.moveTo(x,y); else g.lineTo(x,y);
+      }
+      g.stroke();
+      g.globalAlpha = 1;
+    }
+
+    // target (gray) + player (accent)
+    drawSpectrum(state.targetSnapNorm, "rgba(230,235,255,0.55)", 1);
+    drawSpectrum(state.playerSnapNorm, "rgba(122,162,255,0.95)", 1);
+
+    // labels
+    g.fillStyle = "rgba(255,255,255,0.75)";
+    g.font = "12px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial";
+    g.fillText("low freq →", 10, h-10);
+    g.fillText("← high freq", w-86, h-10);
+
+    requestAnimationFrame(draw);
+  }
+
+  // -----------------------------
+  // Event handlers
+  // -----------------------------
+  function refreshValueLabels(){
+    el("freqVal").textContent = String(+el("freq").value);
+    el("gainVal").textContent = (+el("gain").value).toFixed(2);
+    el("noiseVal").textContent = (+el("noise").value).toFixed(2);
+    el("presetHint").textContent = el("preset").value;
+  }
+
+  el("freq").addEventListener("input", refreshValueLabels);
+  el("gain").addEventListener("input", refreshValueLabels);
+  el("noise").addEventListener("input", refreshValueLabels);
+  el("preset").addEventListener("change", refreshValueLabels);
+
+  el("btnStart").addEventListener("click", async () => {
+    ensureAudio();
+    try{
+      await ctx.resume();
+      audioUnlocked = (ctx.state === "running");
+    }catch(e){
+      audioUnlocked = false;
+    }
+    el("audioState").textContent = audioUnlocked ? "running" : "blocked";
+    if(audioUnlocked){
+      setAB("player");
+      if(!state.targetParams) newTarget();
+    }
+  });
+
+  el("btnNew").addEventListener("click", () => newTarget());
+  el("btnPlayTarget").addEventListener("click", () => { setAB("target"); playTarget(); });
+  el("btnPlayPlayer").addEventListener("click", () => { setAB("player"); playPlayer(); });
+  el("btnAB").addEventListener("click", () => setAB(state.ab === "player" ? "target" : "player"));
+  el("btnHold").addEventListener("click", () => toggleHold());
+  el("btnScore").addEventListener("click", () => scoreNow());
+
+  el("levelSelect").addEventListener("change", () => {
+    state.level = +el("levelSelect").value;
+    applyLevelUI();
+    newTarget();
+
+    // For Level 2, initialize harmonic sliders with something non-trivial on first entry
+    if(state.level === 2){
+      setHarmonicsUI(presetHarmonics("violin"));
+    }
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if(e.code === "Space"){
+      e.preventDefault();
+      setAB(state.ab === "player" ? "target" : "player");
+    }
+    if(e.key.toLowerCase() === "s"){
+      scoreNow();
+    }
+    if(e.key.toLowerCase() === "n"){
+      newTarget();
+    }
+  });
+
+  // -----------------------------
+  // Boot
+  // -----------------------------
+  initHarmonicUI();
+  refreshValueLabels();
+  applyLevelUI();
+  newTarget();
+  draw();
+
+})();
+</script>
+</body>
+</html>

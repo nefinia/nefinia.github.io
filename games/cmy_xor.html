@@ -1,0 +1,1215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-20EEFX7Q6N"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-20EEFX7Q6N');
+</script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Colored XOR — CMY Stamp Puzzle</title>
+
+  <style>
+    :root{
+      --cell: 28px;
+      --cellMini: 14px;
+      --gap: 2px;
+
+      --bg0:#060913;
+      --bg1:#0a1222;
+
+      --panelA: rgba(255,255,255,.045);
+      --panelB: rgba(255,255,255,.020);
+
+      --line: rgba(125,160,220,.18);
+      --text:#eaf1fb;
+      --muted:#9fb1c9;
+
+      --accent:#7aa2ff;
+      --ok:#2dd4bf;
+      --bad:#fb7185;
+
+      --r: 18px;
+      --shadow: 0 18px 48px rgba(0,0,0,.45);
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1100px 650px at 18% 0%, rgba(122,162,255,.18), transparent 58%),
+        radial-gradient(900px 520px at 85% 5%, rgba(45,212,191,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1) 55%, var(--bg0));
+    }
+
+    .wrap{
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 470px minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+    }
+    @media (max-width: 980px){
+      .wrap{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      background: linear-gradient(180deg, var(--panelA), var(--panelB));
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+    }
+
+    .head{
+      padding: 14px 14px 12px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
+    }
+    .title{
+      margin:0;
+      font-size: 16px;
+      font-weight: 820;
+      letter-spacing: .2px;
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      flex-wrap: wrap;
+    }
+    .badge{
+      font-size: 11px;
+      font-weight: 750;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(122,162,255,.35);
+      background: rgba(122,162,255,.10);
+      color: rgba(234,241,251,.92);
+    }
+    .sub{
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 12.6px;
+      line-height: 1.45;
+    }
+
+    .body{ padding: 14px; }
+    .row{ display:flex; gap:10px; flex-wrap: wrap; align-items:center; }
+
+    .btn{
+      appearance:none;
+      border: 1px solid rgba(125,160,220,.22);
+      background: rgba(255,255,255,.03);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-weight: 760;
+      font-size: 13px;
+      transition: transform .06s ease, border-color .15s ease, background .15s ease;
+      user-select:none;
+      white-space: nowrap;
+    }
+    .btn:hover{ border-color: rgba(125,160,220,.42); background: rgba(255,255,255,.05); }
+    .btn:active{ transform: translateY(1px); }
+
+    .btn.primary{
+      border-color: rgba(122,162,255,.55);
+      background: rgba(122,162,255,.10);
+    }
+    .btn.primary:hover{ border-color: rgba(122,162,255,1); background: rgba(122,162,255,.14); }
+
+    .btn.good{
+      border-color: rgba(45,212,191,.50);
+      background: rgba(45,212,191,.10);
+    }
+    .btn.good:hover{ border-color: rgba(45,212,191,1); background: rgba(45,212,191,.14); }
+
+    .btn.toggled{
+      border-color: rgba(122,162,255,.95);
+      background: rgba(122,162,255,.16);
+    }
+
+    .btn.small{ padding: 6px 9px; font-size: 12px; border-radius: 11px; }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      padding: 2px 6px;
+      border: 1px solid rgba(125,160,220,.22);
+      border-radius: 9px;
+      color: var(--muted);
+      background: rgba(255,255,255,.03);
+      display:inline-block;
+    }
+
+    .chip{
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(125,160,220,.22);
+      background: rgba(255,255,255,.03);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 740;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      user-select:none;
+    }
+    select{
+      appearance:none;
+      padding: 5px 9px;
+      border-radius: 12px;
+      border: 1px solid rgba(125,160,220,.22);
+      background: rgba(255,255,255,.03);
+      color: var(--text);
+      font-weight: 760;
+      font-size: 12px;
+      cursor:pointer;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .stat{
+      border: 1px solid rgba(125,160,220,.22);
+      border-radius: 14px;
+      padding: 10px;
+      background: rgba(255,255,255,.02);
+    }
+    .stat .k{ color: var(--muted); font-size: 12px; }
+    .stat .v{ margin-top: 2px; font-size: 16px; font-weight: 860; }
+
+    .meter{
+      margin-top: 10px;
+      border: 1px solid rgba(125,160,220,.18);
+      border-radius: 999px;
+      background: rgba(0,0,0,.12);
+      overflow:hidden;
+      height: 10px;
+    }
+    .bar{
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, rgba(45,212,191,.65), rgba(122,162,255,.65));
+      transition: width .15s ease;
+    }
+
+    .paletteWrap{
+      margin-top: 14px;
+      border: 1px solid rgba(125,160,220,.18);
+      border-radius: 16px;
+      background: rgba(0,0,0,.10);
+      padding: 10px;
+    }
+    .palette{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .piece{
+      border: 1px solid rgba(125,160,220,.22);
+      border-radius: 16px;
+      padding: 10px 10px 8px;
+      background: rgba(255,255,255,.02);
+      cursor:pointer;
+      user-select:none;
+      display:flex;
+      flex-direction: column;
+      gap: 7px;
+      align-items:center;
+      transition: border-color .15s ease, background .15s ease, transform .06s ease;
+      min-width: 0;
+    }
+    .piece:hover{ border-color: rgba(125,160,220,.42); background: rgba(255,255,255,.04); }
+    .piece:active{ transform: translateY(1px); }
+    .piece.selected{
+      border-color: rgba(122,162,255,.90);
+      background: rgba(122,162,255,.11);
+      box-shadow: 0 0 0 2px rgba(122,162,255,.22) inset;
+    }
+    .piece .name{
+      font-size: 12px;
+      font-weight: 820;
+      letter-spacing: .2px;
+      color: var(--muted);
+    }
+    canvas.thumb{
+      width: 64px; height: 64px;
+      image-rendering: pixelated;
+      border-radius: 14px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .swatches{ display:flex; gap:6px; }
+    .sw{
+      width: 14px; height: 14px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.18);
+      cursor:pointer;
+      opacity:.85;
+      transition: transform .06s ease, opacity .12s ease, box-shadow .12s ease;
+    }
+    .sw:hover{ opacity:1; transform: translateY(-1px); }
+    .sw.sel{ opacity:1; box-shadow: 0 0 0 2px rgba(122,162,255,.35); }
+
+    /* RIGHT */
+    .rightTop{
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
+    }
+    .status{
+      font-size: 13px;
+      color: var(--muted);
+      min-width: 280px;
+      flex: 1 1 280px;
+      line-height: 1.35;
+    }
+    .pillLine{
+      display:flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items:center;
+      justify-content: flex-end;
+    }
+    .pill2{
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(125,160,220,.22);
+      background: rgba(255,255,255,.03);
+      color: rgba(234,241,251,.90);
+      font-size: 12px;
+      font-weight: 750;
+    }
+    .pill2.ok{ border-color: rgba(45,212,191,.55); color: rgba(45,212,191,.95); }
+    .pill2.bad{ border-color: rgba(251,113,133,.55); color: rgba(251,113,133,.95); }
+
+    .boardControls{
+      display:flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items:center;
+      justify-content:flex-end;
+      margin-left: auto;
+    }
+
+    .boards{
+      display:flex;
+      gap: 14px;
+      padding: 14px;
+      align-items:flex-start;
+      flex-wrap: wrap;
+    }
+    .board{
+      border: 1px solid rgba(125,160,220,.22);
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(255,255,255,.02);
+    }
+    .boardTitle{
+      margin: 0 0 10px;
+      font-size: 12px;
+      font-weight: 860;
+      letter-spacing: .3px;
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      color: rgba(234,241,251,.92);
+    }
+    .boardTitle span{ color: var(--muted); font-weight: 720; letter-spacing: 0; }
+
+    .gridWrap{ position: relative; width: fit-content; }
+    .grid{
+      display:grid;
+      gap: var(--gap);
+      width: fit-content;
+      padding: 10px;
+      border-radius: 16px;
+      background: rgba(0,0,0,.12);
+      border: 1px solid rgba(255,255,255,.06);
+      user-select:none;
+      touch-action:none;
+      position: relative;
+      z-index: 1;
+    }
+    .cell{
+      width: var(--cell);
+      height: var(--cell);
+      border-radius: 8px;
+      background: rgba(244,247,251,.96);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.12);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cell.ghost{
+      outline: 2px solid rgba(122,162,255,.78);
+      outline-offset: -2px;
+    }
+    .cell.ghost.bad{ outline-color: rgba(251,113,133,.85); }
+
+    .cell.mismatch::after{
+      content: "";
+      position:absolute;
+      inset: 0;
+      border-radius: 8px;
+      box-shadow: inset 0 0 0 2px rgba(251,113,133,.55);
+      background: rgba(251,113,133,.08);
+      pointer-events:none;
+    }
+
+    .mini{ padding: 8px; }
+    .mini .cell{ width: var(--cellMini); height: var(--cellMini); border-radius: 4px; }
+
+    #solCanvas{
+      position:absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events:none;
+      opacity: 0;
+      transition: opacity .15s ease;
+    }
+    #solCanvas.on{ opacity: 1; }
+
+    .legendTiny{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .footerHint{
+      padding: 0 14px 14px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <!-- LEFT -->
+    <div class="card">
+      <div class="head">
+        <h1 class="title">Colored XOR <span class="badge">CMY XOR stamps</span></h1>
+        <p class="sub">
+          Goal: make <b>Your board</b> match the <b>Target</b> exactly (shape <i>and</i> color). You place tetromino stamps.
+          Stamping uses <b>XOR</b> (toggle): stamping the same CMY color on a cell twice cancels it back.
+          <br><br>
+          <b>Color = 3-bit CMY state per cell.</b> Each cell stores three on/off bits: Cyan (C), Magenta (M), Yellow (Y).
+          A stamp flips exactly <i>one</i> bit (C or M or Y) over its footprint.
+          <br>
+          - One bit on: pure C/M/Y<br>
+          - Two bits on: mix (C+M, C+Y, M+Y)<br>
+          - Three bits on (C+M+Y): shown as dark/black<br>
+          - Zero bits: empty/paper<br><br>
+          Overlaps matter because XOR flips bits: if a cell already has Cyan and you stamp Cyan again, Cyan turns off.
+        </p>
+      </div>
+
+      <div class="body">
+        <div class="row" style="margin-top:2px;">
+          <button class="btn small" id="hintBtn" title="Toggle hint overlay (mismatches)">Hints</button>
+          <button class="btn small" id="solutionBtn" title="Toggle solution overlay (recipe silhouettes)">Show solution</button>
+
+          <span class="chip">Difficulty
+            <select id="diffSel">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </span>
+
+          <span class="chip">Grid
+            <select id="sizeSel">
+              <option value="8">8×8</option>
+              <option value="10" selected>10×10</option>
+              <option value="12">12×12</option>
+            </select>
+          </span>
+
+          <button class="btn small" id="applyBtn">Apply</button>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="k">Moves</div>
+            <div class="v" id="movesOut">0</div>
+          </div>
+          <div class="stat">
+            <div class="k">Move limit</div>
+            <div class="v" id="limitOut">—</div>
+          </div>
+        </div>
+
+        <div class="meter" title="Move budget (moves / limit)">
+          <div class="bar" id="moveBar"></div>
+        </div>
+
+        <div class="legendTiny" id="limitExplain"></div>
+
+        <div class="paletteWrap" aria-label="Pieces">
+          <div class="palette" id="palette"></div>
+        </div>
+
+        <div class="legendTiny">
+          <b>Keyboard (only the essentials; no duplicates):</b><br>
+          <span class="kbd">I O T S Z J L</span> pick a piece •
+          <span class="kbd">R</span> rotate piece •
+          <span class="kbd">1</span>/<span class="kbd">2</span>/<span class="kbd">3</span> choose Cyan/Magenta/Yellow •
+          <span class="kbd">U</span> undo last stamp •
+          <span class="kbd">Y</span> redo •
+          <span class="kbd">H</span> toggle mismatch hints •
+          <span class="kbd">C</span> check match status.<br>
+          (No keyboard shortcuts for <i>Reset</i>, <i>New</i>, or <i>Solution</i> to avoid conflicts.)
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="card">
+      <div class="rightTop">
+        <div class="status" id="status">Pick a piece (I/O/T/S/Z/J/L), pick a color (1/2/3), hover, click to stamp.</div>
+
+        <div class="pillLine">
+          <span class="pill2" id="mismatchOut">Mismatch: —</span>
+          <span class="pill2" id="levelOut">Level: 1</span>
+          <span class="pill2" id="recipeOut">Recipe: —</span>
+
+          <div class="boardControls" aria-label="Board controls">
+            <button class="btn small primary" id="newLevelBtn">New</button>
+            <button class="btn small" id="resetBtn">Reset</button>
+            <button class="btn small" id="undoBtn">Undo</button>
+            <button class="btn small" id="redoBtn">Redo</button>
+            <button class="btn small" id="rotateBtn">Rotate</button>
+            <button class="btn small good" id="checkBtn">Check</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="boards">
+        <div class="board">
+          <div class="boardTitle">Target <span>(match this)</span></div>
+          <div id="targetGrid" class="grid mini"></div>
+        </div>
+
+        <div class="board">
+          <div class="boardTitle">Your board <span>(stamp here)</span></div>
+          <div class="gridWrap">
+            <canvas id="solCanvas"></canvas>
+            <div id="playGrid" class="grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footerHint">
+        <b>Binary CMY model:</b> each cell holds three toggles (C, M, Y). Think “3-bit number”:
+        <span class="kbd">000</span>=empty,
+        <span class="kbd">100</span>=C,
+        <span class="kbd">010</span>=M,
+        <span class="kbd">001</span>=Y,
+        <span class="kbd">110</span>=C+M,
+        <span class="kbd">101</span>=C+Y,
+        <span class="kbd">011</span>=M+Y,
+        <span class="kbd">111</span>=C+M+Y (dark/black).
+        XOR stamping flips exactly one bit across the piece footprint, so overlaps can create mixes or erase components.
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // Tetrominoes
+  const PIECES = [
+    { id: "I", cells: [[0,0],[1,0],[2,0],[3,0]] },
+    { id: "O", cells: [[0,0],[1,0],[0,1],[1,1]] },
+    { id: "T", cells: [[1,0],[0,1],[1,1],[2,1]] },
+    { id: "S", cells: [[1,0],[2,0],[0,1],[1,1]] },
+    { id: "Z", cells: [[0,0],[1,0],[1,1],[2,1]] },
+    { id: "J", cells: [[0,0],[0,1],[1,1],[2,1]] },
+    { id: "L", cells: [[2,0],[0,1],[1,1],[2,1]] },
+  ];
+
+  // Difficulty
+  const DIFF = {
+    easy:   { targetStamps: 5,  moveLimit: 999 },
+    medium: { targetStamps: 9,  moveLimit: 26 },
+    hard:   { targetStamps: 14, moveLimit: 28 },
+  };
+
+  // 3-bit CMY XOR
+  const BIT_C = 1; // cyan
+  const BIT_M = 2; // magenta
+  const BIT_Y = 4; // yellow
+
+  // Display colors (readable visualization, not strict physical CMY optics)
+  const COL = {
+    paper: [244,247,251], // 000
+    black: [11,15,23],    // 111
+    C: [0,210,255],
+    M: [255,0,170],
+    Y: [255,230,0]
+  };
+
+  function mix(bits){
+    if(bits === 0) return COL.paper;
+    if(bits === 7) return COL.black;
+    const picks = [];
+    if(bits & BIT_C) picks.push(COL.C);
+    if(bits & BIT_M) picks.push(COL.M);
+    if(bits & BIT_Y) picks.push(COL.Y);
+
+    let r=0,g=0,b=0;
+    for(const c of picks){ r+=c[0]; g+=c[1]; b+=c[2]; }
+    r = Math.round(r/picks.length);
+    g = Math.round(g/picks.length);
+    b = Math.round(b/picks.length);
+
+    // Slight darken for 2-color mixes so they read distinctly as mixes
+    if(picks.length === 2){
+      r = Math.round(r*0.95);
+      g = Math.round(g*0.95);
+      b = Math.round(b*0.95);
+    }
+    return [r,g,b];
+  }
+  function rgb([r,g,b]){ return `rgb(${r},${g},${b})`; }
+
+  // DOM
+  const elPalette   = document.getElementById("palette");
+  const elPlayGrid  = document.getElementById("playGrid");
+  const elTargetGrid= document.getElementById("targetGrid");
+  const elStatus    = document.getElementById("status");
+  const elMoves     = document.getElementById("movesOut");
+  const elLimit     = document.getElementById("limitOut");
+  const elMismatch  = document.getElementById("mismatchOut");
+  const elLevel     = document.getElementById("levelOut");
+  const elRecipeOut = document.getElementById("recipeOut");
+  const elMoveBar   = document.getElementById("moveBar");
+  const elLimitExplain = document.getElementById("limitExplain");
+
+  const elDiff      = document.getElementById("diffSel");
+  const elSize      = document.getElementById("sizeSel");
+
+  const elHintBtn   = document.getElementById("hintBtn");
+  const elSolutionBtn = document.getElementById("solutionBtn");
+
+  const solCanvas = document.getElementById("solCanvas");
+  const solCtx = solCanvas.getContext("2d");
+
+  // State
+  let N = 10;
+  let level = 1;
+
+  // boards are ints 0..7
+  let play, target;
+  let moves = 0;
+  let moveLimit = DIFF.medium.moveLimit;
+
+  let selectedPieceId = null;
+  let rotation = 0;
+  let hover = null;
+
+  // Undo/redo stacks
+  let history = [];   // undo stack
+  let future = [];    // redo stack
+
+  // Selected CMY bit for stamping
+  let selectedBit = BIT_C;
+
+  let hintsOn = false;
+  let solutionOn = false;
+
+  // Target recipe includes bit
+  let targetRecipe = [];
+
+  // Helpers
+  function makeGrid(n, v=0){
+    return Array.from({length:n}, () => Array.from({length:n}, () => v));
+  }
+  function rotateCells(cells, r){
+    let out = cells.map(([x,y]) => [x,y]);
+    for(let k=0;k<r;k++) out = out.map(([x,y]) => [y, -x]); // 90° cw
+    const minX = Math.min(...out.map(c => c[0]));
+    const minY = Math.min(...out.map(c => c[1]));
+    return out.map(([x,y]) => [x - minX, y - minY]);
+  }
+  function getPiece(id){ return PIECES.find(p => p.id === id); }
+  function currentCells(){
+    if(!selectedPieceId) return [];
+    return rotateCells(getPiece(selectedPieceId).cells, rotation);
+  }
+  function inBounds(x,y){ return x>=0 && y>=0 && x<N && y<N; }
+  function canPlace(ax, ay, cells){
+    for(const [dx,dy] of cells){
+      const x=ax+dx, y=ay+dy;
+      if(!inBounds(x,y)) return false;
+    }
+    return true;
+  }
+  function xorStamp(board, ax, ay, cells, bit){
+    for(const [dx,dy] of cells){
+      const x=ax+dx, y=ay+dy;
+      board[y][x] = board[y][x] ^ bit;
+    }
+  }
+  function mismatchCount(){
+    let m=0;
+    for(let y=0;y<N;y++) for(let x=0;x<N;x++){
+      if(play[y][x] !== target[y][x]) m++;
+    }
+    return m;
+  }
+
+  // Palette render
+  function renderPalette(){
+    elPalette.innerHTML = "";
+    for(const p of PIECES){
+      const item = document.createElement("div");
+      item.className = "piece" + (p.id === selectedPieceId ? " selected" : "");
+      item.tabIndex = 0;
+
+      const c = document.createElement("canvas");
+      c.width = 64; c.height = 64;
+      c.className = "thumb";
+
+      const name = document.createElement("div");
+      name.className = "name";
+      name.textContent = p.id;
+
+      const sw = document.createElement("div");
+      sw.className = "swatches";
+      const swList = [
+        {bit: BIT_C, color: rgb(COL.C), label:"Cyan (1)"},
+        {bit: BIT_M, color: rgb(COL.M), label:"Magenta (2)"},
+        {bit: BIT_Y, color: rgb(COL.Y), label:"Yellow (3)"},
+      ];
+      swList.forEach(s => {
+        const dot = document.createElement("div");
+        dot.className = "sw" + (selectedBit === s.bit ? " sel" : "");
+        dot.title = `Stamp color bit: ${s.label}`;
+        dot.style.background = s.color;
+        dot.addEventListener("click", (e) => {
+          e.stopPropagation();
+          selectedBit = s.bit;
+          renderPalette();
+          updateHUD();
+          renderGhost();
+        });
+        sw.appendChild(dot);
+      });
+
+      item.appendChild(c);
+      item.appendChild(name);
+      item.appendChild(sw);
+
+      item.addEventListener("click", () => {
+        selectedPieceId = p.id;
+        rotation = 0;
+        renderPalette();
+        updateHUD();
+        renderGhost();
+      });
+
+      item.addEventListener("keydown", (e) => {
+        if(e.key === "Enter" || e.key === " "){
+          e.preventDefault();
+          selectedPieceId = p.id;
+          rotation = 0;
+          renderPalette();
+          updateHUD();
+          renderGhost();
+        }
+      });
+
+      elPalette.appendChild(item);
+      drawThumb(c, p.cells);
+    }
+  }
+
+  function drawThumb(canvas, baseCells){
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = "rgba(244,247,251,.92)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    const cells = rotateCells(baseCells,0);
+    const maxX = Math.max(...cells.map(c => c[0]));
+    const maxY = Math.max(...cells.map(c => c[1]));
+    const w = maxX+1, h = maxY+1;
+
+    const cellSize = Math.floor(46 / Math.max(w,h));
+    const ox = Math.floor((canvas.width - w*cellSize)/2);
+    const oy = Math.floor((canvas.height - h*cellSize)/2);
+
+    ctx.fillStyle = rgb(mix(selectedBit));
+    for(const [x,y] of cells){
+      ctx.fillRect(ox + x*cellSize, oy + y*cellSize, cellSize-1, cellSize-1);
+    }
+  }
+
+  // Grids
+  function renderGrid(el, board, mini=false){
+    el.innerHTML = "";
+    el.style.gridTemplateColumns = `repeat(${N}, ${mini ? "var(--cellMini)" : "var(--cell)"})`;
+
+    for(let y=0;y<N;y++){
+      for(let x=0;x<N;x++){
+        const d = document.createElement("div");
+        d.className = "cell";
+        d.dataset.x = x;
+        d.dataset.y = y;
+
+        const bits = board[y][x];
+        d.style.background = rgb(mix(bits));
+        if(bits !== 0){
+          d.style.boxShadow = "inset 0 0 0 1px rgba(255,255,255,.14)";
+        }
+
+        if(!mini && hintsOn){
+          if(play[y][x] !== target[y][x]) d.classList.add("mismatch");
+        }
+
+        el.appendChild(d);
+      }
+    }
+  }
+
+  // Ghost preview
+  function clearGhost(){
+    elPlayGrid.querySelectorAll(".cell.ghost").forEach(c => c.classList.remove("ghost","bad"));
+  }
+  function renderGhost(){
+    clearGhost();
+    if(!selectedPieceId || !hover) return;
+
+    const cells = currentCells();
+    const ok = canPlace(hover.x, hover.y, cells);
+
+    for(const [dx,dy] of cells){
+      const x=hover.x+dx, y=hover.y+dy;
+      if(!inBounds(x,y)) continue;
+      const idx = y*N + x;
+      const cellEl = elPlayGrid.children[idx];
+      cellEl.classList.add("ghost");
+      if(!ok) cellEl.classList.add("bad");
+    }
+  }
+
+  // Solution overlay
+  function resizeSolCanvasToGrid(){
+    const rect = elPlayGrid.getBoundingClientRect();
+    solCanvas.width = Math.round(rect.width * devicePixelRatio);
+    solCanvas.height = Math.round(rect.height * devicePixelRatio);
+    solCanvas.style.width = rect.width + "px";
+    solCanvas.style.height = rect.height + "px";
+    solCtx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+  }
+
+  function drawPolyominoOutline(ctx, step, cells, cellElAt, gridRect, cellW, cellH) {
+    const set = new Set(cells.map(([dx, dy]) => `${step.x + dx},${step.y + dy}`));
+    ctx.beginPath();
+    for (const [dx, dy] of cells) {
+      const gx = step.x + dx;
+      const gy = step.y + dy;
+      const el = cellElAt(gx, gy);
+      if (!el) continue;
+
+      const r = el.getBoundingClientRect();
+      const px = r.left - gridRect.left;
+      const py = r.top  - gridRect.top;
+
+      if (!set.has(`${gx},${gy - 1}`)) { ctx.moveTo(px, py); ctx.lineTo(px + cellW, py); }
+      if (!set.has(`${gx + 1},${gy}`)) { ctx.moveTo(px + cellW, py); ctx.lineTo(px + cellW, py + cellH); }
+      if (!set.has(`${gx},${gy + 1}`)) { ctx.moveTo(px, py + cellH); ctx.lineTo(px + cellW, py + cellH); }
+      if (!set.has(`${gx - 1},${gy}`)) { ctx.moveTo(px, py); ctx.lineTo(px, py + cellH); }
+    }
+    ctx.stroke();
+  }
+
+  function drawSolutionOverlay(){
+    resizeSolCanvasToGrid();
+    solCtx.clearRect(0,0, solCanvas.width, solCanvas.height);
+    if(!solutionOn) return;
+
+    const cell0 = elPlayGrid.querySelector(".cell");
+    if(!cell0) return;
+
+    const cellRect = cell0.getBoundingClientRect();
+    const gridRect = elPlayGrid.getBoundingClientRect();
+    const cellW = cellRect.width;
+    const cellH = cellRect.height;
+
+    const cellElAt = (x,y) => elPlayGrid.children[y*N + x];
+
+    solCtx.save();
+    solCtx.globalCompositeOperation = "multiply";
+
+    targetRecipe.forEach((step, i) => {
+      const p = getPiece(step.pieceId);
+      const cells = rotateCells(p.cells, step.rot);
+      const col = rgb(mix(step.bit));
+
+      solCtx.globalAlpha = 0.22;
+      solCtx.fillStyle = col;
+
+      for (const [dx, dy] of cells) {
+        const x = step.x + dx;
+        const y = step.y + dy;
+        if (!inBounds(x,y)) continue;
+
+        const el = cellElAt(x,y);
+        if (!el) continue;
+
+        const r = el.getBoundingClientRect();
+        const px = r.left - gridRect.left;
+        const py = r.top  - gridRect.top;
+        solCtx.fillRect(px + 1, py + 1, cellW - 2, cellH - 2);
+      }
+
+      solCtx.globalAlpha = 0.95;
+      solCtx.strokeStyle = col;
+      solCtx.lineWidth = 3;
+      solCtx.lineJoin = "round";
+      solCtx.lineCap = "round";
+      drawPolyominoOutline(solCtx, step, cells, cellElAt, gridRect, cellW, cellH);
+
+      const anchorEl = cellElAt(step.x, step.y);
+      if (anchorEl) {
+        const ar = anchorEl.getBoundingClientRect();
+        const ax = ar.left - gridRect.left + 5;
+        const ay = ar.top  - gridRect.top + 13;
+        solCtx.globalAlpha = 0.95;
+        solCtx.font = "800 11px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+        solCtx.fillStyle = col;
+        solCtx.fillText(String(i+1), ax, ay);
+      }
+    });
+
+    solCtx.restore();
+  }
+
+  // HUD
+  function updateHUD(message) {
+    const mm = mismatchCount();
+
+    elMoves.textContent = String(moves);
+    elLimit.textContent = (moveLimit >= 999) ? "∞" : String(moveLimit);
+    elLevel.textContent = `Level: ${level}`;
+    elMismatch.textContent = `Mismatch: ${mm}`;
+    elRecipeOut.textContent = `Recipe: ${targetRecipe.length}`;
+
+    elMismatch.classList.remove("ok", "bad");
+    if (mm === 0) elMismatch.classList.add("ok");
+    else if (moveLimit < 999 && moves >= moveLimit) elMismatch.classList.add("bad");
+
+    if (moveLimit >= 999) {
+      elMoveBar.style.width = "0%";
+      elLimitExplain.textContent =
+        "Move limit is off on Easy (∞). Medium/Hard give a move budget to push efficiency.";
+    } else {
+      const pct = Math.min(100, Math.round((moves / moveLimit) * 100));
+      elMoveBar.style.width = pct + "%";
+      elLimitExplain.textContent =
+        `Move budget: ${moves}/${moveLimit}. Matching the target is the real objective.`;
+    }
+
+    if (message) { elStatus.textContent = message; return; }
+
+    const bitName = (selectedBit === BIT_C) ? "Cyan" : (selectedBit === BIT_M) ? "Magenta" : "Yellow";
+    if (!selectedPieceId) {
+      elStatus.textContent =
+        "Keys: I/O/T/S/Z/J/L pick piece • 1/2/3 pick Cyan/Magenta/Yellow • R rotate • Hover + click to stamp.";
+    } else {
+      elStatus.textContent =
+        `Piece: ${selectedPieceId} • Rotation: ${rotation*90}° • Stamp color: ${bitName} • Undo(U) • Redo(Y) • Hints(H) • Check(C).`;
+    }
+  }
+
+  // Target generation
+  function randBit(){
+    const r = Math.floor(Math.random()*3);
+    return r===0 ? BIT_C : r===1 ? BIT_M : BIT_Y;
+  }
+
+  function generateTargetWithRecipe(diffKey) {
+    const { targetStamps } = DIFF[diffKey];
+    const t = makeGrid(N, 0);
+    const recipe = [];
+
+    for (let i = 0; i < targetStamps; i++) {
+      const p = PIECES[Math.floor(Math.random() * PIECES.length)];
+      const rot = Math.floor(Math.random() * 4);
+      const bit = randBit();
+      const cells = rotateCells(p.cells, rot);
+
+      let placed = false;
+      for (let tries = 0; tries < 160; tries++) {
+        const ax = Math.floor(Math.random() * N);
+        const ay = Math.floor(Math.random() * N);
+        if (canPlace(ax, ay, cells)) {
+          xorStamp(t, ax, ay, cells, bit);
+          recipe.push({ pieceId: p.id, rot, x: ax, y: ay, bit });
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) i--;
+    }
+    return { t, recipe };
+  }
+
+  function rerenderAll() {
+    renderGrid(elTargetGrid, target, true);
+    renderGrid(elPlayGrid, play, false);
+    renderGhost();
+
+    solCanvas.classList.toggle("on", solutionOn);
+    drawSolutionOverlay();
+
+    // enable/disable undo/redo buttons
+    document.getElementById("undoBtn").disabled = history.length === 0;
+    document.getElementById("redoBtn").disabled = future.length === 0;
+
+    updateHUD();
+  }
+
+  // Game flow
+  function startLevel(newLevel = false) {
+    if (newLevel) level++;
+
+    const d = elDiff.value;
+    moveLimit = DIFF[d].moveLimit;
+
+    const out = generateTargetWithRecipe(d);
+    target = out.t;
+    targetRecipe = out.recipe;
+
+    play = makeGrid(N, 0);
+    moves = 0;
+    history = [];
+    future = [];
+    hover = null;
+
+    // solution default off
+    solutionOn = false;
+    elSolutionBtn.classList.remove("toggled");
+    elSolutionBtn.textContent = "Show solution";
+
+    rerenderAll();
+  }
+
+  function stampAt(ax, ay) {
+    if (!selectedPieceId) return;
+
+    if (moveLimit < 999 && moves >= moveLimit) {
+      updateHUD("Move budget reached. You can still Check or use buttons (Reset/New).");
+      setTimeout(() => updateHUD(), 950);
+      return;
+    }
+
+    const cells = currentCells();
+    if (!canPlace(ax, ay, cells)) {
+      updateHUD("Out of bounds — keep the whole piece inside the grid.");
+      setTimeout(() => updateHUD(), 800);
+      return;
+    }
+
+    xorStamp(play, ax, ay, cells, selectedBit);
+    history.push({ pieceId: selectedPieceId, rot: rotation, x: ax, y: ay, bit: selectedBit });
+    future = []; // new action invalidates redo
+    moves++;
+
+    rerenderAll();
+
+    const mm = mismatchCount();
+    if (mm === 0) updateHUD(`Matched. Moves: ${moves}.`);
+  }
+
+  function undo() {
+    const last = history.pop();
+    if (!last) return;
+
+    const cells = rotateCells(getPiece(last.pieceId).cells, last.rot);
+    xorStamp(play, last.x, last.y, cells, last.bit); // XOR again to revert
+    moves = Math.max(0, moves - 1);
+    future.push(last);
+
+    rerenderAll();
+  }
+
+  function redo() {
+    const step = future.pop();
+    if (!step) return;
+
+    const cells = rotateCells(getPiece(step.pieceId).cells, step.rot);
+    xorStamp(play, step.x, step.y, cells, step.bit);
+    moves++;
+    history.push(step);
+
+    rerenderAll();
+  }
+
+  function reset() {
+    play = makeGrid(N, 0);
+    moves = 0;
+    history = [];
+    future = [];
+    hover = null;
+    rerenderAll();
+  }
+
+  function rotateSelected() {
+    if (!selectedPieceId) return;
+    rotation = (rotation + 1) % 4;
+    updateHUD();
+    renderGhost();
+  }
+
+  function applySettings() {
+    N = Number(elSize.value);
+    play = makeGrid(N, 0);
+    target = makeGrid(N, 0);
+    moves = 0;
+    history = [];
+    future = [];
+    hover = null;
+    level = 1;
+
+    solutionOn = false;
+    hintsOn = false;
+    elHintBtn.classList.remove("toggled");
+    elSolutionBtn.classList.remove("toggled");
+    elSolutionBtn.textContent = "Show solution";
+
+    renderPalette();
+    startLevel(false);
+
+    setTimeout(() => { if (solutionOn) drawSolutionOverlay(); }, 0);
+  }
+
+  function toggleHints() {
+    hintsOn = !hintsOn;
+    elHintBtn.classList.toggle("toggled", hintsOn);
+    rerenderAll();
+    updateHUD(hintsOn
+      ? "Hints ON: red outlines mark cells where your board differs from the target."
+      : "Hints OFF.");
+    setTimeout(() => updateHUD(), 900);
+  }
+
+  function toggleSolution() {
+    solutionOn = !solutionOn;
+    elSolutionBtn.classList.toggle("toggled", solutionOn);
+    elSolutionBtn.textContent = solutionOn ? "Hide solution" : "Show solution";
+    rerenderAll();
+  }
+
+  // Events (mouse)
+  elPlayGrid.addEventListener("mousemove", (e) => {
+    const cell = e.target.closest(".cell");
+    if (!cell) return;
+    hover = { x: Number(cell.dataset.x), y: Number(cell.dataset.y) };
+    renderGhost();
+  });
+  elPlayGrid.addEventListener("mouseleave", () => {
+    hover = null;
+    clearGhost();
+  });
+  elPlayGrid.addEventListener("click", (e) => {
+    const cell = e.target.closest(".cell");
+    if (!cell) return;
+    stampAt(Number(cell.dataset.x), Number(cell.dataset.y));
+  });
+
+  // Buttons
+  document.getElementById("newLevelBtn").addEventListener("click", () => startLevel(true));
+  document.getElementById("resetBtn").addEventListener("click", reset);
+  document.getElementById("undoBtn").addEventListener("click", undo);
+  document.getElementById("redoBtn").addEventListener("click", redo);
+  document.getElementById("rotateBtn").addEventListener("click", rotateSelected);
+  document.getElementById("applyBtn").addEventListener("click", applySettings);
+
+  elHintBtn.addEventListener("click", toggleHints);
+  elSolutionBtn.addEventListener("click", toggleSolution);
+
+  document.getElementById("checkBtn").addEventListener("click", () => {
+    const mm = mismatchCount();
+    if (mm === 0) updateHUD(`Matched. Moves: ${moves}.`);
+    else updateHUD(`Not matched yet. Mismatch: ${mm}. (Hints: press H)`);
+    setTimeout(() => updateHUD(), 1100);
+  });
+
+  // Keyboard: ONLY essentials, no duplicates, no Ctrl/Cmd shortcuts.
+  document.addEventListener("keydown", (e) => {
+    const tag = (document.activeElement && document.activeElement.tagName) || "";
+    if (tag === "SELECT" || tag === "INPUT" || tag === "TEXTAREA") return;
+
+    // User request: do not use Ctrl/Cmd/Alt bindings at all
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+    const k = e.key;
+    const upper = k.toUpperCase();
+
+    // Piece select: exactly I O T S Z J L
+    if (["I","O","T","S","Z","J","L"].includes(upper)) {
+      selectedPieceId = upper;
+      rotation = 0;
+      renderPalette();
+      updateHUD(`Selected piece ${upper}. (Rotate: R)`);
+      renderGhost();
+      return;
+    }
+
+    // Rotate
+    if (upper === "R") { rotateSelected(); return; }
+
+    // Colors
+    if (k === "1") { selectedBit = BIT_C; renderPalette(); updateHUD("Stamp color: Cyan (C bit)."); renderGhost(); return; }
+    if (k === "2") { selectedBit = BIT_M; renderPalette(); updateHUD("Stamp color: Magenta (M bit)."); renderGhost(); return; }
+    if (k === "3") { selectedBit = BIT_Y; renderPalette(); updateHUD("Stamp color: Yellow (Y bit)."); renderGhost(); return; }
+
+    // Undo / Redo
+    if (upper === "U") { undo(); updateHUD("Undo."); setTimeout(() => updateHUD(), 500); return; }
+    if (upper === "Y") { redo(); updateHUD("Redo."); setTimeout(() => updateHUD(), 500); return; }
+
+    // Hints / Check
+    if (upper === "H") { toggleHints(); return; }
+    if (upper === "C") { document.getElementById("checkBtn").click(); return; }
+
+    // Intentionally: no keyboard shortcuts for reset/new/solution
+  });
+
+  window.addEventListener("resize", () => {
+    if (solutionOn) drawSolutionOverlay();
+  });
+
+  // Init
+  function init() {
+    renderPalette();
+    startLevel(false);
+  }
+  init();
+})();
+</script>
+</body>
+</html>
