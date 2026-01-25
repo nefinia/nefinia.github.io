@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-20EEFX7Q6N"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-20EEFX7Q6N');
+</script>
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>PROXIMITY</title>
+<style>
+  :root{
+    --bg:#0f1115;
+    --grid:#222634;
+    --text:#eef2ff;
+    --muted:rgba(238,242,255,.70);
+    --radius:14px;
+    --panel:rgba(255,255,255,.04);
+    --border:rgba(255,255,255,.10);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    background: radial-gradient(1200px 700px at 50% 0%, rgba(255,255,255,.06), transparent 60%), var(--bg);
+    color:var(--text);
+  }
+  .wrap{max-width:1240px; margin:0 auto; padding:16px 14px 20px;}
+  header{display:flex; flex-direction:column; gap:6px; align-items:center; text-align:center; margin-top:4px;}
+  header h1{margin:0; letter-spacing:.12em; font-size:28px;}
+  header .sub{color:var(--muted); font-size:14px;}
+
+  .layout{display:grid; grid-template-columns: 1fr 380px; gap:14px; align-items:start; margin-top:14px;}
+  .card{background:var(--panel); border:1px solid rgba(255,255,255,.08); border-radius:var(--radius); box-shadow: 0 12px 30px rgba(0,0,0,.35);}
+
+  .boardCard{padding:12px;}
+  canvas{
+    display:block; width:100%; height:auto;
+    background:linear-gradient(180deg, rgba(255,255,255,.03), transparent), var(--grid);
+    border:1px solid var(--border); border-radius:12px;
+    touch-action:none;
+  }
+
+  .trayCard{margin-top:12px; padding:12px;}
+  .trayHeader{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px;}
+  .trayHeader .title{font-weight:700;}
+  .trayHeader .hint{color:var(--muted); font-size:12px;}
+
+  .tray{display:flex; gap:10px; flex-wrap:wrap;}
+  .piece{display:flex; align-items:center; gap:10px; padding:10px; border-radius:12px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12); min-width:170px; cursor:pointer; user-select:none;}
+  .piece.selected{outline:2px solid rgba(255,255,255,.40); background:rgba(255,255,255,.09);}  
+  .piece.placed{opacity:.35; filter:saturate(.4);}  
+  .swatch{width:34px; height:34px; display:grid; place-items:center;}
+  .label{display:flex; flex-direction:column; line-height:1.05;}
+  .label .name{font-weight:700; font-size:13px; text-transform:capitalize;}
+  .label .meta{font-size:11px; color:var(--muted);}  
+  .toast{margin-top:10px; color:var(--muted); font-size:12px; min-height:16px;}
+
+  .sideCard{padding:12px;}
+  .controls{display:grid; gap:8px; margin-bottom:10px;}
+
+  /* Dropdown readability bug fix: ensure options are visible in the expanded list */
+  select{
+    padding:11px 12px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.08);
+    color:var(--text);
+    font-weight:750;
+    cursor:pointer;
+  }
+  select:focus{outline:2px solid rgba(255,255,255,.25); outline-offset:2px;}
+  select option{color:#0f1115; background:#eef2ff; font-weight:650;}
+
+  button{
+    padding:11px 12px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.08);
+    color:var(--text);
+    font-weight:750;
+    cursor:pointer;
+  }
+  button:hover{background:rgba(255,255,255,.11);} 
+  button:active{transform: translateY(1px);} 
+
+  .stats{display:grid; gap:4px; margin:6px 0 10px;}
+  .statsRow{display:flex; justify-content:space-between; gap:10px; align-items:baseline;}
+  .big{font-weight:850; font-size:18px;}
+  .tiny{color:var(--muted); font-size:12px;}
+  .pill{padding:4px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.05); font-size:12px; color:var(--muted);}
+
+  .matrixTitle{margin:8px 0 8px; font-weight:750; display:flex; justify-content:space-between; align-items:baseline; gap:10px;}
+  .matrixTitle .right{color:var(--muted); font-size:12px;}
+
+  table{border-collapse:collapse; width:100%; table-layout:fixed;}
+  th,td{border:1px solid rgba(255,255,255,.12); text-align:center; padding:8px 0; font-variant-numeric: tabular-nums;}
+  th{background:rgba(255,255,255,.06);} td{background:rgba(255,255,255,.03);}  
+
+  @media (max-width: 980px){ .layout{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>PROXIMITY</h1>
+    <div class="sub">Place all pieces. Positive weights want closeness · negative weights want distance. Goal: reach the max score.</div>
+  </header>
+
+  <div class="layout">
+    <div>
+      <div class="card boardCard"><canvas id="board" width="560" height="560" aria-label="grid"></canvas></div>
+      <div class="card trayCard">
+        <div class="trayHeader">
+          <div class="title">Pieces</div>
+          <div class="hint">Tap piece → tap grid to place · tap placed piece to remove · tap occupied cell with a selected piece to swap</div>
+        </div>
+        <div id="tray" class="tray"></div>
+        <div id="toast" class="toast"></div>
+      </div>
+    </div>
+
+    <div class="card sideCard">
+      <div class="controls">
+        <select id="levelSel" aria-label="difficulty"></select>
+        <button id="newGameBtn">New game (new matrix)</button>
+        <button id="toggleOptBtn">Show optimal overlay</button>
+        <button id="resetBtn">Reset placement</button>
+      </div>
+
+      <div class="stats">
+        <div class="statsRow">
+          <div class="big">Score: <span id="score">0</span> <span class="tiny">/</span> <span id="maxScore" class="big">—</span></div>
+          <div class="pill" id="gapPill">Gap: —</div>
+        </div>
+        <div class="statsRow">
+          <div class="tiny" id="levelInfo"></div>
+          <div class="tiny" id="solveInfo"></div>
+        </div>
+      </div>
+
+      <div class="matrixTitle">
+        <div>Relationship Matrix</div>
+        <div class="right">weights in [−W…+W]</div>
+      </div>
+      <table id="matrix"></table>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================= LEVELS =================
+// NOTE: exact optimal overlay is guaranteed for small levels.
+// For larger levels, we compute a high-quality "best found" max within a time budget.
+const LEVELS = [
+  { name:'Easy · 4 pieces · 4×4',   grid:4, maxWeight:2, count:4 },
+  { name:'Medium · 5 pieces · 5×5', grid:5, maxWeight:3, count:5 },
+  { name:'Hard · 6 pieces · 6×6',   grid:6, maxWeight:3, count:6 },
+  { name:'Expert · 7 pieces · 7×7', grid:7, maxWeight:4, count:7 },
+  { name:'Chaos · 8 pieces · 8×8',  grid:8, maxWeight:4, count:8 }
+];
+
+// Shapes cycle; colors chosen to be distinct.
+const SHAPES = ['circle','square','triangle','hex'];
+const COLORS = ['#e74c3c','#3498db','#2ecc71','#f1c40f','#9b59b6','#e67e22','#1abc9c','#ec407a'];
+
+// ============== GLOBAL STATE ==============
+let gridN = 4;
+let pieces = [];
+let R = [];
+let maxWeight = 2;
+let selectedPieceId = null;
+let showOptimal = false;
+let optimalSolution = null; // { score, config, exact }
+
+const canvas = document.getElementById('board');
+const ctx = canvas.getContext('2d');
+const trayEl = document.getElementById('tray');
+const scoreEl = document.getElementById('score');
+const maxScoreEl = document.getElementById('maxScore');
+const gapPill = document.getElementById('gapPill');
+const matrixEl = document.getElementById('matrix');
+const toastEl = document.getElementById('toast');
+const levelSel = document.getElementById('levelSel');
+const levelInfo = document.getElementById('levelInfo');
+const solveInfo = document.getElementById('solveInfo');
+const toggleOptBtn = document.getElementById('toggleOptBtn');
+
+// ================= HELPERS =================
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const manhattan=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
+const maxDist=()=>2*(gridN-1);
+const cellSize=()=>canvas.width/gridN;
+
+function setToast(msg){ toastEl.textContent = msg || ''; }
+
+function svgFor(p,s=32){
+  const c=p.color;
+  if(p.shape==='circle')return `<svg width="${s}" height="${s}" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="12" fill="${c}"/></svg>`;
+  if(p.shape==='square')return `<svg width="${s}" height="${s}" viewBox="0 0 34 34" aria-hidden="true"><rect x="7" y="7" width="20" height="20" rx="2" fill="${c}"/></svg>`;
+  if(p.shape==='triangle')return `<svg width="${s}" height="${s}" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 5 L28 26 L6 26 Z" fill="${c}"/></svg>`;
+  return `<svg width="${s}" height="${s}" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 4 L27 10 L27 24 L17 30 L7 24 L7 10 Z" fill="${c}"/></svg>`;
+}
+
+function currentConfig(){
+  return pieces.map(p=>p.pos ? {x:p.pos.x,y:p.pos.y} : null);
+}
+
+// ================= SCORING =================
+function computeScore(conf){
+  let s=0; const M=maxDist();
+  for(let i=0;i<pieces.length;i++){
+    for(let j=i+1;j<pieces.length;j++){
+      const a=conf[i], b=conf[j];
+      if(!a || !b) continue;
+      const d=manhattan(a,b);
+      const w=(R[i] && R[i][j]) ? R[i][j] : 0;
+      if(w>0) s += w*(M-d);
+      if(w<0) s += (-w)*d;
+    }
+  }
+  return s;
+}
+
+// ================= MATRIX =================
+function randomMatrix(n, maxW){
+  const M = Array.from({length:n}, ()=>Array(n).fill(0));
+  for(let i=0;i<n;i++){
+    for(let j=i+1;j<n;j++){
+      const w = Math.floor(Math.random()*(2*maxW+1)) - maxW;
+      M[i][j]=M[j][i]=w;
+    }
+  }
+  return M;
+}
+
+function fmtW(v){
+  if(v>0) return `+${v}`;
+  if(v<0) return `−${Math.abs(v)}`;
+  return '0';
+}
+
+function renderMatrix(){
+  const icon = p=>`<span style="display:inline-grid;place-items:center;">${svgFor(p,20)}</span>`;
+  matrixEl.innerHTML =
+    `<tr><th></th>${pieces.map(p=>`<th>${icon(p)}</th>`).join('')}</tr>`+
+    pieces.map((p,i)=>{
+      const row = R[i].map(v=>`<td>${fmtW(v)}</td>`).join('');
+      return `<tr><th>${icon(p)}</th>${row}</tr>`;
+    }).join('');
+}
+
+// ================= SOLVERS =================
+function solveOptimalExactBruteforce(){
+  const cells=[];
+  for(let x=0;x<gridN;x++) for(let y=0;y<gridN;y++) cells.push({x,y});
+
+  let best=-Infinity, bestConf=null;
+  function backtrack(i, used, conf){
+    if(i===pieces.length){
+      const sc = computeScore(conf);
+      if(sc>best){ best=sc; bestConf=conf.map(c=>({...c})); }
+      return;
+    }
+    for(let k=0;k<cells.length;k++){
+      if(used[k]) continue;
+      used[k]=true; conf[i]=cells[k];
+      backtrack(i+1, used, conf);
+      used[k]=false;
+    }
+  }
+  backtrack(0, Array(cells.length).fill(false), []);
+  return {score:best, config:bestConf, exact:true};
+}
+
+function solveBestFoundHeuristic(timeBudgetMs){
+  // Simulated annealing on assignments to distinct cells.
+  const n = pieces.length;
+  const cells=[];
+  for(let x=0;x<gridN;x++) for(let y=0;y<gridN;y++) cells.push({x,y});
+
+  function randomAssignment(){
+    // pick n distinct cells
+    const idx = [...cells.keys()];
+    for(let i=idx.length-1;i>0;i--){
+      const j = (Math.random()*(i+1))|0;
+      [idx[i],idx[j]]=[idx[j],idx[i]];
+    }
+    const conf = Array(n);
+    for(let i=0;i<n;i++) conf[i]=cells[idx[i]];
+    return conf;
+  }
+
+  function clone(conf){ return conf.map(c=>({x:c.x,y:c.y})); }
+
+  let best=-Infinity, bestConf=null;
+  const t0 = performance.now();
+  const restarts = Math.max(6, 14 - n); // fewer restarts as n grows
+
+  for(let r=0;r<restarts;r++){
+    if(performance.now()-t0 > timeBudgetMs) break;
+
+    let conf = randomAssignment();
+    let sc = computeScore(conf);
+    if(sc>best){ best=sc; bestConf=clone(conf); }
+
+    let T = 3.0;
+    const steps = 1200 + n*600;
+
+    for(let step=0; step<steps; step++){
+      if(performance.now()-t0 > timeBudgetMs) break;
+
+      // neighbor: swap two pieces' cells
+      const i = (Math.random()*n)|0;
+      let j = (Math.random()*n)|0;
+      if(j===i) j = (j+1)%n;
+
+      const newConf = conf.slice();
+      [newConf[i], newConf[j]] = [newConf[j], newConf[i]];
+      const newSc = computeScore(newConf);
+      const dE = newSc - sc;
+
+      if(dE >= 0 || Math.random() < Math.exp(dE / T)){
+        conf = newConf;
+        sc = newSc;
+        if(sc>best){ best=sc; bestConf=clone(conf); }
+      }
+      T *= 0.9965;
+      if(T<0.08) T = 0.08;
+    }
+  }
+
+  return {score:best, config:bestConf, exact:false};
+}
+
+function solveForLevel(){
+  // Exact brute force explodes quickly. We'll do exact only for the small cases.
+  const n = pieces.length;
+  const cells = gridN*gridN;
+  const bruteOk = (n <= 5) && (cells <= 25); // fast + safe
+
+  if(bruteOk){
+    return solveOptimalExactBruteforce();
+  }
+
+  // Heuristic time budget scales with n.
+  const budget = 220 + n*120; // ms
+  return solveBestFoundHeuristic(budget);
+}
+
+// ================= RENDER =================
+function drawGrid(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const cs = cellSize();
+  ctx.strokeStyle='rgba(255,255,255,.08)';
+  ctx.lineWidth=1;
+  for(let i=0;i<=gridN;i++){
+    ctx.beginPath(); ctx.moveTo(i*cs,0); ctx.lineTo(i*cs,canvas.height); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,i*cs); ctx.lineTo(canvas.width,i*cs); ctx.stroke();
+  }
+}
+
+function drawPieceAt(p, cell, alpha=1, outline=false){
+  const cs=cellSize();
+  const cx=cell.x*cs+cs/2, cy=cell.y*cs+cs/2;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+
+  if(outline){
+    ctx.strokeStyle = p.color;
+    ctx.lineWidth = 3;
+    ctx.fillStyle = 'transparent';
+  } else {
+    ctx.fillStyle = p.color;
+  }
+
+  ctx.beginPath();
+  if(p.shape==='circle') ctx.arc(cx,cy,18,0,Math.PI*2);
+  else if(p.shape==='square') ctx.rect(cx-18,cy-18,36,36);
+  else if(p.shape==='triangle'){ ctx.moveTo(cx,cy-20); ctx.lineTo(cx-20,cy+16); ctx.lineTo(cx+20,cy+16); ctx.closePath(); }
+  else { for(let i=0;i<6;i++){ const a=Math.PI/3*i; const x=cx+18*Math.cos(a), y=cy+18*Math.sin(a); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);} ctx.closePath(); }
+
+  if(outline){
+    ctx.stroke();
+  } else {
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function redraw(){
+  drawGrid();
+
+  // (A) Optimal overlay as outlines (does NOT overwrite player placement)
+  if(showOptimal && optimalSolution && optimalSolution.config){
+    for(let i=0;i<pieces.length;i++){
+      drawPieceAt(pieces[i], optimalSolution.config[i], 0.75, true);
+    }
+  }
+
+  // (B) Player placement
+  for(const p of pieces){
+    if(!p.pos) continue;
+    drawPieceAt(p, p.pos, 1, false);
+  }
+
+  // Stats
+  const sc = computeScore(currentConfig());
+  scoreEl.textContent = sc;
+
+  if(optimalSolution){
+    maxScoreEl.textContent = optimalSolution.score;
+    const gap = optimalSolution.score - sc;
+    gapPill.textContent = `Gap: ${gap}`;
+  } else {
+    maxScoreEl.textContent = '—';
+    gapPill.textContent = 'Gap: —';
+  }
+}
+
+// ================= TRAY =================
+function renderTray(){
+  trayEl.innerHTML='';
+  for(const p of pieces){
+    const d=document.createElement('div');
+    d.className='piece'+(selectedPieceId===p.id?' selected':'')+(p.pos?' placed':'');
+    d.innerHTML=`<div class="swatch">${svgFor(p)}</div><div class="label"><div class="name">${p.shape}</div><div class="meta">tap to select</div></div>`;
+    d.onclick=()=>{ selectedPieceId=(selectedPieceId===p.id?null:p.id); renderTray(); };
+    trayEl.appendChild(d);
+  }
+}
+
+// ================= INPUT =================
+canvas.addEventListener('pointerdown', ev => {
+  ev.preventDefault();
+  const r = canvas.getBoundingClientRect();
+  const x = (ev.clientX - r.left) * (canvas.width / r.width);
+  const y = (ev.clientY - r.top) * (canvas.height / r.height);
+  const cs = cellSize();
+  const gx = clamp(Math.floor(x / cs), 0, gridN-1);
+  const gy = clamp(Math.floor(y / cs), 0, gridN-1);
+
+  const here = pieces.find(p => p.pos && p.pos.x===gx && p.pos.y===gy);
+
+  // remove if nothing selected
+  if(here && selectedPieceId===null){
+    here.pos = null;
+    setToast('Removed');
+    renderTray();
+    redraw();
+    return;
+  }
+
+  if(selectedPieceId===null) return;
+
+  const p = pieces[selectedPieceId];
+
+  // tap its own cell -> remove
+  if(p.pos && p.pos.x===gx && p.pos.y===gy){
+    p.pos=null;
+    selectedPieceId=null;
+    setToast('Removed');
+    renderTray();
+    redraw();
+    return;
+  }
+
+  // swap if occupied
+  if(here && here.id!==p.id){
+    const old = p.pos ? {x:p.pos.x,y:p.pos.y} : null;
+    p.pos = {x:gx,y:gy};
+    here.pos = old;
+    setToast('Swapped');
+  } else {
+    p.pos = {x:gx,y:gy};
+    setToast('Placed');
+  }
+
+  selectedPieceId=null;
+  renderTray();
+  redraw();
+},{passive:false});
+
+// ================= LEVEL HANDLING =================
+function makePieces(count){
+  const arr=[];
+  for(let i=0;i<count;i++){
+    arr.push({
+      id:i,
+      shape: SHAPES[i % SHAPES.length],
+      color: COLORS[i % COLORS.length],
+      pos: null
+    });
+  }
+  return arr;
+}
+
+function loadLevel(idx){
+  const L = LEVELS[idx];
+  gridN = L.grid;
+  maxWeight = L.maxWeight;
+
+  // canvas sizing scales with grid
+  canvas.width = canvas.height = 80*gridN;
+
+  pieces = makePieces(L.count);
+  R = randomMatrix(pieces.length, maxWeight);
+
+  selectedPieceId = null;
+  showOptimal = false;
+  toggleOptBtn.textContent = 'Show optimal overlay';
+
+  levelInfo.textContent = `${pieces.length} pieces · ${gridN}×${gridN} · weights ±${maxWeight}`;
+
+  renderTray();
+  renderMatrix();
+
+  optimalSolution = solveForLevel();
+  solveInfo.textContent = optimalSolution.exact ? 'optimal: exact' : 'optimal: best found';
+
+  setToast('');
+  redraw();
+}
+
+function newGameSameLevel(){
+  // New matrix, same level geometry.
+  R = randomMatrix(pieces.length, maxWeight);
+  pieces.forEach(p=>p.pos=null);
+  selectedPieceId=null;
+
+  renderMatrix();
+
+  optimalSolution = solveForLevel();
+  solveInfo.textContent = optimalSolution.exact ? 'optimal: exact' : 'optimal: best found';
+
+  setToast('New matrix');
+  redraw();
+  renderTray();
+}
+
+// ================= UI WIRING =================
+LEVELS.forEach((l,i)=>{
+  const o=document.createElement('option');
+  o.value=i;
+  o.textContent=l.name;
+  levelSel.appendChild(o);
+});
+
+levelSel.addEventListener('change', ()=> loadLevel(+levelSel.value));
+
+document.getElementById('newGameBtn').addEventListener('click', newGameSameLevel);
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  pieces.forEach(p=>p.pos=null);
+  selectedPieceId=null;
+  setToast('');
+  renderTray();
+  redraw();
+});
+
+toggleOptBtn.addEventListener('click', ()=>{
+  showOptimal = !showOptimal;
+  toggleOptBtn.textContent = showOptimal ? 'Hide optimal overlay' : 'Show optimal overlay';
+  redraw();
+});
+
+// ================= INIT =================
+loadLevel(0);
+</script>
+</body>
+</html>

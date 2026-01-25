@@ -194,6 +194,19 @@
       <a class="play" href="cmy_xor.html" target="_blank">Play</a>
     </div>
 
+    <!-- Proximity -->
+    <div class="game">
+      <div class="thumbWrap">
+        <canvas id="thumb-proximity" width="96" height="96"></canvas>
+      </div>
+      <h2>Proximity</h2>
+      <p class="desc">
+        A proximity-based puzzle: local choices ripple outward.
+        The rule is simple; the edge cases are not.
+      </p>
+      <a class="play" href="proximity.html" target="_blank">Play</a>
+    </div>
+
     <!-- Hex Wave Puzzle -->
     <div class="game">
       <div class="thumbWrap">
@@ -437,6 +450,54 @@ function rint(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
   }
 })();
 
+/* Proximity preview */
+(function(){
+  const c = document.getElementById("thumb-proximity");
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = "#0a0f25";
+  ctx.fillRect(0,0,c.width,c.height);
+
+  const n = 7, cell = 10, pad = 8;
+
+  // faint grid
+  for(let y=0;y<n;y++){
+    for(let x=0;x<n;x++){
+      ctx.fillStyle = "rgba(232,236,255,0.08)";
+      ctx.fillRect(pad+x*cell, pad+y*cell, cell-1, cell-1);
+    }
+  }
+
+  // a "proximity field": a few attractors and intensity falls with distance
+  const sources = [
+    {x:rint(1,5), y:rint(1,5)},
+    {x:rint(1,5), y:rint(1,5)}
+  ];
+
+  for(let y=0;y<n;y++){
+    for(let x=0;x<n;x++){
+      let v = 0;
+      for(const s of sources){
+        const d = Math.hypot(x - s.x, y - s.y);
+        v += Math.max(0, 1.0 - d/4.0);
+      }
+      const a = Math.min(0.65, 0.10 + v*0.28);
+      ctx.fillStyle = `rgba(122,162,255,${a})`;
+      ctx.fillRect(pad+x*cell, pad+y*cell, cell-1, cell-1);
+    }
+  }
+
+  // mark sources
+  sources.forEach(s=>{
+    const cx = pad + s.x*cell + 4.5;
+    const cy = pad + s.y*cell + 4.5;
+    ctx.strokeStyle = "rgba(255,255,255,0.85)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(cx,cy,4.2,0,Math.PI*2);
+    ctx.stroke();
+  });
+})();
+
 /* Hex Wave Puzzle preview */
 (function(){
   const c = document.getElementById("thumb-hexwave");
@@ -447,7 +508,6 @@ function rint(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
 
   const cx = 48, cy = 48;
 
-  // faint concentric "wave" rings
   for(let k=6;k>=1;k--){
     const r = 6 + k*6;
     const alpha = 0.04 + k*0.015;
@@ -458,7 +518,6 @@ function rint(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
     ctx.stroke();
   }
 
-  // sprinkle a pseudo-hex disk of points
   const pts = [];
   for(let y=0;y<7;y++){
     for(let x=0;x<7;x++){
@@ -468,7 +527,6 @@ function rint(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
     }
   }
 
-  // value shading (looks like a field)
   pts.forEach(([px,py])=>{
     const d = Math.hypot(px-cx, py-cy);
     const v = Math.cos(d/6);
@@ -479,7 +537,6 @@ function rint(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
     ctx.fill();
   });
 
-  // tiny emitter markers (mini hex outlines)
   function emitter(px,py){
     ctx.strokeStyle = "rgba(255,255,255,0.82)";
     ctx.lineWidth = 2;
