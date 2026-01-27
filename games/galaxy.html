@@ -1,0 +1,812 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Galaxy Spectrum Mixer</title>
+<style>
+  :root{
+    --bg:#0b1020;
+    --panel:#121a33;
+    --border:#24315a;
+    --text:#eef2ff;
+    --muted:#aab3d6;
+    --accent:#7aa2ff;
+    --good:#22c55e;
+    --warn:#f59e0b;
+    --bad:#ef4444;
+    --r:16px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1200px 600px at 50% 0%, #15224a 0%, var(--bg) 55%);
+    color:var(--text);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:14px 10px 26px;
+  }
+  header{width:min(980px,100%);}
+  h1{margin:6px 0 6px; font-size:22px; letter-spacing:.2px;}
+  .sub{
+    color:var(--muted); font-size:13px; line-height:1.35; margin-bottom:10px;
+  }
+  .grid{
+    width:min(980px,100%);
+    display:grid;
+    grid-template-columns: 1.1fr .9fr;
+    gap:10px;
+  }
+  @media (max-width: 900px){
+    .grid{grid-template-columns:1fr;}
+  }
+  .panel{
+    background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+    border:1px solid var(--border);
+    border-radius:var(--r);
+    padding:10px;
+    box-shadow:0 10px 35px rgba(0,0,0,.25);
+  }
+  .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;}
+  .label{font-size:12px; color:var(--muted);}
+  canvas{width:100%; height:140px; background:#000; border-radius:14px; border:1px solid rgba(255,255,255,.08);}
+  .toy-panel{margin-bottom:10px;}
+  .toy-header{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px;}
+  .toy-canvas{height:160px; background:radial-gradient(circle at 30% 20%, rgba(255,255,255,.06), rgba(0,0,0,.85));}
+
+  .controls{display:flex; flex-direction:column; gap:10px;}
+  .control{
+    background:rgba(0,0,0,.18);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:14px;
+    padding:10px;
+  }
+  .control .top{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .name{font-size:14px; display:flex; align-items:center; gap:8px;}
+  .chip{font-size:11px; color:var(--muted); border:1px solid rgba(255,255,255,.12); padding:2px 8px; border-radius:999px;}
+  .val{font-variant-numeric: tabular-nums; font-size:12px; color:var(--muted);}
+  input[type=range]{width:100%; margin-top:10px;}
+
+  .buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+  button{
+    appearance:none; border:1px solid rgba(255,255,255,.14);
+    background:rgba(122,162,255,.12);
+    color:var(--text);
+    padding:8px 10px; border-radius:12px;
+    cursor:pointer;
+    font-size:13px;
+  }
+  button:active{transform:translateY(1px)}
+  button.secondary{background:rgba(255,255,255,.06)}
+
+  .meter{
+    margin-top:8px;
+    padding:10px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,.10);
+    background:rgba(0,0,0,.18);
+  }
+  .bar{
+    height:10px;
+    border-radius:999px;
+    background:rgba(255,255,255,.10);
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.08);
+  }
+  .fill{height:100%; width:0%; background:linear-gradient(90deg, var(--bad), var(--warn), var(--good));}
+  .meterline{display:flex; justify-content:space-between; margin-top:6px; font-size:12px; color:var(--muted);}
+
+  .errorbox{
+    display:none;
+    width:min(980px,100%);
+    margin-top:10px;
+    border:1px solid rgba(239,68,68,.4);
+    background:rgba(239,68,68,.10);
+    border-radius:14px;
+    padding:10px;
+    color:#ffd6d6;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    white-space:pre-wrap;
+    font-size:12px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Galaxy Spectrum Mixer</h1>
+  <div class="sub">
+    Build a galaxy by mixing <b>stars</b> (smooth rainbow light) and <b>gas</b> (bright spikes).
+    Then add <b>dust</b> (dims & reddens) and <b>absorption</b> (little bite-marks). Match the hidden target.
+  </div>
+</header>
+
+<div class="grid">
+  <div class="panel">
+    <div class="toy-panel">
+      <div class="toy-header">
+        <div class="label">Toy Galaxy (responds to sliders)</div>
+        <div class="label" id="toyMood">Mood: —</div>
+      </div>
+      <canvas id="toyGalaxy" class="toy-canvas" width="900" height="320" aria-label="Toy galaxy preview"></canvas>
+    </div>
+    <div class="row">
+      <div>
+        <div class="label">Target Galaxy (hidden recipe)</div>
+      </div>
+      <div class="label" id="modeLabel">Mode: Galaxy</div>
+    </div>
+    <canvas id="target" width="900" height="220" aria-label="Target spectrum"></canvas>
+
+    <div style="height:10px"></div>
+
+    <div class="row">
+      <div class="label">Your Galaxy</div>
+      <div class="label" id="scoreLabel">Match: —</div>
+    </div>
+    <canvas id="mix" width="900" height="220" aria-label="Your mixed spectrum"></canvas>
+
+    <div class="meter" aria-label="Match meter">
+      <div class="bar"><div class="fill" id="fill"></div></div>
+      <div class="meterline">
+        <span>Cold</span>
+        <span>Close enough</span>
+        <span>Perfect-ish</span>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button id="newTarget">New Target</button>
+      <button id="reset" class="secondary">Reset sliders</button>
+      <button id="toggleMode" class="secondary">Switch: Galaxy ↔ Quasar</button>
+      <button id="showHint" class="secondary">Hint</button>
+    </div>
+
+    <div class="label" id="hintText" style="margin-top:10px; display:none"></div>
+  </div>
+
+  <div class="panel">
+    <div class="label" style="margin-bottom:8px">Build your galaxy</div>
+
+    <div class="controls">
+      <div class="control">
+        <div class="top">
+          <div class="name">⭐ Hot stars <span class="chip">bluer</span></div>
+          <div class="val" id="v_hot">0.00</div>
+        </div>
+        <input type="range" min="0" max="1" step="0.01" value="0" id="hot" />
+      </div>
+
+      <div class="control">
+        <div class="top">
+          <div class="name">⭐ Sun-like stars <span class="chip">yellow-ish</span></div>
+          <div class="val" id="v_sun">0.00</div>
+        </div>
+        <input type="range" min="0" max="1" step="0.01" value="0" id="sun" />
+      </div>
+
+      <div class="control">
+        <div class="top">
+          <div class="name">⭐ Cool stars <span class="chip">redder</span></div>
+          <div class="val" id="v_cool">0.00</div>
+        </div>
+        <input type="range" min="0" max="1" step="0.01" value="0" id="cool" />
+      </div>
+
+      <div class="control">
+        <div class="top">
+          <div class="name">🟣 Gas emission <span class="chip">H lines</span></div>
+          <div class="val" id="v_hii">0.00</div>
+        </div>
+        <input type="range" min="0" max="1" step="0.01" value="0" id="hii" />
+      </div>
+
+      <div class="control">
+        <div class="top">
+          <div class="name">🟦 Gas emission <span class="chip">[O III]</span></div>
+          <div class="val" id="v_oiii">0.00</div>
+        </div>
+        <input type="range" min="0" max="1" step="0.01" value="0" id="oiii" />
+      </div>
+
+      <div class="control">
+        <div class="top">
+          <div class="name">🟤 Dust <span class="chip">dimmer + redder</span></div>
+          <div class="val" id="v_dust">0.00</div>
+        </div>
+        <input type="range" min="0" max="1" step="0.01" value="0" id="dust" />
+      </div>
+
+      <div class="control">
+        <div class="top">
+          <div class="name">🧪 Absorption <span class="chip">bite-marks</span></div>
+          <div class="val" id="v_abs">0.00</div>
+        </div>
+        <input type="range" min="0" max="1" step="0.01" value="0" id="abs" />
+      </div>
+
+      <div class="control" id="earthBlock" style="display:none">
+        <div class="top">
+          <div class="name">🌍 Earth air <span class="chip">telluric</span></div>
+          <div class="val" id="v_tel">0.00</div>
+        </div>
+        <input type="range" min="0" max="1" step="0.01" value="0" id="tel" />
+      </div>
+
+      <div class="control" id="forestBlock" style="display:none">
+        <div class="top">
+          <div class="name">☁️ Lyman-α forest <span class="chip">quasar mode</span></div>
+          <div class="val" id="v_forest">0.00</div>
+        </div>
+        <input type="range" min="0" max="1" step="0.01" value="0" id="forest" />
+      </div>
+
+      <div class="label">Tip: in Galaxy mode, start with stars (smooth), then add gas (spikes), then dust + absorption.</div>
+    </div>
+  </div>
+</div>
+
+<div class="errorbox" id="err"></div>
+
+<script>
+(() => {
+  "use strict";
+
+  // --- Crash reporting (so bugs don’t hide) ---
+  const errBox = document.getElementById('err');
+  function showError(msg){
+    errBox.style.display = 'block';
+    errBox.textContent = msg;
+  }
+  window.addEventListener('error', (e) => {
+    showError('Runtime error: ' + (e && e.message ? e.message : String(e)));
+  });
+  window.addEventListener('unhandledrejection', (e) => {
+    showError('Promise error: ' + (e && e.reason ? (e.reason.stack || e.reason) : String(e)));
+  });
+
+  // --- Canvas sizing ---
+  const targetCanvas = document.getElementById('target');
+  const mixCanvas = document.getElementById('mix');
+  const toyCanvas = document.getElementById('toyGalaxy');
+
+  function fitCanvas(c){
+    // Keep internal resolution crisp on HiDPI
+    const rect = c.getBoundingClientRect();
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    const w = Math.round(rect.width * dpr);
+    const h = Math.round(rect.height * dpr);
+    if(c.width !== w || c.height !== h){
+      c.width = w;
+      c.height = h;
+    }
+  }
+
+  // --- Wavelength axis (toy, normalized) ---
+  // Think of x in [0,1] as going from blue/UV to red/IR.
+  const N = 900;
+  const x = new Float64Array(N);
+  for(let i=0;i<N;i++) x[i] = i/(N-1);
+
+  function gauss(xx, mu, sig){
+    const z = (xx-mu)/sig;
+    return Math.exp(-0.5*z*z);
+  }
+
+  // --- Smooth star continua (toy blackbody-ish bumps) ---
+  // For kid-friendliness, this is intentionally simple, but consistent.
+  const stars = {
+    hot:  (xx) => 0.55 + 1.15*gauss(xx, 0.18, 0.14) + 0.25*gauss(xx, 0.45, 0.35),
+    sun:  (xx) => 0.55 + 1.05*gauss(xx, 0.45, 0.22) + 0.12*gauss(xx, 0.15, 0.30),
+    cool: (xx) => 0.55 + 1.10*gauss(xx, 0.75, 0.26) + 0.10*gauss(xx, 0.25, 0.35)
+  };
+
+  // --- Emission lines (toy) ---
+  // Positions are arbitrary in this normalized axis but arranged sensibly.
+  function emissionLines(xx, amp, lines){
+    let v = 0;
+    for(const L of lines){
+      v += amp * L.a * gauss(xx, L.mu, L.sig);
+    }
+    return v;
+  }
+  const gas = {
+    hii:  (xx, a) => emissionLines(xx, a, [
+      {mu:0.56, sig:0.0045, a:1.0}, // Halpha-ish
+      {mu:0.46, sig:0.0040, a:0.6}, // Hbeta-ish
+      {mu:0.40, sig:0.0038, a:0.35}
+    ]),
+    oiii: (xx, a) => emissionLines(xx, a, [
+      {mu:0.43, sig:0.0035, a:1.0},
+      {mu:0.44, sig:0.0035, a:0.9}
+    ])
+  };
+
+  // --- Absorption "bite marks" (toy stellar/ISM lines) ---
+  // Implemented as multiplicative dips: flux *= (1 - depth * lineProfile)
+  function absorptionMult(xx, depth, lines){
+    let m = 1;
+    for(const L of lines){
+      const dip = depth * L.d * gauss(xx, L.mu, L.sig);
+      m *= (1 - dip);
+    }
+    return Math.max(0, Math.min(1, m));
+  }
+  const absorption = {
+    ism: (xx, depth) => absorptionMult(xx, depth, [
+      {mu:0.52, sig:0.0032, d:0.9}, // NaD-ish
+      {mu:0.49, sig:0.0026, d:0.6},
+      {mu:0.62, sig:0.0030, d:0.5}
+    ]),
+    telluric: (xx, depth) => absorptionMult(xx, depth, [
+      {mu:0.80, sig:0.010, d:0.65},
+      {mu:0.90, sig:0.012, d:0.55}
+    ]),
+    forest: (xx, depth, seed) => {
+      // Lots of narrow dips toward the blue side.
+      // Deterministic pseudo-random sequence from seed.
+      let s = seed >>> 0;
+      function rnd(){ s = (1664525*s + 1013904223) >>> 0; return s/4294967296; }
+      let m = 1;
+      const nLines = 45;
+      for(let i=0;i<nLines;i++){
+        const mu = 0.06 + 0.40*rnd();
+        const sig = 0.0015 + 0.0025*rnd();
+        const d = 0.12 + 0.35*rnd();
+        m *= (1 - depth * d * gauss(xx, mu, sig));
+      }
+      return Math.max(0, Math.min(1, m));
+    }
+  };
+
+  // --- Dust reddening (toy) ---
+  // A simple monotonic attenuation stronger in the blue.
+  function dustAtten(xx, dust){
+    // optical depth tau ~ dust * (1/(x+eps))^p  -> stronger at small x
+    const eps = 0.04;
+    const p = 1.25;
+    const tau = dust * 1.55 * Math.pow(1/(xx+eps), p);
+    return Math.exp(-tau);
+  }
+
+  // --- Model computation ---
+  function computeSpectrum(w){
+    // w in [0,1]
+    const out = new Float64Array(N);
+
+    // Additive sources: stars + emission
+    for(let i=0;i<N;i++){
+      const xx = x[i];
+      let f = 0;
+      f += w.hot  * stars.hot(xx);
+      f += w.sun  * stars.sun(xx);
+      f += w.cool * stars.cool(xx);
+
+      // emission is additive
+      f += gas.hii(xx,  2.4*w.hii);
+      f += gas.oiii(xx, 2.2*w.oiii);
+
+      // Multiplicative physics: dust + absorption
+      f *= dustAtten(xx, w.dust);
+      f *= absorption.ism(xx, 0.55*w.abs);
+      if(w.tel > 0)   f *= absorption.telluric(xx, 0.75*w.tel);
+      if(w.forest > 0) f *= absorption.forest(xx, 0.65*w.forest, w.seed);
+
+      out[i] = f;
+    }
+
+    // Normalize for display (keep relative shape)
+    let mn = out[0], mx = out[0];
+    for(let i=1;i<N;i++){ const v=out[i]; if(v<mn) mn=v; if(v>mx) mx=v; }
+    const span = (mx-mn);
+    if(!(span>1e-10)){
+      for(let i=0;i<N;i++) out[i]=0;
+      return out;
+    }
+    for(let i=0;i<N;i++) out[i] = (out[i]-mn)/span;
+    return out;
+  }
+
+  // --- Drawing ---
+  function drawSpectrum(canvas, data){
+    fitCanvas(canvas);
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0,0,W,H);
+
+    // background gradient (subtle)
+    const g = ctx.createLinearGradient(0,0,W,0);
+    g.addColorStop(0,'rgba(90,140,255,0.10)');
+    g.addColorStop(0.5,'rgba(255,255,255,0.04)');
+    g.addColorStop(1,'rgba(255,120,140,0.08)');
+    ctx.fillStyle=g;
+    ctx.fillRect(0,0,W,H);
+
+    // axes line
+    ctx.strokeStyle='rgba(255,255,255,0.12)';
+    ctx.beginPath();
+    ctx.moveTo(0,H-1);
+    ctx.lineTo(W,H-1);
+    ctx.stroke();
+
+    // spectrum
+    ctx.lineWidth = Math.max(1, Math.floor(W/900));
+    for(let i=0;i<N;i++){
+      const xx = i/(N-1);
+      const px = xx*(W-1);
+      const yy = data[i];
+      const py = (H-8) - yy*(H-18);
+
+      // color encodes wavelength: blue -> red
+      const hue = 240*(1-xx); // 240=blue, 0=red
+      ctx.strokeStyle = `hsla(${hue}, 95%, 60%, 0.95)`;
+      ctx.beginPath();
+      ctx.moveTo(px,H-1);
+      ctx.lineTo(px,py);
+      ctx.stroke();
+    }
+
+    // little labels
+    ctx.fillStyle='rgba(255,255,255,0.65)';
+    ctx.font = `${Math.max(10, Math.round(H/18))}px system-ui`;
+    ctx.fillText('blue', 8, 16);
+    const t = ctx.measureText('red').width;
+    ctx.fillText('red', W - t - 8, 16);
+  }
+
+  // --- Toy galaxy preview ---
+  const toyStars = (() => {
+    // Fixed star field for stability
+    const out = [];
+    let s = 1337;
+    function rnd(){ s = (1664525*s + 1013904223) >>> 0; return s/4294967296; }
+    for(let i=0;i<70;i++){
+      out.push({x:rnd(), y:rnd(), r:0.6 + 2.4*rnd(), a:0.35 + 0.6*rnd()});
+    }
+    return out;
+  })();
+
+  function clamp01(v){ return Math.max(0, Math.min(1, v)); }
+
+  function mixColor(w){
+    const hot = w.hot, sun = w.sun, cool = w.cool;
+    const total = Math.max(0.001, hot + sun + cool);
+    const bh = hot/total, bs = sun/total, bc = cool/total;
+    // blue, yellow, red
+    let r = 30*bh + 255*bs + 255*bc;
+    let g = 110*bh + 230*bs + 90*bc;
+    let b = 255*bh + 90*bs + 70*bc;
+    return {r, g, b};
+  }
+
+  function drawToyGalaxy(w){
+    fitCanvas(toyCanvas);
+    const ctx = toyCanvas.getContext('2d');
+    const W = toyCanvas.width, H = toyCanvas.height;
+    ctx.clearRect(0,0,W,H);
+
+    // background
+    const bg = ctx.createRadialGradient(W*0.3, H*0.2, 10, W*0.5, H*0.6, W*0.9);
+    bg.addColorStop(0, 'rgba(40,60,110,0.45)');
+    bg.addColorStop(1, 'rgba(3,6,14,0.95)');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0,0,W,H);
+
+    const base = mixColor(w);
+    const gasBoost = clamp01(0.6*w.hii + 0.7*w.oiii);
+    const dustDim = 1 - 0.65*w.dust;
+    const absBites = clamp01(w.abs);
+
+    const coreR = Math.min(255, base.r + 30 + 70*gasBoost) * dustDim;
+    const coreG = Math.min(255, base.g + 20 + 40*gasBoost) * dustDim;
+    const coreB = Math.min(255, base.b + 20 + 90*gasBoost) * dustDim;
+
+    // halo glow
+    const halo = ctx.createRadialGradient(W*0.5, H*0.55, 10, W*0.5, H*0.55, W*0.48);
+    halo.addColorStop(0, `rgba(${coreR|0},${coreG|0},${coreB|0},0.55)`);
+    halo.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = halo;
+    ctx.fillRect(0,0,W,H);
+
+    // spiral arms
+    ctx.save();
+    ctx.translate(W*0.5, H*0.55);
+    const arms = 2 + Math.round(2*w.hii);
+    for(let a=0;a<arms;a++){
+      ctx.rotate((Math.PI*2)/arms);
+      ctx.beginPath();
+      for(let t=0;t<3.8;t+=0.08){
+        const r = t * (W*0.045);
+        const ang = t*1.25;
+        const x = r*Math.cos(ang);
+        const y = r*Math.sin(ang);
+        ctx.lineTo(x,y);
+      }
+      const armHue = 220 - 160*w.cool + 40*w.hot;
+      ctx.strokeStyle = `hsla(${armHue}, 80%, 65%, ${0.22 + 0.38*gasBoost})`;
+      ctx.lineWidth = Math.max(1, Math.round(W/240));
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // toy planets
+    ctx.fillStyle = `rgba(${(coreR*0.9)|0},${(coreG*0.7)|0},${(coreB*0.6)|0},0.8)`;
+    ctx.beginPath();
+    ctx.arc(W*0.22, H*0.7, Math.max(6, W*0.03), 0, Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    ctx.lineWidth = Math.max(1, Math.round(W/320));
+    ctx.beginPath();
+    ctx.ellipse(W*0.22, H*0.7, W*0.05, W*0.015, 0.3, 0, Math.PI*2);
+    ctx.stroke();
+
+    // sparkle stars
+    for(const s of toyStars){
+      const px = s.x*W;
+      const py = s.y*H;
+      const tw = s.r*(0.6 + 0.8*w.hii);
+      ctx.fillStyle = `rgba(255,255,255,${s.a*(0.4 + 0.6*dustDim)})`;
+      ctx.beginPath();
+      ctx.arc(px, py, tw, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    // dust haze overlay
+    if(w.dust > 0.02){
+      ctx.fillStyle = `rgba(90,60,40,${0.25*w.dust})`;
+      ctx.fillRect(0,0,W,H);
+    }
+
+    // absorption bite-marks
+    if(absBites > 0.02){
+      ctx.fillStyle = `rgba(5,6,10,${0.4*absBites})`;
+      const bites = 4 + Math.round(6*absBites);
+      for(let i=0;i<bites;i++){
+        const bx = W*(0.35 + 0.45*Math.sin(i*1.7));
+        const by = H*(0.3 + 0.5*((i*0.23)%1));
+        const br = W*(0.01 + 0.02*absBites);
+        ctx.beginPath();
+        ctx.arc(bx, by, br, 0, Math.PI*2);
+        ctx.fill();
+      }
+    }
+  }
+
+  // --- Match score ---
+  function rms(a,b){
+    let s=0;
+    for(let i=0;i<N;i++){
+      const d=a[i]-b[i];
+      s += d*d;
+    }
+    return Math.sqrt(s/N);
+  }
+
+  // --- UI wiring ---
+  const els = {
+    hot:   document.getElementById('hot'),
+    sun:   document.getElementById('sun'),
+    cool:  document.getElementById('cool'),
+    hii:   document.getElementById('hii'),
+    oiii:  document.getElementById('oiii'),
+    dust:  document.getElementById('dust'),
+    abs:   document.getElementById('abs'),
+    tel:   document.getElementById('tel'),
+    forest:document.getElementById('forest')
+  };
+  const vels = {
+    hot:   document.getElementById('v_hot'),
+    sun:   document.getElementById('v_sun'),
+    cool:  document.getElementById('v_cool'),
+    hii:   document.getElementById('v_hii'),
+    oiii:  document.getElementById('v_oiii'),
+    dust:  document.getElementById('v_dust'),
+    abs:   document.getElementById('v_abs'),
+    tel:   document.getElementById('v_tel'),
+    forest:document.getElementById('v_forest')
+  };
+
+  const scoreLabel = document.getElementById('scoreLabel');
+  const fill = document.getElementById('fill');
+  const hintText = document.getElementById('hintText');
+  const modeLabel = document.getElementById('modeLabel');
+  const earthBlock = document.getElementById('earthBlock');
+  const forestBlock = document.getElementById('forestBlock');
+  const toyMood = document.getElementById('toyMood');
+
+  let mode = 'galaxy'; // 'galaxy' | 'quasar'
+
+  function readMix(){
+    return {
+      hot: +els.hot.value,
+      sun: +els.sun.value,
+      cool:+els.cool.value,
+      hii: +els.hii.value,
+      oiii:+els.oiii.value,
+      dust:+els.dust.value,
+      abs: +els.abs.value,
+      tel: mode==='quasar' ? +els.tel.value : 0,
+      forest: mode==='quasar' ? +els.forest.value : 0,
+      seed: currentTargetSeed
+    };
+  }
+
+  // --- Targets (random but controlled) ---
+  let currentTarget = null;
+  let currentTargetSeed = 12345;
+
+  function rand(seed){
+    // deterministic LCG
+    let s = seed >>> 0;
+    return () => {
+      s = (1664525*s + 1013904223) >>> 0;
+      return s/4294967296;
+    };
+  }
+
+  function newTarget(){
+    currentTargetSeed = (Date.now() ^ ((Math.random()*1e9)|0)) >>> 0;
+    const r = rand(currentTargetSeed);
+
+    if(mode==='galaxy'){
+      currentTarget = {
+        hot:  0.10 + 0.70*r(),
+        sun:  0.10 + 0.70*r(),
+        cool: 0.10 + 0.70*r(),
+        hii:  0.00 + 0.80*r(),
+        oiii: 0.00 + 0.80*r(),
+        dust: 0.00 + 0.65*r(),
+        abs:  0.00 + 0.70*r(),
+        tel:  0,
+        forest:0,
+        seed: currentTargetSeed
+      };
+    } else {
+      // Quasar: power-law-ish continuum + forest + telluric often present
+      // We fake a quasar continuum using a hot+sun mix and low cool.
+      currentTarget = {
+        hot:  0.55 + 0.40*r(),
+        sun:  0.25 + 0.35*r(),
+        cool: 0.00 + 0.15*r(),
+        hii:  0.00 + 0.90*r(),
+        oiii: 0.00 + 0.80*r(),
+        dust: 0.00 + 0.45*r(),
+        abs:  0.05 + 0.45*r(),
+        tel:  0.10 + 0.55*r(),
+        forest:0.20 + 0.75*r(),
+        seed: currentTargetSeed
+      };
+    }
+    hintText.style.display = 'none';
+    redraw();
+  }
+
+  function resetSliders(){
+    for(const k of ['hot','sun','cool','hii','oiii','dust','abs','tel','forest']){
+      els[k].value = 0;
+      vels[k].textContent = '0.00';
+    }
+    redraw();
+  }
+
+  function setMode(next){
+    mode = next;
+    modeLabel.textContent = 'Mode: ' + (mode==='galaxy' ? 'Galaxy' : 'Quasar');
+    earthBlock.style.display = (mode==='quasar') ? '' : 'none';
+    forestBlock.style.display = (mode==='quasar') ? '' : 'none';
+    newTarget();
+  }
+
+  function format2(x){ return (Math.round(x*100)/100).toFixed(2); }
+
+  let targetSpec = null;
+  function redraw(){
+    // update value readouts
+    for(const k of Object.keys(vels)){
+      const el = els[k];
+      if(!el) continue;
+      const v = +el.value;
+      vels[k].textContent = format2(v);
+    }
+
+    if(!currentTarget) newTarget();
+    targetSpec = computeSpectrum(currentTarget);
+    const mixSpec = computeSpectrum(readMix());
+
+    drawSpectrum(targetCanvas, targetSpec);
+    drawSpectrum(mixCanvas, mixSpec);
+    drawToyGalaxy(readMix());
+
+    const e = rms(targetSpec, mixSpec);
+
+    // Convert error -> score in [0,100]
+    const score = Math.max(0, Math.min(100, 100*(1 - e/0.35)));
+    scoreLabel.textContent = `Match: ${score.toFixed(0)}%`;
+    fill.style.width = `${score}%`;
+
+    const mix = readMix();
+    const gas = mix.hii + mix.oiii;
+    const stars = mix.hot + mix.sun + mix.cool;
+    let mood = 'Quiet';
+    if(gas > 1.1) mood = 'Fireworks';
+    else if(mix.dust > 0.5) mood = 'Dusty';
+    else if(mix.hot > mix.cool + 0.25) mood = 'Blue-hot';
+    else if(mix.cool > mix.hot + 0.25) mood = 'Red-calm';
+    else if(stars > 1.0) mood = 'Bright';
+    toyMood.textContent = `Mood: ${mood}`;
+  }
+
+  // --- Hint system (kid friendly, minimal math) ---
+  function showHint(){
+    if(!currentTarget) return;
+    const t = currentTarget;
+
+    // Find dominant components for a simple hint.
+    const starsSum = t.hot + t.sun + t.cool;
+    const gasSum = t.hii + t.oiii;
+    const dust = t.dust;
+    const abs = t.abs;
+
+    let hint = '';
+    hint += (starsSum > gasSum ? 'Start with stars: make the spectrum smooth. ' : 'Start with gas: add some spikes. ');
+
+    if(t.hot > t.cool + 0.15) hint += 'Target looks bluer → increase Hot stars. ';
+    if(t.cool > t.hot + 0.15) hint += 'Target looks redder → increase Cool stars. ';
+
+    if(gasSum > 0.35) hint += 'Spikes are strong → increase Gas emission. ';
+    if(dust > 0.25) hint += 'It’s dim in the blue → add Dust. ';
+    if(abs > 0.25) hint += 'There are bite-marks → add Absorption. ';
+
+    if(mode==='quasar'){
+      if(t.forest > 0.35) hint += 'Many tiny dips on the left → increase Lyman-α forest. ';
+      if(t.tel > 0.25) hint += 'Wide dips on the right → increase Earth air. ';
+    }
+
+    hintText.textContent = hint.trim() || 'Try nudging one slider at a time and watch what changes.';
+    hintText.style.display = '';
+  }
+
+  // --- Event listeners ---
+  for(const k of Object.keys(els)){
+    els[k].addEventListener('input', redraw);
+  }
+  window.addEventListener('resize', redraw);
+
+  document.getElementById('newTarget').addEventListener('click', newTarget);
+  document.getElementById('reset').addEventListener('click', resetSliders);
+  document.getElementById('showHint').addEventListener('click', showHint);
+  document.getElementById('toggleMode').addEventListener('click', () => {
+    setMode(mode==='galaxy' ? 'quasar' : 'galaxy');
+  });
+
+  // --- Lightweight self-tests (so regressions are loud) ---
+  function runSelfTests(){
+    // 1) All-zero should produce a finite, defined spectrum
+    const z = computeSpectrum({hot:0,sun:0,cool:0,hii:0,oiii:0,dust:0,abs:0,tel:0,forest:0,seed:1});
+    let ok = true;
+    for(let i=0;i<N;i++) if(!Number.isFinite(z[i])) ok=false;
+    console.assert(ok, 'Self-test failed: non-finite values in spectrum');
+
+    // 2) Dust should reduce blue more than red (on average)
+    const a = computeSpectrum({hot:1,sun:0,cool:0,hii:0,oiii:0,dust:0,abs:0,tel:0,forest:0,seed:1});
+    const b = computeSpectrum({hot:1,sun:0,cool:0,hii:0,oiii:0,dust:0.8,abs:0,tel:0,forest:0,seed:1});
+    const blue = Math.floor(0.15*(N-1));
+    const red  = Math.floor(0.85*(N-1));
+    console.assert((b[blue] <= a[blue]) && (b[red] <= a[red]), 'Self-test failed: dust attenuation sanity');
+
+    // 3) Emission increases peakiness
+    const c = computeSpectrum({hot:0.2,sun:0.2,cool:0.2,hii:0,oiii:0,dust:0,abs:0,tel:0,forest:0,seed:1});
+    const d = computeSpectrum({hot:0.2,sun:0.2,cool:0.2,hii:1,oiii:1,dust:0,abs:0,tel:0,forest:0,seed:1});
+    let maxc=0, maxd=0;
+    for(let i=0;i<N;i++){ if(c[i]>maxc) maxc=c[i]; if(d[i]>maxd) maxd=d[i]; }
+    console.assert(maxd >= maxc, 'Self-test failed: emission should raise some peaks');
+  }
+
+  // Start
+  runSelfTests();
+  setMode('galaxy');
+})();
+</script>
+</body>
+</html>

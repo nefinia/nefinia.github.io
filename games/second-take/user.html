@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Second Take – Player Interface</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Decks -->
+  <script src="cards/situations.js"></script>
+  <script src="cards/reactions.js"></script>
+  <script src="cards/feedback.js"></script>
+  
+
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f0f0f;
+      color: #eee;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1, h2 {
+      margin-top: 1.2em;
+    }
+
+    .section {
+      margin-bottom: 32px;
+    }
+
+    .card {
+      background: #1c1c1c;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 14px;
+      margin: 8px 0;
+    }
+
+    .card strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    button {
+      background: #4cc9f0;
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 12px;
+    }
+
+    .muted {
+      opacity: 0.75;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+
+<body>
+
+
+  <h1>Second Take</h1>
+  <p class="muted">
+    Pause. Try something else. See what changes.
+  </p>
+
+  <!-- Situations -->
+  <div class="section">
+    <h2>Situations</h2>
+    <p class="muted">
+      Choose one situation to play. Others are alternatives.
+    </p>
+    <button onclick="drawSituations()">Regenerate situations</button>
+    <div id="situations" class="grid"></div>
+  </div>
+
+  <!-- Reactions -->
+  <div class="section">
+    <h2>Reaction cards</h2>
+    <p class="muted">
+      Always visible. Anyone may propose one or more during the pause.
+    </p>
+    <div id="reactions" class="grid"></div>
+  </div>
+
+  <!-- Feedback -->
+  <div class="section">
+    <h2>Feedback cards</h2>
+    <p class="muted">
+      Used after the replay to support discussion.
+    </p>
+    <div id="feedback" class="grid"></div>
+  </div>
+
+<script>
+  function drawSituations() {
+    const deck = window.DECKS.situations;
+    if (!deck || deck.length === 0) return;
+
+    const container = document.getElementById("situations");
+    container.innerHTML = "";
+
+    // shuffle copy
+    const shuffled = [...deck].sort(() => Math.random() - 0.5);
+    const picked = shuffled.slice(0, 3);
+
+    picked.forEach(s => {
+      const el = document.createElement("div");
+      el.className = "card";
+      el.innerHTML = `
+        <strong>${s.title}</strong>
+        <div><em>${s.context}</em></div>
+        <div><strong>Roles:</strong> ${s.roles.join(" / ")}</div>
+        <div><strong>Baseline tension:</strong> ${s.tension}</div>
+      `;
+      container.appendChild(el);
+    });
+  }
+
+  function renderStaticDeck(id, deck) {
+    const el = document.getElementById(id);
+    el.innerHTML = "";
+    deck.forEach(text => {
+      const d = document.createElement("div");
+      d.className = "card";
+      d.textContent = text;
+      el.appendChild(d);
+    });
+  }
+
+  // initial render
+  drawSituations();
+  renderStaticDeck("reactions", window.DECKS.reactions || []);
+  renderStaticDeck("feedback", window.DECKS.feedback || []);
+</script>
+
+</body>
+</html>

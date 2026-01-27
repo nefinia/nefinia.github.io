@@ -1,0 +1,814 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Abstract Baking – Recipe Lab (Prototype)</title>
+<style>
+  :root{
+    --bg:#0b1020;
+    --panel:#121a33;
+    --border:#24315a;
+    --text:#eef2ff;
+    --muted:#aab3d6;
+    --accent:#7aa2ff;
+    --good:#22c55e;
+    --bad:#ef4444;
+    --warn:#f59e0b;
+    --radius:16px;
+    --shadow: 0 10px 25px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    background: radial-gradient(1200px 900px at 10% 10%, #141b3a 0%, var(--bg) 45%, #060914 100%);
+    color:var(--text);
+  }
+  .wrap{max-width:1200px;margin:0 auto;padding:18px}
+  header{
+    display:flex;gap:14px;align-items:flex-start;justify-content:space-between;
+    margin-bottom:14px;
+  }
+  h1{margin:0;font-size:18px;font-weight:700;letter-spacing:.2px}
+  .sub{margin-top:6px;color:var(--muted);font-size:13px;line-height:1.35}
+  .grid{
+    display:grid;
+    grid-template-columns: 1.15fr .85fr;
+    gap:14px;
+  }
+  @media (max-width: 980px){
+    .grid{grid-template-columns:1fr}
+  }
+  .card{
+    background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+    border:1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding:14px;
+  }
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  label{font-size:12px;color:var(--muted)}
+  select,input[type="number"],input[type="range"],textarea{
+    background:#0a0f22;
+    color:var(--text);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:9px 10px;
+    outline:none;
+  }
+  select{min-width:220px}
+  input[type="number"]{width:90px}
+  .btn{
+    appearance:none;
+    border:1px solid var(--border);
+    background: linear-gradient(180deg, rgba(122,162,255,.18), rgba(122,162,255,.05));
+    color:var(--text);
+    padding:9px 12px;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:650;
+  }
+  .btn:hover{border-color:#3a4a7e}
+  .btn.secondary{
+    background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+  }
+  .btn.danger{
+    background: linear-gradient(180deg, rgba(239,68,68,.22), rgba(239,68,68,.06));
+  }
+  .pill{
+    font-size:12px;
+    padding:6px 10px;
+    border-radius:999px;
+    border:1px solid var(--border);
+    color:var(--muted);
+    background: rgba(0,0,0,.15);
+  }
+  .kpi{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:10px;
+    margin-top:10px;
+  }
+  .kpi .box{
+    border:1px dashed rgba(255,255,255,.16);
+    border-radius:14px;
+    padding:10px;
+    background: rgba(0,0,0,.12);
+  }
+  .kpi .big{font-size:18px;font-weight:800}
+  .kpi .small{color:var(--muted);font-size:12px;margin-top:2px}
+  .cols{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:14px;
+  }
+  @media (max-width: 680px){
+    .cols{grid-template-columns:1fr}
+  }
+  .sectionTitle{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    color:rgba(255,255,255,.70);
+    margin: 2px 0 8px;
+  }
+  .ops{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:10px;
+  }
+  @media (max-width: 520px){
+    .ops{grid-template-columns:1fr}
+  }
+  .opBtn{
+    text-align:left;
+    width:100%;
+    padding:10px 10px;
+    border-radius:14px;
+    border:1px solid var(--border);
+    background: rgba(0,0,0,.16);
+    cursor:pointer;
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+  }
+  .opBtn:hover{border-color:#3a4a7e}
+  .opName{font-weight:800}
+  .opDesc{font-size:12px;color:var(--muted);line-height:1.3;margin-top:2px}
+  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+  .bars{
+    display:grid;
+    grid-template-columns: repeat(3,1fr);
+    gap:10px;
+  }
+  .bar{
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:10px;
+    background: rgba(0,0,0,.14);
+  }
+  .barTop{display:flex;justify-content:space-between;align-items:center}
+  .barName{font-weight:800}
+  .barVal{color:var(--muted);font-size:12px}
+  .meter{
+    margin-top:8px;
+    height:10px;
+    border-radius:999px;
+    background: rgba(255,255,255,.06);
+    overflow:hidden;
+  }
+  .fill{
+    height:100%;
+    width:50%;
+    background: linear-gradient(90deg, rgba(122,162,255,.9), rgba(34,197,94,.75));
+  }
+  .log{
+    height:220px;
+    overflow:auto;
+    border-radius:14px;
+    border:1px solid var(--border);
+    background: rgba(0,0,0,.16);
+    padding:10px;
+    font-size:12px;
+    line-height:1.35;
+  }
+  .log .muted{color:var(--muted)}
+  .log .good{color:var(--good)}
+  .log .bad{color:var(--bad)}
+  .log .warn{color:var(--warn)}
+  textarea{
+    width:100%;
+    min-height:260px;
+    resize:vertical;
+    font-size:12px;
+    line-height:1.35;
+  }
+  .hint{color:var(--muted);font-size:12px;line-height:1.35;margin-top:8px}
+  .twoColRow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+  .spacer{flex:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Abstract Baking – Recipe Lab (Prototype)</h1>
+      <div class="sub">
+        Pick a recipe. Each step: choose an operator (“ingredient”), set temperature, then Bake.
+        Your mixture is numeric. The oven auto-evolves it. Objective: reach the recipe’s target region.
+      </div>
+    </div>
+    <div class="row">
+      <span class="pill">Single-file HTML</span>
+      <span class="pill">Recipe-driven</span>
+      <span class="pill">No backend</span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- LEFT: GAME -->
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <div class="row">
+          <div>
+            <label>Recipe</label><br/>
+            <select id="recipeSelect"></select>
+          </div>
+          <div>
+            <label>Temperature</label><br/>
+            <div class="row">
+              <input id="tempRange" type="range" min="0" max="3" step="1" value="1" />
+              <span class="pill mono" id="tempLabel">T=1</span>
+            </div>
+          </div>
+          <div>
+            <label>Steps</label><br/>
+            <span class="pill mono" id="stepLabel">t=0</span>
+          </div>
+        </div>
+
+        <div class="row">
+          <button class="btn" id="bakeBtn">Bake</button>
+          <button class="btn secondary" id="undoBtn">Undo</button>
+          <button class="btn danger" id="resetBtn">Reset</button>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="box">
+          <div class="big mono" id="scoreLabel">Score: —</div>
+          <div class="small" id="scoreHint">Distance to target center (lower is better)</div>
+        </div>
+        <div class="box">
+          <div class="big mono" id="statusLabel">Status: —</div>
+          <div class="small" id="statusHint">Pass/fail is based on bounds + stability</div>
+        </div>
+      </div>
+
+      <div class="cols" style="margin-top:12px">
+        <div>
+          <div class="sectionTitle">Mixture state</div>
+          <div class="bars" id="bars"></div>
+          <div class="hint" id="targetHint"></div>
+        </div>
+        <div>
+          <div class="sectionTitle">Operators (“ingredients”)</div>
+          <div class="ops" id="ops"></div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="sectionTitle">Bake log</div>
+        <div class="log mono" id="log"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: RECIPE EDITOR -->
+    <div class="card">
+      <div class="row">
+        <div class="sectionTitle" style="margin:0">Recipe editor (JSON)</div>
+        <div class="spacer"></div>
+        <button class="btn secondary" id="loadEditorBtn">Load current</button>
+        <button class="btn" id="applyEditorBtn">Apply JSON</button>
+      </div>
+      <textarea id="recipeEditor" spellcheck="false" class="mono"></textarea>
+      <div class="hint">
+        You can add new recipes here. This prototype expects:
+        <span class="mono">stateKeys</span>, <span class="mono">init</span>, <span class="mono">ops</span>,
+        <span class="mono">oven</span>, <span class="mono">target</span>, <span class="mono">limits</span>.
+        The <span class="mono">oven</span> and <span class="mono">ops</span> are expressed as small formulas over
+        variables (a,b,c) plus <span class="mono">T</span> and <span class="mono">t</span>.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==========================
+   Recipe-driven engine
+   ==========================
+
+   Each recipe defines:
+   - stateKeys: ["a","b","c"] etc.
+   - init: initial values
+   - ops: list of operators. Each operator can set multiple keys via formulas.
+   - oven: automatic evolution rules applied after ops each step.
+   - target: bounds and a "center" for scoring.
+   - limits: maxSteps, burnStabilityMin, clamp bounds for bars display (optional)
+*/
+
+const DEFAULT_RECIPES = [
+  {
+    id: "starter",
+    name: "Starter Dough (stable linear)",
+    description: "Gentle coupling; good for learning the loop.",
+    stateKeys: ["a","b","c"],
+    init: { a: 1.2, b: 0.8, c: 0.4, S: 10 }, // S = stability budget
+    ops: [
+      { id:"liftA", name:"Lift A", desc:"a += 0.6 + 0.2*T", set: { a:"a + (0.6 + 0.2*T)" } },
+      { id:"foldB", name:"Fold B", desc:"b *= 1.10 - 0.03*T", set: { b:"b * (1.10 - 0.03*T)" } },
+      { id:"coolC", name:"Cool C", desc:"c -= 0.25 + 0.05*T", set: { c:"c - (0.25 + 0.05*T)" } },
+      { id:"swapAB", name:"Swap A↔B", desc:"swap a and b", special:"swap", keys:["a","b"] },
+      { id:"normalize", name:"Normalize", desc:"scale (a,b,c) so sum = 3", special:"normalize", sum:3.0 }
+    ],
+    oven: {
+      // After op, apply these updates each step:
+      // a' = a + 0.10*T - 0.04*b
+      // b' = b + 0.03*a - 0.02*T
+      // c' = c + 0.02*b - 0.06*T
+      // S' = S - (0.5 + 0.25*T) - 0.10*|a-b|
+      set: {
+        a: "a + 0.10*T - 0.04*b",
+        b: "b + 0.03*a - 0.02*T",
+        c: "c + 0.02*b - 0.06*T",
+        S: "S - (0.5 + 0.25*T) - 0.10*Math.abs(a-b)"
+      }
+    },
+    target: {
+      center: { a: 2.6, b: 1.2, c: 0.2 },
+      bounds: { a:[2.3,2.9], b:[1.0,1.4], c:[0.0,0.4] }
+    },
+    limits: { maxSteps: 14, burnStabilityMin: 0, barClamp: { min:-1, max:4 } }
+  },
+
+  {
+    id: "caramel",
+    name: "Caramelization (nonlinear, heat-sensitive)",
+    description: "Heat accelerates reactions; overshoot is common.",
+    stateKeys: ["a","b","c"],
+    init: { a: 0.7, b: 1.6, c: 0.3, S: 8 },
+    ops: [
+      { id:"catalyze", name:"Catalyze", desc:"a += 0.35*b - 0.10*T", set:{ a:"a + (0.35*b - 0.10*T)" } },
+      { id:"reduce", name:"Reduce", desc:"b -= 0.25 + 0.10*T", set:{ b:"b - (0.25 + 0.10*T)" } },
+      { id:"stabilize", name:"Stabilize", desc:"S += 1.2 - 0.2*T, c += 0.08", set:{ S:"S + (1.2 - 0.2*T)", c:"c + 0.08" } },
+      { id:"invert", name:"Invert", desc:"c = 1/(1+c) (bounded transform)", set:{ c:"1/(1+Math.max(0,c))" } },
+      { id:"pulseHeat", name:"Pulse Heat", desc:"T internally acts as +1 for this step (virtual)", special:"virtualHeatPlusOne" }
+    ],
+    oven: {
+      // Nonlinear-ish but still tame:
+      // a' = a + 0.05*T + 0.06*b - 0.02*a*a
+      // b' = b - 0.08*T + 0.04*a - 0.01*b*b
+      // c' = c + 0.03*a*b - 0.05*T
+      // S' = S - (0.7 + 0.35*T) - 0.08*max(0, a-3)
+      set:{
+        a:"a + 0.05*T + 0.06*b - 0.02*a*a",
+        b:"b - 0.08*T + 0.04*a - 0.01*b*b",
+        c:"c + 0.03*a*b - 0.05*T",
+        S:"S - (0.7 + 0.35*T) - 0.08*Math.max(0,(a-3))"
+      }
+    },
+    target:{
+      center:{ a:2.2, b:0.6, c:0.8 },
+      bounds:{ a:[2.0,2.5], b:[0.3,0.9], c:[0.6,1.0] }
+    },
+    limits:{ maxSteps: 12, burnStabilityMin: 0, barClamp: { min:-1, max:4 } }
+  },
+
+  {
+    id: "crisp",
+    name: "Crisp Shell (integer-ish, modular feel)",
+    description: "Small moves, discrete behavior. Feels more puzzle-y.",
+    stateKeys: ["a","b","c"],
+    init: { a: 2, b: 5, c: 1, S: 9 },
+    ops: [
+      { id:"tickA", name:"Tick A", desc:"a += 1", set:{ a:"a + 1" } },
+      { id:"tickB", name:"Tick B", desc:"b -= 1", set:{ b:"b - 1" } },
+      { id:"wrapC", name:"Wrap C", desc:"c = (c + T) mod 7", set:{ c:"((c + T) % 7 + 7) % 7" } },
+      { id:"mix", name:"Mix", desc:"a,b,c = (a+b, b+c, c+a) mod 9", special:"mixMod", mod:9 },
+      { id:"cool", name:"Cool", desc:"S += 1; but a -= floor(T/2)", set:{ S:"S + 1", a:"a - Math.floor(T/2)" } }
+    ],
+    oven:{
+      // Discrete-ish evolution:
+      // a' = round(a + 0.2*T - 0.1*b)
+      // b' = round(b + 0.1*a - 0.2*T)
+      // c' = (c + a + T) mod 7
+      // S' = S - (0.6 + 0.2*T) - 0.05*|b-3|
+      set:{
+        a:"Math.round(a + 0.2*T - 0.1*b)",
+        b:"Math.round(b + 0.1*a - 0.2*T)",
+        c:"((c + a + T) % 7 + 7) % 7",
+        S:"S - (0.6 + 0.2*T) - 0.05*Math.abs(b-3)"
+      }
+    },
+    target:{
+      center:{ a:3, b:3, c:4 },
+      bounds:{ a:[2,4], b:[2,4], c:[3,5] }
+    },
+    limits:{ maxSteps: 10, burnStabilityMin: 0, barClamp: { min:-2, max:10 } }
+  }
+];
+
+let recipes = deepClone(DEFAULT_RECIPES);
+let currentRecipe = recipes[0];
+
+let history = []; // {state, t, T}
+let state = {};
+let t = 0;
+let T = 1;
+
+const el = (id)=>document.getElementById(id);
+const recipeSelect = el("recipeSelect");
+const tempRange = el("tempRange");
+const tempLabel = el("tempLabel");
+const stepLabel = el("stepLabel");
+const bakeBtn = el("bakeBtn");
+const undoBtn = el("undoBtn");
+const resetBtn = el("resetBtn");
+const bars = el("bars");
+const ops = el("ops");
+const log = el("log");
+const scoreLabel = el("scoreLabel");
+const statusLabel = el("statusLabel");
+const targetHint = el("targetHint");
+const recipeEditor = el("recipeEditor");
+const loadEditorBtn = el("loadEditorBtn");
+const applyEditorBtn = el("applyEditorBtn");
+
+function deepClone(x){ return JSON.parse(JSON.stringify(x)); }
+
+function fmt(x){
+  if (typeof x !== "number" || !isFinite(x)) return String(x);
+  const ax = Math.abs(x);
+  if (ax >= 1000) return x.toFixed(0);
+  if (ax >= 100) return x.toFixed(1);
+  if (ax >= 10) return x.toFixed(2);
+  return x.toFixed(3);
+}
+
+function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+
+function logLine(html){
+  const atBottom = (log.scrollTop + log.clientHeight) >= (log.scrollHeight - 6);
+  log.insertAdjacentHTML("beforeend", `<div>${html}</div>`);
+  if (atBottom) log.scrollTop = log.scrollHeight;
+}
+
+function buildRecipeSelect(){
+  recipeSelect.innerHTML = "";
+  recipes.forEach((r, idx)=>{
+    const opt = document.createElement("option");
+    opt.value = r.id;
+    opt.textContent = r.name;
+    recipeSelect.appendChild(opt);
+  });
+  recipeSelect.value = currentRecipe.id;
+}
+
+function setRecipeById(id){
+  const r = recipes.find(x=>x.id===id);
+  if (!r) return;
+  currentRecipe = r;
+  resetRun();
+}
+
+function resetRun(){
+  history = [];
+  t = 0;
+  T = Number(tempRange.value);
+  state = deepClone(currentRecipe.init);
+  ensureStateKeys();
+  log.innerHTML = "";
+  logLine(`<span class="muted">Loaded recipe:</span> <b>${escapeHtml(currentRecipe.name)}</b> — <span class="muted">${escapeHtml(currentRecipe.description||"")}</span>`);
+  renderAll();
+}
+
+function ensureStateKeys(){
+  // ensure all stateKeys exist
+  currentRecipe.stateKeys.forEach(k=>{
+    if (!(k in state)) state[k] = 0;
+  });
+  if (!("S" in state)) state.S = 10; // default stability if missing
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+function renderBars(){
+  const clampCfg = currentRecipe.limits?.barClamp || {min:-1, max:4};
+  const min = clampCfg.min, max = clampCfg.max;
+  bars.innerHTML = "";
+
+  // show mixture keys plus stability
+  const showKeys = [...currentRecipe.stateKeys, "S"];
+
+  showKeys.forEach(k=>{
+    const v = Number(state[k]);
+    const p = (isFinite(v) ? ( (v - min) / (max - min) ) : 0.5);
+    const w = clamp(p, 0, 1) * 100;
+
+    const div = document.createElement("div");
+    div.className = "bar";
+    div.innerHTML = `
+      <div class="barTop">
+        <div class="barName mono">${escapeHtml(k)}</div>
+        <div class="barVal mono">${fmt(v)}</div>
+      </div>
+      <div class="meter"><div class="fill" style="width:${w}%"></div></div>
+    `;
+    bars.appendChild(div);
+  });
+}
+
+function renderOps(){
+  ops.innerHTML = "";
+  currentRecipe.ops.forEach(op=>{
+    const b = document.createElement("button");
+    b.className = "opBtn";
+    b.type = "button";
+    b.innerHTML = `
+      <div style="min-width:34px" class="pill mono">${escapeHtml(op.id)}</div>
+      <div>
+        <div class="opName">${escapeHtml(op.name)}</div>
+        <div class="opDesc">${escapeHtml(op.desc||"")}</div>
+      </div>
+    `;
+    b.addEventListener("click", ()=>applyOperator(op.id));
+    ops.appendChild(b);
+  });
+}
+
+function renderHeader(){
+  T = Number(tempRange.value);
+  tempLabel.textContent = `T=${T}`;
+  stepLabel.textContent = `t=${t}`;
+}
+
+function renderTargetHint(){
+  const b = currentRecipe.target?.bounds || {};
+  const parts = currentRecipe.stateKeys.map(k=>{
+    const bb = b[k];
+    if (!bb) return `${k}: —`;
+    return `${k} ∈ [${bb[0]}, ${bb[1]}]`;
+  });
+  targetHint.innerHTML =
+    `<b>Target bounds:</b> <span class="mono">${escapeHtml(parts.join("  |  "))}</span>`;
+}
+
+function scoreAndStatus(){
+  const center = currentRecipe.target?.center || {};
+  let sumSq = 0;
+  currentRecipe.stateKeys.forEach(k=>{
+    const dv = (Number(state[k]) - Number(center[k] ?? 0));
+    sumSq += dv*dv;
+  });
+  const score = Math.sqrt(sumSq);
+
+  const maxSteps = currentRecipe.limits?.maxSteps ?? 12;
+  const burnMin = currentRecipe.limits?.burnStabilityMin ?? 0;
+
+  const inBounds = isInBounds();
+  const burned = (Number(state.S) < burnMin);
+  const overSteps = (t > maxSteps);
+
+  let status = "Running";
+  let cls = "muted";
+
+  if (burned){
+    status = "Failed (burned: stability < 0)";
+    cls = "bad";
+  } else if (overSteps){
+    status = `Failed (too many steps > ${maxSteps})`;
+    cls = "bad";
+  } else if (inBounds){
+    status = "Solved (in target bounds)";
+    cls = "good";
+  }
+
+  scoreLabel.textContent = `Score: ${fmt(score)}`;
+  statusLabel.innerHTML = `Status: <span class="${cls}">${escapeHtml(status)}</span>`;
+}
+
+function isInBounds(){
+  const bounds = currentRecipe.target?.bounds || {};
+  for (const k of currentRecipe.stateKeys){
+    const b = bounds[k];
+    if (!b) continue;
+    const v = Number(state[k]);
+    if (!(v >= b[0] && v <= b[1])) return false;
+  }
+  return true;
+}
+
+function renderAll(){
+  renderHeader();
+  renderBars();
+  renderOps();
+  renderTargetHint();
+  scoreAndStatus();
+  undoBtn.disabled = history.length === 0;
+}
+
+function safeEvalFormula(expr, scope){
+  // Very small expression evaluator using Function + provided scope.
+  // Assumption: you control recipes (local prototype). Not for untrusted input in production.
+  const keys = Object.keys(scope);
+  const vals = keys.map(k => scope[k]);
+  // Make Math available
+  const fn = new Function(...keys, "Math", `return (${expr});`);
+  return fn(...vals, Math);
+}
+
+function snapshot(){
+  history.push({
+    state: deepClone(state),
+    t,
+    T: Number(tempRange.value)
+  });
+}
+
+function restoreSnapshot(snap){
+  state = deepClone(snap.state);
+  t = snap.t;
+  tempRange.value = String(snap.T);
+  renderAll();
+}
+
+function applyOperator(opId){
+  const op = currentRecipe.ops.find(o=>o.id===opId);
+  if (!op) return;
+
+  // Disallow edits after terminal conditions? (keep simple: allow, but user sees status)
+  snapshot();
+
+  const Tlocal = Number(tempRange.value);
+  const scope = buildScope(Tlocal);
+
+  logLine(`<span class="muted">Op:</span> <b>${escapeHtml(op.name)}</b> <span class="muted">(T=${Tlocal})</span>`);
+
+  // special ops
+  if (op.special === "swap"){
+    const [k1,k2] = op.keys || [];
+    const tmp = state[k1]; state[k1] = state[k2]; state[k2] = tmp;
+    logLine(`<span class="muted">→</span> swapped <span class="mono">${escapeHtml(k1)}</span> and <span class="mono">${escapeHtml(k2)}</span>`);
+  } else if (op.special === "normalize"){
+    const sumTarget = Number(op.sum ?? 1);
+    let s = 0;
+    currentRecipe.stateKeys.forEach(k => s += Number(state[k]));
+    if (s === 0) s = 1e-9;
+    currentRecipe.stateKeys.forEach(k => state[k] = Number(state[k]) * (sumTarget / s));
+    logLine(`<span class="muted">→</span> normalized sum to <span class="mono">${fmt(sumTarget)}</span>`);
+  } else if (op.special === "virtualHeatPlusOne"){
+    // apply oven with (T+1) virtually on this step once the user clicks Bake
+    // We'll store a flag in state (not shown) for the next Bake.
+    state.__virtualHeat = (state.__virtualHeat || 0) + 1;
+    logLine(`<span class="warn">→</span> queued virtual heat +1 for next Bake`);
+  } else if (op.special === "mixMod"){
+    const mod = Number(op.mod ?? 9);
+    const a = Number(state.a), b = Number(state.b), c = Number(state.c);
+    state.a = modWrap(a + b, mod);
+    state.b = modWrap(b + c, mod);
+    state.c = modWrap(c + a, mod);
+    logLine(`<span class="muted">→</span> mixed (mod ${mod})`);
+  } else {
+    // formula-based set
+    if (op.set){
+      for (const [k, expr] of Object.entries(op.set)){
+        const next = safeEvalFormula(expr, scope);
+        state[k] = next;
+        // update scope so chained sets in same op see updates
+        scope[k] = next;
+      }
+    }
+  }
+
+  renderAll();
+}
+
+function modWrap(x, mod){
+  return ((x % mod) + mod) % mod;
+}
+
+function buildScope(Tlocal){
+  // scope includes current state keys + T + t
+  const scope = { T: Tlocal, t };
+  for (const k of Object.keys(state)){
+    // include hidden flags too; fine
+    scope[k] = state[k];
+  }
+  return scope;
+}
+
+function bake(){
+  // One bake step = apply oven evolution, advance time, consume stability.
+  snapshot();
+
+  let Tlocal = Number(tempRange.value);
+  if (state.__virtualHeat){
+    Tlocal = Tlocal + Number(state.__virtualHeat);
+    logLine(`<span class="warn">Virtual heat applied:</span> effective <b>T=${Tlocal}</b>`);
+    state.__virtualHeat = 0;
+  }
+
+  const scope = buildScope(Tlocal);
+
+  const ovenSet = currentRecipe.oven?.set || {};
+  const before = deepClone(state);
+
+  for (const [k, expr] of Object.entries(ovenSet)){
+    const next = safeEvalFormula(expr, scope);
+    state[k] = next;
+    scope[k] = next;
+  }
+
+  t += 1;
+
+  // basic sanity clamp: if NaN appears, mark stability to -inf-ish
+  for (const key of [...currentRecipe.stateKeys, "S"]){
+    const v = Number(state[key]);
+    if (!isFinite(v)){
+      state.S = -999;
+      logLine(`<span class="bad">Numerical blow-up.</span> Set stability to fail.`);
+      break;
+    }
+  }
+
+  logLine(
+    `<span class="muted">Bake:</span> t=${t} <span class="muted">Δ state:</span> ` +
+    currentRecipe.stateKeys.map(k=>{
+      const dv = Number(state[k]) - Number(before[k]);
+      const sgn = dv>=0?"+":"";
+      return `<span class="mono">${escapeHtml(k)}:${sgn}${fmt(dv)}</span>`;
+    }).join(" ")
+  );
+
+  if (Number(state.S) < (currentRecipe.limits?.burnStabilityMin ?? 0)){
+    logLine(`<span class="bad">Burned:</span> stability dropped below threshold.`);
+  } else if (isInBounds()){
+    logLine(`<span class="good">Solved:</span> mixture is within target bounds.`);
+  }
+
+  renderAll();
+}
+
+function undo(){
+  if (!history.length) return;
+  const snap = history.pop();
+  restoreSnapshot(snap);
+  logLine(`<span class="muted">Undo.</span>`);
+}
+
+function loadEditor(){
+  // show all recipes JSON for easy editing
+  recipeEditor.value = JSON.stringify(recipes, null, 2);
+  logLine(`<span class="muted">Editor loaded:</span> current recipes → textarea.`);
+}
+
+function applyEditor(){
+  try{
+    const parsed = JSON.parse(recipeEditor.value);
+    if (!Array.isArray(parsed)) throw new Error("Top-level JSON must be an array of recipes.");
+    // very light validation
+    parsed.forEach(r=>{
+      if (!r.id || !r.name) throw new Error("Each recipe must have id and name.");
+      if (!Array.isArray(r.stateKeys) || r.stateKeys.length === 0) throw new Error(`Recipe ${r.id}: stateKeys must be a non-empty array.`);
+      if (!r.init) throw new Error(`Recipe ${r.id}: init missing.`);
+      if (!Array.isArray(r.ops)) throw new Error(`Recipe ${r.id}: ops must be an array.`);
+      if (!r.oven || !r.oven.set) throw new Error(`Recipe ${r.id}: oven.set missing.`);
+      if (!r.target || !r.target.bounds || !r.target.center) throw new Error(`Recipe ${r.id}: target.center and target.bounds required.`);
+      if (!r.limits) r.limits = { maxSteps: 12, burnStabilityMin: 0 };
+    });
+
+    recipes = parsed;
+    // keep current recipe if still exists, else switch to first
+    const still = recipes.find(x=>x.id===currentRecipe.id);
+    currentRecipe = still || recipes[0];
+
+    buildRecipeSelect();
+    resetRun();
+    logLine(`<span class="good">Applied JSON:</span> recipes updated.`);
+  }catch(err){
+    logLine(`<span class="bad">JSON error:</span> ${escapeHtml(err.message || String(err))}`);
+  }
+}
+
+/* ==========================
+   Wiring
+   ========================== */
+recipeSelect.addEventListener("change", e => setRecipeById(e.target.value));
+tempRange.addEventListener("input", () => { renderHeader(); scoreAndStatus(); });
+bakeBtn.addEventListener("click", bake);
+undoBtn.addEventListener("click", undo);
+resetBtn.addEventListener("click", resetRun);
+loadEditorBtn.addEventListener("click", loadEditor);
+applyEditorBtn.addEventListener("click", applyEditor);
+
+// Keyboard shortcuts (minimal + non-overlapping)
+window.addEventListener("keydown", (e)=>{
+  const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : "";
+  if (tag === "textarea" || tag === "input" || tag === "select") return;
+
+  const k = e.key.toLowerCase();
+  if (k === " "){ e.preventDefault(); bake(); }
+  else if (k === "u"){ e.preventDefault(); undo(); }
+  else if (k === "r"){ e.preventDefault(); resetRun(); }
+});
+
+// Init
+buildRecipeSelect();
+loadEditor();        // show recipes immediately so you can edit
+resetRun();
+</script>
+</body>
+</html>

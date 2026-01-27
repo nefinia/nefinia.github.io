@@ -318,6 +318,14 @@
       align-items:flex-start;
       flex-wrap: wrap;
     }
+    .mobileControls{
+      display:none;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items:center;
+      justify-content:center;
+      margin: 0 0 10px;
+    }
     .board{
       border: 1px solid rgba(125,160,220,.22);
       border-radius: 16px;
@@ -401,6 +409,10 @@
       color: var(--muted);
       font-size: 12px;
       line-height: 1.5;
+    }
+
+    @media (max-width: 820px){
+      .mobileControls{ display:flex; }
     }
   </style>
 </head>
@@ -514,6 +526,16 @@
 
         <div class="board">
           <div class="boardTitle">Your board <span>(stamp here)</span></div>
+          <div class="mobileControls" aria-label="Mobile controls">
+            <button class="btn small primary" data-action="new">New</button>
+            <button class="btn small" data-action="reset">Reset</button>
+            <button class="btn small" data-action="undo">Undo</button>
+            <button class="btn small" data-action="redo">Redo</button>
+            <button class="btn small" data-action="rotate">Rotate</button>
+            <button class="btn small" data-action="hints">Hints</button>
+            <button class="btn small" data-action="solution">Solution</button>
+            <button class="btn small good" data-action="check">Check</button>
+          </div>
           <div class="gridWrap">
             <canvas id="solCanvas"></canvas>
             <div id="playGrid" class="grid"></div>
@@ -1157,6 +1179,18 @@
     if (mm === 0) updateHUD(`Matched. Moves: ${moves}.`);
     else updateHUD(`Not matched yet. Mismatch: ${mm}. (Hints: press H)`);
     setTimeout(() => updateHUD(), 1100);
+  });
+
+  document.querySelectorAll(".mobileControls [data-action]").forEach((btn) => {
+    const act = btn.dataset.action;
+    if (act === "new") btn.addEventListener("click", () => startLevel(true));
+    if (act === "reset") btn.addEventListener("click", reset);
+    if (act === "undo") btn.addEventListener("click", undo);
+    if (act === "redo") btn.addEventListener("click", redo);
+    if (act === "rotate") btn.addEventListener("click", rotateSelected);
+    if (act === "hints") btn.addEventListener("click", toggleHints);
+    if (act === "solution") btn.addEventListener("click", toggleSolution);
+    if (act === "check") btn.addEventListener("click", () => document.getElementById("checkBtn").click());
   });
 
   // Keyboard: ONLY essentials, no duplicates, no Ctrl/Cmd shortcuts.

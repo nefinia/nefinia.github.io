@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>What is a Star?</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body {
+    margin: 0;
+    background: #0b0e16;
+    color: #e6e8ef;
+    font-family: system-ui, sans-serif;
+    overflow: hidden;
+  }
+
+  canvas { display: block; }
+
+  #panel {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 320px;
+    height: 100%;
+    background: #12182a;
+    border-left: 1px solid #222;
+    padding: 16px;
+    box-sizing: border-box;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  #panel h2 {
+    margin: 0 0 6px;
+    font-size: 18px;
+  }
+
+  #progress {
+    font-size: 12px;
+    opacity: 0.7;
+    margin-bottom: 10px;
+  }
+
+  .hint {
+    opacity: 0.5;
+    font-size: 12px;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="c"></canvas>
+<div id="panel">
+  <h2>What is a star?</h2>
+  <div id="progress">Discovered: 0%</div>
+  <p>Click or combine concepts.</p>
+  <div class="hint">Select multiple ideas to reveal deeper relations.</div>
+</div>
+
+<script>
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+const panel = document.getElementById("panel");
+const progressEl = document.getElementById("progress");
+
+function resize(){
+  canvas.width = innerWidth - 320;
+  canvas.height = innerHeight;
+}
+resize();
+addEventListener("resize", resize);
+
+/* -----------------------------
+   DATA
+------------------------------ */
+
+const nodes = {};
+const revealedRelations = new Set();
+
+function addNode(id, label, text, x, y, visible=true){
+  nodes[id] = { id, label, text, x, y, w: 120, h: 36, visible };
+}
+
+/* Base concepts */
+addNode("gas","Gas","Stars begin as vast clouds of gas, mostly hydrogen.",200,200);
+addNode("gravity","Gravity","Gravity pulls mass inward.",360,150);
+addNode("temperature","Temperature","Compression increases temperature.",300,340);
+addNode("pressure","Pressure","Dense matter produces internal pressure.",520,260);
+addNode("hydrogen","Hydrogen","Hydrogen is the main stellar fuel.",160,360);
+addNode("mass","Mass","Mass determines a star’s fate.",420,380);
+
+/* Emergent concepts */
+addNode("collapse","Gravitational Collapse",
+  "Gas collapses under gravity, increasing density.",380,230,false);
+
+addNode("protostar","Protostar",
+  "A protostar is a hot, collapsing object before fusion starts.",420,270,false);
+
+addNode("fusion","Nuclear Fusion",
+  "Fusion releases energy by merging hydrogen nuclei.",560,160,false);
+
+addNode("equilibrium","Hydrostatic Equilibrium",
+  "Balance between gravity and fusion pressure.",460,110,false);
+
+addNode("star","Star",
+  "A star is a stable, self-gravitating fusion-powered object.",500,70,false);
+
+/* -----------------------------
+   RELATIONS
+------------------------------ */
+
+const relations = [
+  // Pairwise
+  { nodes:["gas","gravity"],
+    text:"Gravity pulls gas together, initiating collapse." },
+
+  { nodes:["gravity","star"],
+    text:"A star’s strong gravity holds it together." },
+
+  { nodes:["protostar","star"],
+    text:"A protostar is the evolutionary stage before a star forms." },
+
+  { nodes:["hydrogen","fusion"],
+    text:"Hydrogen is the fuel consumed by nuclear fusion." },
+
+  { nodes:["mass","star"],
+    text:"A star’s mass determines its lifetime and evolution." },
+
+  { nodes:["pressure","gravity"],
+    text:"Pressure resists gravity, preventing total collapse." },
+
+  // Triple relations (emergent)
+  { nodes:["gas","gravity","temperature"],
+    reveals:"collapse",
+    text:"As gas collapses under gravity, it heats up." },
+
+  { nodes:["collapse","pressure","temperature"],
+    reveals:"protostar",
+    text:"Heating and pressure during collapse create a protostar." },
+
+  { nodes:["protostar","hydrogen","pressure"],
+    reveals:"fusion",
+    text:"Extreme pressure allows hydrogen fusion to ignite." },
+
+  { nodes:["fusion","gravity","pressure"],
+    reveals:"equilibrium",
+    text:"Fusion pressure balances gravity." },
+
+  { nodes:["equilibrium","fusion","gravity"],
+    reveals:"star",
+    text:"A star exists in hydrostatic equilibrium." },
+
+  // Enrichment relations
+  { nodes:["temperature","fusion"],
+    text:"Fusion requires extremely high temperatures." },
+
+  { nodes:["collapse","mass"],
+    text:"More mass increases collapse strength." },
+
+  { nodes:["mass","fusion"],
+    text:"Higher mass leads to faster fusion rates." },
+
+  { nodes:["mass","gravity"],
+    text:"Mass strengthens gravitational attraction." }
+];
+
+/* -----------------------------
+   STATE
+------------------------------ */
+
+let selected = [];
+
+/* -----------------------------
+   INTERACTION
+------------------------------ */
+
+canvas.addEventListener("mousedown", e=>{
+  const x = e.offsetX, y = e.offsetY;
+  for (let id in nodes){
+    const n = nodes[id];
+    if (!n.visible) continue;
+    if (x>n.x-n.w/2 && x<n.x+n.w/2 &&
+        y>n.y-n.h/2 && y<n.y+n.h/2){
+      toggle(id);
+      return;
+    }
+  }
+});
+
+function toggle(id){
+  selected.includes(id)
+    ? selected = selected.filter(s=>s!==id)
+    : selected.push(id);
+  evaluate();
+}
+
+function evaluate(){
+  if (selected.length === 1){
+    const n = nodes[selected[0]];
+    panel.innerHTML = `<h2>${n.label}</h2><div id="progress"></div><p>${n.text}</p>`;
+  }
+
+  for (let r of relations){
+    if (r.nodes.every(n=>selected.includes(n))){
+      panel.innerHTML =
+        `<h2>Relation</h2><p>${r.text}</p>`;
+      revealedRelations.add(r.nodes.sort().join("|"));
+      if (r.reveals) nodes[r.reveals].visible = true;
+    }
+  }
+  updateProgress();
+}
+
+/* -----------------------------
+   PROGRESS
+------------------------------ */
+
+function updateProgress(){
+  const total = Object.keys(nodes).length;
+  const visible = Object.values(nodes).filter(n=>n.visible).length;
+  progressEl.textContent =
+    `Discovered: ${Math.round(100*visible/total)}%`;
+}
+
+/* -----------------------------
+   DRAW
+------------------------------ */
+
+function drawNode(n){
+  ctx.fillStyle = selected.includes(n.id) ? "#ffffff" : "#9aa7ff";
+  ctx.strokeStyle = "#000";
+  ctx.lineWidth = 1;
+  const r = 10;
+  ctx.beginPath();
+  ctx.roundRect(n.x-n.w/2,n.y-n.h/2,n.w,n.h,r);
+  ctx.fill();
+
+  ctx.fillStyle="#000";
+  ctx.font="12px sans-serif";
+  ctx.textAlign="center";
+  ctx.fillText(n.label,n.x,n.y+4);
+}
+
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // Draw relations as soft lines
+  ctx.strokeStyle="#44507a";
+  ctx.lineWidth=2;
+  for (let key of revealedRelations){
+    const ids = key.split("|");
+    for (let i=0;i<ids.length-1;i++){
+      const a = nodes[ids[i]];
+      const b = nodes[ids[i+1]];
+      if (!a.visible || !b.visible) continue;
+      ctx.beginPath();
+      ctx.moveTo(a.x,a.y);
+      ctx.lineTo(b.x,b.y);
+      ctx.stroke();
+    }
+  }
+
+  for (let id in nodes){
+    const n = nodes[id];
+    if (n.visible) drawNode(n);
+  }
+
+  requestAnimationFrame(draw);
+}
+draw();
+updateProgress();
+</script>
+
+</body>
+</html>

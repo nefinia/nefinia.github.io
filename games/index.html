@@ -271,6 +271,24 @@
       </p>
       <a class="play" href="polyclear.html" target="_blank">Play</a>
     </div>
+    
+    
+    
+    <!-- Second Take -->
+	<div class="game">
+	  <div class="thumbWrap">
+		<canvas id="thumb-secondtake" width="96" height="96"></canvas>
+	  </div>
+	  <h2>Second Take</h2>
+	  <p class="desc">
+		Replay difficult moments and explore how situations might unfold differently.
+		A rehearsal game about power, agency, and pause.
+	  </p>
+	  <a class="play" href="second_take/index.html" target="_blank">Play</a>
+	</div>
+
+    
+    
 
     <!-- Plot Armor (last) -->
     <div class="game">
@@ -706,6 +724,53 @@ function rint(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
     ctx.fillRect(pad+x*cell, pad+y*cell, cell-1, cell-1);
   });
 })();
+
+/* Second Take preview */
+(function(){
+  const c = document.getElementById("thumb-secondtake");
+  const ctx = c.getContext("2d");
+
+  ctx.fillStyle = "#0a0f25";
+  ctx.fillRect(0,0,c.width,c.height);
+
+  // two "takes"
+  ctx.strokeStyle = "rgba(122,162,255,0.6)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(10,14,32,40);
+  ctx.strokeRect(54,14,32,40);
+
+  // pause symbol between them
+  ctx.fillStyle = "rgba(232,236,255,0.9)";
+  ctx.fillRect(44,28,4,12);
+  ctx.fillRect(50,28,4,12);
+
+  // small figures inside frames
+  function dot(x,y){
+    ctx.beginPath();
+    ctx.arc(x,y,3,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = "#e8ecff";
+  dot(26,36);
+  dot(70,36);
+
+  // rewind hint
+  ctx.strokeStyle = "rgba(122,162,255,0.8)";
+  ctx.beginPath();
+  ctx.arc(48,70,10,Math.PI*0.25,Math.PI*1.5,true);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(36,70);
+  ctx.lineTo(42,66);
+  ctx.lineTo(42,74);
+  ctx.closePath();
+  ctx.fillStyle = "rgba(122,162,255,0.9)";
+  ctx.fill();
+})();
+
+
 
 /* Plot Armor preview */
 (function(){
