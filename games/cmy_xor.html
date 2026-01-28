@@ -213,6 +213,9 @@
       background: rgba(0,0,0,.10);
       padding: 10px;
     }
+    .paletteWrap.nearBoard{
+      margin: 0 14px 12px;
+    }
     .palette{
       display:grid;
       grid-template-columns: repeat(4, 1fr);
@@ -325,6 +328,30 @@
       align-items:center;
       justify-content:center;
       margin: 0 0 10px;
+    }
+    .mobilePreview{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      padding: 6px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(125,160,220,.22);
+      background: rgba(255,255,255,.03);
+      min-width: 0;
+    }
+    .mobilePreview canvas{
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.12);
+      image-rendering: pixelated;
+    }
+    .mobilePreview .label{
+      font-size: 11.5px;
+      color: var(--muted);
+      line-height: 1.2;
+      font-weight: 720;
     }
     .board{
       border: 1px solid rgba(125,160,220,.22);
@@ -518,6 +545,10 @@
         </div>
       </div>
 
+      <div class="paletteWrap nearBoard" aria-label="Pieces near board">
+        <div class="palette" id="paletteBoard"></div>
+      </div>
+
       <div class="boards">
         <div class="board">
           <div class="boardTitle">Target <span>(match this)</span></div>
@@ -527,6 +558,10 @@
         <div class="board">
           <div class="boardTitle">Your board <span>(stamp here)</span></div>
           <div class="mobileControls" aria-label="Mobile controls">
+            <div class="mobilePreview" aria-label="Current piece preview">
+              <canvas id="piecePreview" width="64" height="64"></canvas>
+              <div class="label" id="piecePreviewLabel">Pick a piece</div>
+            </div>
             <button class="btn small primary" data-action="new">New</button>
             <button class="btn small" data-action="reset">Reset</button>
             <button class="btn small" data-action="undo">Undo</button>
@@ -618,6 +653,7 @@
 
   // DOM
   const elPalette   = document.getElementById("palette");
+  const elPaletteBoard = document.getElementById("paletteBoard");
   const elPlayGrid  = document.getElementById("playGrid");
   const elTargetGrid= document.getElementById("targetGrid");
   const elStatus    = document.getElementById("status");
@@ -637,6 +673,8 @@
 
   const solCanvas = document.getElementById("solCanvas");
   const solCtx = solCanvas.getContext("2d");
+  const previewCanvas = document.getElementById("piecePreview");
+  const previewLabel = document.getElementById("piecePreviewLabel");
 
   // State
   let N = 10;
@@ -660,6 +698,9 @@
 
   let hintsOn = false;
   let solutionOn = false;
+  let suppressClickUntil = 0;
+  let touchRotateTimer = null;
+  let touchStartPos = null;
 
   // Target recipe includes bit
   let targetRecipe = [];
@@ -704,68 +745,72 @@
 
   // Palette render
   function renderPalette(){
-    elPalette.innerHTML = "";
-    for(const p of PIECES){
-      const item = document.createElement("div");
-      item.className = "piece" + (p.id === selectedPieceId ? " selected" : "");
-      item.tabIndex = 0;
+    const targets = [elPalette, elPaletteBoard].filter(Boolean);
+    for (const target of targets) {
+      target.innerHTML = "";
+      for(const p of PIECES){
+        const item = document.createElement("div");
+        item.className = "piece" + (p.id === selectedPieceId ? " selected" : "");
+        item.tabIndex = 0;
 
-      const c = document.createElement("canvas");
-      c.width = 64; c.height = 64;
-      c.className = "thumb";
+        const c = document.createElement("canvas");
+        c.width = 64; c.height = 64;
+        c.className = "thumb";
 
-      const name = document.createElement("div");
-      name.className = "name";
-      name.textContent = p.id;
+        const name = document.createElement("div");
+        name.className = "name";
+        name.textContent = p.id;
 
-      const sw = document.createElement("div");
-      sw.className = "swatches";
-      const swList = [
-        {bit: BIT_C, color: rgb(COL.C), label:"Cyan (1)"},
-        {bit: BIT_M, color: rgb(COL.M), label:"Magenta (2)"},
-        {bit: BIT_Y, color: rgb(COL.Y), label:"Yellow (3)"},
-      ];
-      swList.forEach(s => {
-        const dot = document.createElement("div");
-        dot.className = "sw" + (selectedBit === s.bit ? " sel" : "");
-        dot.title = `Stamp color bit: ${s.label}`;
-        dot.style.background = s.color;
-        dot.addEventListener("click", (e) => {
-          e.stopPropagation();
-          selectedBit = s.bit;
-          renderPalette();
-          updateHUD();
-          renderGhost();
+        const sw = document.createElement("div");
+        sw.className = "swatches";
+        const swList = [
+          {bit: BIT_C, color: rgb(COL.C), label:"Cyan (1)"},
+          {bit: BIT_M, color: rgb(COL.M), label:"Magenta (2)"},
+          {bit: BIT_Y, color: rgb(COL.Y), label:"Yellow (3)"},
+        ];
+        swList.forEach(s => {
+          const dot = document.createElement("div");
+          dot.className = "sw" + (selectedBit === s.bit ? " sel" : "");
+          dot.title = `Stamp color bit: ${s.label}`;
+          dot.style.background = s.color;
+          dot.addEventListener("click", (e) => {
+            e.stopPropagation();
+            selectedBit = s.bit;
+            renderPalette();
+            updateHUD();
+            renderGhost();
+          });
+          sw.appendChild(dot);
         });
-        sw.appendChild(dot);
-      });
 
-      item.appendChild(c);
-      item.appendChild(name);
-      item.appendChild(sw);
+        item.appendChild(c);
+        item.appendChild(name);
+        item.appendChild(sw);
 
-      item.addEventListener("click", () => {
-        selectedPieceId = p.id;
-        rotation = 0;
-        renderPalette();
-        updateHUD();
-        renderGhost();
-      });
-
-      item.addEventListener("keydown", (e) => {
-        if(e.key === "Enter" || e.key === " "){
-          e.preventDefault();
+        item.addEventListener("click", () => {
           selectedPieceId = p.id;
           rotation = 0;
           renderPalette();
           updateHUD();
           renderGhost();
-        }
-      });
+        });
 
-      elPalette.appendChild(item);
-      drawThumb(c, p.cells);
+        item.addEventListener("keydown", (e) => {
+          if(e.key === "Enter" || e.key === " "){
+            e.preventDefault();
+            selectedPieceId = p.id;
+            rotation = 0;
+            renderPalette();
+            updateHUD();
+            renderGhost();
+          }
+        });
+
+        target.appendChild(item);
+        drawThumb(c, p.cells);
+      }
     }
+    renderPreview();
   }
 
   function drawThumb(canvas, baseCells){
@@ -787,6 +832,37 @@
     for(const [x,y] of cells){
       ctx.fillRect(ox + x*cellSize, oy + y*cellSize, cellSize-1, cellSize-1);
     }
+  }
+
+  function renderPreview(){
+    if(!previewCanvas || !previewLabel) return;
+    const ctx = previewCanvas.getContext("2d");
+    ctx.clearRect(0,0,previewCanvas.width,previewCanvas.height);
+    ctx.fillStyle = "rgba(244,247,251,.92)";
+    ctx.fillRect(0,0,previewCanvas.width,previewCanvas.height);
+
+    if(!selectedPieceId){
+      previewLabel.textContent = "Pick a piece";
+      return;
+    }
+
+    const p = getPiece(selectedPieceId);
+    const cells = rotateCells(p.cells, rotation);
+    const maxX = Math.max(...cells.map(c => c[0]));
+    const maxY = Math.max(...cells.map(c => c[1]));
+    const w = maxX+1, h = maxY+1;
+
+    const cellSize = Math.floor(44 / Math.max(w,h));
+    const ox = Math.floor((previewCanvas.width - w*cellSize)/2);
+    const oy = Math.floor((previewCanvas.height - h*cellSize)/2);
+
+    ctx.fillStyle = rgb(mix(selectedBit));
+    for(const [x,y] of cells){
+      ctx.fillRect(ox + x*cellSize, oy + y*cellSize, cellSize-1, cellSize-1);
+    }
+
+    const bitName = (selectedBit === BIT_C) ? "Cyan" : (selectedBit === BIT_M) ? "Magenta" : "Yellow";
+    previewLabel.textContent = `${selectedPieceId} • ${rotation*90}° • ${bitName}`;
   }
 
   // Grids
@@ -1105,6 +1181,7 @@
     rotation = (rotation + 1) % 4;
     updateHUD();
     renderGhost();
+    renderPreview();
   }
 
   function applySettings() {
@@ -1158,10 +1235,48 @@
     clearGhost();
   });
   elPlayGrid.addEventListener("click", (e) => {
+    if (Date.now() < suppressClickUntil) return;
     const cell = e.target.closest(".cell");
     if (!cell) return;
     stampAt(Number(cell.dataset.x), Number(cell.dataset.y));
   });
+
+  elPlayGrid.addEventListener("touchstart", (e) => {
+    if (e.touches.length !== 1) return;
+    const touch = e.touches[0];
+    touchStartPos = { x: touch.clientX, y: touch.clientY };
+    clearTimeout(touchRotateTimer);
+    touchRotateTimer = setTimeout(() => {
+      rotateSelected();
+      suppressClickUntil = Date.now() + 350;
+      touchRotateTimer = null;
+    }, 420);
+  }, { passive: true });
+
+  elPlayGrid.addEventListener("touchmove", (e) => {
+    if (e.touches.length !== 1) return;
+    const touch = e.touches[0];
+    const cell = document.elementFromPoint(touch.clientX, touch.clientY);
+    const hit = cell && cell.closest && cell.closest(".cell");
+    if (hit) {
+      hover = { x: Number(hit.dataset.x), y: Number(hit.dataset.y) };
+      renderGhost();
+    }
+    if (touchStartPos) {
+      const dx = Math.abs(touch.clientX - touchStartPos.x);
+      const dy = Math.abs(touch.clientY - touchStartPos.y);
+      if (dx > 12 || dy > 12) {
+        clearTimeout(touchRotateTimer);
+        touchRotateTimer = null;
+      }
+    }
+  }, { passive: true });
+
+  elPlayGrid.addEventListener("touchend", () => {
+    clearTimeout(touchRotateTimer);
+    touchRotateTimer = null;
+    touchStartPos = null;
+  }, { passive: true });
 
   // Buttons
   document.getElementById("newLevelBtn").addEventListener("click", () => startLevel(true));
