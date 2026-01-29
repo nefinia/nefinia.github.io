@@ -229,29 +229,33 @@
       gap: 10px;
     }
     .palette.compact{
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
+      display:flex;
+      flex-wrap: wrap;
+      justify-content:center;
+      align-content:center;
+      gap: 4px 6px;
+      --thumb: 54px;
+      --frame: 66px;
     }
     .piece{
-      border: 1px solid rgba(125,160,220,.22);
-      border-radius: 16px;
-      padding: 10px 10px 8px;
-      background: rgba(255,255,255,.02);
+      border: none;
+      border-radius: 0;
+      padding: 0;
+      background: transparent;
       cursor:pointer;
       user-select:none;
       display:flex;
-      flex-direction: column;
-      gap: 7px;
       align-items:center;
+      justify-content:center;
       transition: border-color .15s ease, background .15s ease, transform .06s ease;
       min-width: 0;
     }
-    .piece:hover{ border-color: rgba(125,160,220,.42); background: rgba(255,255,255,.04); }
+    .piece:hover{ background: transparent; }
     .piece:active{ transform: translateY(1px); }
     .piece.selected{
-      border-color: rgba(122,162,255,.90);
-      background: rgba(122,162,255,.11);
-      box-shadow: 0 0 0 2px rgba(122,162,255,.22) inset;
+      border-color: transparent;
+      background: transparent;
+      box-shadow: none;
     }
     .piece .name{
       font-size: 12px;
@@ -264,20 +268,33 @@
       width: 64px; height: 64px;
       image-rendering: pixelated;
       border-radius: 14px;
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.08);
+      background: transparent;
+      border: none;
     }
     .palette.compact canvas.thumb{
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
+      width: var(--thumb);
+      height: var(--thumb);
+      border-radius: 0;
     }
     .palette.compact .piece{
-      padding: 6px 6px 5px;
-      border-radius: 14px;
+      width: var(--frame);
+      height: var(--frame);
+      padding: 0;
+      border-radius: 0;
+      border: none;
+      background: transparent;
+      box-shadow: none;
+    }
+    .palette.compact .piece:hover{ background: transparent; }
+    .palette.compact .piece.selected canvas.thumb{
+      filter:
+        drop-shadow(0 0 0 rgba(122,162,255,1))
+        drop-shadow(0 0 8px rgba(122,162,255,.75))
+        drop-shadow(0 0 16px rgba(122,162,255,.45))
+        drop-shadow(0 0 24px rgba(122,162,255,.25));
     }
     .palette.compact .name{
-      font-size: 11px;
+      font-size: 10px;
     }
     .swatches{ display:flex; gap:6px; }
     .sw{
@@ -359,6 +376,9 @@
       align-items:flex-start;
       gap: 8px;
     }
+    .targetRow{
+      align-items: stretch;
+    }
     .targetLabel{
       font-size: 12.5px;
       font-weight: 820;
@@ -372,21 +392,21 @@
       padding: 8px;
     }
     .colorPicker{
-      height: 36px;
+      height: 28px;
     }
     .colorPicker{
       display:flex;
-      gap: 8px;
+      gap: 5px;
       align-items:center;
-      padding: 4px 8px;
+      padding: 2px 5px;
       border-radius: 12px;
       border: 1px solid rgba(125,160,220,.22);
       background: rgba(255,255,255,.03);
     }
     .colorBtn{
-      width: 24px;
-      height: 24px;
-      border-radius: 9px;
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
       border: 1px solid rgba(255,255,255,.25);
       box-shadow: inset 0 0 0 1px rgba(0,0,0,.2);
       cursor:pointer;
@@ -400,32 +420,32 @@
     #rotateBtn{
       font-size: 30px;
       line-height: 1;
-      padding: 6px 12px;
-      min-width: 48px;
+      padding: 8px 14px;
+      min-width: 60px;
     }
     #undoBtn,
     #redoBtn{
-      font-size: 20px;
+      font-size: 21px;
       line-height: 1;
-      padding: 6px 12px;
-      min-width: 44px;
+      padding: 8px 12px;
+      min-width: 54px;
     }
     .mobilePreview{
       display:flex;
       align-items:center;
-      gap: 8px;
-      padding: 6px 8px;
-      border-radius: 12px;
+      gap: 5px;
+      padding: 4px 6px;
+      border-radius: 0;
       border: 1px solid rgba(125,160,220,.22);
       background: rgba(255,255,255,.03);
       min-width: 0;
     }
     .mobilePreview canvas{
-      width: 48px;
-      height: 48px;
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.12);
+      width: 60px;
+      height: 60px;
+      border-radius: 0;
+      border: 1px solid rgba(125,160,220,.35);
+      background: rgba(255,255,255,.03);
       image-rendering: pixelated;
     }
     .board{
@@ -551,17 +571,117 @@
     @media (max-width: 820px){
       .boardControls{ justify-content: flex-start; }
     }
-    @media (max-width: 540px){
+    @media (max-width: 700px){
       :root{
         --cellMini: 11px;
       }
+      .board,
+      .targetRow,
+      .mobilePreview{
+        width: 100%;
+      }
+      .targetRow{
+        flex-direction: column;
+        align-items: center;
+      }
+      .targetStack{
+        align-items: center;
+      }
+      .targetLabel{
+        text-align: center;
+        width: 100%;
+      }
+      .gridWrap{
+        width: 100%;
+        display:flex;
+        justify-content:center;
+      }
       #playGrid{
-        --cell: clamp(18px, calc((100vw - 64px) / var(--n)), 28px);
+        --cell: clamp(13px, calc((100vw - 48px - (var(--n) - 1) * var(--gap)) / var(--n)), 22px);
       }
       .targetRow{ gap: 10px; }
-      .grid{ padding: 8px; }
+      .grid{ padding: 6px; }
       .gridWrap{ max-width: 100%; overflow-x: auto; }
-      .paletteWrap.nearBoard{ max-width: 160px; }
+      .paletteWrap.nearBoard{
+        max-width: none;
+        width: 100%;
+        order: 2;
+      }
+      .palette.compact{
+        --thumb: 48px;
+        --frame: 60px;
+      }
+      .palette.compact canvas.thumb{
+        width: var(--thumb);
+        height: var(--thumb);
+      }
+      .colorBtn{
+        width: 16px;
+        height: 16px;
+      }
+      #rotateBtn{
+        font-size: 26px;
+        min-width: 50px;
+        padding: 6px 10px;
+      }
+      #undoBtn,
+      #redoBtn{
+        font-size: 19px;
+        min-width: 44px;
+        padding: 6px 10px;
+      }
+      .mobilePreview{
+        padding: 3px 4px;
+        gap: 4px;
+      }
+      .mobilePreview canvas{
+        width: 45px;
+        height: 45px;
+      }
+      .mobilePreview{
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .mobilePreview .colorPicker{
+        width: 100%;
+        justify-content: center;
+        order: 3;
+      }
+    }
+    @media (max-width: 600px){
+      :root{
+        --gap: 1px;
+      }
+      #playGrid{
+        --cell: clamp(12px, calc((100vw - 36px - (var(--n) - 1) * var(--gap)) / var(--n)), 20px);
+      }
+      .palette.compact{
+        --thumb: 42px;
+        --frame: 54px;
+      }
+      .palette.compact canvas.thumb{
+        width: var(--thumb);
+        height: var(--thumb);
+      }
+      .colorBtn{
+        width: 14px;
+        height: 14px;
+      }
+      #rotateBtn{
+        font-size: 24px;
+        min-width: 46px;
+        padding: 5px 10px;
+      }
+      #undoBtn,
+      #redoBtn{
+        font-size: 17px;
+        min-width: 40px;
+        padding: 5px 10px;
+      }
+      .mobilePreview canvas{
+        width: 42px;
+        height: 42px;
+      }
     }
     @media (max-width: 980px){
       .boards{
@@ -919,21 +1039,27 @@
   function drawThumb(canvas, baseCells){
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.fillStyle = "rgba(244,247,251,.92)";
+    ctx.fillStyle = "transparent";
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
     const cells = rotateCells(baseCells,0);
+
+    // Draw inside a consistent 4x4 grid with margin, centered within the frame
+    const grid = 4;
+    const cellSize = Math.floor(Math.min(canvas.width, canvas.height) / 5);
+    const gridPx = cellSize * grid;
+    const ox = Math.floor((canvas.width - gridPx) / 2);
+    const oy = Math.floor((canvas.height - gridPx) / 2);
     const maxX = Math.max(...cells.map(c => c[0]));
     const maxY = Math.max(...cells.map(c => c[1]));
-    const w = maxX+1, h = maxY+1;
-
-    const cellSize = Math.floor(46 / Math.max(w,h));
-    const ox = Math.floor((canvas.width - w*cellSize)/2);
-    const oy = Math.floor((canvas.height - h*cellSize)/2);
+    const w = maxX + 1;
+    const h = maxY + 1;
+    const offX = Math.floor((grid - w) / 2);
+    const offY = Math.floor((grid - h) / 2);
 
     ctx.fillStyle = rgb(mix(selectedBit));
     for(const [x,y] of cells){
-      ctx.fillRect(ox + x*cellSize, oy + y*cellSize, cellSize-1, cellSize-1);
+      ctx.fillRect(ox + (x + offX)*cellSize, oy + (y + offY)*cellSize, cellSize-1, cellSize-1);
     }
   }
 
@@ -941,24 +1067,28 @@
     if(!previewCanvas) return;
     const ctx = previewCanvas.getContext("2d");
     ctx.clearRect(0,0,previewCanvas.width,previewCanvas.height);
-    ctx.fillStyle = "rgba(244,247,251,.92)";
+    ctx.fillStyle = "transparent";
     ctx.fillRect(0,0,previewCanvas.width,previewCanvas.height);
 
     if(!selectedPieceId) return;
 
     const p = getPiece(selectedPieceId);
     const cells = rotateCells(p.cells, rotation);
+    const grid = 4;
+    const cellSize = Math.floor(Math.min(previewCanvas.width, previewCanvas.height) / 5);
+    const gridPx = cellSize * grid;
+    const ox = Math.floor((previewCanvas.width - gridPx) / 2);
+    const oy = Math.floor((previewCanvas.height - gridPx) / 2);
     const maxX = Math.max(...cells.map(c => c[0]));
     const maxY = Math.max(...cells.map(c => c[1]));
-    const w = maxX+1, h = maxY+1;
-
-    const cellSize = Math.floor(44 / Math.max(w,h));
-    const ox = Math.floor((previewCanvas.width - w*cellSize)/2);
-    const oy = Math.floor((previewCanvas.height - h*cellSize)/2);
+    const w = maxX + 1;
+    const h = maxY + 1;
+    const offX = Math.floor((grid - w) / 2);
+    const offY = Math.floor((grid - h) / 2);
 
     ctx.fillStyle = rgb(mix(selectedBit));
     for(const [x,y] of cells){
-      ctx.fillRect(ox + x*cellSize, oy + y*cellSize, cellSize-1, cellSize-1);
+      ctx.fillRect(ox + (x + offX)*cellSize, oy + (y + offY)*cellSize, cellSize-1, cellSize-1);
     }
 
   }
@@ -1195,6 +1325,7 @@
   function rerenderAll() {
     renderGrid(elTargetGrid, target, true);
     renderGrid(elPlayGrid, play, false);
+    fitPlayGrid();
     renderGhost();
 
     solCanvas.classList.toggle("on", solutionOn);
@@ -1477,8 +1608,37 @@
   });
 
   window.addEventListener("resize", () => {
+    fitPlayGrid();
     if (solutionOn) drawSolutionOverlay();
   });
+
+  function fitPlayGrid(){
+    if (!elPlayGrid) return;
+    const wrap = elPlayGrid.parentElement;
+    if (!wrap) return;
+    const cs = getComputedStyle(elPlayGrid);
+    const pad = parseFloat(cs.paddingLeft) || 0;
+    const gap = parseFloat(cs.gap) || 0;
+    const wrapStyle = getComputedStyle(wrap);
+    const wrapPad = (parseFloat(wrapStyle.paddingLeft) || 0) + (parseFloat(wrapStyle.paddingRight) || 0);
+    const viewport = Math.min(window.innerWidth, document.documentElement.clientWidth || window.innerWidth);
+    const width = Math.min(wrap.clientWidth, viewport) - wrapPad - (pad * 2);
+    const n = N || 10;
+    if (width <= 0 || n <= 0) return;
+    const cell = Math.floor((width - (n - 1) * gap) / n);
+    const isNarrow = viewport <= 520;
+    const minCell = isNarrow ? 10 : 12;
+    const maxCell = isNarrow ? 22 : 28;
+    const clamped = Math.max(minCell, Math.min(maxCell, cell));
+    elPlayGrid.style.setProperty("--cell", clamped + "px");
+
+    // Final safety: scale grid to fit available width
+    const gridWidth = (clamped * n) + ((n - 1) * gap) + (pad * 2);
+    const scale = Math.min(1, width / gridWidth);
+    elPlayGrid.style.transformOrigin = "top center";
+    elPlayGrid.style.transform = `scale(${scale})`;
+    wrap.style.height = Math.ceil(gridWidth * scale) + "px";
+  }
 
   // Init
   function init() {
