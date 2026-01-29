@@ -175,6 +175,11 @@
       font-size: 12px;
       cursor:pointer;
     }
+    option{
+      color: #0b1220;
+      background: #f7f9ff;
+      font-weight: 700;
+    }
 
     .stats{
       display:grid;
@@ -214,12 +219,18 @@
       padding: 10px;
     }
     .paletteWrap.nearBoard{
-      margin: 0 14px 12px;
+      margin: 0;
+      padding: 8px;
+      max-width: 180px;
     }
     .palette{
       display:grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 10px;
+    }
+    .palette.compact{
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
     }
     .piece{
       border: 1px solid rgba(125,160,220,.22);
@@ -248,12 +259,25 @@
       letter-spacing: .2px;
       color: var(--muted);
     }
+    .palette .name{ display:none; }
     canvas.thumb{
       width: 64px; height: 64px;
       image-rendering: pixelated;
       border-radius: 14px;
       background: rgba(255,255,255,.06);
       border: 1px solid rgba(255,255,255,.08);
+    }
+    .palette.compact canvas.thumb{
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+    }
+    .palette.compact .piece{
+      padding: 6px 6px 5px;
+      border-radius: 14px;
+    }
+    .palette.compact .name{
+      font-size: 11px;
     }
     .swatches{ display:flex; gap:6px; }
     .sw{
@@ -315,25 +339,82 @@
     }
 
     .boards{
-      display:flex;
+      display:grid;
       gap: 14px;
       padding: 14px;
+      align-items:center;
+      justify-items:center;
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto;
+    }
+    .targetRow{
+      display:flex;
+      gap: 12px;
       align-items:flex-start;
       flex-wrap: wrap;
     }
-    .mobileControls{
-      display:none;
+    .targetStack{
+      display:flex;
+      flex-direction: column;
+      align-items:flex-start;
       gap: 8px;
-      flex-wrap: wrap;
+    }
+    .targetLabel{
+      font-size: 12.5px;
+      font-weight: 820;
+      color: rgba(234,241,251,.92);
+      letter-spacing: .2px;
+    }
+    .targetRow .paletteWrap{
+      align-self: stretch;
+    }
+    .targetRow .paletteWrap{
+      padding: 8px;
+    }
+    .colorPicker{
+      height: 36px;
+    }
+    .colorPicker{
+      display:flex;
+      gap: 8px;
       align-items:center;
-      justify-content:center;
-      margin: 0 0 10px;
+      padding: 4px 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(125,160,220,.22);
+      background: rgba(255,255,255,.03);
+    }
+    .colorBtn{
+      width: 24px;
+      height: 24px;
+      border-radius: 9px;
+      border: 1px solid rgba(255,255,255,.25);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.2);
+      cursor:pointer;
+      opacity: .85;
+    }
+    .colorBtn.sel{
+      outline: 2px solid rgba(122,162,255,.8);
+      outline-offset: 2px;
+      opacity: 1;
+    }
+    #rotateBtn{
+      font-size: 30px;
+      line-height: 1;
+      padding: 6px 12px;
+      min-width: 48px;
+    }
+    #undoBtn,
+    #redoBtn{
+      font-size: 20px;
+      line-height: 1;
+      padding: 6px 12px;
+      min-width: 44px;
     }
     .mobilePreview{
       display:flex;
       align-items:center;
-      gap: 10px;
-      padding: 6px 10px;
+      gap: 8px;
+      padding: 6px 8px;
       border-radius: 12px;
       border: 1px solid rgba(125,160,220,.22);
       background: rgba(255,255,255,.03);
@@ -346,12 +427,6 @@
       border: 1px solid rgba(255,255,255,.12);
       background: rgba(0,0,0,.12);
       image-rendering: pixelated;
-    }
-    .mobilePreview .label{
-      font-size: 11.5px;
-      color: var(--muted);
-      line-height: 1.2;
-      font-weight: 720;
     }
     .board{
       border: 1px solid rgba(125,160,220,.22);
@@ -400,6 +475,19 @@
       outline-offset: -2px;
     }
     .cell.ghost.bad{ outline-color: rgba(251,113,133,.85); }
+    .cell.ghost::after{
+      content: "";
+      position:absolute;
+      inset: 0;
+      border-radius: 8px;
+      background: rgba(0,0,0,.18);
+      box-shadow: inset 0 0 0 2px rgba(122,162,255,.55);
+      pointer-events:none;
+    }
+    .cell.ghost.bad::after{
+      background: rgba(251,113,133,.12);
+      box-shadow: inset 0 0 0 2px rgba(251,113,133,.65);
+    }
 
     .cell.mismatch::after{
       content: "";
@@ -438,8 +526,51 @@
       line-height: 1.5;
     }
 
+    .solveBadge{
+      margin: 8px 0 6px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(45,212,191,.55);
+      background: rgba(45,212,191,.08);
+      color: rgba(45,212,191,.95);
+      font-weight: 800;
+      font-size: 12.5px;
+      display:none;
+      align-items:center;
+      gap:8px;
+    }
+    .solveBadge.on{ display:flex; }
+    .moveFooter{
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+    }
+
     @media (max-width: 820px){
-      .mobileControls{ display:flex; }
+      .boardControls{ justify-content: flex-start; }
+    }
+    @media (max-width: 540px){
+      :root{
+        --cellMini: 11px;
+      }
+      #playGrid{
+        --cell: clamp(18px, calc((100vw - 64px) / var(--n)), 28px);
+      }
+      .targetRow{ gap: 10px; }
+      .grid{ padding: 8px; }
+      .gridWrap{ max-width: 100%; overflow-x: auto; }
+      .paletteWrap.nearBoard{ max-width: 160px; }
+    }
+    @media (max-width: 980px){
+      .boards{
+        grid-template-columns: 1fr;
+        justify-items:center;
+      }
+      .midControls{
+        justify-content:center;
+      }
     }
   </style>
 </head>
@@ -467,14 +598,12 @@
 
       <div class="body">
         <div class="row" style="margin-top:2px;">
-          <button class="btn small" id="hintBtn" title="Toggle hint overlay (mismatches)">Hints</button>
-          <button class="btn small" id="solutionBtn" title="Toggle solution overlay (recipe silhouettes)">Show solution</button>
-
           <span class="chip">Difficulty
             <select id="diffSel">
               <option value="easy">Easy</option>
               <option value="medium" selected>Medium</option>
               <option value="hard">Hard</option>
+              <option value="cruel">Cruel</option>
             </select>
           </span>
 
@@ -506,10 +635,6 @@
 
         <div class="legendTiny" id="limitExplain"></div>
 
-        <div class="paletteWrap" aria-label="Pieces">
-          <div class="palette" id="palette"></div>
-        </div>
-
         <div class="legendTiny">
           <b>Keyboard (only the essentials; no duplicates):</b><br>
           <span class="kbd">I O T S Z J L</span> pick a piece •
@@ -533,48 +658,48 @@
           <span class="pill2" id="mismatchOut">Mismatch: —</span>
           <span class="pill2" id="levelOut">Level: 1</span>
           <span class="pill2" id="recipeOut">Recipe: —</span>
+          <button class="btn small good" id="checkBtn">Check</button>
 
           <div class="boardControls" aria-label="Board controls">
             <button class="btn small primary" id="newLevelBtn">New</button>
             <button class="btn small" id="resetBtn">Reset</button>
-            <button class="btn small" id="undoBtn">Undo</button>
-            <button class="btn small" id="redoBtn">Redo</button>
-            <button class="btn small" id="rotateBtn">Rotate</button>
-            <button class="btn small good" id="checkBtn">Check</button>
+            <button class="btn small" id="hintBtnTop">Hints</button>
+            <button class="btn small" id="solutionBtnTop">Solution</button>
           </div>
         </div>
-      </div>
-
-      <div class="paletteWrap nearBoard" aria-label="Pieces near board">
-        <div class="palette" id="paletteBoard"></div>
       </div>
 
       <div class="boards">
         <div class="board">
-          <div class="boardTitle">Target <span>(match this)</span></div>
-          <div id="targetGrid" class="grid mini"></div>
+          <div class="targetRow">
+            <div class="targetStack">
+              <div id="targetGrid" class="grid mini"></div>
+              <div class="targetLabel">Target</div>
+            </div>
+            <div class="paletteWrap nearBoard" aria-label="Pieces">
+              <div class="palette compact" id="palette"></div>
+            </div>
+          </div>
         </div>
 
         <div class="board">
-          <div class="boardTitle">Your board <span>(stamp here)</span></div>
-          <div class="mobileControls" aria-label="Mobile controls">
-            <div class="mobilePreview" aria-label="Current piece preview">
-              <canvas id="piecePreview" width="64" height="64"></canvas>
-              <div class="label" id="piecePreviewLabel">Pick a piece</div>
+          <div class="mobilePreview" aria-label="Current piece preview">
+            <canvas id="piecePreview" width="64" height="64"></canvas>
+            <button class="btn small" id="rotateBtn" aria-label="Rotate" title="Rotate">⟳</button>
+            <button class="btn small" id="undoBtn" aria-label="Undo" title="Undo">←</button>
+            <button class="btn small" id="redoBtn" aria-label="Redo" title="Redo">→</button>
+            <div class="colorPicker" role="group" aria-label="Stamp color">
+              <button class="colorBtn" data-bit="1" aria-label="Cyan"></button>
+              <button class="colorBtn" data-bit="2" aria-label="Magenta"></button>
+              <button class="colorBtn" data-bit="4" aria-label="Yellow"></button>
             </div>
-            <button class="btn small primary" data-action="new">New</button>
-            <button class="btn small" data-action="reset">Reset</button>
-            <button class="btn small" data-action="undo">Undo</button>
-            <button class="btn small" data-action="redo">Redo</button>
-            <button class="btn small" data-action="rotate">Rotate</button>
-            <button class="btn small" data-action="hints">Hints</button>
-            <button class="btn small" data-action="solution">Solution</button>
-            <button class="btn small good" data-action="check">Check</button>
           </div>
+          <div class="solveBadge" id="solveBadge" aria-live="polite">Solved! Perfect match.</div>
           <div class="gridWrap">
             <canvas id="solCanvas"></canvas>
             <div id="playGrid" class="grid"></div>
           </div>
+          <div class="moveFooter" id="moveFooter">Moves: 0 / —</div>
         </div>
       </div>
 
@@ -611,6 +736,7 @@
     easy:   { targetStamps: 5,  moveLimit: 999 },
     medium: { targetStamps: 9,  moveLimit: 26 },
     hard:   { targetStamps: 14, moveLimit: 28 },
+    cruel:  { targetStamps: 20, moveLimit: 22 },
   };
 
   // 3-bit CMY XOR
@@ -653,7 +779,6 @@
 
   // DOM
   const elPalette   = document.getElementById("palette");
-  const elPaletteBoard = document.getElementById("paletteBoard");
   const elPlayGrid  = document.getElementById("playGrid");
   const elTargetGrid= document.getElementById("targetGrid");
   const elStatus    = document.getElementById("status");
@@ -664,17 +789,21 @@
   const elRecipeOut = document.getElementById("recipeOut");
   const elMoveBar   = document.getElementById("moveBar");
   const elLimitExplain = document.getElementById("limitExplain");
+  const elSolveBadge = document.getElementById("solveBadge");
+  const elMoveFooter = document.getElementById("moveFooter");
 
   const elDiff      = document.getElementById("diffSel");
   const elSize      = document.getElementById("sizeSel");
 
   const elHintBtn   = document.getElementById("hintBtn");
   const elSolutionBtn = document.getElementById("solutionBtn");
+  const elHintBtnTop = document.getElementById("hintBtnTop");
+  const elSolutionBtnTop = document.getElementById("solutionBtnTop");
 
   const solCanvas = document.getElementById("solCanvas");
   const solCtx = solCanvas.getContext("2d");
   const previewCanvas = document.getElementById("piecePreview");
-  const previewLabel = document.getElementById("piecePreviewLabel");
+  const colorButtons = Array.from(document.querySelectorAll(".colorBtn"));
 
   // State
   let N = 10;
@@ -699,8 +828,7 @@
   let hintsOn = false;
   let solutionOn = false;
   let suppressClickUntil = 0;
-  let touchRotateTimer = null;
-  let touchStartPos = null;
+  let touchMoved = false;
 
   // Target recipe includes bit
   let targetRecipe = [];
@@ -745,70 +873,45 @@
 
   // Palette render
   function renderPalette(){
-    const targets = [elPalette, elPaletteBoard].filter(Boolean);
-    for (const target of targets) {
-      target.innerHTML = "";
-      for(const p of PIECES){
-        const item = document.createElement("div");
-        item.className = "piece" + (p.id === selectedPieceId ? " selected" : "");
-        item.tabIndex = 0;
+    if (!elPalette) return;
+    elPalette.innerHTML = "";
+    for(const p of PIECES){
+      const item = document.createElement("div");
+      item.className = "piece" + (p.id === selectedPieceId ? " selected" : "");
+      item.tabIndex = 0;
 
-        const c = document.createElement("canvas");
-        c.width = 64; c.height = 64;
-        c.className = "thumb";
+      const c = document.createElement("canvas");
+      c.width = 64; c.height = 64;
+      c.className = "thumb";
 
-        const name = document.createElement("div");
-        name.className = "name";
-        name.textContent = p.id;
+      const name = document.createElement("div");
+      name.className = "name";
+      name.textContent = p.id;
 
-        const sw = document.createElement("div");
-        sw.className = "swatches";
-        const swList = [
-          {bit: BIT_C, color: rgb(COL.C), label:"Cyan (1)"},
-          {bit: BIT_M, color: rgb(COL.M), label:"Magenta (2)"},
-          {bit: BIT_Y, color: rgb(COL.Y), label:"Yellow (3)"},
-        ];
-        swList.forEach(s => {
-          const dot = document.createElement("div");
-          dot.className = "sw" + (selectedBit === s.bit ? " sel" : "");
-          dot.title = `Stamp color bit: ${s.label}`;
-          dot.style.background = s.color;
-          dot.addEventListener("click", (e) => {
-            e.stopPropagation();
-            selectedBit = s.bit;
-            renderPalette();
-            updateHUD();
-            renderGhost();
-          });
-          sw.appendChild(dot);
-        });
+      item.appendChild(c);
+      item.appendChild(name);
 
-        item.appendChild(c);
-        item.appendChild(name);
-        item.appendChild(sw);
+      item.addEventListener("click", () => {
+        selectedPieceId = p.id;
+        rotation = 0;
+        renderPalette();
+        updateHUD();
+        renderGhost();
+      });
 
-        item.addEventListener("click", () => {
+      item.addEventListener("keydown", (e) => {
+        if(e.key === "Enter" || e.key === " "){
+          e.preventDefault();
           selectedPieceId = p.id;
           rotation = 0;
           renderPalette();
           updateHUD();
           renderGhost();
-        });
+        }
+      });
 
-        item.addEventListener("keydown", (e) => {
-          if(e.key === "Enter" || e.key === " "){
-            e.preventDefault();
-            selectedPieceId = p.id;
-            rotation = 0;
-            renderPalette();
-            updateHUD();
-            renderGhost();
-          }
-        });
-
-        target.appendChild(item);
-        drawThumb(c, p.cells);
-      }
+      elPalette.appendChild(item);
+      drawThumb(c, p.cells);
     }
     renderPreview();
   }
@@ -835,16 +938,13 @@
   }
 
   function renderPreview(){
-    if(!previewCanvas || !previewLabel) return;
+    if(!previewCanvas) return;
     const ctx = previewCanvas.getContext("2d");
     ctx.clearRect(0,0,previewCanvas.width,previewCanvas.height);
     ctx.fillStyle = "rgba(244,247,251,.92)";
     ctx.fillRect(0,0,previewCanvas.width,previewCanvas.height);
 
-    if(!selectedPieceId){
-      previewLabel.textContent = "Pick a piece";
-      return;
-    }
+    if(!selectedPieceId) return;
 
     const p = getPiece(selectedPieceId);
     const cells = rotateCells(p.cells, rotation);
@@ -861,14 +961,23 @@
       ctx.fillRect(ox + x*cellSize, oy + y*cellSize, cellSize-1, cellSize-1);
     }
 
-    const bitName = (selectedBit === BIT_C) ? "Cyan" : (selectedBit === BIT_M) ? "Magenta" : "Yellow";
-    previewLabel.textContent = `${selectedPieceId} • ${rotation*90}° • ${bitName}`;
+  }
+
+  function renderColorButtons(){
+    if (!colorButtons.length) return;
+    colorButtons.forEach((btn) => {
+      const bit = Number(btn.dataset.bit);
+      const col = (bit === BIT_C) ? COL.C : (bit === BIT_M) ? COL.M : COL.Y;
+      btn.style.background = rgb(col);
+      btn.classList.toggle("sel", selectedBit === bit);
+    });
   }
 
   // Grids
   function renderGrid(el, board, mini=false){
     el.innerHTML = "";
     el.style.gridTemplateColumns = `repeat(${N}, ${mini ? "var(--cellMini)" : "var(--cell)"})`;
+    if (!mini) el.style.setProperty("--n", N);
 
     for(let y=0;y<N;y++){
       for(let x=0;x<N;x++){
@@ -1024,11 +1133,18 @@
       elMoveBar.style.width = "0%";
       elLimitExplain.textContent =
         "Move limit is off on Easy (∞). Medium/Hard give a move budget to push efficiency.";
+      if (elMoveFooter) elMoveFooter.textContent = `Moves: ${moves} / ∞`;
     } else {
       const pct = Math.min(100, Math.round((moves / moveLimit) * 100));
       elMoveBar.style.width = pct + "%";
       elLimitExplain.textContent =
         `Move budget: ${moves}/${moveLimit}. Matching the target is the real objective.`;
+      if (elMoveFooter) elMoveFooter.textContent = `Moves: ${moves} / ${moveLimit}`;
+    }
+
+    if (elSolveBadge) {
+      elSolveBadge.classList.toggle("on", mm === 0);
+      elSolveBadge.textContent = (mm === 0) ? `Solved! Perfect match in ${moves} moves.` : "";
     }
 
     if (message) { elStatus.textContent = message; return; }
@@ -1089,6 +1205,7 @@
     document.getElementById("redoBtn").disabled = future.length === 0;
 
     updateHUD();
+    renderColorButtons();
   }
 
   // Game flow
@@ -1110,8 +1227,14 @@
 
     // solution default off
     solutionOn = false;
-    elSolutionBtn.classList.remove("toggled");
-    elSolutionBtn.textContent = "Show solution";
+    if (elSolutionBtn) {
+      elSolutionBtn.classList.remove("toggled");
+      elSolutionBtn.textContent = "Show solution";
+    }
+    if (elSolutionBtnTop) {
+      elSolutionBtnTop.classList.remove("toggled");
+      elSolutionBtnTop.textContent = "Solution";
+    }
 
     rerenderAll();
   }
@@ -1178,7 +1301,7 @@
 
   function rotateSelected() {
     if (!selectedPieceId) return;
-    rotation = (rotation + 1) % 4;
+    rotation = (rotation + 3) % 4;
     updateHUD();
     renderGhost();
     renderPreview();
@@ -1196,9 +1319,16 @@
 
     solutionOn = false;
     hintsOn = false;
-    elHintBtn.classList.remove("toggled");
-    elSolutionBtn.classList.remove("toggled");
-    elSolutionBtn.textContent = "Show solution";
+    if (elHintBtn) elHintBtn.classList.remove("toggled");
+    if (elHintBtnTop) elHintBtnTop.classList.remove("toggled");
+    if (elSolutionBtn) {
+      elSolutionBtn.classList.remove("toggled");
+      elSolutionBtn.textContent = "Show solution";
+    }
+    if (elSolutionBtnTop) {
+      elSolutionBtnTop.classList.remove("toggled");
+      elSolutionBtnTop.textContent = "Solution";
+    }
 
     renderPalette();
     startLevel(false);
@@ -1208,7 +1338,8 @@
 
   function toggleHints() {
     hintsOn = !hintsOn;
-    elHintBtn.classList.toggle("toggled", hintsOn);
+    if (elHintBtn) elHintBtn.classList.toggle("toggled", hintsOn);
+    if (elHintBtnTop) elHintBtnTop.classList.toggle("toggled", hintsOn);
     rerenderAll();
     updateHUD(hintsOn
       ? "Hints ON: red outlines mark cells where your board differs from the target."
@@ -1218,8 +1349,10 @@
 
   function toggleSolution() {
     solutionOn = !solutionOn;
-    elSolutionBtn.classList.toggle("toggled", solutionOn);
-    elSolutionBtn.textContent = solutionOn ? "Hide solution" : "Show solution";
+    if (elSolutionBtn) elSolutionBtn.classList.toggle("toggled", solutionOn);
+    if (elSolutionBtnTop) elSolutionBtnTop.classList.toggle("toggled", solutionOn);
+    if (elSolutionBtn) elSolutionBtn.textContent = solutionOn ? "Hide solution" : "Show solution";
+    if (elSolutionBtnTop) elSolutionBtnTop.textContent = solutionOn ? "Hide solution" : "Solution";
     rerenderAll();
   }
 
@@ -1241,41 +1374,35 @@
     stampAt(Number(cell.dataset.x), Number(cell.dataset.y));
   });
 
+  function updateHoverFromPoint(clientX, clientY){
+    const cell = document.elementFromPoint(clientX, clientY);
+    const hit = cell && cell.closest && cell.closest(".cell");
+    if (hit) {
+      hover = { x: Number(hit.dataset.x), y: Number(hit.dataset.y) };
+      renderGhost();
+      return true;
+    }
+    return false;
+  }
+
   elPlayGrid.addEventListener("touchstart", (e) => {
     if (e.touches.length !== 1) return;
-    const touch = e.touches[0];
-    touchStartPos = { x: touch.clientX, y: touch.clientY };
-    clearTimeout(touchRotateTimer);
-    touchRotateTimer = setTimeout(() => {
-      rotateSelected();
-      suppressClickUntil = Date.now() + 350;
-      touchRotateTimer = null;
-    }, 420);
+    touchMoved = false;
   }, { passive: true });
 
   elPlayGrid.addEventListener("touchmove", (e) => {
     if (e.touches.length !== 1) return;
     const touch = e.touches[0];
-    const cell = document.elementFromPoint(touch.clientX, touch.clientY);
-    const hit = cell && cell.closest && cell.closest(".cell");
-    if (hit) {
-      hover = { x: Number(hit.dataset.x), y: Number(hit.dataset.y) };
-      renderGhost();
-    }
-    if (touchStartPos) {
-      const dx = Math.abs(touch.clientX - touchStartPos.x);
-      const dy = Math.abs(touch.clientY - touchStartPos.y);
-      if (dx > 12 || dy > 12) {
-        clearTimeout(touchRotateTimer);
-        touchRotateTimer = null;
-      }
-    }
+    updateHoverFromPoint(touch.clientX, touch.clientY);
+    touchMoved = true;
   }, { passive: true });
 
-  elPlayGrid.addEventListener("touchend", () => {
-    clearTimeout(touchRotateTimer);
-    touchRotateTimer = null;
-    touchStartPos = null;
+  elPlayGrid.addEventListener("touchend", (e) => {
+    if (e.changedTouches.length !== 1) return;
+    if (!touchMoved && hover) {
+      stampAt(hover.x, hover.y);
+      suppressClickUntil = Date.now() + 350;
+    }
   }, { passive: true });
 
   // Buttons
@@ -1286,8 +1413,10 @@
   document.getElementById("rotateBtn").addEventListener("click", rotateSelected);
   document.getElementById("applyBtn").addEventListener("click", applySettings);
 
-  elHintBtn.addEventListener("click", toggleHints);
-  elSolutionBtn.addEventListener("click", toggleSolution);
+  if (elHintBtn) elHintBtn.addEventListener("click", toggleHints);
+  if (elSolutionBtn) elSolutionBtn.addEventListener("click", toggleSolution);
+  if (elHintBtnTop) elHintBtnTop.addEventListener("click", toggleHints);
+  if (elSolutionBtnTop) elSolutionBtnTop.addEventListener("click", toggleSolution);
 
   document.getElementById("checkBtn").addEventListener("click", () => {
     const mm = mismatchCount();
@@ -1296,16 +1425,15 @@
     setTimeout(() => updateHUD(), 1100);
   });
 
-  document.querySelectorAll(".mobileControls [data-action]").forEach((btn) => {
-    const act = btn.dataset.action;
-    if (act === "new") btn.addEventListener("click", () => startLevel(true));
-    if (act === "reset") btn.addEventListener("click", reset);
-    if (act === "undo") btn.addEventListener("click", undo);
-    if (act === "redo") btn.addEventListener("click", redo);
-    if (act === "rotate") btn.addEventListener("click", rotateSelected);
-    if (act === "hints") btn.addEventListener("click", toggleHints);
-    if (act === "solution") btn.addEventListener("click", toggleSolution);
-    if (act === "check") btn.addEventListener("click", () => document.getElementById("checkBtn").click());
+  colorButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      selectedBit = Number(btn.dataset.bit);
+      renderPalette();
+      updateHUD();
+      renderGhost();
+      renderPreview();
+      renderColorButtons();
+    });
   });
 
   // Keyboard: ONLY essentials, no duplicates, no Ctrl/Cmd shortcuts.
@@ -1333,9 +1461,9 @@
     if (upper === "R") { rotateSelected(); return; }
 
     // Colors
-    if (k === "1") { selectedBit = BIT_C; renderPalette(); updateHUD("Stamp color: Cyan (C bit)."); renderGhost(); return; }
-    if (k === "2") { selectedBit = BIT_M; renderPalette(); updateHUD("Stamp color: Magenta (M bit)."); renderGhost(); return; }
-    if (k === "3") { selectedBit = BIT_Y; renderPalette(); updateHUD("Stamp color: Yellow (Y bit)."); renderGhost(); return; }
+    if (k === "1") { selectedBit = BIT_C; renderPalette(); updateHUD("Stamp color: Cyan (C bit)."); renderGhost(); renderColorButtons(); return; }
+    if (k === "2") { selectedBit = BIT_M; renderPalette(); updateHUD("Stamp color: Magenta (M bit)."); renderGhost(); renderColorButtons(); return; }
+    if (k === "3") { selectedBit = BIT_Y; renderPalette(); updateHUD("Stamp color: Yellow (Y bit)."); renderGhost(); renderColorButtons(); return; }
 
     // Undo / Redo
     if (upper === "U") { undo(); updateHUD("Undo."); setTimeout(() => updateHUD(), 500); return; }
