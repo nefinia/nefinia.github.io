@@ -93,6 +93,7 @@
       grid-template-rows: auto auto auto !important;
       gap: 12px !important;
       padding: 12px !important;
+      margin-top: 56px !important;
     }
     .targetRow{
       flex-direction: row !important;
@@ -139,6 +140,7 @@
       width: 100% !important;
       display:flex !important;
       justify-content:center !important;
+      overflow: hidden !important;
     }
     #playGrid{
       --cell: clamp(14px, calc((100vw - 20px - (var(--n) - 1) * var(--gap)) / var(--n)), 26px) !important;
@@ -316,9 +318,9 @@
       flex-wrap: wrap;
       justify-content:center;
       align-content:center;
-      gap: 0 4px;
-      --thumb: 40px;
-      --frame: 44px;
+      gap: 0;
+      --thumb: 36px;
+      --frame: 36px;
     }
     .piece{
       border: none;
@@ -735,7 +737,7 @@
       }
       .targetRow{ gap: 10px; }
       .grid{ padding: 4px; }
-      .gridWrap{ max-width: 100%; overflow-x: auto; }
+      .gridWrap{ max-width: 100%; overflow: hidden; }
       .paletteWrap.nearBoard{
         max-width: none;
         width: 100%;
