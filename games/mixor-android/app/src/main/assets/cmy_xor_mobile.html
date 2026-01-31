@@ -674,28 +674,6 @@
       font-weight: 800;
       margin-bottom: 8px;
     }
-    .historyList{
-      display:flex;
-      flex-direction: column;
-      gap: 8px;
-      max-height: 60vh;
-      overflow: auto;
-    }
-    .historyItem{
-      border: 1px solid rgba(125,160,220,.2);
-      border-radius: 10px;
-      padding: 8px;
-      background: rgba(255,255,255,.03);
-      font-size: 12px;
-      line-height: 1.35;
-      display:flex;
-      justify-content: space-between;
-      gap: 10px;
-    }
-    .historyItem .meta{
-      color: var(--muted);
-      font-size: 11px;
-    }
     .moveFooter.solved{
       color: rgba(45,212,191,.95);
       font-weight: 800;
@@ -964,7 +942,6 @@
                     <option data-action="hard">Difficulty: Hard</option>
                     <option data-action="cruel">Difficulty: Cruel</option>
                     <option data-action="howto">How to play</option>
-                    <option data-action="history">History</option>
                   </select>
                 </div>
               </div>
@@ -1005,19 +982,6 @@
             Stamp tetrominoes to make <b>Your board</b> match the <b>Target</b> in shape and color.
             Each stamp flips exactly one CMY bit (XOR), so overlapping the same color cancels it.
             Tap to place, drag to move the shadow, rotate with ⟳.
-          </div>
-        </div>
-      </div>
-
-      <div class="howtoModal" id="historyModal" role="dialog" aria-modal="true" aria-label="History">
-        <div class="howtoCard">
-          <div class="howtoHead">
-            <div>History</div>
-            <button class="btn small" id="historyClose" aria-label="Close">Close</button>
-          </div>
-          <div class="historyList" id="historyList"></div>
-          <div style="margin-top:10px; text-align:right;">
-            <button class="btn small" id="historyClear">Clear</button>
           </div>
         </div>
       </div>
@@ -1101,10 +1065,6 @@
   const elMobileMenu = document.getElementById("mobileMenu");
   const elHowto = document.getElementById("howtoModal");
   const elHowtoClose = document.getElementById("howtoClose");
-  const elHistory = document.getElementById("historyModal");
-  const elHistoryList = document.getElementById("historyList");
-  const elHistoryClose = document.getElementById("historyClose");
-  const elHistoryClear = document.getElementById("historyClear");
   const elMoveFooter = document.getElementById("moveFooter");
 
   const elDiff      = document.getElementById("diffSel");
@@ -1141,8 +1101,6 @@
 
   let hintsOn = false;
   let solutionOn = false;
-  let gameStart = null;
-  let gameSolved = false;
   let solutionAnimStep = 0;
   let solutionAnimTimer = null;
   let suppressClickUntil = 0;
@@ -1430,7 +1388,6 @@
       elMoveFooter.classList.toggle("solved", mm === 0);
       if (mm === 0) {
         elMoveFooter.textContent = `Solved! Perfect match in ${moves} moves.`;
-        if (!gameSolved) gameSolved = true;
       }
     }
 
@@ -1498,7 +1455,6 @@
 
   // Game flow
   function startLevel(newLevel = false) {
-    finalizeGame();
     if (newLevel) level++;
 
     const d = elDiff.value;
@@ -1510,8 +1466,6 @@
 
     play = makeGrid(N, 0);
     moves = 0;
-    gameStart = Date.now();
-    gameSolved = false;
     history = [];
     future = [];
     hover = null;
@@ -1578,7 +1532,6 @@
   function reset() {
     play = makeGrid(N, 0);
     moves = 0;
-    gameSolved = false;
     history = [];
     future = [];
     hover = null;
@@ -1603,7 +1556,6 @@
     future = [];
     hover = null;
     level = 1;
-    gameSolved = false;
 
     solutionOn = false;
     hintsOn = false;
@@ -1732,7 +1684,6 @@
       if (action === "hints") toggleHints();
       if (action === "solution") toggleSolution();
       if (action === "howto" && elHowto) elHowto.classList.add("on");
-      if (action === "history" && elHistory) { renderHistory(); elHistory.classList.add("on"); }
       if (["easy","medium","hard","cruel"].includes(action)) {
         elDiff.value = action;
         applySettings();
@@ -1744,18 +1695,6 @@
     elHowtoClose.addEventListener("click", () => elHowto.classList.remove("on"));
     elHowto.addEventListener("click", (e) => {
       if (e.target === elHowto) elHowto.classList.remove("on");
-    });
-  }
-  if (elHistoryClose && elHistory) {
-    elHistoryClose.addEventListener("click", () => elHistory.classList.remove("on"));
-    elHistory.addEventListener("click", (e) => {
-      if (e.target === elHistory) elHistory.classList.remove("on");
-    });
-  }
-  if (elHistoryClear) {
-    elHistoryClear.addEventListener("click", () => {
-      localStorage.removeItem("mixor_history");
-      renderHistory();
     });
   }
 
@@ -1858,46 +1797,6 @@
     startLevel(false);
   }
   init();
-
-  function finalizeGame(){
-    if (!gameStart) return;
-    if (moves === 0) return;
-    const entry = {
-      time: new Date().toISOString(),
-      difficulty: elDiff.value,
-      size: N,
-      moves,
-      solved: gameSolved,
-      durationSec: Math.round((Date.now() - gameStart) / 1000)
-    };
-    const list = JSON.parse(localStorage.getItem("mixor_history") || "[]");
-    list.unshift(entry);
-    while (list.length > 30) list.pop();
-    localStorage.setItem("mixor_history", JSON.stringify(list));
-  }
-
-  function renderHistory(){
-    if (!elHistoryList) return;
-    const list = JSON.parse(localStorage.getItem("mixor_history") || "[]");
-    if (!list.length) {
-      elHistoryList.innerHTML = "<div class=\"meta\">No games yet.</div>";
-      return;
-    }
-    elHistoryList.innerHTML = "";
-    list.forEach((g) => {
-      const item = document.createElement("div");
-      item.className = "historyItem";
-      const left = document.createElement("div");
-      left.innerHTML = `<div><b>${g.solved ? "Solved" : "Unsolved"}</b> · ${g.moves} moves</div><div class="meta">${g.difficulty} · ${g.size}x${g.size} · ${g.durationSec}s</div>`;
-      const right = document.createElement("div");
-      right.className = "meta";
-      const d = new Date(g.time);
-      right.textContent = d.toLocaleDateString();
-      item.appendChild(left);
-      item.appendChild(right);
-      elHistoryList.appendChild(item);
-    });
-  }
 })();
 </script>
 </body>

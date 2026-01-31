@@ -779,11 +779,13 @@ function drawGridAndNumbers(){
     ctx.lineWidth = 1;
     ctx.strokeRect(r.x+0.5, r.y+0.5, r.w-1, r.h-1);
 
-    ctx.fillStyle = "rgba(230,238,255,0.78)";
-    ctx.font = `${Math.max(10, Math.floor(cell*0.32))}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(String(v), r.cx, r.cy + cell*0.10);
+    if(v > 0){
+      ctx.fillStyle = "rgba(230,238,255,0.78)";
+      ctx.font = `${Math.max(10, Math.floor(cell*0.32))}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(String(v), r.cx, r.cy + cell*0.10);
+    }
   }
 }
 
@@ -812,23 +814,33 @@ function drawCluesAndEmitters(){
 
     ctx.save();
     ctx.translate(r.x, r.y);
-    const pad = Math.max(3, Math.floor(cell*0.10));
-    const bw = Math.floor(cell*0.62);
-    const bh = Math.floor(cell*0.44);
+    const pad = Math.max(1, Math.floor(cell*0.05));
 
-    ctx.fillStyle = ok ? "rgba(124,255,155,0.22)" : (tooHigh ? "rgba(255,107,107,0.18)" : "rgba(122,162,255,0.14)");
-    ctx.strokeStyle = ok ? "rgba(124,255,155,0.65)" : (tooHigh ? "rgba(255,107,107,0.60)" : "rgba(122,162,255,0.50)");
-    ctx.lineWidth = 2;
+    const bs = Math.floor(cell*0.36);
 
-    roundRect(ctx, pad, pad, bw, bh, Math.max(6, Math.floor(cell*0.14)));
+    const cr = Math.max(6, Math.floor(cell*0.22));
+    const x0 = pad, y0 = pad, x1 = pad + bs, y1 = pad + bs;
+
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1 - cr, y0);
+    ctx.lineTo(x1, y0);
+    ctx.lineTo(x1, y1 - cr);
+    ctx.arcTo(x1, y1, x1 - cr, y1, cr);
+    ctx.lineTo(x0, y1);
+    ctx.closePath();
+
+    ctx.fillStyle = ok ? "rgba(124,255,155,0.18)" : (tooHigh ? "rgba(255,107,107,0.18)" : "rgba(122,162,255,0.18)");
     ctx.fill();
+    ctx.strokeStyle = ok ? "rgba(124,255,155,0.45)" : (tooHigh ? "rgba(255,107,107,0.45)" : "rgba(122,162,255,0.45)");
+    ctx.lineWidth = 2;
     ctx.stroke();
 
-    ctx.fillStyle = "rgba(240,245,255,0.95)";
-    ctx.font = `${Math.max(12, Math.floor(cell*0.36))}px system-ui`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(String(c.target), pad + bw/2, pad + bh/2);
+    ctx.fillStyle = ok ? "rgba(210,255,225,0.98)" : (tooHigh ? "rgba(255,205,205,0.98)" : "rgba(240,245,255,0.95)");
+    ctx.font = `${Math.max(11, Math.floor(cell*0.28))}px system-ui`;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    ctx.fillText(String(c.target), pad + Math.floor(cell*0.06), pad + Math.floor(cell*0.05));
     ctx.restore();
   }
 

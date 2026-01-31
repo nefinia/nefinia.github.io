@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spaghettify — Action Game</title>
+<style>
+  body{
+    margin:0;
+    background:#060913;
+    color:#eef2ff;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto;
+    overflow:hidden;
+  }
+  canvas{display:block}
+  .hud{
+    position:fixed;
+    top:10px;left:10px;
+    font-size:14px;
+    background:rgba(0,0,0,.4);
+    padding:12px 16px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,.18);
+    line-height:1.45;
+  }
+  .hud button{
+    margin-top:6px;
+    margin-right:4px;
+    background:#182044;
+    color:#eef2ff;
+    border:1px solid #2a3a6a;
+    border-radius:8px;
+    padding:6px 10px;
+    font-weight:600;
+    cursor:pointer;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="c"></canvas>
+
+<div class="hud">
+  Time: <b id="time">60.0</b>s<br>
+  Score: <b id="score">0</b><br>
+  <button id="start">Start</button>
+  <button id="pause">Pause</button>
+  <button id="stop">Stop</button>
+</div>
+
+<script>
+/* ============================
+   CANVAS
+============================ */
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+const dpr = Math.min(2, devicePixelRatio||1);
+
+function resize(){
+  canvas.width = innerWidth*dpr;
+  canvas.height = innerHeight*dpr;
+}
+addEventListener("resize", resize);
+resize();
+
+/* ============================
+   GAME STATE
+============================ */
+let running = false;
+let paused = false;
+let timeLeft = 60;
+let score = 0;
+
+/* ============================
+   BLACK HOLE (PLAYER)
+============================ */
+const BASE_BH_R = 10*dpr;
+const bh = {
+  x: canvas.width/2,
+  y: canvas.height/2,
+  r: BASE_BH_R,
+  mass: 1
+};
+
+let holding = true;
+canvas.addEventListener("pointermove",e=>{
+  const r = canvas.getBoundingClientRect();
+  bh.x = (e.clientX-r.left)*dpr;
+  bh.y = (e.clientY-r.top)*dpr;
+});
+
+/* ============================
+   PHYSICS (EXAGGERATED)
+============================ */
+const G = 85000;
+const SOFTEN = 24;
+const DT = 1/60;
+const DAMP = 0.997;
+const MAX_V = 2800;
+
+const SPRING_K = 0.14;
+const SOLVER_ITERS = 3;
+const SWALLOW_R = 26;
+const EVENT_HORIZON_PAD = 3*dpr;
+const ROCHE_RATIO = 3.6;
+const ROCHE_RADIUS = 80*dpr;
+const haloParticles = [];
+
+/* ============================
+   ASTRONAUT (HUMAN RIG)
+============================ */
+function makeAstronaut(x,y){
+  const pts=[];
+  const links=[];
+  const idx = {};
+
+  function P(x,y){
+    pts.push({x,y,vx:0,vy:0,alive:true});
+    return pts.length-1;
+  }
+  function link(i,j,restScale=1){
+    const dx=pts[j].x-pts[i].x;
+    const dy=pts[j].y-pts[i].y;
+    const d=Math.hypot(dx,dy)*restScale;
+    links.push([i,j,d]);
+  }
+  function chain(i,j,segments,restScale=1){
+    if(segments<=0){
+      link(i,j,restScale);
+      return;
+    }
+    let prev=i;
+    for(let s=1;s<=segments;s++){
+      const t=s/(segments+1);
+      const px=pts[i].x+(pts[j].x-pts[i].x)*t;
+      const py=pts[i].y+(pts[j].y-pts[i].y)*t;
+      const mid=P(px,py);
+      link(prev,mid,restScale);
+      prev=mid;
+    }
+    link(prev,j,restScale);
+  }
+
+  idx.head = P(x, y);
+  idx.neck = P(x, y+9);
+  idx.shoulderL = P(x-9, y+12);
+  idx.shoulderR = P(x+9, y+12);
+  idx.elbowL = P(x-18, y+24);
+  idx.elbowR = P(x+18, y+24);
+  idx.handL = P(x-22, y+38);
+  idx.handR = P(x+22, y+38);
+  idx.chest = P(x, y+22);
+  idx.hip = P(x, y+36);
+  idx.kneeL = P(x-7, y+54);
+  idx.kneeR = P(x+7, y+54);
+  idx.footL = P(x-9, y+72);
+  idx.footR = P(x+9, y+72);
+
+  // spine + head
+  chain(idx.head, idx.neck, 1);
+  chain(idx.neck, idx.chest, 2);
+  chain(idx.chest, idx.hip, 2);
+
+  // shoulders + arms
+  chain(idx.neck, idx.shoulderL, 1);
+  chain(idx.neck, idx.shoulderR, 1);
+  chain(idx.shoulderL, idx.elbowL, 2);
+  chain(idx.shoulderR, idx.elbowR, 2);
+  chain(idx.elbowL, idx.handL, 1);
+  chain(idx.elbowR, idx.handR, 1);
+  link(idx.shoulderL, idx.shoulderR);
+
+  // hips + legs
+  chain(idx.hip, idx.kneeL, 2);
+  chain(idx.hip, idx.kneeR, 2);
+  chain(idx.kneeL, idx.footL, 1);
+  chain(idx.kneeR, idx.footR, 1);
+  link(idx.kneeL, idx.kneeR);
+
+  // cross braces for stability
+  link(idx.shoulderL, idx.hip, 1.02);
+  link(idx.shoulderR, idx.hip, 1.02);
+  link(idx.chest, idx.kneeL, 1.03);
+  link(idx.chest, idx.kneeR, 1.03);
+
+  const head = pts[idx.head];
+  const foot = pts[idx.footL].y > pts[idx.footR].y ? pts[idx.footL] : pts[idx.footR];
+  const restHeight = Math.hypot(foot.x-head.x, foot.y-head.y);
+
+  return {
+    pts,
+    links,
+    idx,
+    restHeight,
+    stretchTime: 0,
+    stretchStage: 0,
+    swallowed: false,
+    destroyed: false,
+    driftX: (Math.random()*2-1)*60,
+    driftY: 20 + Math.random()*40
+  };
+}
+
+const astronauts=[];
+
+/* ============================
+   SPAWNING
+============================ */
+function spawn(){
+  const a = makeAstronaut(
+    Math.random()*canvas.width,
+    -40
+  );
+  const kickX = (Math.random()*2-1)*220;
+  const kickY = 80 + Math.random()*140;
+  a.pts.forEach(p=>{
+    p.vx += kickX + (Math.random()*2-1)*60;
+    p.vy += kickY + (Math.random()*2-1)*40;
+  });
+  astronauts.push(a);
+}
+
+/* ============================
+   UPDATE
+============================ */
+function update(){
+  if(!running || paused) return;
+
+  timeLeft -= DT;
+  if(timeLeft<=0){
+    running=false;
+    timeLeft=0;
+    return;
+  }
+
+  if(astronauts.length<12 && Math.random()<0.015) spawn();
+
+  astronauts.forEach(a=>{
+    // gravity
+    a.pts.forEach(p=>{
+      if(!p.alive) return;
+
+      p.vx += a.driftX * DT;
+      p.vy += a.driftY * DT;
+
+      const dx = bh.x - p.x;
+      const dy = bh.y - p.y;
+      const r = Math.sqrt(dx*dx+dy*dy)+SOFTEN;
+
+      const f = (holding?1.9:1.0)*G/r;
+
+      p.vx += dx/r * f * DT;
+      p.vy += dy/r * f * DT;
+
+      p.vx *= DAMP;
+      p.vy *= DAMP;
+
+      const v = Math.hypot(p.vx,p.vy);
+      if(v>MAX_V){
+        p.vx*=MAX_V/v;
+        p.vy*=MAX_V/v;
+      }
+
+      p.x += p.vx*DT;
+      p.y += p.vy*DT;
+
+      if(r<SWALLOW_R){
+        p.alive=false;
+      }
+    });
+
+    // constraints
+    for(let it=0;it<SOLVER_ITERS;it++){
+      a.links.forEach(([i,j,rest])=>{
+        const p=a.pts[i], q=a.pts[j];
+        if(!p.alive&&!q.alive) return;
+        const dx=q.x-p.x, dy=q.y-p.y;
+        const d=Math.hypot(dx,dy)||1;
+        const diff=(d-rest)/d*SPRING_K;
+        p.x+=dx*diff*.5; p.y+=dy*diff*.5;
+        q.x-=dx*diff*.5; q.y-=dy*diff*.5;
+      });
+    }
+
+    // event horizon + roche limit destruction
+    if(!a.swallowed){
+      let cx=0, cy=0, cvx=0, cvy=0, alive=0;
+      a.pts.forEach(p=>{
+        if(!p.alive) return;
+        cx+=p.x; cy+=p.y; cvx+=p.vx; cvy+=p.vy; alive++;
+      });
+      if(alive>0){
+        cx/=alive; cy/=alive; cvx/=alive; cvy/=alive;
+        const dx=bh.x-cx, dy=bh.y-cy;
+        const dist=Math.hypot(dx,dy)||1;
+        const speed=Math.hypot(cvx,cvy);
+        const radialVel=(cvx*dx+cvy*dy)/dist;
+        const radialAlign = speed>1 ? radialVel/speed : 0;
+        const horizon = bh.r + EVENT_HORIZON_PAD;
+
+        if(dist < horizon && radialVel > 320 && radialAlign > 0.93){
+          a.swallowed=true;
+          a.pts.forEach(p=>p.alive=false);
+          bh.mass += 1;
+          bh.r = BASE_BH_R + Math.min(28*dpr, Math.sqrt(bh.mass)*3.2*dpr);
+        }else if(dist < ROCHE_RADIUS){
+          const head = a.pts[a.idx.head];
+          const footL = a.pts[a.idx.footL];
+          const footR = a.pts[a.idx.footR];
+          const foot = {
+            x: (footL.x+footR.x)*0.5,
+            y: (footL.y+footR.y)*0.5
+          };
+          const height = Math.hypot(foot.x-head.x, foot.y-head.y);
+          const ratio = height / a.restHeight;
+          if(ratio > ROCHE_RATIO){
+            a.destroyed=true;
+            a.pts.forEach(p=>p.alive=false);
+            const burst = 18;
+            for(let k=0;k<burst;k++){
+              haloParticles.push({
+                a: Math.random()*Math.PI*2,
+                r: bh.r*1.8 + Math.random()*bh.r*0.8,
+                life: 1 + Math.random()*0.8,
+                s: 0.6 + Math.random()*1.6
+              });
+            }
+          }
+        }
+      }
+    }
+
+    // ---- SCORING (CLEAR + DRAMATIC) ----
+    const head = a.pts[a.idx.head];
+    const footL = a.pts[a.idx.footL];
+    const footR = a.pts[a.idx.footR];
+    const foot = {
+      x: (footL.x+footR.x)*0.5,
+      y: (footL.y+footR.y)*0.5
+    };
+    const height = Math.hypot(foot.x-head.x, foot.y-head.y);
+    const ratio = height / a.restHeight;
+
+    if(holding && ratio>1.1){
+      score += (ratio-1) * DT * 220;
+    }
+
+    if(!a.swallowed && !a.destroyed){
+      const aliveCount = a.pts.reduce((n,p)=>n+(p.alive?1:0),0);
+      if(aliveCount===0){
+        a.swallowed=true;
+      }
+    }
+  });
+
+  for(let i=haloParticles.length-1;i>=0;i--){
+    const h=haloParticles[i];
+    h.life -= DT*0.35;
+    h.a += DT*h.s;
+    if(h.life<=0) haloParticles.splice(i,1);
+  }
+}
+
+/* ============================
+   DRAW
+============================ */
+function drawBlackHole(){
+  const r = bh.r;
+  const grad = ctx.createRadialGradient(
+    bh.x,bh.y,r*0.2,
+    bh.x,bh.y,r*2.2
+  );
+  grad.addColorStop(0,"#000");
+  grad.addColorStop(.4,"#000");
+  grad.addColorStop(.65,"rgba(122,162,255,.25)");
+  grad.addColorStop(1,"rgba(122,162,255,.05)");
+
+  ctx.fillStyle=grad;
+  ctx.beginPath();
+  ctx.arc(bh.x,bh.y,r*2.2,0,Math.PI*2);
+  ctx.fill();
+
+  // halo particles
+  haloParticles.forEach(h=>{
+    const x = bh.x + Math.cos(h.a)*h.r;
+    const y = bh.y + Math.sin(h.a)*h.r;
+    ctx.globalAlpha = Math.max(0, h.life);
+    ctx.fillStyle = "rgba(140,190,255,.7)";
+    ctx.beginPath();
+    ctx.arc(x,y,2.2*dpr,0,Math.PI*2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+
+  ctx.fillStyle="#000";
+  ctx.beginPath();
+  ctx.arc(bh.x,bh.y,r,0,Math.PI*2);
+  ctx.fill();
+}
+
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  drawBlackHole();
+
+  astronauts.forEach(a=>{
+    const p=a.pts;
+    const i=a.idx;
+    const head=p[i.head];
+    if(!head.alive) return;
+
+    // soft glow body with texture
+    p.forEach((pt,idx)=>{
+      if(!pt.alive) return;
+      const base = idx===i.head ? 13.5*dpr : 9.5*dpr;
+      const g = ctx.createRadialGradient(
+        pt.x, pt.y, base*0.2,
+        pt.x, pt.y, base*1.5
+      );
+      g.addColorStop(0,"rgba(255,255,255,.95)");
+      g.addColorStop(0.45,"rgba(210,230,255,.65)");
+      g.addColorStop(1,"rgba(160,190,255,0)");
+      ctx.fillStyle=g;
+      ctx.beginPath();
+      ctx.arc(pt.x,pt.y,base*1.45,0,Math.PI*2);
+      ctx.fill();
+    });
+
+    // subtle texture pass
+    ctx.fillStyle="rgba(185,205,235,.55)";
+    p.forEach((pt,idx)=>{
+      if(!pt.alive) return;
+      const base = idx===i.head ? 8.5*dpr : 6.5*dpr;
+      ctx.beginPath();
+      ctx.arc(pt.x + 1.5*dpr, pt.y + 1.5*dpr, base, 0, Math.PI*2);
+      ctx.fill();
+    });
+
+    // thin delineation using underlying links (no dots)
+    ctx.strokeStyle="rgba(220,235,255,.9)";
+    ctx.lineWidth=2.2*dpr;
+    ctx.lineCap="round";
+    ctx.lineJoin="round";
+    ctx.beginPath();
+    a.links.forEach(([i1,i2])=>{
+      const p1=p[i1], p2=p[i2];
+      if(!p1.alive||!p2.alive) return;
+      ctx.moveTo(p1.x,p1.y);
+      ctx.lineTo(p2.x,p2.y);
+    });
+    ctx.stroke();
+
+    // helmet ring
+    ctx.strokeStyle="rgba(255,255,255,.85)";
+    ctx.lineWidth=2*dpr;
+    ctx.beginPath();
+    ctx.arc(head.x, head.y, 9.5*dpr, 0, Math.PI*2);
+    ctx.stroke();
+  });
+
+}
+
+/* ============================
+   LOOP
+============================ */
+let last=performance.now();
+function loop(t){
+  const dt=(t-last)/1000;
+  last=t;
+  update(dt);
+  draw();
+  document.getElementById("time").textContent=timeLeft.toFixed(1);
+  document.getElementById("score").textContent=Math.floor(score);
+  requestAnimationFrame(loop);
+}
+loop(last);
+
+/* ============================
+   UI
+============================ */
+document.getElementById("start").onclick=()=>{
+  running=true; paused=false;
+};
+document.getElementById("pause").onclick=()=>{
+  paused=!paused;
+};
+document.getElementById("stop").onclick=()=>{
+  running=false;
+  paused=false;
+  timeLeft=60;
+  score=0;
+  astronauts.length=0;
+  haloParticles.length=0;
+  bh.mass=1;
+  bh.r=BASE_BH_R;
+};
+</script>
+</body>
+</html>
