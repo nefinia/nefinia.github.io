@@ -62,10 +62,13 @@
     }
 
     /* Mobile-only layout overrides */
+    :root{
+      --pagePad: 12px;
+    }
     .wrap{
       max-width: 980px;
       grid-template-columns: 1fr !important;
-      padding: 12px !important;
+      padding: var(--pagePad) !important;
     }
     .wrap > .card:first-child{
       display:none !important;
@@ -77,37 +80,83 @@
     .mobileOptions{
       display:block !important;
       position: fixed !important;
-      top: 24px;
-      left: 24px;
+      top: var(--pagePad) !important;
+      left: var(--pagePad) !important;
+      margin: 0 !important;
       padding: 0 !important;
       z-index: 30;
     }
-    .mobileOptions select{
-      width: 44px;
-      min-height: 44px;
+    .mobileOptions .menuBtn{
+      width: 72px;
+      height: 72px;
       padding: 0;
-      text-align: center;
+      border: none;
+      background: transparent;
+      color: inherit;
+      font-size: 30px;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .menuPanel{
+      position: absolute;
+      top: 76px;
+      left: 0;
+      min-width: 180px;
+      padding: 6px;
+      border-radius: 12px;
+      border: 1px solid rgba(125,160,220,.25);
+      background: rgba(10,14,22,.95);
+      box-shadow: 0 12px 28px rgba(0,0,0,.45);
+      display: none;
+      flex-direction: column;
+      gap: 2px;
+      z-index: 40;
+    }
+    .menuPanel.on{ display: flex; }
+    .menuItem{
+      text-align: left;
+      font-size: 12px;
+      font-weight: 700;
+      color: rgba(234,241,251,.92);
+      background: transparent;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .menuItem:hover{ background: rgba(255,255,255,.06); }
+    .menuSep{
+      height: 1px;
+      background: rgba(255,255,255,.08);
+      margin: 4px 2px;
     }
     .boards{
       grid-template-columns: 1fr !important;
       grid-template-rows: auto auto auto !important;
-      gap: 12px !important;
-      padding: 12px !important;
-      margin-top: 56px !important;
+      gap: 6px !important;
+      padding: var(--pagePad) !important;
+      margin-top: 48px !important;
+      justify-items: start !important;
+      align-items: start !important;
     }
     .targetRow{
       flex-direction: row !important;
-      align-items: center !important;
-      justify-content: center !important;
+      align-items: flex-start !important;
+      justify-content: flex-start !important;
       flex-wrap: nowrap !important;
-      gap: 6px !important;
+      gap: 4px !important;
     }
     .targetStack{
-      align-items: center !important;
+      align-items: flex-start !important;
+      gap: 4px !important;
     }
     .targetLabel{
       text-align: center !important;
       width: 100% !important;
+    }
+    .targetLabelRow{
+      width: 100% !important;
+      justify-content: center !important;
     }
     .paletteWrap.nearBoard{
       max-width: none !important;
@@ -118,7 +167,7 @@
       width: 100% !important;
       flex-wrap: nowrap !important;
       justify-content: center !important;
-      gap: 4px !important;
+      gap: 2px !important;
     }
     .mobilePreview .colorPicker{
       width: auto !important;
@@ -129,6 +178,7 @@
       border: none !important;
       background: transparent !important;
       box-shadow: none !important;
+      width: 100% !important;
     }
     .paletteWrap,
     .paletteWrap.nearBoard{
@@ -139,12 +189,15 @@
     .gridWrap{
       width: 100% !important;
       display:flex !important;
-      justify-content:center !important;
+      justify-content:flex-start !important;
       overflow: hidden !important;
     }
-    #playGrid{
-      --cell: clamp(14px, calc((100vw - 20px - (var(--n) - 1) * var(--gap)) / var(--n)), 26px) !important;
+    .board .gridWrap{
+      justify-content: center !important;
     }
+      #playGrid{
+        --cell: clamp(15px, calc((100vw - 8px - (var(--n) - 1) * var(--gap)) / var(--n)), 28px) !important;
+      }
 
     .card{
       border: 1px solid var(--line);
@@ -317,7 +370,7 @@
       display:flex;
       flex-wrap: wrap;
       justify-content:center;
-      align-content:center;
+      align-content:flex-start;
       gap: 0;
       --thumb: 36px;
       --frame: 36px;
@@ -369,6 +422,7 @@
       border: none;
       background: transparent;
       box-shadow: none;
+      margin: -4px -6px;
     }
     .palette.compact .piece:hover{ background: transparent; }
     .palette.compact .piece.selected canvas.thumb{
@@ -459,7 +513,7 @@
       display:flex;
       flex-direction: column;
       align-items:flex-start;
-      gap: 8px;
+      gap: 6px;
     }
     .targetRow{
       align-items: stretch;
@@ -474,6 +528,8 @@
       display:flex;
       align-items:center;
       gap: 10px;
+      width: 100%;
+      justify-content: center;
     }
     .targetRow .paletteWrap{
       align-self: stretch;
@@ -482,16 +538,15 @@
       padding: 8px;
     }
     .colorPicker{
-      height: 28px;
-    }
-    .colorPicker{
       display:flex;
-      gap: 4px;
+      gap: 8px;
       align-items:center;
-      padding: 2px 4px;
+      padding: 6px 10px;
       border-radius: 12px;
       border: 1px solid rgba(125,160,220,.22);
       background: transparent;
+      height: 44px;
+      min-width: 96px;
     }
     .colorBtn{
       width: 20px;
@@ -519,6 +574,9 @@
       line-height: 1;
       padding: 8px 10px;
       min-width: 48px;
+    }
+    .mobilePreview .btn{
+      height: 44px;
     }
     .mobilePreview{
       display:flex;
@@ -573,7 +631,7 @@
     .cell{
       width: var(--cell);
       height: var(--cell);
-      border-radius: 8px;
+      border-radius: 4px;
       background: rgba(244,247,251,.96);
       box-shadow: inset 0 0 0 1px rgba(0,0,0,.12);
       position: relative;
@@ -589,7 +647,7 @@
       content: "";
       position:absolute;
       inset: 0;
-      border-radius: 8px;
+      border-radius: 4px;
       background: rgba(0,0,0,.18);
       box-shadow: inset 0 0 0 2px rgba(122,162,255,.55);
       pointer-events:none;
@@ -603,7 +661,7 @@
       content: "";
       position:absolute;
       inset: 0;
-      border-radius: 8px;
+      border-radius: 4px;
       box-shadow: inset 0 0 0 2px rgba(251,113,133,.55);
       background: rgba(251,113,133,.08);
       pointer-events:none;
@@ -611,6 +669,14 @@
 
     .mini{ padding: 8px; }
     .mini .cell{ width: var(--cellMini); height: var(--cellMini); border-radius: 4px; }
+    #targetGrid{
+      --cellMini: 12.5px;
+    }
+    #targetGrid .cell,
+    #targetGrid .cell.ghost::after,
+    #targetGrid .cell.mismatch::after{
+      border-radius: 2px;
+    }
 
     #solCanvas{
       position:absolute;
@@ -703,10 +769,10 @@
     .mobileOptions{
       display:none;
     }
-    .mobileOptions select{
-      width: 44px;
-      min-height: 44px;
-      font-size: 24px;
+    .mobileOptions .menuBtn{
+      width: 72px;
+      height: 72px;
+      font-size: 30px;
       font-weight: 800;
       border: none;
       background: transparent;
@@ -714,8 +780,9 @@
       outline: none;
       padding: 0;
       text-align: center;
+      color: inherit;
     }
-    .mobileOptions select:focus{
+    .mobileOptions .menuBtn:focus{
       outline: none;
       box-shadow: none;
     }
@@ -737,28 +804,37 @@
       .targetRow,
       .mobilePreview{
         width: 100%;
+        align-items: flex-start;
       }
       .targetRow{
         flex-direction: column;
-        align-items: center;
+        align-items: flex-start;
       }
       .targetStack{
-        align-items: center;
+        align-items: flex-start;
+        gap: 4px;
       }
       .targetLabel{
         text-align: center;
         width: 100%;
       }
+      .targetLabelRow{
+        width: 100%;
+        justify-content: center;
+      }
       .gridWrap{
         width: 100%;
         display:flex;
+        justify-content:flex-start;
+      }
+      .board .gridWrap{
         justify-content:center;
       }
       #playGrid{
-        --cell: clamp(13px, calc((100vw - 48px - (var(--n) - 1) * var(--gap)) / var(--n)), 22px);
+        --cell: clamp(13px, calc((100vw - 20px - (var(--n) - 1) * var(--gap)) / var(--n)), 24px);
       }
-      .targetRow{ gap: 10px; }
-      .grid{ padding: 4px; }
+      .targetRow{ gap: 6px; }
+      .grid{ padding: 2px; }
       .gridWrap{ max-width: 100%; overflow: hidden; }
       .paletteWrap.nearBoard{
         max-width: none;
@@ -768,6 +844,7 @@
       .palette.compact{
         --thumb: 48px;
         --frame: 60px;
+        gap: 0;
       }
       .palette.compact canvas.thumb{
         width: var(--thumb);
@@ -789,8 +866,8 @@
         padding: 6px 10px;
       }
       .mobilePreview{
-        padding: 3px 4px;
-        gap: 4px;
+        padding: 2px 4px;
+        gap: 2px;
         flex-wrap: nowrap;
         justify-content: center;
       }
@@ -809,11 +886,12 @@
         --gap: 1px;
       }
       #playGrid{
-        --cell: clamp(12px, calc((100vw - 36px - (var(--n) - 1) * var(--gap)) / var(--n)), 20px);
+        --cell: clamp(12px, calc((100vw - 16px - (var(--n) - 1) * var(--gap)) / var(--n)), 22px);
       }
       .palette.compact{
         --thumb: 42px;
         --frame: 54px;
+        gap: 0;
       }
       .palette.compact canvas.thumb{
         width: var(--thumb);
@@ -953,19 +1031,24 @@
               <div class="targetLabelRow">
                 <div class="targetLabel">Target</div>
                 <div class="mobileOptions" aria-label="Mobile options">
-                  <select id="mobileMenu">
-                    <option selected>☰</option>
-                    <option data-action="new">New</option>
-                    <option data-action="reset">Reset</option>
-                    <option data-action="hints">Hints</option>
-                    <option data-action="solution">Solution</option>
-                    <option data-action="easy">Difficulty: Easy</option>
-                    <option data-action="medium">Difficulty: Medium</option>
-                    <option data-action="hard">Difficulty: Hard</option>
-                    <option data-action="cruel">Difficulty: Cruel</option>
-                    <option data-action="howto">How to play</option>
-                    <option data-action="history">History</option>
-                  </select>
+                  <button class="menuBtn" id="menuBtn" aria-haspopup="true" aria-expanded="false" aria-controls="menuPanel">☰</button>
+                  <div class="menuPanel" id="menuPanel" role="menu" aria-hidden="true">
+                    <button class="menuItem" data-action="new">New</button>
+                    <button class="menuItem" data-action="reset">Reset</button>
+                    <button class="menuItem" data-action="hints">Hints</button>
+                    <button class="menuItem" data-action="solution">Solution</button>
+                    <div class="menuSep"></div>
+                    <button class="menuItem" data-action="easy">Difficulty: Easy</button>
+                    <button class="menuItem" data-action="medium">Difficulty: Medium</button>
+                    <button class="menuItem" data-action="hard">Difficulty: Hard</button>
+                    <button class="menuItem" data-action="cruel">Difficulty: Cruel</button>
+                    <div class="menuSep"></div>
+                    <button class="menuItem" data-action="cb-on">Color-blind: On</button>
+                    <button class="menuItem" data-action="cb-off">Color-blind: Off</button>
+                    <div class="menuSep"></div>
+                    <button class="menuItem" data-action="howto">How to play</button>
+                    <button class="menuItem" data-action="history">History</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -991,9 +1074,9 @@
             <div id="playGrid" class="grid"></div>
           </div>
       <div class="moveFooter" id="moveFooter">Moves: 0 / —</div>
-      <div class="moveFooter" style="font-size:11px; opacity:.7; margin-top:4px;">Designed by nefinia</div>
     </div>
       </div>
+      <div class="moveFooter" style="font-size:11px; opacity:.7; margin-top:6px; text-align:center;">Designed by nefinia</div>
 
       <div class="howtoModal" id="howtoModal" role="dialog" aria-modal="true" aria-label="How to play">
         <div class="howtoCard">
@@ -1056,7 +1139,7 @@
   // Display colors (readable visualization, not strict physical CMY optics)
   const COL = {
     paper: [244,247,251], // 000
-    black: [11,15,23],    // 111
+    black: [72,50,30],    // 111 (dark brown for visibility)
     C: [0,210,255],
     M: [255,0,170],
     Y: [255,230,0]
@@ -1065,6 +1148,9 @@
   function mix(bits){
     if(bits === 0) return COL.paper;
     if(bits === 7) return COL.black;
+    if (bits === (BIT_C | BIT_Y)) return [0, 220, 80];   // vibrant green
+    if (bits === (BIT_M | BIT_Y)) return [255, 140, 0];  // vibrant orange
+
     const picks = [];
     if(bits & BIT_C) picks.push(COL.C);
     if(bits & BIT_M) picks.push(COL.M);
@@ -1085,6 +1171,19 @@
     return [r,g,b];
   }
   function rgb([r,g,b]){ return `rgb(${r},${g},${b})`; }
+  function patternLayers(bits){
+    const layers = [];
+    if (bits & BIT_C) {
+      layers.push("repeating-linear-gradient(90deg, rgba(0,0,0,.28) 0 2px, rgba(0,0,0,0) 2px 6px)");
+    }
+    if (bits & BIT_Y) {
+      layers.push("repeating-linear-gradient(0deg, rgba(0,0,0,.28) 0 2px, rgba(0,0,0,0) 2px 6px)");
+    }
+    if (bits & BIT_M) {
+      layers.push("radial-gradient(circle at center, rgba(0,0,0,.35) 0 1.6px, rgba(0,0,0,0) 1.6px 100%)");
+    }
+    return layers.join(", ");
+  }
 
   // DOM
   const elPalette   = document.getElementById("palette");
@@ -1098,7 +1197,9 @@
   const elRecipeOut = document.getElementById("recipeOut");
   const elMoveBar   = document.getElementById("moveBar");
   const elLimitExplain = document.getElementById("limitExplain");
-  const elMobileMenu = document.getElementById("mobileMenu");
+  const elMenuBtn = document.getElementById("menuBtn");
+  const elMenuPanel = document.getElementById("menuPanel");
+  const elMenuItems = Array.from(document.querySelectorAll(".menuItem"));
   const elHowto = document.getElementById("howtoModal");
   const elHowtoClose = document.getElementById("howtoClose");
   const elHistory = document.getElementById("historyModal");
@@ -1147,6 +1248,7 @@
   let solutionAnimTimer = null;
   let suppressClickUntil = 0;
   let touchMoved = false;
+  let colorBlind = false;
 
   // Target recipe includes bit
   let targetRecipe = [];
@@ -1260,6 +1362,57 @@
     for(const [x,y] of cells){
       ctx.fillRect(ox + (x + offX)*cellSize, oy + (y + offY)*cellSize, cellSize-1, cellSize-1);
     }
+
+    if (colorBlind && selectedBit) {
+      ctx.save();
+      ctx.globalCompositeOperation = "source-atop";
+      ctx.fillStyle = "rgba(0,0,0,0)";
+      ctx.restore();
+      ctx.save();
+      const patternCanvas = document.createElement("canvas");
+      patternCanvas.width = Math.max(8, Math.round(cellSize * 1.5));
+      patternCanvas.height = patternCanvas.width;
+      const pctx = patternCanvas.getContext("2d");
+      pctx.clearRect(0,0,patternCanvas.width,patternCanvas.height);
+      pctx.fillStyle = "transparent";
+      const patternSize = patternCanvas.width;
+      const drawPattern = (bits) => {
+        pctx.clearRect(0,0,patternSize,patternSize);
+        if (bits & BIT_C) {
+          pctx.strokeStyle = "rgba(0,0,0,.28)";
+          pctx.lineWidth = 2;
+          for (let x = 0; x <= patternSize; x += 6) {
+            pctx.beginPath();
+            pctx.moveTo(x, 0);
+            pctx.lineTo(x, patternSize);
+            pctx.stroke();
+          }
+        }
+        if (bits & BIT_Y) {
+          pctx.strokeStyle = "rgba(0,0,0,.28)";
+          pctx.lineWidth = 2;
+          for (let y = 0; y <= patternSize; y += 6) {
+            pctx.beginPath();
+            pctx.moveTo(0, y);
+            pctx.lineTo(patternSize, y);
+            pctx.stroke();
+          }
+        }
+        if (bits & BIT_M) {
+          pctx.fillStyle = "rgba(0,0,0,.35)";
+          pctx.beginPath();
+          pctx.arc(patternSize / 2, patternSize / 2, 1.6, 0, Math.PI * 2);
+          pctx.fill();
+        }
+      };
+      drawPattern(selectedBit);
+      const pattern = ctx.createPattern(patternCanvas, "repeat");
+      ctx.fillStyle = pattern;
+      for(const [x,y] of cells){
+        ctx.fillRect(ox + (x + offX)*cellSize, oy + (y + offY)*cellSize, cellSize-1, cellSize-1);
+      }
+      ctx.restore();
+    }
   }
 
   function renderPreview(){}
@@ -1289,6 +1442,14 @@
 
         const bits = board[y][x];
         d.style.background = rgb(mix(bits));
+        if (colorBlind && bits) {
+          const pat = patternLayers(bits);
+          d.style.backgroundImage = pat;
+          d.style.backgroundSize = mini ? "6px 6px" : "8px 8px";
+          d.style.backgroundPosition = "center";
+        } else {
+          d.style.backgroundImage = "none";
+        }
         if(bits !== 0){
           d.style.boxShadow = "inset 0 0 0 1px rgba(255,255,255,.14)";
         }
@@ -1326,10 +1487,15 @@
   // Solution overlay
   function resizeSolCanvasToGrid(){
     const rect = elPlayGrid.getBoundingClientRect();
+    const wrapRect = elPlayGrid.parentElement.getBoundingClientRect();
     solCanvas.width = Math.round(rect.width * devicePixelRatio);
     solCanvas.height = Math.round(rect.height * devicePixelRatio);
     solCanvas.style.width = rect.width + "px";
     solCanvas.style.height = rect.height + "px";
+    solCanvas.style.left = Math.round(rect.left - wrapRect.left) + "px";
+    solCanvas.style.top = Math.round(rect.top - wrapRect.top) + "px";
+    solCanvas.style.right = "auto";
+    solCanvas.style.bottom = "auto";
     solCtx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
   }
 
@@ -1372,30 +1538,120 @@
     solCtx.save();
     solCtx.globalCompositeOperation = "multiply";
 
-    const maxSteps = (solutionAnimStep > 0) ? solutionAnimStep : targetRecipe.length;
-    targetRecipe.slice(0, maxSteps).forEach((step, i) => {
+    const maxSteps = targetRecipe.length;
+    const darken = (col, f=0.2) => {
+      const m = col.match(/\d+/g).map(Number);
+      const r = Math.max(0, Math.round(m[0] * f));
+      const g = Math.max(0, Math.round(m[1] * f));
+      const b = Math.max(0, Math.round(m[2] * f));
+      return `rgb(${r},${g},${b})`;
+    };
+    const lighten = (col, f=0.2) => {
+      const m = col.match(/\d+/g).map(Number);
+      const r = Math.min(255, Math.round(m[0] + (255 - m[0]) * f));
+      const g = Math.min(255, Math.round(m[1] + (255 - m[1]) * f));
+      const b = Math.min(255, Math.round(m[2] + (255 - m[2]) * f));
+      return `rgb(${r},${g},${b})`;
+    };
+
+    function labelPosForCell(cellRect, cornerIdx){
+      const pad = 1;
+      const left = Math.round(cellRect.left - gridRect.left);
+      const top = Math.round(cellRect.top - gridRect.top);
+      const right = left + Math.round(cellRect.width);
+      const bottom = top + Math.round(cellRect.height);
+      if (cornerIdx === 4) return { x: Math.round((left + right) / 2), y: Math.round((top + bottom) / 2), align: "center", baseline: "middle" }; // center
+      if (cornerIdx === 0) return { x: left + pad, y: top + pad, align: "left", baseline: "top" }; // top-left
+      if (cornerIdx === 1) return { x: right - pad, y: top + pad, align: "right", baseline: "top" }; // top-right
+      if (cornerIdx === 2) return { x: right - pad, y: bottom - pad, align: "right", baseline: "bottom" }; // bottom-right
+      return { x: left + pad, y: bottom - pad, align: "left", baseline: "bottom" }; // bottom-left
+    }
+
+    const steps = targetRecipe.slice(0, maxSteps);
+    const usedLabelSlots = new Set();
+
+    solCtx.globalCompositeOperation = "multiply";
+    solCtx.globalAlpha = 0.35;
+    for (let i = 0; i < steps.length; i++) {
+      const step = steps[i];
       const p = getPiece(step.pieceId);
       const cells = rotateCells(p.cells, step.rot);
       const col = rgb(mix(step.bit));
-
-      solCtx.globalAlpha = 0.95;
-      solCtx.strokeStyle = col;
-      solCtx.lineWidth = 3;
-      solCtx.lineJoin = "round";
-      solCtx.lineCap = "round";
-      drawPolyominoOutline(solCtx, step, cells, cellElAt, gridRect, cellW, cellH);
-
-      const anchorEl = cellElAt(step.x, step.y);
-      if (anchorEl) {
-        const ar = anchorEl.getBoundingClientRect();
-        const ax = ar.left - gridRect.left + 5;
-        const ay = ar.top  - gridRect.top + 13;
-        solCtx.globalAlpha = 0.95;
-        solCtx.font = "800 11px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-        solCtx.fillStyle = col;
-        solCtx.fillText(String(i+1), ax, ay);
+      solCtx.fillStyle = col;
+      for (const [dx, dy] of cells) {
+        const x = step.x + dx;
+        const y = step.y + dy;
+        if (!inBounds(x,y)) continue;
+        const el = cellElAt(x,y);
+        if (!el) continue;
+        const r = el.getBoundingClientRect();
+        const px = Math.round(r.left - gridRect.left);
+        const py = Math.round(r.top  - gridRect.top);
+        const cw = Math.round(r.width);
+        const ch = Math.round(r.height);
+        solCtx.fillRect(px, py, cw, ch);
       }
-    });
+    }
+
+    solCtx.globalAlpha = 1;
+    solCtx.globalCompositeOperation = "source-over";
+    for (let i = 0; i < steps.length; i++) {
+      const step = steps[i];
+      const p = getPiece(step.pieceId);
+      const cells = rotateCells(p.cells, step.rot);
+      const col = rgb(mix(step.bit));
+      const labelColor = (() => {
+        const m = col.match(/\d+/g).map(Number);
+        const r = m[0], g = m[1], b = m[2];
+        if (r > 170 && b > 170 && g < 120) return lighten(col, 0.6); // magenta
+        return col;
+      })();
+
+      let cornerIdx = 4;
+      let bestConflicts = Infinity;
+      const cornerOrder = [4, 0, 1, 2, 3];
+      for (const c of cornerOrder) {
+        let conflicts = 0;
+        for (const [dx, dy] of cells) {
+          const gx = step.x + dx;
+          const gy = step.y + dy;
+          const key = `${gx},${gy},${c}`;
+          if (usedLabelSlots.has(key)) conflicts++;
+        }
+        if (conflicts < bestConflicts) {
+          bestConflicts = conflicts;
+          cornerIdx = c;
+        }
+      }
+
+      for (const [dx, dy] of cells) {
+        const gx = step.x + dx;
+        const gy = step.y + dy;
+        usedLabelSlots.add(`${gx},${gy},${cornerIdx}`);
+      }
+      for (const [dx, dy] of cells) {
+        const gx = step.x + dx;
+        const gy = step.y + dy;
+        const el = cellElAt(gx, gy);
+        if (!el) continue;
+        const r = el.getBoundingClientRect();
+        const pos = labelPosForCell(r, cornerIdx);
+        const label = String(i+1);
+        solCtx.shadowColor = "transparent";
+        solCtx.shadowBlur = 0;
+        solCtx.shadowOffsetX = 0;
+        solCtx.shadowOffsetY = 0;
+        solCtx.textAlign = pos.align;
+        solCtx.textBaseline = pos.baseline;
+        solCtx.font = "900 9px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+        solCtx.lineWidth = 1;
+        solCtx.lineJoin = "round";
+        solCtx.strokeStyle = "#000000";
+        solCtx.strokeText(label, pos.x, pos.y);
+        solCtx.fillStyle = labelColor;
+        solCtx.fillText(label, pos.x, pos.y);
+      }
+    }
 
     solCtx.restore();
   }
@@ -1493,6 +1749,7 @@
     document.getElementById("redoBtn").disabled = future.length === 0;
 
     updateHUD();
+    renderPalette();
     renderColorButtons();
   }
 
@@ -1722,22 +1979,51 @@
   document.getElementById("redoBtn").addEventListener("click", redo);
   document.getElementById("rotateBtn").addEventListener("click", rotateSelected);
   document.getElementById("applyBtn").addEventListener("click", applySettings);
-  if (elMobileMenu) {
-    elMobileMenu.addEventListener("change", () => {
-      const opt = elMobileMenu.options[elMobileMenu.selectedIndex];
-      const action = opt && opt.dataset && opt.dataset.action;
-      if (!action) return;
-      if (action === "new") startLevel(true);
-      if (action === "reset") reset();
-      if (action === "hints") toggleHints();
-      if (action === "solution") toggleSolution();
-      if (action === "howto" && elHowto) elHowto.classList.add("on");
-      if (action === "history" && elHistory) { renderHistory(); elHistory.classList.add("on"); }
-      if (["easy","medium","hard","cruel"].includes(action)) {
-        elDiff.value = action;
-        applySettings();
-      }
-      elMobileMenu.selectedIndex = 0;
+  function runMenuAction(action){
+    if (!action) return;
+    if (action === "new") startLevel(true);
+    if (action === "reset") reset();
+    if (action === "hints") toggleHints();
+    if (action === "solution") toggleSolution();
+    if (action === "cb-on") { colorBlind = true; rerenderAll(); }
+    if (action === "cb-off") { colorBlind = false; rerenderAll(); }
+    if (action === "howto" && elHowto) elHowto.classList.add("on");
+    if (action === "history" && elHistory) { renderHistory(); elHistory.classList.add("on"); }
+    if (["easy","medium","hard","cruel"].includes(action)) {
+      elDiff.value = action;
+      applySettings();
+    }
+  }
+
+  function closeMenu(){
+    if (!elMenuPanel || !elMenuBtn) return;
+    elMenuPanel.classList.remove("on");
+    elMenuPanel.setAttribute("aria-hidden", "true");
+    elMenuBtn.setAttribute("aria-expanded", "false");
+  }
+
+  function toggleMenu(){
+    if (!elMenuPanel || !elMenuBtn) return;
+    const open = elMenuPanel.classList.toggle("on");
+    elMenuPanel.setAttribute("aria-hidden", open ? "false" : "true");
+    elMenuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+
+  if (elMenuBtn && elMenuPanel) {
+    elMenuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleMenu();
+    });
+    elMenuItems.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        runMenuAction(btn.dataset.action);
+        closeMenu();
+      });
+    });
+    document.addEventListener("click", (e) => {
+      if (!elMenuPanel.classList.contains("on")) return;
+      if (elMenuPanel.contains(e.target) || elMenuBtn.contains(e.target)) return;
+      closeMenu();
     });
   }
   if (elHowtoClose && elHowto) {
@@ -1837,14 +2123,13 @@
     const wrapStyle = getComputedStyle(wrap);
     const wrapPad = (parseFloat(wrapStyle.paddingLeft) || 0) + (parseFloat(wrapStyle.paddingRight) || 0);
     const viewport = Math.min(window.innerWidth, document.documentElement.clientWidth || window.innerWidth);
-    const width = Math.min(wrap.clientWidth, viewport) - wrapPad - (pad * 2);
+    const width = Math.min(wrap.clientWidth, viewport * 0.95) - wrapPad - (pad * 2);
     const n = N || 10;
     if (width <= 0 || n <= 0) return;
     const cell = Math.floor((width - (n - 1) * gap) / n);
     const isNarrow = true;
     const minCell = 10;
-    const maxCell = 22;
-    const clamped = Math.max(minCell, Math.min(maxCell, cell));
+    const clamped = Math.max(minCell, cell);
     elPlayGrid.style.setProperty("--cell", clamped + "px");
     elPlayGrid.style.transform = "none";
     wrap.style.height = "auto";
