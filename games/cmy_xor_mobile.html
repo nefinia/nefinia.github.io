@@ -372,8 +372,8 @@
       justify-content:center;
       align-content:flex-start;
       gap: 0;
-      --thumb: 36px;
-      --frame: 36px;
+      --thumb: 42px;
+      --frame: 42px;
     }
     .piece{
       border: none;
@@ -422,7 +422,7 @@
       border: none;
       background: transparent;
       box-shadow: none;
-      margin: -4px -6px;
+      margin: -15px -6px;
     }
     .palette.compact .piece:hover{ background: transparent; }
     .palette.compact .piece.selected canvas.thumb{
@@ -842,8 +842,8 @@
         order: 2;
       }
       .palette.compact{
-        --thumb: 48px;
-        --frame: 60px;
+        --thumb: 54px;
+        --frame: 68px;
         gap: 0;
       }
       .palette.compact canvas.thumb{
@@ -889,8 +889,8 @@
         --cell: clamp(12px, calc((100vw - 16px - (var(--n) - 1) * var(--gap)) / var(--n)), 22px);
       }
       .palette.compact{
-        --thumb: 42px;
-        --frame: 54px;
+        --thumb: 48px;
+        --frame: 62px;
         gap: 0;
       }
       .palette.compact canvas.thumb{
@@ -2123,7 +2123,7 @@
     const wrapStyle = getComputedStyle(wrap);
     const wrapPad = (parseFloat(wrapStyle.paddingLeft) || 0) + (parseFloat(wrapStyle.paddingRight) || 0);
     const viewport = Math.min(window.innerWidth, document.documentElement.clientWidth || window.innerWidth);
-    const width = Math.min(wrap.clientWidth, viewport * 0.95) - wrapPad - (pad * 2);
+    const width = Math.min(wrap.clientWidth, viewport);
     const n = N || 10;
     if (width <= 0 || n <= 0) return;
     const cell = Math.floor((width - (n - 1) * gap) / n);
