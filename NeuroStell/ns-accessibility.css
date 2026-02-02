@@ -31,6 +31,7 @@
   --ns-font-size: 16px;
   --ns-line-height: 1.7;
   --ns-letter-spacing: 0px;
+  --ns-ui-font: "Space Grotesk", system-ui, -apple-system, sans-serif;
 }
 
 body{
@@ -99,6 +100,10 @@ body.ns-theme-dark{
   z-index: 9999;
   pointer-events: none;
 }
+.ns-accessibility,
+.ns-accessibility *{
+  font-family: var(--ns-ui-font) !important;
+}
 
 .ns-home-logo{
   position: fixed;
@@ -117,6 +122,7 @@ body.ns-theme-dark{
   text-decoration: none;
   padding: 6px;
   overflow: hidden;
+  font-family: var(--ns-ui-font) !important;
 }
 .ns-home-logo img{
   width: 100%;
@@ -127,6 +133,9 @@ body.ns-theme-dark{
 body.ns-theme-dark .ns-home-logo{
   background: rgba(16,24,38,0.9);
   border-color: rgba(255,255,255,0.12);
+}
+body.ns-theme-dark .ns-home-logo img{
+  content: url("neurostell_white.png");
 }
 .ns-accessibility *{ box-sizing: border-box; }
 
@@ -152,9 +161,9 @@ body.ns-theme-dark .ns-home-logo{
 .ns-drawer{
   pointer-events: auto;
   position: fixed;
-  left: 12px;
+  left: 72px;
   top: 50%;
-  transform: translate(-110%, -50%);
+  transform: translate(-120%, -50%);
   width: 260px;
   background: var(--card, rgba(16, 24, 38, 0.9));
   border: 1px solid var(--border, rgba(140, 170, 210, 0.25));
@@ -163,10 +172,15 @@ body.ns-theme-dark .ns-home-logo{
   color: var(--ink, #e9f2ff);
   color-scheme: light dark;
   box-shadow: 0 18px 60px rgba(4,8,14,0.5);
-  transition: transform 0.25s ease;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+  opacity: 0;
 }
 .ns-accessibility.open .ns-drawer{
   transform: translate(0, -50%);
+  opacity: 1;
+}
+.ns-accessibility.open .ns-handle{
+  transform: translateX(-4px);
 }
 
 .ns-title{
@@ -248,5 +262,5 @@ body.ns-theme-light .ns-close{
 
 @media (max-width: 700px){
   .ns-handle{ height: 190px; width: 48px; font-size: 0.8rem; }
-  .ns-drawer{ width: 230px; }
+  .ns-drawer{ width: 230px; left: 64px; }
 }

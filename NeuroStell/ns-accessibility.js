@@ -61,6 +61,16 @@
   const themeSel = container.querySelector("#nsTheme");
   const fontSel = container.querySelector("#nsFont");
   const reset = container.querySelector("#nsReset");
+  const setOptionFonts = () => {
+    if (!fontSel) return;
+    const options = Array.from(fontSel.options);
+    options.forEach((opt) => {
+      if (opt.value === "serif") opt.style.fontFamily = '"Fraunces","Times New Roman",serif';
+      else if (opt.value === "mono") opt.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace';
+      else if (opt.value === "dys") opt.style.fontFamily = '"OpenDyslexic", system-ui, sans-serif';
+      else opt.style.fontFamily = 'system-ui, -apple-system, "Segoe UI", sans-serif';
+    });
+  };
 
   const defaults = {
     fontSize: 16,
@@ -117,6 +127,7 @@
 
   let state = load();
   apply(state);
+  setOptionFonts();
 
   const update = (next) => {
     state = { ...state, ...next };

@@ -86,13 +86,13 @@
       font-size: 0.9rem;
     }
     .back-link:hover { color: #fff; }
-	#questionBlock {
-    min-width: auto;
-    max-width: 100%;
-  	max-height: 200px;
-  	min-height: 200px;
-
-	}
+    #questionBlock {
+      width: 100%;
+      display: grid;
+      gap: 0.65rem;
+      min-height: 0;
+      max-height: none;
+    }
 	@media (max-width: 480px) {
     .container {
     padding: 1.5rem 1rem;
@@ -120,7 +120,7 @@
       <div class="progress-container">
         <div class="progress-bar" id="progressBar"></div>
       </div>
-	<div id="questionBlock" style="min-height: 280px;">
+	<div id="questionBlock">
 	  <div class="question" id="question"></div>
 	  <div class="insight" id="insight"></div>
 	  <details><summary>Not sure? Click for examples</summary>
