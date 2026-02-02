@@ -264,3 +264,8 @@ body.ns-theme-light .ns-close{
   .ns-handle{ height: 190px; width: 48px; font-size: 0.8rem; }
   .ns-drawer{ width: 230px; left: 64px; }
 }
+@media (max-width: 900px){
+  body.ns-offset{
+    padding-left: 0;
+  }
+}

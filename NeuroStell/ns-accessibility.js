@@ -12,6 +12,7 @@
   }
   const container = document.querySelector(".ns-accessibility");
   if (!container) return;
+  document.body.classList.add("ns-offset");
 
   container.innerHTML = `
     <button class="ns-handle" type="button" aria-label="Toggle NeuroStell comfort options">NeuroStell Comfort</button>
