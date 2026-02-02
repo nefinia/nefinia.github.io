@@ -1,0 +1,195 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>NeuroStell | EchoPattern Task</title>
+  <link rel="icon" type="image/jpeg" href="neurostell_logo.jpeg" />
+  <link rel="stylesheet" href="ns-accessibility.css" />
+  <style>
+    :root{
+      --bg: #0a0f16;
+      --bg-2: #0f1824;
+      --ink: #ecf3ff;
+      --muted: #b2c1d8;
+      --accent: #6cf6da;
+      --card: rgba(16, 24, 38, 0.9);
+      --border: rgba(119, 147, 189, 0.2);
+      --font: "Space Grotesk", system-ui, -apple-system, sans-serif;
+      --font-dys: "OpenDyslexic", "Space Grotesk", system-ui, sans-serif;
+    }
+    body {
+      background: transparent;
+      color: var(--ink);
+      font-family: var(--font);
+      text-align: center;
+      padding: 2rem;
+      line-height: 1.65;
+    }
+    .color-button {
+      width: 80px;
+      height: 80px;
+      margin: 10px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      outline: none;
+      transition: transform 0.1s;
+    }
+    .color-button:active {
+      transform: scale(0.95);
+    }
+    #controls {
+      margin: 2rem 0;
+    }
+    #message {
+      margin-top: 1rem;
+      font-size: 1.1rem;
+    }
+    button{
+      background: var(--accent);
+      color: #fff;
+      padding: 0.6rem 1.1rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1.5rem;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .back-link:hover { color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="ns-accessibility"></div>
+  <h1>EchoPattern</h1>
+  <p>Memorize the sequence of colors and sounds. Difficulty increases with success and decreases with mistakes.</p>
+  <div id="game">
+    <div id="buttons">
+      <button class="color-button" style="background:red" onclick="pressColor(0)"></button>
+      <button class="color-button" style="background:blue" onclick="pressColor(1)"></button>
+      <button class="color-button" style="background:green" onclick="pressColor(2)"></button>
+    </div>
+    <div id="controls">
+      <button onclick="startGame()">Start Game</button>
+      <button onclick="finishGame()">Finish</button>
+    </div>
+    <div id="message"></div>
+  </div>
+
+  <script>
+    const colors = ['red', 'blue', 'green'];
+    const tones = [261.63, 329.63, 392.00]; // C, E, G
+    let context = new (window.AudioContext || window.webkitAudioContext)();
+    let sequence = [];
+    let userInput = [];
+    let level = 3;
+    let score = 0;
+    let visualFirstCount = 0, soundFirstCount = 0, simultaneousCount = 0;
+    let mode;
+
+    function playTone(index) {
+      const o = context.createOscillator();
+      const g = context.createGain();
+      o.frequency.value = tones[index];
+      o.type = 'sine';
+      o.connect(g);
+      g.connect(context.destination);
+      o.start();
+      o.stop(context.currentTime + 0.3);
+    }
+
+    function flashButton(index) {
+      const btn = document.getElementsByClassName('color-button')[index];
+      btn.style.opacity = '0.5';
+      setTimeout(() => btn.style.opacity = '1', 300);
+    }
+
+    function delay(ms) {
+      return new Promise(res => setTimeout(res, ms));
+    }
+
+    async function playSequence() {
+      for (let i = 0; i < sequence.length; i++) {
+        const index = sequence[i];
+        mode = ['visual', 'audio', 'both'][Math.floor(Math.random() * 3)];
+
+        if (mode === 'visual') {
+          flashButton(index);
+          visualFirstCount++;
+          await delay(100);
+          playTone(index);
+        } else if (mode === 'audio') {
+          playTone(index);
+          soundFirstCount++;
+          await delay(100);
+          flashButton(index);
+        } else {
+          flashButton(index);
+          playTone(index);
+          simultaneousCount++;
+        }
+        await delay(500);
+      }
+    }
+
+    function startGame() {
+      userInput = [];
+      sequence = Array.from({length: level}, () => Math.floor(Math.random() * 3));
+      document.getElementById('message').textContent = `Level ${level} – Watch and listen carefully...`;
+      playSequence();
+    }
+
+    function pressColor(index) {
+      userInput.push(index);
+      playTone(index);
+      flashButton(index);
+      if (userInput.length === sequence.length) {
+        checkResult();
+      }
+    }
+
+    function checkResult() {
+      const correct = sequence.every((val, i) => val === userInput[i]);
+      if (correct) {
+        level++;
+        score++;
+        document.getElementById('message').textContent = "✅ Correct! Next level...";
+      } else {
+        level = Math.max(3, level - 1);
+        document.getElementById('message').textContent = "❌ Incorrect. Let's try an easier one.";
+      }
+      setTimeout(startGame, 1500);
+    }
+
+    function finishGame() {
+      let total = visualFirstCount + soundFirstCount + simultaneousCount;
+      let visualPct = Math.round((visualFirstCount / total) * 100);
+      let soundPct = Math.round((soundFirstCount / total) * 100);
+      let simPct = 100 - visualPct - soundPct;
+
+      document.getElementById('game').innerHTML = `
+        <h2>Game Summary</h2>
+        <p>🧠 Highest Pattern Length: ${level}</p>
+        <p>🎨 Visual Response: ${visualPct}%</p>
+        <p>🎵 Auditory Response: ${soundPct}%</p>
+        <p>🔄 Simultaneous: ${simPct}%</p>
+        <p>You can play again anytime to improve or test new focus!</p>
+        <button onclick="location.reload()">Play Again</button>
+      `;
+    }
+  </script>
+
+
+  <footer>
+    NeuroStell – © 2026 All rights reserved
+  </footer>
+
+  <script defer src="ns-accessibility.js"></script>
+</body>
+</html>

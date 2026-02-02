@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NeuroStell | Focus Soundscapes</title>
+  <link rel="icon" type="image/jpeg" href="neurostell_logo.jpeg" />
+  <link rel="stylesheet" href="ns-accessibility.css" />
+  <style>
+    :root{
+      --bg: #0a0f16;
+      --bg-2: #0f1824;
+      --ink: #ecf3ff;
+      --muted: #b2c1d8;
+      --cta: #6cf6da;
+      --cta-hover: #4beccf;
+      --border: rgba(119, 147, 189, 0.2);
+      --shadow: rgba(6,10,18,0.45);
+      --card: rgba(16, 24, 38, 0.9);
+      --font: "Space Grotesk", system-ui, -apple-system, sans-serif;
+      --font-dys: "OpenDyslexic", "Space Grotesk", system-ui, sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{
+      font-family: var(--font);
+      margin:20px;
+      background: transparent;
+      color:var(--ink);
+      line-height: 1.65;
+    }
+    h1{ text-align:center; margin:0 0 14px }
+    .back-link{
+      display:inline-block;
+      margin: 6px 0 18px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .back-link:hover{ color: var(--ink); }
+
+    /* Responsive YouTube playlist */
+    .video{
+      max-width:1100px; margin:14px auto 24px; border-radius:16px;
+      overflow:hidden; box-shadow:0 10px 30px var(--shadow);
+      border:1px solid var(--border);
+      background: var(--card);
+      padding: 26px;
+      display:flex;
+      flex-direction: column;
+      gap: 12px;
+      text-align: center;
+    }
+    .video h2{ margin: 0; font-size: 1.4rem; }
+    .video p{ margin: 0; color: var(--muted); font-size: 1rem; }
+
+    .intro{
+      max-width:800px;
+      margin:0 auto 30px auto;
+      font-size:1.05em;
+      line-height:1.6;
+      color:var(--muted);
+      background: var(--card);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px 18px;
+    }
+    .intro strong, .intro em { color: var(--ink); }
+    .quiz-button{
+      display:block;
+      margin:16px auto 0 auto;
+      padding:10px 20px;
+      background:var(--cta);
+      color:#fff;
+      text-decoration:none;
+      border-radius:10px;
+      text-align:center;
+      font-weight:bold;
+      width:fit-content;
+      border:1px solid transparent;
+    }
+    .quiz-button:hover{ background:var(--cta-hover) }
+
+    .playlist-note{
+      max-width:800px;
+      margin:0 auto 24px auto;
+      color:var(--muted);
+      font-size:0.98em;
+      line-height:1.6;
+      text-align:center;
+    }
+    .yt-link{
+      display:inline-block;
+      margin-top:10px;
+      background:var(--cta);
+      color:#fff;
+      text-decoration:none;
+      padding:10px 16px;
+      border-radius:12px;
+      font-weight:700;
+    }
+    .yt-link:hover{ background:var(--cta-hover); }
+
+    footer{ text-align:center; color:var(--muted); margin-top:28px }
+  </style>
+</head>
+<body>
+  <div class="ns-accessibility"></div>
+  <h1>Focus Soundscapes</h1>
+
+  <!-- Official YouTube playlist to listen online -->
+  <div class="video">
+    <h2>Listen on YouTube</h2>
+    <p>The playlist opens directly on YouTube to avoid embed restrictions.</p>
+    <a class="yt-link" target="_blank" rel="noreferrer" href="https://www.youtube.com/playlist?list=PLV-1r_Xc_da3doNuwod1I-CvaJ26w5xnU">Open playlist on YouTube</a>
+  </div>
+  
+  <div class="intro">
+    <p>
+      These tracks are part of an experimental collection inspired by cognitive
+      profiles in the NeuroStell system. Each profile represents a way of
+      perceiving, focusing, and creating, with optional music designed to
+      support that mode.
+    </p>
+    <p>
+      The titles have two parts: the first is the <em>name of the archetype</em>,
+      and the second the <em>name of the song</em>.
+    </p>
+    <p>
+      If you want to explore your profile and its associated music, take the quiz:
+    </p>
+    <a class="quiz-button" href="quiz.html">✨ Take the Quiz ✨</a>
+  </div>
+
+  <p class="playlist-note">
+    If you prefer to open a single track, just click the playlist and choose any song from the list.
+  </p>
+
+
+  <footer>
+    NeuroStell – © 2026 All rights reserved.
+  </footer>
+  <script defer src="ns-accessibility.js"></script>
+</body>
+</html>

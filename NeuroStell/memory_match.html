@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>NeuroStell | Memory Match Task</title>
+  <link rel="icon" type="image/jpeg" href="neurostell_logo.jpeg" />
+  <link rel="stylesheet" href="ns-accessibility.css" />
+  <style>
+    :root{
+      --bg: #0a0f16;
+      --bg-2: #0f1824;
+      --ink: #ecf3ff;
+      --muted: #b2c1d8;
+      --accent: #6cf6da;
+      --border: rgba(119, 147, 189, 0.2);
+      --font: "Space Grotesk", system-ui, -apple-system, sans-serif;
+      --font-dys: "OpenDyslexic", "Space Grotesk", system-ui, sans-serif;
+    }
+    body {
+      background: transparent;
+      color: var(--ink);
+      font-family: var(--font);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      line-height: 1.65;
+    }
+    h1 {
+      color: var(--accent);
+    }
+    .grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(4, 100px);
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+    .card {
+      width: 100px;
+      height: 100px;
+      background: rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: var(--ink);
+      cursor: pointer;
+      border-radius: 8px;
+      user-select: none;
+      overflow: hidden;
+      position: relative;
+    }
+    .card img {
+      max-width: 80%;
+      max-height: 80%;
+    }
+    .card.revealed {
+      background: #555;
+    }
+    .star {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      font-size: 1.2rem;
+      color: gold;
+    }
+    #stats {
+      text-align: center;
+    }
+    button{
+      margin-top: 1rem;
+      padding: 0.6rem 1.1rem;
+      font-size: 1rem;
+      border-radius: 10px;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .back-link {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .back-link:hover { color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="ns-accessibility"></div>
+  <h1>Memory Match</h1>
+  <p>Match the pairs! 50% are image pairs, 50% are word pairs.</p>
+  <div id="game" class="grid"></div>
+  <div id="stats"></div>
+
+  <script>
+    const items = [
+      "dog", "banana", "car", "tree",
+      "house", "ball", "penguin", "computer",
+      "apple", "lightbulb", "duck", "airplane",
+      "pencil", "book", "cactus", "chair"
+    ];
+
+    const gameContainer = document.getElementById("game");
+    const statsDiv = document.getElementById("stats");
+
+    let firstCard = null;
+    let secondCard = null;
+    let lock = false;
+    let matches = 0;
+    let totalTries = 0;
+
+    let wordTries = 0;
+    let wordHits = 0;
+    let imageTries = 0;
+    let imageHits = 0;
+
+    function startGame() {
+      const totalCards = 16;
+      const numPairs = totalCards / 2;
+      const shuffled = shuffle(items);
+
+      const wordPairs = shuffled.slice(0, 4).map(item => ({ value: item, format: 'word' }));
+      const imagePairs = shuffled.slice(4, 8).map(item => ({ value: item, format: 'image' }));
+      const pairs = [...wordPairs, ...imagePairs].flatMap(obj => [obj, { ...obj }]);
+
+      const cardData = shuffle(pairs);
+
+      gameContainer.innerHTML = "";
+      statsDiv.innerHTML = "";
+
+      matches = 0;
+      totalTries = 0;
+      wordTries = 0;
+      wordHits = 0;
+      imageTries = 0;
+      imageHits = 0;
+      firstCard = null;
+      secondCard = null;
+      lock = false;
+
+      cardData.forEach((obj, index) => {
+        const div = document.createElement("div");
+        div.classList.add("card");
+        div.dataset.value = obj.value;
+        div.dataset.format = obj.format;
+        div.dataset.revealed = "false";
+        div.onclick = () => revealCard(div);
+        gameContainer.appendChild(div);
+      });
+    }
+
+    function revealCard(card) {
+      if (lock || card.dataset.revealed === "true") return;
+
+      card.classList.add("revealed");
+      card.dataset.revealed = "true";
+
+      if (card.dataset.format === "word") {
+        card.textContent = card.dataset.value;
+      } else {
+        const img = document.createElement("img");
+        img.src = `images/${card.dataset.value}.png`;
+        card.innerHTML = "";
+        card.appendChild(img);
+      }
+
+      if (!firstCard) {
+        firstCard = card;
+      } else {
+        secondCard = card;
+        lock = true;
+        totalTries++;
+
+        if (
+          firstCard.dataset.value === secondCard.dataset.value &&
+          firstCard.dataset.format === secondCard.dataset.format
+        ) {
+          matches++;
+
+          if (firstCard.dataset.format === "word") {
+            wordTries++;
+            wordHits++;
+          } else {
+            imageTries++;
+            imageHits++;
+          }
+
+          markMatched(firstCard);
+          markMatched(secondCard);
+          resetTurn();
+
+          if (matches * 2 === 16) {
+            showStats();
+          }
+        } else {
+          if (firstCard.dataset.format === "word") wordTries++;
+          else imageTries++;
+
+          setTimeout(() => {
+            hideCard(firstCard);
+            hideCard(secondCard);
+            resetTurn();
+          }, 800);
+        }
+      }
+    }
+
+    function markMatched(card) {
+      const star = document.createElement("div");
+      star.className = "star";
+      star.textContent = "★";
+      card.appendChild(star);
+    }
+
+    function hideCard(card) {
+      card.classList.remove("revealed");
+      card.dataset.revealed = "false";
+      card.innerHTML = "";
+    }
+
+    function resetTurn() {
+      firstCard = null;
+      secondCard = null;
+      lock = false;
+    }
+
+    function showStats() {
+      const acc = (matches / totalTries * 100).toFixed(1);
+      const wordAcc = wordTries ? (wordHits / wordTries * 100).toFixed(1) : "—";
+      const imgAcc = imageTries ? (imageHits / imageTries * 100).toFixed(1) : "—";
+
+      statsDiv.innerHTML = `
+        <h3>🎉 Game Over!</h3>
+        <p>Total Tries: ${totalTries}</p>
+        <p>Total Matches: ${matches}</p>
+        <p>🔍 Overall Accuracy: ${acc}%</p>
+        <p>📝 Words Accuracy: ${wordAcc}%</p>
+        <p>🖼️ Images Accuracy: ${imgAcc}%</p>
+        <button onclick="startGame()">Play Again</button>
+      `;
+    }
+
+    function shuffle(arr) {
+      return [...arr].sort(() => Math.random() - 0.5);
+    }
+
+    // Start immediately
+    window.onload = startGame;
+  </script>
+
+  <footer>
+    NeuroStell – © 2026 All rights reserved
+  </footer>
+
+  <script defer src="ns-accessibility.js"></script>
+</body>
+</html>

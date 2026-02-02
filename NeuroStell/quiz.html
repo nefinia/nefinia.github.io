@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NeuroStell | Cognitive Profile</title>
+  <link rel="icon" type="image/jpeg" href="neurostell_logo.jpeg" />
+  <link rel="stylesheet" href="ns-accessibility.css" />
+  <style>
+    :root{
+      --bg: #0a0f16;
+      --bg-2: #0f1824;
+      --ink: #ecf3ff;
+      --muted: #b2c1d8;
+      --card: rgba(16, 24, 38, 0.9);
+      --border: rgba(119, 147, 189, 0.2);
+      --accent: #6cf6da;
+      --font: "Space Grotesk", system-ui, -apple-system, sans-serif;
+      --font-dys: "OpenDyslexic", "Space Grotesk", system-ui, sans-serif;
+    }
+    body {
+      font-family: var(--font);
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      line-height: 1.65;
+      background: transparent;
+    }
+    .container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--card);
+      padding: 2rem;
+      border-radius: 1.2rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 60px rgba(6, 10, 18, 0.4);
+      max-width: 700px;
+      width: 90%;
+      text-align: center;
+      margin: 2rem auto;
+    }
+    button {
+      background: var(--accent);
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    button:hover { background: #4beccf; }
+    .logo { width: 120px; margin-bottom: 1rem; }
+    .insight { font-size: 0.95rem; color: var(--muted); margin-top: 0.5rem; }
+    details { margin-top: 0.5rem; font-size: 0.9rem; text-align: left; color: var(--muted); }
+    .progress-container {
+      background-color: rgba(255,255,255,0.12);
+      border-radius: 5px;
+      overflow: hidden;
+      height: 12px;
+      margin-bottom: 1rem;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      transition: width 0.3s ease;
+    }
+    ul { text-align: left; }
+    footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+      padding: 1rem 0;
+    }
+    .back-link {
+      display: inline-block;
+      align-self: flex-start;
+      color: var(--muted);
+      text-decoration: none;
+      margin-bottom: 0.8rem;
+      font-size: 0.9rem;
+    }
+    .back-link:hover { color: #fff; }
+	#questionBlock {
+    min-width: auto;
+    max-width: 100%;
+  	max-height: 200px;
+  	min-height: 200px;
+
+	}
+	@media (max-width: 480px) {
+    .container {
+    padding: 1.5rem 1rem;
+    }
+}
+  </style>
+</head>
+<body>
+  <div class="ns-accessibility"></div>
+  <div class="container">
+    <div id="intro">
+      <img src="neurostell_logo.jpeg" alt="NeuroStell Logo" class="logo">
+      <h2>NeuroStell Cognitive Profile</h2>
+
+
+<p>The NeuroStell profile is an 8-question snapshot of how you process information, focus attention, and adapt to change.</p>
+<p>It creates a probabilistic cognitive constellation (not a diagnosis) and returns practical tips for adjusting pacing, format, and environment.</p>
+
+
+      
+      <button id="beginBtn">Let's Begin</button>
+    </div>
+
+    <div id="quiz" style="display:none;">
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+	<div id="questionBlock" style="min-height: 280px;">
+	  <div class="question" id="question"></div>
+	  <div class="insight" id="insight"></div>
+	  <details><summary>Not sure? Click for examples</summary>
+		<div id="exampleText"></div>
+	  </details>
+	</div>
+      <div style="margin: 1rem 0;">
+        <input type="range" id="slider" min="0" max="100" value="50" style="width: 100%;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-top: 0.1rem; padding: 0 0.3rem;">
+          <span>A</span><span>B</span>
+        </div>
+      </div>
+      <button onclick="goBack()">←</button>
+      <button onclick="answer()">Next</button>
+    </div>
+
+    <div id="result" style="display:none;">
+      <h2 id="resultTitle"></h2>
+      <p id="resultDesc"></p>
+      <div id="combinedBlock" style="display:none;">
+        <p><strong>Additional insights from your secondary type:</strong></p>
+        <p id="combinedInsights"></p>
+      </div>
+      
+        <h3>Practical tips for efficient learning</h3>
+
+      <ul id="resultTips"></ul>
+      <div id="secondaryBlock" style="display:none;">
+        <p><strong>Related constellation:</strong> <span id="secondaryText"></span></p>
+        <ul id="secondaryTips"></ul>
+      </div>
+      
+ <hr style="margin: 2rem 0; border: none; border-top: 1px solid #444;">     
+      <div id="closingNote" style="margin-top: 2rem; font-size: 1.rem; color: #ccc;">
+  <p><strong>NeuroStell is an educational support tool.</strong></p>
+  <p>If you want to collaborate on pilots or research, contact us at <a href="mailto:cosmovis1216@gmail.com" style="color: #00f2ff;">cosmovis1216@gmail.com</a>.</p>
+</div>
+
+      <button onclick="location.reload()">Start Again</button>
+    </div>
+  </div>
+
+  <footer>
+    NeuroStell – © 2026 All rights reserved.
+  </footer>
+
+  <!-- External JS files loaded with defer -->
+  <script defer src="types_tips.js"></script>
+  <script defer src="NeuroSky_Profiles.js"></script>
+  <script defer src="quiz.js"></script>
+
+<script>
+  function finishQuiz() {
+    document.getElementById("quiz").style.display = "none";
+    document.getElementById("result").style.display = "block";
+
+    const code = answers.join("");
+    const secondaryCode = ambiguous.filter(Boolean).join("");
+    const primary = profiles[code];
+    const secondary = profiles[secondaryCode];
+
+    const resultTitle = "🌟 " + primary["Type Name"];
+let codeLine = `<div style="font-size: 0.9rem; color: #aaa;">(${code})</div>`;
+
+if (secondary && secondaryCode !== code) {
+  codeLine += `<div style="font-size: 0.9rem; color: #aaa;">Related type: ${secondary["Type Name"]} (${secondaryCode})</div>`;
+}
+
+document.getElementById("resultTitle").innerHTML = resultTitle + codeLine;
+    
+    const combinedDesc = answers.map((c, i) => types_insight[c + (i + 1)]).join(" ");
+    document.getElementById("resultDesc").innerHTML = combinedDesc + " " + primary["Final Phrase"];
+
+    const tipsList = document.getElementById("resultTips");
+    tipsList.innerHTML = answers.map((c, i) => `<li>${practical_tips[c + (i + 1)]}</li>`).join("");
+
+    // Additional insight from secondary type
+    let hasCombined = false;
+    ambiguous.forEach((alt, i) => {
+      if (alt) {
+        const pair = answers[i] + (i + 1) + alt + (i + 1);
+        const reverse = alt + (i + 1) + answers[i] + (i + 1);
+        const insight = types_insight_combined[pair] || types_insight_combined[reverse];
+        if (insight) {
+          document.getElementById("combinedBlock").style.display = "block";
+          document.getElementById("combinedInsights").innerHTML += insight + " ";
+          hasCombined = true;
+        }
+      }
+    });
+
+    // Additional tips if secondary exists
+    if (secondary && secondaryCode !== code) {
+      document.getElementById("secondaryBlock").style.display = "block";
+      document.getElementById("secondaryText").textContent = "Additional tips";
+
+      const secondaryUl = document.getElementById("secondaryTips");
+      const secondaryTips = ambiguous
+        .map((alt, i) => alt && practical_tips[alt + (i + 1)])
+        .filter(tip => tip && !answers.map((c, i) => practical_tips[c + (i + 1)]).includes(tip));
+
+      secondaryUl.innerHTML = secondaryTips.map(tip => `<li> ${tip}</li>`).join("");
+    }
+  }
+</script>
+
+
+  <!-- Begin button logic -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("beginBtn").addEventListener("click", () => {
+        if (typeof startQuiz === 'function') startQuiz();
+        else console.error("startQuiz is not defined");
+      });
+    });
+  </script>
+  <script defer src="ns-accessibility.js"></script>
+</body>
+</html>

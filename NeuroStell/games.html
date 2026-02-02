@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>NeuroStell | Cognitive Tasks</title>
+  <link rel="icon" type="image/jpeg" href="neurostell_logo.jpeg" />
+  <link rel="stylesheet" href="ns-accessibility.css" />
+  <style>
+    :root{
+      --bg: #0a0f16;
+      --bg-2: #0f1824;
+      --ink: #ecf3ff;
+      --muted: #b2c1d8;
+      --card: rgba(16, 24, 38, 0.9);
+      --border: rgba(119, 147, 189, 0.2);
+      --accent: #6cf6da;
+      --accent-2: #ffb347;
+      --radius: 18px;
+      --font: "Space Grotesk", system-ui, -apple-system, sans-serif;
+      --font-dys: "OpenDyslexic", "Space Grotesk", system-ui, sans-serif;
+    }
+    body {
+      background: transparent;
+      color: var(--ink);
+      font-family: var(--font);
+      margin: 0;
+      padding: 2rem;
+      text-align: center;
+      line-height: 1.65;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .game-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 1.6rem;
+      margin: 1rem auto;
+      max-width: 640px;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 60px rgba(6, 10, 18, 0.4);
+      text-align: left;
+    }
+
+    .game-card h2 {
+      margin-top: 0;
+      color: var(--accent);
+    }
+
+    .game-card p {
+      font-size: 1rem;
+      color: var(--muted);
+    }
+
+    .game-card a {
+      display: inline-block;
+      margin-top: 1rem;
+      background: var(--accent);
+      color: #fff;
+      padding: 0.6rem 1.1rem;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .game-card a:hover { background: #4beccf; }
+
+    footer {
+      margin-top: 3rem;
+      font-size: 0.85rem;
+      color: #7f8da3;
+    }
+  </style>
+</head>
+<body>
+  <div class="ns-accessibility"></div>
+  <h1>NeuroStell Cognitive Tasks</h1>
+  <p>These short tasks capture attention, flexibility, and memory signals that feed the adaptive learning pipeline.</p>
+
+  <div class="game-card">
+    <h2>🔊 EchoPattern</h2>
+    <p>A perception and memory challenge. Repeat color-sound sequences as they grow in complexity. Measures your visual, auditory, and mixed response styles.</p>
+    <a href="echopattern.html" target="_blank">Play EchoPattern</a>
+  </div>
+
+  <div class="game-card">
+    <h2>🎯 Sound Focus</h2>
+    <p>A reaction game with rising sensory load. Can you stay focused across calm, medium, and chaotic audio environments? Tracks your accuracy and reaction time.</p>
+    <a href="sound_focus.html" target="_blank">Play Sound Focus</a>
+  </div>
+
+  <div class="game-card">
+    <h2>♻️ Quick Reframe</h2>
+    <p>A mental flexibility game. Follow changing rules quickly — shape, color, or background. Improves your ability to adapt and shift attention.</p>
+    <a href="quick_reframe.html" target="_blank">Play Quick Reframe</a>
+  </div>
+
+  <div class="game-card">
+    <h2>🧩 Memory Match</h2>
+    <p>Challenge your memory! Match visual icons or words — but not both — and see whether you excel at image-based or word-based recall.</p>
+    <a href="memory_match.html" target="_blank">Play Memory Match</a>
+  </div>
+
+  <footer>
+    NeuroStell – © 2026 All rights reserved
+  </footer>
+  <script defer src="ns-accessibility.js"></script>
+</body>
+</html>
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1.5rem;
+      color: #9fb6c7;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .back-link:hover { color: #fff; }
