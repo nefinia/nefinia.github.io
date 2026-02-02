@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>NeuroStell | Adaptive Learning Proof of Concept</title>
-  <link rel="icon" type="image/jpeg" href="neurostell_logo.jpeg" />
+  <link rel="icon" type="image/png" href="neurostell.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -30,7 +30,6 @@
       margin: 0;
       font-family: "Space Grotesk", system-ui, -apple-system, sans-serif;
       color: var(--ink);
-      background: transparent;
       min-height: 100vh;
       line-height: 1.7;
     }
@@ -88,13 +87,14 @@
       margin-bottom: 18px;
     }
     .hero-brand img{
-      width: 112px;
-      height: 112px;
+      width: min(180px, 34vw);
+      height: auto;
       border-radius: 0;
-      object-fit: cover;
+      object-fit: contain;
       background: transparent;
       padding: 0;
       box-shadow: none;
+      display: block;
     }
     .hero-brand-name{
       font-family: "Fraunces", serif;
@@ -363,7 +363,7 @@
     <section class="hero">
       <div>
         <div class="hero-brand">
-          <img src="neurostell_logo.jpeg" alt="NeuroStell" />
+          <img src="neurostell.png" alt="NeuroStell" />
           <div>
             <div class="hero-brand-name">NeuroStell</div>
             <div class="hero-brand-sub">Adaptive learning for institutions</div>

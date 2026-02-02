@@ -6,7 +6,7 @@
     document.body.insertAdjacentHTML(
       "afterbegin",
       `<a class="ns-home-logo" href="${homePrefix}index.html" aria-label="NeuroStell home">\n` +
-      `  <img src="${homePrefix}neurostell_logo.jpeg" alt="NeuroStell logo"/>\n` +
+      `  <img src="${homePrefix}neurostell.png" alt="NeuroStell logo"/>\n` +
       `</a>`
     );
   }
