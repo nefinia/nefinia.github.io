@@ -1370,7 +1370,7 @@
       ctx.restore();
       ctx.save();
       const patternCanvas = document.createElement("canvas");
-      patternCanvas.width = Math.max(8, Math.round(cellSize * 1.5));
+      patternCanvas.width = Math.max(6, Math.round(cellSize * 1.0));
       patternCanvas.height = patternCanvas.width;
       const pctx = patternCanvas.getContext("2d");
       pctx.clearRect(0,0,patternCanvas.width,patternCanvas.height);
@@ -1398,18 +1398,26 @@
             pctx.stroke();
           }
         }
-        if (bits & BIT_M) {
-          pctx.fillStyle = "rgba(0,0,0,.35)";
-          pctx.beginPath();
-          pctx.arc(patternSize / 2, patternSize / 2, 1.6, 0, Math.PI * 2);
-          pctx.fill();
-        }
       };
-      drawPattern(selectedBit);
+      const patternBits = selectedBit & ~BIT_M;
+      drawPattern(patternBits);
       const pattern = ctx.createPattern(patternCanvas, "repeat");
       ctx.fillStyle = pattern;
       for(const [x,y] of cells){
         ctx.fillRect(ox + (x + offX)*cellSize, oy + (y + offY)*cellSize, cellSize-1, cellSize-1);
+      }
+      ctx.restore();
+    }
+    if (colorBlind && (selectedBit & BIT_M)) {
+      ctx.save();
+      ctx.fillStyle = "rgba(0,0,0,.35)";
+      const dotR = Math.max(1.2, Math.round(cellSize * 0.12));
+      for (const [x,y] of cells) {
+        const cx = ox + (x + offX) * cellSize + Math.floor(cellSize / 2);
+        const cy = oy + (y + offY) * cellSize + Math.floor(cellSize / 2);
+        ctx.beginPath();
+        ctx.arc(cx, cy, dotR, 0, Math.PI * 2);
+        ctx.fill();
       }
       ctx.restore();
     }
