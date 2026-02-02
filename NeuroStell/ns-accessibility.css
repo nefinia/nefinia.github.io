@@ -102,7 +102,7 @@ body.ns-theme-dark{
 }
 .ns-accessibility,
 .ns-accessibility *{
-  font-family: var(--ns-ui-font) !important;
+  font-family: var(--ns-ui-font);
 }
 
 .ns-home-logo{
@@ -122,7 +122,7 @@ body.ns-theme-dark{
   text-decoration: none;
   padding: 6px;
   overflow: hidden;
-  font-family: var(--ns-ui-font) !important;
+  font-family: var(--ns-ui-font);
 }
 .ns-home-logo img{
   width: 100%;
