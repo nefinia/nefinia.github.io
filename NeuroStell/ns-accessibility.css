@@ -267,5 +267,22 @@ body.ns-theme-light .ns-close{
 @media (max-width: 900px){
   body.ns-offset{
     padding-left: 0;
+    padding-right: 84px;
+  }
+  .ns-accessibility{
+    left: auto;
+    right: 0;
+    transform: translateY(-50%);
+  }
+  .ns-drawer{
+    left: auto;
+    right: 72px;
+    transform: translate(120%, -50%);
+  }
+  .ns-accessibility.open .ns-drawer{
+    transform: translate(0, -50%);
+  }
+  .ns-accessibility.open .ns-handle{
+    transform: translateX(4px);
   }
 }
