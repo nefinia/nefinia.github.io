@@ -246,6 +246,19 @@
       <a class="play" href="maxwell.html" target="_blank">Play</a>
     </div>
 
+    <!-- Spaghettify Drift -->
+    <div class="game">
+      <div class="thumbWrap">
+        <canvas id="thumb-spaghettidrift" width="96" height="96"></canvas>
+      </div>
+      <h2>Spaghettify: Drift</h2>
+      <p class="desc">
+        Pilot an astronaut through a rightward drift.
+        Dodge black holes that bend and stretch you apart.
+      </p>
+      <a class="play" href="spaguettify_drift.html" target="_blank">Play</a>
+    </div>
+
     <!-- PolyPaint -->
     <div class="game">
       <div class="thumbWrap">
@@ -667,6 +680,48 @@ function rint(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
   ctx.fillStyle = "#e8ecff";
   ctx.font = "bold 12px system-ui, sans-serif";
   ctx.fillText("Δ", 6, 16);
+})();
+
+/* Spaghettify Drift preview */
+(function(){
+  const c = document.getElementById("thumb-spaghettidrift");
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = "#0a0f25";
+  ctx.fillRect(0,0,c.width,c.height);
+
+  for(let i=0;i<18;i++){
+    const x = rint(4,92);
+    const y = rint(4,92);
+    ctx.fillStyle = `rgba(220,235,255,${Math.random()*0.8+0.2})`;
+    ctx.beginPath(); ctx.arc(x,y,Math.random()*1.2+0.4,0,Math.PI*2); ctx.fill();
+  }
+
+  const bx = 70, by = 54, r = 12;
+  const g = ctx.createRadialGradient(bx,by,2,bx,by,30);
+  g.addColorStop(0,"#000");
+  g.addColorStop(0.5,"#000");
+  g.addColorStop(0.75,"rgba(120,170,255,0.25)");
+  g.addColorStop(1,"rgba(120,170,255,0)");
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(bx,by,30,0,Math.PI*2); ctx.fill();
+
+  ctx.strokeStyle = "rgba(150,200,255,0.7)";
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.ellipse(bx,by,18,7,0.4,0,Math.PI*2); ctx.stroke();
+
+  ctx.fillStyle = "#000";
+  ctx.beginPath(); ctx.arc(bx,by,r,0,Math.PI*2); ctx.fill();
+
+  ctx.strokeStyle = "#e8ecff";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(26,34,4,0,Math.PI*2);
+  ctx.moveTo(26,38); ctx.lineTo(26,52);
+  ctx.moveTo(26,42); ctx.lineTo(18,46);
+  ctx.moveTo(26,42); ctx.lineTo(34,46);
+  ctx.moveTo(26,52); ctx.lineTo(20,60);
+  ctx.moveTo(26,52); ctx.lineTo(32,60);
+  ctx.stroke();
 })();
 
 /* PolyPaint preview */

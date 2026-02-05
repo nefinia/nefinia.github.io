@@ -101,9 +101,10 @@ const MAX_V = 2800;
 const SPRING_K = 0.14;
 const SOLVER_ITERS = 3;
 const SWALLOW_R = 26;
-const EVENT_HORIZON_PAD = 3*dpr;
-const ROCHE_RATIO = 3.6;
-const ROCHE_RADIUS = 80*dpr;
+const EVENT_HORIZON_PAD = 2*dpr;
+const ROCHE_RATIO = 3.0;
+const ROCHE_RADIUS = 110*dpr;
+const stretchPopups = [];
 const haloParticles = [];
 
 /* ============================
@@ -194,10 +195,11 @@ function makeAstronaut(x,y){
     restHeight,
     stretchTime: 0,
     stretchStage: 0,
+    relaxTime: 0,
     swallowed: false,
     destroyed: false,
-    driftX: (Math.random()*2-1)*60,
-    driftY: 20 + Math.random()*40
+    driftX: (Math.random()*2-1)*120,
+    driftY: 30 + Math.random()*70
   };
 }
 
@@ -211,8 +213,8 @@ function spawn(){
     Math.random()*canvas.width,
     -40
   );
-  const kickX = (Math.random()*2-1)*220;
-  const kickY = 80 + Math.random()*140;
+  const kickX = (Math.random()*2-1)*260;
+  const kickY = 100 + Math.random()*180;
   a.pts.forEach(p=>{
     p.vx += kickX + (Math.random()*2-1)*60;
     p.vy += kickY + (Math.random()*2-1)*40;
@@ -233,7 +235,7 @@ function update(){
     return;
   }
 
-  if(astronauts.length<12 && Math.random()<0.015) spawn();
+  if(astronauts.length<20 && Math.random()<0.03) spawn();
 
   astronauts.forEach(a=>{
     // gravity
@@ -298,11 +300,11 @@ function update(){
         const radialAlign = speed>1 ? radialVel/speed : 0;
         const horizon = bh.r + EVENT_HORIZON_PAD;
 
-        if(dist < horizon && radialVel > 320 && radialAlign > 0.93){
+        if(dist < horizon && radialVel > 380 && radialAlign > 0.965){
           a.swallowed=true;
           a.pts.forEach(p=>p.alive=false);
           bh.mass += 1;
-          bh.r = BASE_BH_R + Math.min(28*dpr, Math.sqrt(bh.mass)*3.2*dpr);
+          bh.r = BASE_BH_R + Math.min(26*dpr, Math.sqrt(bh.mass)*4.0*dpr);
         }else if(dist < ROCHE_RADIUS){
           const head = a.pts[a.idx.head];
           const footL = a.pts[a.idx.footL];
@@ -316,7 +318,7 @@ function update(){
           if(ratio > ROCHE_RATIO){
             a.destroyed=true;
             a.pts.forEach(p=>p.alive=false);
-            const burst = 18;
+            const burst = 26;
             for(let k=0;k<burst;k++){
               haloParticles.push({
                 a: Math.random()*Math.PI*2,
@@ -330,8 +332,9 @@ function update(){
       }
     }
 
-    // ---- SCORING (CLEAR + DRAMATIC) ----
+    // ---- SCORING (STRETCH MILESTONES) ----
     const head = a.pts[a.idx.head];
+    if(!head.alive) return;
     const footL = a.pts[a.idx.footL];
     const footR = a.pts[a.idx.footR];
     const foot = {
@@ -341,8 +344,26 @@ function update(){
     const height = Math.hypot(foot.x-head.x, foot.y-head.y);
     const ratio = height / a.restHeight;
 
-    if(holding && ratio>1.1){
-      score += (ratio-1) * DT * 220;
+    if(ratio>1.25){
+      a.stretchTime += DT;
+      a.relaxTime = 0;
+    }else{
+      a.relaxTime += DT;
+      if(a.relaxTime>0.6){
+        a.stretchTime = 0;
+        a.stretchStage = 0;
+      }
+    }
+
+    if(a.stretchStage===0 && a.stretchTime>0.45 && ratio>1.25){
+      a.stretchStage=1;
+      score += 1;
+      stretchPopups.push({x:head.x,y:head.y-12,text:"+1",life:0.9});
+    }
+    if(a.stretchStage===1 && a.stretchTime>0.9 && ratio>1.55){
+      a.stretchStage=2;
+      score += 2;
+      stretchPopups.push({x:head.x,y:head.y-18,text:"+2",life:0.9});
     }
 
     if(!a.swallowed && !a.destroyed){
@@ -352,6 +373,12 @@ function update(){
       }
     }
   });
+
+  for(let i=stretchPopups.length-1;i>=0;i--){
+    stretchPopups[i].life -= DT;
+    stretchPopups[i].y -= DT*24;
+    if(stretchPopups[i].life<=0) stretchPopups.splice(i,1);
+  }
 
   for(let i=haloParticles.length-1;i>=0;i--){
     const h=haloParticles[i];
@@ -458,6 +485,16 @@ function draw(){
     ctx.stroke();
   });
 
+  // score popups
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
+  stretchPopups.forEach(p=>{
+    ctx.globalAlpha=Math.max(0,p.life);
+    ctx.fillStyle="#9fd4ff";
+    ctx.font=`${14*dpr}px system-ui`;
+    ctx.fillText(p.text,p.x,p.y);
+  });
+  ctx.globalAlpha=1;
 }
 
 /* ============================
@@ -490,6 +527,7 @@ document.getElementById("stop").onclick=()=>{
   timeLeft=60;
   score=0;
   astronauts.length=0;
+  stretchPopups.length=0;
   haloParticles.length=0;
   bh.mass=1;
   bh.r=BASE_BH_R;

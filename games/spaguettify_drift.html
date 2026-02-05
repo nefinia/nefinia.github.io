@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spaghettify: Drift</title>
+<style>
+  :root{--bg:#05070f;--panel:rgba(7,12,26,0.78);--border:rgba(255,255,255,0.16);--text:#eaf0ff;--muted:#aab6d8;--accent:#7fb1ff;}
+  body{margin:0;background:radial-gradient(1200px 700px at 20% 0%, #101a3a, var(--bg));color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto;overflow:hidden;}
+  canvas{display:block}
+  .hud{position:fixed;top:12px;left:12px;font-size:14px;background:var(--panel);padding:12px 16px;border-radius:14px;border:1px solid var(--border);line-height:1.5;backdrop-filter: blur(6px);}
+  .hud .help{color:var(--muted);font-size:12px;margin:6px 0 2px;}
+  .hud button{margin-top:6px;margin-right:4px;background:#182046;color:var(--text);border:1px solid #2a3a6a;border-radius:8px;padding:6px 10px;font-weight:600;cursor:pointer;}
+  .hud button:hover{border-color:var(--accent);}  
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud">
+  Time: <b id="time">0.0</b>s<br>
+  Distance: <b id="dist">0</b> km<br>
+  Fuel: <b id="fuel">100</b>%<br>
+  Status: <b id="status">Running</b>
+  <div class="help">Drag to move · WASD/Arrows</div>
+  <button id="pause">Pause</button>
+  <button id="reset">Reset</button>
+</div>
+<script>
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+const dpr = Math.min(2, devicePixelRatio||1);
+let W=0,H=0;
+function resize(){
+  canvas.width = innerWidth*dpr;
+  canvas.height = innerHeight*dpr;
+  W=canvas.width; H=canvas.height;
+}
+addEventListener("resize", resize);
+resize();
+
+const pointer = {active:false,x:0,y:0};
+function updatePointer(e){
+  const r = canvas.getBoundingClientRect();
+  pointer.x = (e.clientX-r.left)*dpr;
+  pointer.y = (e.clientY-r.top)*dpr;
+}
+canvas.addEventListener("pointerdown", e=>{pointer.active=true;updatePointer(e);canvas.setPointerCapture(e.pointerId);});
+canvas.addEventListener("pointermove", e=>{if(pointer.active) updatePointer(e);});
+canvas.addEventListener("pointerup", e=>{pointer.active=false;canvas.releasePointerCapture(e.pointerId);});
+canvas.addEventListener("pointercancel", ()=>{pointer.active=false;});
+
+const keys = {up:false,down:false,left:false,right:false};
+function setKey(e,down){
+  const k=e.key.toLowerCase();
+  if(k==="arrowup"||k==="w") keys.up=down;
+  if(k==="arrowdown"||k==="s") keys.down=down;
+  if(k==="arrowleft"||k==="a") keys.left=down;
+  if(k==="arrowright"||k==="d") keys.right=down;
+  if(["arrowup","arrowdown","arrowleft","arrowright","w","a","s","d"].includes(k)) e.preventDefault();
+}
+addEventListener("keydown", e=>setKey(e,true));
+addEventListener("keyup", e=>setKey(e,false));
+
+let running = true;
+let paused = false;
+let time = 0;
+let distance = 0;
+let statusText = "Running";
+const timeEl = document.getElementById("time");
+const distEl = document.getElementById("dist");
+const fuelEl = document.getElementById("fuel");
+const statusEl = document.getElementById("status");
+
+const DT = 1/60;
+const DAMP = 0.99;
+const MAX_V = 1800;
+const G = 8200;
+const SOFTEN = 14;
+const SPRING_K = 0.07;
+const SOLVER_ITERS = 4;
+
+const BASE_SPEED = 300*dpr;
+const MAX_SPEED = 860*dpr;
+const SPEED_UP = 8*dpr;
+
+const TIDE_RADIUS = 520*dpr;
+const STRETCH_WARN = 1.1;
+const STRETCH_KILL = 1.55;
+const STRETCH_TIME = 0.3;
+
+const stars = [];
+const holes = [];
+const fuels = [];
+let holeTimer = 0;
+let speed = BASE_SPEED;
+let fuel = 100;
+let fuelTimer = 0;
+
+function makeAstronautHorizontal(x,y){
+  const pts=[];
+  const links=[];
+  const idx = {};
+  const S = 1.1*dpr;
+
+  function P(ax,ay){
+    pts.push({x:ax,y:ay,vx:0,vy:0});
+    return pts.length-1;
+  }
+  function link(i,j,restScale=1){
+    const dx=pts[j].x-pts[i].x;
+    const dy=pts[j].y-pts[i].y;
+    const d=Math.hypot(dx,dy)*restScale;
+    links.push([i,j,d]);
+  }
+  function chain(i,j,segments,restScale=1){
+    if(segments<=0){
+      link(i,j,restScale);
+      return;
+    }
+    let prev=i;
+    for(let s=1;s<=segments;s++){
+      const t=s/(segments+1);
+      const px=pts[i].x+(pts[j].x-pts[i].x)*t;
+      const py=pts[i].y+(pts[j].y-pts[i].y)*t;
+      const mid=P(px,py);
+      link(prev,mid,restScale);
+      prev=mid;
+    }
+    link(prev,j,restScale);
+  }
+
+  idx.head = P(x, y);
+  idx.neck = P(x - 9*S, y);
+  idx.shoulderL = P(x - 12*S, y - 9*S);
+  idx.shoulderR = P(x - 12*S, y + 9*S);
+  idx.elbowL = P(x - 26*S, y - 18*S);
+  idx.elbowR = P(x - 26*S, y + 18*S);
+  idx.handL = P(x - 40*S, y - 22*S);
+  idx.handR = P(x - 40*S, y + 22*S);
+  idx.chest = P(x - 22*S, y);
+  idx.hip = P(x - 36*S, y);
+  idx.kneeL = P(x - 54*S, y - 7*S);
+  idx.kneeR = P(x - 54*S, y + 7*S);
+  idx.footL = P(x - 72*S, y - 9*S);
+  idx.footR = P(x - 72*S, y + 9*S);
+
+  chain(idx.head, idx.neck, 1);
+  chain(idx.neck, idx.chest, 2);
+  chain(idx.chest, idx.hip, 2);
+
+  chain(idx.neck, idx.shoulderL, 1);
+  chain(idx.neck, idx.shoulderR, 1);
+  chain(idx.shoulderL, idx.elbowL, 2);
+  chain(idx.shoulderR, idx.elbowR, 2);
+  chain(idx.elbowL, idx.handL, 1);
+  chain(idx.elbowR, idx.handR, 1);
+  link(idx.shoulderL, idx.shoulderR);
+
+  chain(idx.hip, idx.kneeL, 2);
+  chain(idx.hip, idx.kneeR, 2);
+  chain(idx.kneeL, idx.footL, 1);
+  chain(idx.kneeR, idx.footR, 1);
+  link(idx.kneeL, idx.kneeR);
+
+  link(idx.shoulderL, idx.hip, 1.02);
+  link(idx.shoulderR, idx.hip, 1.02);
+  link(idx.chest, idx.kneeL, 1.03);
+  link(idx.chest, idx.kneeR, 1.03);
+
+  const head = pts[idx.head];
+  const foot = pts[idx.footL].x < pts[idx.footR].x ? pts[idx.footL] : pts[idx.footR];
+  const restLen = Math.hypot(foot.x-head.x, foot.y-head.y);
+
+  return {pts,links,idx,restLen,stretchRatio:1,stretchTime:0,swallowTime:0};
+}
+
+const player = {rig:null,targetX:0,targetY:0,ctrlVX:0,ctrlVY:0};
+
+function resetGame(){
+  running = true; paused = false; time=0; distance=0; speed=BASE_SPEED; statusText="Running";
+  const px = W*0.5;
+  const py = H*0.5;
+  player.rig = makeAstronautHorizontal(px, py);
+  player.targetX = px;
+  player.targetY = py;
+  player.ctrlVX = 0; player.ctrlVY = 0;
+  stars.length=0; holes.length=0; fuels.length=0; holeTimer=0; fuelTimer=0;
+  fuel = 100;
+  for(let i=0;i<120;i++){
+    stars.push({x:Math.random()*W,y:Math.random()*H,s:Math.random()*1.8+0.4,a:Math.random()*0.6+0.2});
+  }
+}
+resetGame();
+
+function spawnHole(){
+  const r = (4+Math.random()*7)*dpr;
+  const y = 60*dpr + Math.random()*(H-120*dpr);
+  holes.push({
+    x: W+r+Math.random()*180*dpr,
+    y,
+    r,
+    core: r*0.12,
+    warp: r*220,
+    influence: r*90
+  });
+}
+
+function spawnFuel(){
+  const r = 8*dpr;
+  const y = 70*dpr + Math.random()*(H-140*dpr);
+  fuels.push({x:W+r+Math.random()*220*dpr,y,r,spin:Math.random()*Math.PI*2});
+}
+
+function update(dt){
+  if(!running || paused) return;
+  time += dt; speed = Math.min(MAX_SPEED, speed + dt*SPEED_UP); distance += speed*dt;
+
+  let tx = player.targetX;
+  let ty = player.targetY;
+  if(pointer.active){
+    tx = pointer.x; ty = pointer.y;
+  }else{
+    const dirX = (keys.right?1:0) - (keys.left?1:0);
+    const dirY = (keys.down?1:0) - (keys.up?1:0);
+    tx += dirX * 520*dpr * dt;
+    ty += dirY * 520*dpr * dt;
+  }
+  const margin = 50*dpr;
+  tx = Math.max(margin, Math.min(W-margin, tx));
+  ty = Math.max(margin, Math.min(H-margin, ty));
+  player.targetX = tx; player.targetY = ty;
+
+  stars.forEach(s=>{
+    s.x -= speed * dt * 0.35;
+    if(s.x < -10*dpr){ s.x = W + Math.random()*W*0.2; s.y = Math.random()*H; }
+  });
+
+  holeTimer -= dt;
+  if(holeTimer<=0 && holes.length<7){
+    spawnHole();
+    holeTimer = 0.8 + Math.random()*0.6;
+  }
+  for(let i=holes.length-1;i>=0;i--){
+    const h = holes[i];
+    h.x -= speed * dt;
+    if(h.x < -h.r*3) holes.splice(i,1);
+  }
+
+  fuelTimer -= dt;
+  if(fuelTimer<=0 && fuels.length<4){
+    spawnFuel();
+    fuelTimer = 2.5 + Math.random()*2.5;
+  }
+  for(let i=fuels.length-1;i>=0;i--){
+    const f = fuels[i];
+    f.x -= speed * dt;
+    f.spin += dt*2.2;
+    if(f.x < -f.r*3) fuels.splice(i,1);
+  }
+
+  const rig = player.rig;
+  const pts = rig.pts;
+  const head = pts[rig.idx.head];
+
+  // control velocity (applied uniformly so movement doesn't stretch)
+  const targetVX = (player.targetX - head.x) * 6.0;
+  const targetVY = (player.targetY - head.y) * 6.0;
+  player.ctrlVX += (targetVX - player.ctrlVX) * 0.2;
+  player.ctrlVY += (targetVY - player.ctrlVY) * 0.2;
+
+  const dxMove = player.ctrlVX * dt;
+  const dyMove = player.ctrlVY * dt;
+  if(dxMove || dyMove){
+    pts.forEach(p=>{ p.x += dxMove; p.y += dyMove; });
+  }
+
+  // gravity per-point
+  for(let i=0;i<pts.length;i++){
+    const p = pts[i];
+    for(let h=0; h<holes.length; h++){
+      const bh = holes[h];
+      const dx = bh.x - p.x;
+      const dy = bh.y - p.y;
+      const r2 = dx*dx + dy*dy + SOFTEN*SOFTEN;
+      const r = Math.sqrt(r2);
+      const f = (G * bh.r) / r2;
+      p.vx += dx/r * f * dt;
+      p.vy += dy/r * f * dt;
+    }
+    p.vx *= DAMP;
+    p.vy *= DAMP;
+    const v = Math.hypot(p.vx,p.vy);
+    if(v > MAX_V){
+      p.vx *= MAX_V/v;
+      p.vy *= MAX_V/v;
+    }
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+  }
+
+  // constraints
+  for(let it=0; it<SOLVER_ITERS; it++){
+    rig.links.forEach(([i,j,rest])=>{
+      const p = pts[i];
+      const q = pts[j];
+      const dx = q.x - p.x;
+      const dy = q.y - p.y;
+      const d = Math.hypot(dx,dy) || 1;
+      const diff = (d - rest) / d * SPRING_K;
+      p.x += dx * diff * 0.5;
+      p.y += dy * diff * 0.5;
+      q.x -= dx * diff * 0.5;
+      q.y -= dy * diff * 0.5;
+    });
+  }
+
+  // collisions, fuel, spaghettify
+  let nearest = Infinity;
+  let deep = false;
+  holes.forEach(h=>{
+    for(let i=0;i<pts.length;i++){
+      const p = pts[i];
+      const d = Math.hypot(h.x - p.x, h.y - p.y);
+      if(d < h.core){
+        deep = true;
+        rig.swallowTime += dt;
+        break;
+      }
+    }
+    const dx = h.x - head.x; const dy = h.y - head.y;
+    nearest = Math.min(nearest, Math.hypot(dx,dy) - h.r);
+  });
+  if(!deep){
+    rig.swallowTime = Math.max(0, rig.swallowTime - dt*0.6);
+  }
+
+  // fuel drain
+  const gravityDrain = Math.max(0, (TIDE_RADIUS - nearest) / TIDE_RADIUS);
+  fuel -= dt * (2.0 + gravityDrain * 6.0);
+  if(fuel <= 0){
+    fuel = 0;
+    statusText = "Out of Fuel";
+    running = false;
+  }
+
+  // fuel pickup (any body point)
+  for(let i=fuels.length-1;i>=0;i--){
+    const f = fuels[i];
+    let got = false;
+    for(let j=0;j<pts.length;j++){
+      const p = pts[j];
+      const d = Math.hypot(f.x - p.x, f.y - p.y);
+      if(d < f.r + 14*dpr){
+        got = true;
+        break;
+      }
+    }
+    if(got){
+      fuel = Math.min(100, fuel + 22);
+      fuels.splice(i,1);
+    }
+  }
+
+  const footL = pts[rig.idx.footL];
+  const footR = pts[rig.idx.footR];
+  const foot = footL.x < footR.x ? footL : footR;
+  const length = Math.hypot(foot.x - head.x, foot.y - head.y);
+  rig.stretchRatio = length / rig.restLen;
+
+  if(nearest < TIDE_RADIUS && rig.stretchRatio > STRETCH_WARN){
+    rig.stretchTime += dt;
+  }else{
+    rig.stretchTime = Math.max(0, rig.stretchTime - dt*1.6);
+  }
+
+  if(rig.swallowTime > 0.3){
+    statusText = "Swallowed";
+    running = false;
+  }
+  if(nearest < TIDE_RADIUS && rig.stretchRatio > STRETCH_KILL && rig.stretchTime > STRETCH_TIME){
+    statusText = "Spaghettified";
+    running = false;
+  }
+}
+
+function drawGrid(){
+  ctx.strokeStyle = "rgba(190,220,255,0.8)";
+  ctx.lineWidth = 1.0*dpr;
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
+  const spacing = 8*dpr;
+  const amp = 1400*dpr;
+  const step = spacing/3;
+
+  for(let gx=0; gx<=W; gx+=spacing){
+    ctx.beginPath();
+    for(let y=0; y<=H; y+=step){
+      let wx = gx;
+      let wy = y;
+      holes.forEach(h=>{
+        const dx = wx - h.x;
+        const dy = wy - h.y;
+        const r2 = dx*dx + dy*dy + 1;
+        const inf = h.influence;
+        const raw = (amp + h.warp) / (r2/(inf*inf) + 1);
+        const maxPull = h.r * 8;
+        const pull = maxPull * Math.tanh(raw / maxPull);
+        wx += (dx/Math.sqrt(r2)) * pull;
+        wy += (dy/Math.sqrt(r2)) * pull;
+      });
+      if(y===0) ctx.moveTo(wx,wy); else ctx.lineTo(wx,wy);
+    }
+    ctx.stroke();
+  }
+
+  for(let gy=0; gy<=H; gy+=spacing){
+    ctx.beginPath();
+    for(let x=0; x<=W; x+=step){
+      let wx = x;
+      let wy = gy;
+      holes.forEach(h=>{
+        const dx = wx - h.x;
+        const dy = wy - h.y;
+        const r2 = dx*dx + dy*dy + 1;
+        const inf = h.influence;
+        const raw = (amp + h.warp) / (r2/(inf*inf) + 1);
+        const maxPull = h.r * 8;
+        const pull = maxPull * Math.tanh(raw / maxPull);
+        wx += (dx/Math.sqrt(r2)) * pull;
+        wy += (dy/Math.sqrt(r2)) * pull;
+      });
+      if(x===0) ctx.moveTo(wx,wy); else ctx.lineTo(wx,wy);
+    }
+    ctx.stroke();
+  }
+}
+
+function drawAstronaut(){
+  const rig = player.rig;
+  const p = rig.pts;
+  const i = rig.idx;
+  const head = p[i.head];
+  const heat = Math.min(1, Math.max(0, (rig.stretchRatio-1.05)/0.9));
+
+  p.forEach((pt,idx)=>{
+    const base = idx===i.head ? 12.5*dpr : 8.8*dpr;
+    const g = ctx.createRadialGradient(pt.x, pt.y, base*0.2, pt.x, pt.y, base*1.6);
+    g.addColorStop(0,`rgba(255,255,255,${0.9+heat*0.1})`);
+    g.addColorStop(0.5,"rgba(210,230,255,0.65)");
+    g.addColorStop(1,"rgba(160,190,255,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(pt.x,pt.y,base*1.5,0,Math.PI*2);
+    ctx.fill();
+  });
+
+  ctx.strokeStyle = `rgba(${200+55*heat},${220-80*heat},${255-140*heat},0.92)`;
+  ctx.lineWidth = (2.1 + heat*1.2) * dpr;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  rig.links.forEach(([i1,i2])=>{
+    const p1 = p[i1], p2 = p[i2];
+    ctx.moveTo(p1.x,p1.y);
+    ctx.lineTo(p2.x,p2.y);
+  });
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(255,255,255,0.9)";
+  ctx.lineWidth = 2*dpr;
+  ctx.beginPath(); ctx.arc(head.x, head.y, 9.2*dpr, 0, Math.PI*2); ctx.stroke();
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = "#05060f";
+  ctx.fillRect(0,0,W,H);
+
+  drawGrid();
+
+  stars.forEach(s=>{
+    ctx.globalAlpha = s.a;
+    ctx.fillStyle = "rgba(210,225,255,1)";
+    ctx.beginPath(); ctx.arc(s.x,s.y,s.s*dpr,0,Math.PI*2); ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+
+  holes.forEach(h=>{
+    const grad = ctx.createRadialGradient(h.x,h.y,h.r*0.1,h.x,h.y,h.r*5.0);
+    grad.addColorStop(0,"#000");
+    grad.addColorStop(0.5,"#000");
+    grad.addColorStop(0.75,"rgba(120,170,255,0.22)");
+    grad.addColorStop(1,"rgba(120,170,255,0)");
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(h.x,h.y,h.r*5.0,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle = "rgba(140,190,255,0.55)";
+    ctx.lineWidth = 1.4*dpr;
+    ctx.beginPath(); ctx.arc(h.x,h.y,h.r*1.1,0,Math.PI*2); ctx.stroke();
+    ctx.fillStyle = "#000";
+    ctx.beginPath(); ctx.arc(h.x,h.y,h.core,0,Math.PI*2); ctx.fill();
+  });
+
+  fuels.forEach(f=>{
+    const g2 = ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,f.r*3.2);
+    g2.addColorStop(0,"rgba(160,255,210,0.95)");
+    g2.addColorStop(0.6,"rgba(120,240,190,0.35)");
+    g2.addColorStop(1,"rgba(120,240,190,0)");
+    ctx.fillStyle = g2;
+    ctx.beginPath(); ctx.arc(f.x,f.y,f.r*3.2,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle = "rgba(170,255,220,0.8)";
+    ctx.lineWidth = 2*dpr;
+    ctx.beginPath(); ctx.arc(f.x,f.y,f.r,0,Math.PI*2); ctx.stroke();
+  });
+
+  drawAstronaut();
+}
+
+let last = performance.now();
+function loop(t){
+  const dt = Math.min(0.05, (t-last)/1000);
+  last = t;
+  update(dt);
+  draw();
+  timeEl.textContent = time.toFixed(1);
+  distEl.textContent = Math.floor(distance/120/dpr);
+  fuelEl.textContent = Math.max(0, Math.round(fuel));
+  statusEl.textContent = paused ? "Paused" : statusText;
+  requestAnimationFrame(loop);
+}
+loop(last);
+
+const pauseBtn = document.getElementById("pause");
+const resetBtn = document.getElementById("reset");
+pauseBtn.onclick = ()=>{ paused = !paused; statusText = paused ? "Paused" : "Running"; };
+resetBtn.onclick = ()=>{ resetGame(); };
+</script>
+</body>
+</html>

@@ -13,7 +13,7 @@
 
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Discrete Emitters — Unique Sum Mazes</title>
+<title>Source Field</title>
 <style>
   :root{
     --bg:#0b1020;
@@ -128,6 +128,7 @@
 
     <div class="pill gold">Level: <strong id="level">1</strong></div>
     <div class="pill">Sources: <strong id="used">0</strong>/<strong id="K">0</strong></div>
+    <div class="pill">Peak: <strong id="peak">0</strong></div>
     <div class="pill">Clues matched: <strong id="match">0</strong>/<strong id="cluesN">0</strong></div>
     <div class="pill" id="status">Status: <strong>In progress</strong></div>
   </div>
@@ -135,7 +136,7 @@
   <div id="board">
     <div id="hintBar">
       <div id="hintChip">
-        Goal: place sources so every clue number equals the total signal in that cell. Each source has a peak at its own cell, then the signal decreases by 1 per step as it travels in the four cardinal directions (up, right, down, left). Signal travels in straight lines and is absorbed by walls. Signals from multiple sources add together. The small numbers in each cell show the current total signal from all sources. Only the clue cells matter for winning — match every clue exactly. Use exactly K sources.
+        Goal: place sources so every clue number equals the total signal in that cell. Each source has a peak at its own cell (shown above as Peak), then the signal decreases by 1 per step as it travels in the four cardinal directions (up, right, down, left). Signal travels in straight lines and is absorbed by walls. Signals from multiple sources add together. The small numbers in each cell show the current total signal from all sources. Only the clue cells matter for winning — match every clue exactly. Use exactly K sources.
         <span class="x" id="hintX">✕</span>
       </div>
     </div>
@@ -145,9 +146,9 @@
 
 <script>
 /* =========================================================
-   Discrete Sources — Unique Sum Mazes (fixed + harder)
+   Source Field — Discrete Sources (fixed + harder)
    - Size and difficulty are separate controls
-   - Exact K sources + UNIQUE solution enforced on Medium+
+   - Exact K sources; solutions may not be unique
    - Numbers always shown (current sums)
    - Clues are target cells (badges); all must match to solve
    - Mobile: grid always scales to fit visible canvas
@@ -165,6 +166,7 @@ const ui = {
   level: document.getElementById("level"),
   used: document.getElementById("used"),
   K: document.getElementById("K"),
+  peak: document.getElementById("peak"),
   match: document.getElementById("match"),
   cluesN: document.getElementById("cluesN"),
   status: document.getElementById("status"),
@@ -390,16 +392,31 @@ function placeHiddenSolution(){
   // mix: some spread + some "not too spread" to increase overlaps
   const chosen = [];
   const total = cols*rows;
+  const used = new Uint8Array(total);
+
+  // block balancing to avoid large empty regions
+  const block = Math.max(2, Math.floor(cols/3));
+  const bx = Math.ceil(cols / block);
+  const by = Math.ceil(rows / block);
+  const blockCounts = new Uint8Array(bx*by);
+  const blockIndex = (i)=>{
+    const x = i % cols;
+    const y = (i / cols) | 0;
+    return (Math.floor(x / block) + Math.floor(y / block) * bx);
+  };
 
   // pick first uniformly
-  chosen.push(randi(0,total-1));
+  const first = randi(0,total-1);
+  chosen.push(first);
+  used[first]=1;
+  blockCounts[blockIndex(first)]++;
 
   while(chosen.length < K){
     let best=-1, bestScore=-1;
 
     for(let t=0;t<900;t++){
       const i = randi(0,total-1);
-      if(chosen.includes(i)) continue;
+      if(used[i]) continue;
 
       // distances to existing
       let dmin = 1e9, dmax = 0, dsum = 0;
@@ -414,15 +431,20 @@ function placeHiddenSolution(){
 
       // prefer moderate distances (forces overlaps), but avoid clumping too hard
       const target = (cols+rows)*0.33;
+      const bi = blockIndex(i);
+      const blockBias = 1 - (blockCounts[bi] / Math.max(1, Math.ceil(K/(bx*by))));
       const score =
         1.4 * (1 - Math.abs((dsum/chosen.length) - target) / (target+1)) +
         0.6 * Math.min(dmin/3, 1) +
+        0.7 * blockBias +
         0.15 * Math.random();
 
       if(score > bestScore){ bestScore = score; best = i; }
     }
 
     chosen.push(best);
+    used[best]=1;
+    blockCounts[blockIndex(best)]++;
   }
 
   for(const i of chosen) emitters[i]=1;
@@ -666,18 +688,18 @@ function deriveParamsFromSizeAndDifficulty(size, diffKey){
   // size: 7..13; difficulty bumps strength and K, but not monotonically by size
   const d = DIFF[diffKey];
 
-  // Strength: larger grids need slightly more reach; difficulty adds reach too
-  const baseS = 5 + Math.floor((size-7)*0.6);
+  // Strength: larger grids + harder modes increase peak (longer, denser overlap)
+  const baseS = 6 + Math.floor((size-7)*0.7);
   const diffBoost = diffKey==="easy" ? 0 : diffKey==="medium" ? 1 : diffKey==="hard" ? 2 : 3;
-  EMIT_STRENGTH = clamp(baseS + diffBoost + randi(0,1), 5, 10);
+  EMIT_STRENGTH = clamp(baseS + diffBoost + randi(0,1), 6, 12);
 
-  // K: scale with size, but not too large (solver cost)
-  const baseK = 2 + Math.floor((size-7)*0.45);
-  const kBoost = diffKey==="easy" ? 0 : diffKey==="medium" ? 1 : diffKey==="hard" ? 1 : 2;
-  K = clamp(baseK + kBoost + (Math.random()<0.35?1:0), 2, Math.min(6, Math.floor(size*0.55)));
+  // K: scale up for more overlap-based difficulty
+  const baseK = 4 + Math.floor((size-7)*0.8);
+  const kBoost = diffKey==="easy" ? 0 : diffKey==="medium" ? 2 : diffKey==="hard" ? 3 : 4;
+  K = clamp(baseK + kBoost + (Math.random()<0.35?1:0), 4, Math.min(12, Math.floor(size*0.85)));
 
   // Keep K solvable with constraints
-  if(size>=12 && diffKey==="cruel") K = clamp(K, 4, 6);
+  if(size>=12 && diffKey==="cruel") K = clamp(K, 8, 12);
 }
 
 function generatePuzzle(){
@@ -700,7 +722,8 @@ function generatePuzzle(){
     solution = placeHiddenSolution();
     buildClues(solution, cfg);
 
-    if(cfg.enforceUnique){
+    const enforceUnique = cfg.enforceUnique && K <= 7;
+    if(enforceUnique){
       const sol = countSolutionsUpTo2();
       if(sol === 1) accepted = true;
     }else{
@@ -720,6 +743,7 @@ function generatePuzzle(){
   recomputeField();
 
   ui.K.textContent = String(K);
+  ui.peak.textContent = String(EMIT_STRENGTH);
   ui.cluesN.textContent = String(clues.length);
   dirty = true;
 }
@@ -868,7 +892,7 @@ function drawCluesAndEmitters(){
     ctx.font = `${Math.max(11, Math.floor(cell*0.34))}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(String(EMIT_STRENGTH), r.cx, r.cy);
+    ctx.fillText(String(field[i]), r.cx, r.cy);
   }
 
   return matched;
@@ -923,6 +947,7 @@ function drawWalls(){
 function updateHUD(matched){
   ui.level.textContent = String(levelIndex);
   ui.K.textContent = String(K);
+  ui.peak.textContent = String(EMIT_STRENGTH);
 
   const used = countEmitters();
   ui.used.textContent = String(used);
