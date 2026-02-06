@@ -1,0 +1,1199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hexy Battle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg1:#0c1016;
+      --bg2:#141b25;
+      --panel:#121824;
+      --panel2:#0f141d;
+      --ink:#e8f0ff;
+      --muted:#9fb1cc;
+      --edge:#283246;
+      --accent:#7ad3ff;
+      --heart:#ffd66a;
+      --neutral:#91a0b6;
+      --player:#64b5ff;
+      --bot:#ff6b6b;
+      --p3:#6fe3a8;
+      --p4:#f2c562;
+      --radius:16px;
+      --shadow: 0 12px 30px rgba(0,0,0,0.35);
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      color:var(--ink);
+      font-family:"Space Grotesk", system-ui, sans-serif;
+      background:
+        radial-gradient(900px 500px at 10% 10%, rgba(122,211,255,0.12), transparent 55%),
+        radial-gradient(700px 500px at 90% 20%, rgba(243,184,90,0.10), transparent 60%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      min-height:100vh;
+    }
+    .app{
+      max-width:1200px;
+      margin:0 auto;
+      padding:16px;
+    }
+    header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:12px;
+    }
+    .titleCard{
+      background: linear-gradient(180deg, rgba(18,24,36,0.95), rgba(14,18,26,0.95));
+      border:1px solid var(--edge);
+      border-radius:var(--radius);
+      padding:12px 14px;
+      box-shadow:var(--shadow);
+      flex:1;
+    }
+    .titleCard h1{
+      font-family:"Fraunces", serif;
+      font-size:20px;
+      margin:0 0 6px 0;
+      letter-spacing:0.3px;
+    }
+    .titleCard p{
+      margin:0;
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.35;
+    }
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+    button{
+      background:rgba(18,24,36,0.95);
+      color:var(--ink);
+      border:1px solid var(--edge);
+      border-radius:12px;
+      padding:9px 12px;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow:0 8px 18px rgba(0,0,0,0.22);
+    }
+    button:hover{ filter:brightness(1.1); }
+    button:active{ transform:translateY(1px); }
+    select{
+      background:rgba(18,24,36,0.95);
+      color:var(--ink);
+      border:1px solid var(--edge);
+      border-radius:10px;
+      padding:6px 8px;
+      font-weight:700;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap:14px;
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(18,24,36,0.95), rgba(14,18,26,0.95));
+      border:1px solid var(--edge);
+      border-radius:var(--radius);
+      padding:12px;
+      box-shadow:var(--shadow);
+    }
+    .cardTitle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      margin-bottom:10px;
+    }
+    .cardTitle .label{
+      font-weight:800;
+      font-size:13px;
+      letter-spacing:0.2px;
+    }
+    .hint{ color:var(--muted); font-size:12px; }
+
+    canvas{
+      width:100%;
+      height:auto;
+      border-radius:14px;
+      background: radial-gradient(600px 400px at 20% 20%, rgba(255,255,255,0.03), transparent 60%), #0a0e15;
+      border:1px solid rgba(40,50,70,0.9);
+    }
+
+    .panel{
+      background: rgba(12,16,22,0.75);
+      border:1px solid rgba(40,50,70,0.85);
+      border-radius:12px;
+      padding:10px;
+      margin-bottom:10px;
+    }
+    .panel h3{
+      margin:0 0 8px 0;
+      font-size:12px;
+      color:var(--muted);
+      letter-spacing:0.2px;
+      font-weight:800;
+      text-transform:uppercase;
+    }
+    .shapeIcon{
+      width:22px;
+      height:22px;
+      display:inline-block;
+    }
+    .shapeLabel{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      justify-content:center;
+    }
+    .rpsRow{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      font-size:12px;
+      color:var(--muted);
+      font-weight:700;
+    }
+
+    .row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .pill{
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(40,50,70,0.85);
+      background: rgba(12,16,22,0.6);
+      font-size:12px;
+      color:var(--muted);
+      font-weight:700;
+      display:inline-flex; align-items:center; gap:6px;
+    }
+
+    .scoreGrid{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap:10px;
+    }
+    .scoreCard{
+      background: rgba(12,16,22,0.75);
+      border:1px solid rgba(40,50,70,0.85);
+      border-radius:12px;
+      padding:10px;
+    }
+    .scoreCard h4{ margin:0 0 6px 0; font-size:12px; color:var(--muted); }
+    .scoreCard .big{
+      font-size:20px;
+      font-weight:800;
+      letter-spacing:0.3px;
+    }
+    .scoreCard .sub{ font-size:12px; color:var(--muted); }
+
+    .legend{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:8px;
+    }
+    .legendItem{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:8px 10px;
+      border-radius:12px;
+      background: rgba(12,16,22,0.65);
+      border:1px solid rgba(40,50,70,0.85);
+      font-size:12px;
+      color:var(--muted);
+      font-weight:700;
+    }
+    .roleBadge{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:6px 8px;
+      border-radius:999px;
+      border:1px solid rgba(40,50,70,0.85);
+      background: rgba(12,16,22,0.7);
+      font-size:12px;
+      font-weight:800;
+      color:var(--ink);
+    }
+
+    .turnBanner{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:8px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(40,50,70,0.85);
+      background: rgba(12,16,22,0.75);
+      font-size:12.5px;
+      color:var(--muted);
+      font-weight:700;
+    }
+
+    .footerNote{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:8px;
+      line-height:1.4;
+    }
+
+    @media (max-width: 940px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="titleCard">
+        <h1>Hexy Battle</h1>
+        <p>Move one piece per turn. Stay near what loves you, flee what hates you. Influence resolves after every move.</p>
+      </div>
+      <div class="actions">
+        <button id="newGameBtn">New Game</button>
+        <button id="resetBtn">Reset Match</button>
+        <label class="pill">Mode
+          <select id="modeSelect">
+            <option value="pve">PvE (vs Bot)</option>
+            <option value="pvp">PvP (Local)</option>
+          </select>
+        </label>
+        <label class="pill">Rules
+          <select id="ruleSelect">
+            <option value="basic">RPS</option>
+            <option value="advanced">RPSLS</option>
+          </select>
+        </label>
+        <label class="pill">Players
+          <select id="playerSelect">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+        </label>
+        <label class="pill">Board
+          <select id="boardSelect">
+            <option value="2">Radius 2</option>
+            <option value="4">Radius 4</option>
+          </select>
+        </label>
+        <label class="pill">Sim Speed
+          <select id="simSpeed">
+            <option value="600">Fast</option>
+            <option value="1100" selected>Normal</option>
+            <option value="1800">Slow</option>
+          </select>
+        </label>
+        <button id="simBtn">Simulate</button>
+        <button id="stopBtn">Stop</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <div class="cardTitle">
+          <div class="label">Board</div>
+          <div class="hint" id="statusHint">Select a piece, then click an adjacent hex.</div>
+        </div>
+        <canvas id="board" width="820" height="620"></canvas>
+      </div>
+
+      <div class="card">
+        <div class="panel">
+          <h3>Turn</h3>
+          <div class="turnBanner" id="turnBanner">Player turn 1</div>
+          <div class="pill" id="rangePill" style="margin-top:8px">Move range: 1</div>
+        </div>
+
+        <div class="panel">
+          <h3>Scores</h3>
+          <div class="scoreGrid" id="scoreGrid"></div>
+        </div>
+
+        <div class="panel">
+          <h3 id="rulesTitle">Rock · Paper · Scissors</h3>
+          <div class="rpsRow" id="rulesRow"></div>
+          <div class="footerNote" id="rulesExplain" style="margin-top:8px"></div>
+          <div class="footerNote" style="margin-top:8px">
+            If your piece is adjacent to an opponent it beats, you gain +1 ❤️. If an adjacent opponent beats you, you lose 1 ❤️.
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Legend</h3>
+          <div class="row" id="playerLegend"></div>
+          <div class="row" style="margin-top:8px">
+            <span class="pill" style="color:var(--heart)">❤️ Win = +1</span>
+            <span class="pill" style="color:var(--muted)">❤️ Loss = -1</span>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <span class="pill"><span id="legendCircle"></span> Rock</span>
+            <span class="pill"><span id="legendSquare"></span> Paper</span>
+            <span class="pill"><span id="legendTriangle"></span> Scissors</span>
+            <span class="pill" id="legendLizardWrap" style="display:none"><span id="legendLizard"></span> Lizard</span>
+            <span class="pill" id="legendSpockWrap" style="display:none"><span id="legendSpock"></span> Spock</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Simulation Log</h3>
+          <div class="panelBody" id="simLog" style="max-height:160px; overflow:auto; font-size:12px; line-height:1.4; color:var(--muted);"></div>
+        </div>
+
+        <div class="footerNote">
+          Each player starts with 10 hearts. Only the piece you move competes. For each adjacent enemy: if you beat it, you steal 1 heart; if it beats you, you lose 1 heart. No adjacency = no change. Play until someone hits 0.
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const canvas = document.getElementById("board");
+  const ctx = canvas.getContext("2d");
+  const statusHint = document.getElementById("statusHint");
+  const scoreGridEl = document.getElementById("scoreGrid");
+  const playerLegendEl = document.getElementById("playerLegend");
+  const legendCircle = document.getElementById("legendCircle");
+  const legendSquare = document.getElementById("legendSquare");
+  const legendTriangle = document.getElementById("legendTriangle");
+  const legendLizard = document.getElementById("legendLizard");
+  const legendSpock = document.getElementById("legendSpock");
+  const legendLizardWrap = document.getElementById("legendLizardWrap");
+  const legendSpockWrap = document.getElementById("legendSpockWrap");
+  const modeSelect = document.getElementById("modeSelect");
+  const ruleSelect = document.getElementById("ruleSelect");
+  const playerSelect = document.getElementById("playerSelect");
+  const boardSelect = document.getElementById("boardSelect");
+  const simSpeed = document.getElementById("simSpeed");
+  const simBtn = document.getElementById("simBtn");
+  const stopBtn = document.getElementById("stopBtn");
+  const simLog = document.getElementById("simLog");
+  const rulesTitle = document.getElementById("rulesTitle");
+  const rulesRow = document.getElementById("rulesRow");
+  const rulesExplain = document.getElementById("rulesExplain");
+  const rangePill = document.getElementById("rangePill");
+  const turnBanner = document.getElementById("turnBanner");
+  const newGameBtn = document.getElementById("newGameBtn");
+  const resetBtn = document.getElementById("resetBtn");
+
+  let hexRadius = 2;
+  const BASE_SHAPES = ["rock", "paper", "scissors"];
+  const ADV_SHAPES = ["rock", "paper", "scissors", "lizard", "spock"];
+  const DIRS = [
+    [1, 0], [1, -1], [0, -1],
+    [-1, 0], [-1, 1], [0, 1]
+  ];
+
+  const BEATS_BASIC = {
+    rock: ["scissors"],
+    scissors: ["paper"],
+    paper: ["rock"]
+  };
+  const BEATS_ADV = {
+    rock: ["scissors", "lizard"],
+    paper: ["rock", "spock"],
+    scissors: ["paper", "lizard"],
+    lizard: ["spock", "paper"],
+    spock: ["scissors", "rock"]
+  };
+
+  const state = {
+    pieces: [],
+    players: [],
+    turnIndex: 0,
+    scores: [],
+    selectedId: null,
+    cellSize: 48,
+    origin: { ox: canvas.width / 2, oy: canvas.height / 2 },
+    animEvents: [],
+    gameOver: false,
+    mode: "pve",
+    ruleset: "basic",
+    moveRange: 1,
+    simTimer: null,
+    simulating: false
+  };
+
+  const PLAYER_COLORS = ["--player", "--bot", "--p3", "--p4"];
+
+  function hexDistance(a, b){
+    const aq = a.q, ar = a.r;
+    const bq = b.q, br = b.r;
+    const as = -aq - ar;
+    const bs = -bq - br;
+    return Math.max(Math.abs(aq - bq), Math.abs(ar - br), Math.abs(as - bs));
+  }
+
+  function axialToCube(cell){
+    const x = cell.q;
+    const z = cell.r;
+    const y = -x - z;
+    return { x, y, z };
+  }
+
+  function cubeLerp(a, b, t){
+    return {
+      x: a.x + (b.x - a.x) * t,
+      y: a.y + (b.y - a.y) * t,
+      z: a.z + (b.z - a.z) * t
+    };
+  }
+
+  function cubeRound(c){
+    let rx = Math.round(c.x);
+    let ry = Math.round(c.y);
+    let rz = Math.round(c.z);
+    const xDiff = Math.abs(rx - c.x);
+    const yDiff = Math.abs(ry - c.y);
+    const zDiff = Math.abs(rz - c.z);
+    if (xDiff > yDiff && xDiff > zDiff) {
+      rx = -ry - rz;
+    } else if (yDiff > zDiff) {
+      ry = -rx - rz;
+    } else {
+      rz = -rx - ry;
+    }
+    return { q: rx, r: rz };
+  }
+
+  function hexLine(from, to){
+    const N = hexDistance(from, to);
+    if (N <= 1) return [];
+    const a = axialToCube(from);
+    const b = axialToCube(to);
+    const results = [];
+    for (let i = 1; i < N; i++) {
+      const t = i / N;
+      results.push(cubeRound(cubeLerp(a, b, t)));
+    }
+    return results;
+  }
+
+  function axialToPixel(q, r){
+    const size = state.cellSize;
+    const x = size * Math.sqrt(3) * (q + r / 2) + state.origin.ox;
+    const y = size * 1.5 * r + state.origin.oy;
+    return { x, y };
+  }
+
+  function pixelToAxial(x, y){
+    const size = state.cellSize;
+    const q = ((x - state.origin.ox) * Math.sqrt(3) / 3 - (y - state.origin.oy) / 3) / size;
+    const r = ((y - state.origin.oy) * 2 / 3) / size;
+    return hexRound(q, r);
+  }
+
+  function hexRound(q, r){
+    let x = q;
+    let z = r;
+    let y = -x - z;
+    let rx = Math.round(x);
+    let ry = Math.round(y);
+    let rz = Math.round(z);
+    const xDiff = Math.abs(rx - x);
+    const yDiff = Math.abs(ry - y);
+    const zDiff = Math.abs(rz - z);
+    if (xDiff > yDiff && xDiff > zDiff) {
+      rx = -ry - rz;
+    } else if (yDiff > zDiff) {
+      ry = -rx - rz;
+    } else {
+      rz = -rx - ry;
+    }
+    return { q: rx, r: rz };
+  }
+
+  function buildCells(){
+    const cells = [];
+    for (let q = -hexRadius; q <= hexRadius; q++) {
+      for (let r = -hexRadius; r <= hexRadius; r++) {
+        const s = -q - r;
+        if (Math.abs(s) <= hexRadius) cells.push({ q, r });
+      }
+    }
+    return cells;
+  }
+
+  let CELLS = buildCells();
+
+  function buildPlayers(){
+    const mode = state.mode;
+    const count = mode === "pve" ? 2 : Number(playerSelect.value);
+    const players = [];
+    for (let i = 0; i < count; i++) {
+      const isBot = mode === "pve" && i === 1;
+      const name = isBot ? "Bot" : `Player ${i + 1}`;
+      players.push({ id: i, name, isBot, colorVar: PLAYER_COLORS[i] });
+    }
+    state.players = players;
+  }
+
+  function currentPlayer(){
+    return state.players[state.turnIndex];
+  }
+
+  function isCellValid(cell){
+    return CELLS.some(c => c.q === cell.q && c.r === cell.r);
+  }
+
+  function pieceAt(cell){
+    return state.pieces.find(p => p.q === cell.q && p.r === cell.r);
+  }
+
+  function neighbors(cell){
+    return DIRS.map(d => ({ q: cell.q + d[0], r: cell.r + d[1] }))
+      .filter(isCellValid);
+  }
+
+  function addCell(a, b, k = 1){
+    return { q: a.q + b[0] * k, r: a.r + b[1] * k };
+  }
+
+  function ringCells(radius){
+    if (radius === 0) return [{ q: 0, r: 0 }];
+    const results = [];
+    let hex = addCell({ q: 0, r: 0 }, DIRS[4], radius);
+    for (let dir = 0; dir < 6; dir++) {
+      for (let i = 0; i < radius; i++) {
+        results.push({ q: hex.q, r: hex.r });
+        hex = addCell(hex, DIRS[dir], 1);
+      }
+    }
+    return results;
+  }
+
+
+  function setupPieces(){
+    ensureBoardSize();
+    const shapes = state.ruleset === "basic" ? BASE_SHAPES : ADV_SHAPES;
+    const ring = ringCells(hexRadius);
+    const perPlayer = shapes.length;
+
+    state.pieces = [];
+    state.players.forEach((player, idx) => {
+      const start = Math.floor(idx * ring.length / state.players.length);
+      for (let i = 0; i < perPlayer; i++) {
+        const cell = ring[(start + i) % ring.length];
+        state.pieces.push({ id: `p${idx}-${shapes[i]}`, owner: idx, shape: shapes[i], q: cell.q, r: cell.r });
+      }
+    });
+  }
+
+  function ensureBoardSize(){
+    const shapes = state.ruleset === "basic" ? BASE_SHAPES : ADV_SHAPES;
+    const needed = shapes.length * state.players.length;
+    const ringLen = 6 * hexRadius;
+    if (needed > ringLen) {
+      hexRadius = 4;
+      CELLS = buildCells();
+      resizeCanvas();
+    }
+  }
+
+  function resetScores(){
+    state.scores = state.players.map(() => ({ hearts: 10 }));
+  }
+
+  function resetTurns(){
+    state.turnIndex = 0;
+    state.movesMade = state.players.map(() => 0);
+    state.selectedId = null;
+    state.gameOver = false;
+    state.moveRange = rollRange();
+  }
+
+  function initGame(){
+    buildPlayers();
+    setupPieces();
+    resetScores();
+    resetTurns();
+    updateLegendShapes();
+    updateRulesUI();
+    updateUI();
+    statusHint.textContent = "Select a piece, then click an adjacent hex.";
+  }
+
+  function shapeEmoji(shape){
+    if (shape === "rock") return "🪨";
+    if (shape === "paper") return "📄";
+    if (shape === "scissors") return "✂️";
+    if (shape === "lizard") return "🦎";
+    return "🖖";
+  }
+
+  function shapeIcon(shape, color){
+    const stroke = "rgba(0,0,0,0.45)";
+    const emoji = shapeEmoji(shape);
+    return `
+      <svg class="shapeIcon" viewBox="0 0 24 24" aria-hidden="true">
+        <defs>
+          <filter id="shadowMini" x="-40%" y="-40%" width="180%" height="180%">
+            <feDropShadow dx="0" dy="1.2" stdDeviation="1.2" flood-color="rgba(0,0,0,0.5)"/>
+          </filter>
+        </defs>
+        <path d="M12 2.2 L20.2 7 L20.2 17 L12 21.8 L3.8 17 L3.8 7 Z" fill="${color}" stroke="${stroke}" stroke-width="1.2" filter="url(#shadowMini)"/>
+        <text x="12" y="15" font-size="11.5" text-anchor="middle" filter="url(#shadowMini)">${emoji}</text>
+      </svg>
+    `;
+  }
+
+  function updateLegendShapes(){
+    const color = getCss("--ink");
+    legendCircle.innerHTML = shapeIcon("rock", color);
+    legendSquare.innerHTML = shapeIcon("paper", color);
+    legendTriangle.innerHTML = shapeIcon("scissors", color);
+    if (state.ruleset === "advanced") {
+      legendLizardWrap.style.display = "inline-flex";
+      legendSpockWrap.style.display = "inline-flex";
+      legendLizard.innerHTML = shapeIcon("lizard", color);
+      legendSpock.innerHTML = shapeIcon("spock", color);
+    } else {
+      legendLizardWrap.style.display = "none";
+      legendSpockWrap.style.display = "none";
+    }
+  }
+
+  function updateRulesUI(){
+    if (state.ruleset === "basic") {
+      rulesTitle.textContent = "Rock · Paper · Scissors";
+      rulesRow.innerHTML = `
+        <span class="pill">🪨 Rock beats ✂️ Scissors</span>
+        <span class="pill">✂️ Scissors beats 📄 Paper</span>
+        <span class="pill">📄 Paper beats 🪨 Rock</span>
+      `;
+      rulesExplain.textContent = "Why: rock crushes scissors, scissors cut paper, paper covers rock.";
+    } else {
+      rulesTitle.textContent = "Rock · Paper · Scissors · Lizard · Spock";
+      rulesRow.innerHTML = `
+        <span class="pill">🪨 Rock beats ✂️ Scissors + 🦎 Lizard</span>
+        <span class="pill">📄 Paper beats 🪨 Rock + 🖖 Spock</span>
+        <span class="pill">✂️ Scissors beats 📄 Paper + 🦎 Lizard</span>
+        <span class="pill">🦎 Lizard beats 🖖 Spock + 📄 Paper</span>
+        <span class="pill">🖖 Spock beats ✂️ Scissors + 🪨 Rock</span>
+      `;
+      rulesExplain.textContent = "Why: rock crushes scissors and crushes lizard; paper covers rock and disproves Spock; scissors cut paper and decapitate lizard; lizard eats paper and poisons Spock; Spock smashes scissors and vaporizes rock.";
+    }
+  }
+
+
+  function updateUI(){
+    const turnIndex = state.movesMade[state.turnIndex] + 1;
+    const turnText = state.gameOver
+      ? "Match complete"
+      : `${currentPlayer().name} turn ${turnIndex}`;
+    turnBanner.textContent = turnText;
+
+    scoreGridEl.innerHTML = "";
+    state.players.forEach((p, i) => {
+      const card = document.createElement("div");
+      card.className = "scoreCard";
+      card.innerHTML = `
+        <h4>${p.name} Hearts</h4>
+        <div class="big">${state.scores[i].hearts}</div>
+        <div class="sub">Start: 10</div>
+      `;
+      scoreGridEl.appendChild(card);
+    });
+
+    playerLegendEl.innerHTML = "";
+    state.players.forEach((p) => {
+      const pill = document.createElement("span");
+      pill.className = "pill";
+      pill.style.color = `var(${p.colorVar})`;
+      pill.textContent = `${p.name} pieces`;
+      playerLegendEl.appendChild(pill);
+    });
+
+    modeSelect.value = state.mode;
+    ruleSelect.value = state.ruleset;
+    boardSelect.value = String(hexRadius);
+    playerSelect.value = String(state.players.length);
+    boardSelect.disabled = state.ruleset === "advanced";
+    rangePill.textContent = `Move range: ${state.moveRange}`;
+  }
+
+  function logSim(text){
+    const line = document.createElement("div");
+    line.textContent = text;
+    simLog.appendChild(line);
+    simLog.scrollTop = simLog.scrollHeight;
+  }
+
+  function effectForPair(source, target){
+    if (target.owner === source.owner) return "neutral";
+    const beats = state.ruleset === "basic" ? BEATS_BASIC : BEATS_ADV;
+    if (beats[source.shape].includes(target.shape)) return "win";
+    if (beats[target.shape].includes(source.shape)) return "lose";
+    return "neutral";
+  }
+
+  function resolveMoveCombat(movedPiece){
+    const events = [];
+    const now = performance.now();
+    const targets = neighbors(movedPiece).map(cell => pieceAt(cell)).filter(Boolean).filter(p => p.owner !== movedPiece.owner);
+    let delta = 0;
+    for (const target of targets) {
+      const role = effectForPair(movedPiece, target);
+      if (role === "win") {
+        delta += 1;
+        state.scores[movedPiece.owner].hearts += 1;
+        state.scores[target.owner].hearts -= 1;
+      } else if (role === "lose") {
+        delta -= 1;
+        state.scores[movedPiece.owner].hearts -= 1;
+        state.scores[target.owner].hearts += 1;
+      }
+    }
+    if (delta !== 0) {
+      const pos = axialToPixel(movedPiece.q, movedPiece.r);
+      const text = delta > 0 ? `+${delta}❤️` : `${delta}❤️`;
+      const color = delta > 0 ? getCss("--heart") : getCss("--muted");
+      events.push({ x: pos.x, y: pos.y - 6, text, color, start: now });
+      state.animEvents.push(...events);
+    }
+    updateUI();
+  }
+
+  function endTurn(movedPiece){
+    if (movedPiece) resolveMoveCombat(movedPiece);
+    state.movesMade[state.turnIndex] += 1;
+
+    const anyZero = state.scores.some(s => s.hearts <= 0);
+    if (anyZero) {
+      state.gameOver = true;
+      const winnerIndex = state.scores.reduce((bestIdx, s, i, arr) =>
+        (bestIdx === -1 || s.hearts > arr[bestIdx].hearts) ? i : bestIdx, -1);
+      const winnerName = winnerIndex >= 0 ? state.players[winnerIndex].name : "No one";
+      statusHint.textContent = `${winnerName} wins. Click New Game to play again.`;
+    } else {
+      do {
+        state.turnIndex = (state.turnIndex + 1) % state.players.length;
+      } while (state.scores[state.turnIndex].hearts <= 0);
+      state.moveRange = rollRange();
+
+      const current = currentPlayer();
+      if (current.isBot) {
+        statusHint.textContent = `Bot is thinking... (range ${state.moveRange})`;
+        setTimeout(botMove, 450);
+      } else {
+        statusHint.textContent = `${current.name} to move. Range: ${state.moveRange}`;
+      }
+    }
+    updateUI();
+  }
+
+  function legalMoves(piece){
+    return reachableCells(piece, state.moveRange);
+  }
+
+  function reachableCells(start, range){
+    const results = [];
+    const visited = new Set([`${start.q},${start.r}`]);
+    const queue = [{ q: start.q, r: start.r, d: 0 }];
+    while (queue.length) {
+      const cur = queue.shift();
+      if (cur.d === range) continue;
+      for (const n of neighbors(cur)) {
+        const key = `${n.q},${n.r}`;
+        if (visited.has(key)) continue;
+        visited.add(key);
+        if (pieceAt(n)) continue;
+        results.push(n);
+        queue.push({ q: n.q, r: n.r, d: cur.d + 1 });
+      }
+    }
+    return results;
+  }
+
+  function movePiece(piece, cell){
+    piece.q = cell.q;
+    piece.r = cell.r;
+  }
+
+  function evaluateMove(piece, cell){
+    const snapshot = state.pieces.map(p => ({ ...p }));
+    const moved = snapshot.find(p => p.id === piece.id);
+    moved.q = cell.q;
+    moved.r = cell.r;
+    const adjacent = neighbors(moved).map(n => snapshot.find(p => p.q === n.q && p.r === n.r)).filter(Boolean).filter(p => p.owner !== moved.owner);
+    let score = 0;
+    for (const target of adjacent) {
+      const role = effectForPair(moved, target);
+      if (role === "win") score += 1;
+      else if (role === "lose") score -= 1;
+    }
+    return score;
+  }
+
+  function botMove(){
+    if (state.gameOver) return;
+    const current = currentPlayer();
+    if (!current.isBot) return;
+    const botPieces = state.pieces.filter(p => p.owner === current.id);
+    let best = null;
+    for (const piece of botPieces) {
+      const moves = legalMoves(piece);
+      for (const cell of moves) {
+        const score = evaluateMove(piece, cell);
+        if (!best || score > best.score) {
+          best = { piece, cell, score };
+        }
+      }
+    }
+    if (best) {
+      movePiece(best.piece, best.cell);
+    }
+    endTurn(best ? best.piece : null);
+  }
+
+  function chooseMoveForPlayer(playerId){
+    const pieces = state.pieces.filter(p => p.owner === playerId);
+    let best = null;
+    for (const piece of pieces) {
+      const moves = legalMoves(piece);
+      for (const cell of moves) {
+        const score = evaluateMove(piece, cell);
+        if (!best || score > best.score) {
+          best = { piece, cell, score };
+        }
+      }
+    }
+    return best;
+  }
+
+  function startSimulation(){
+    if (state.simulating) return;
+    state.simulating = true;
+    simLog.textContent = "";
+    logSim("Simulation started.");
+    stepSimulation();
+  }
+
+  function stopSimulation(){
+    state.simulating = false;
+    if (state.simTimer) clearTimeout(state.simTimer);
+    state.simTimer = null;
+    logSim("Simulation stopped.");
+  }
+
+  function stepSimulation(){
+    if (!state.simulating) return;
+    if (state.gameOver) {
+      stopSimulation();
+      return;
+    }
+    const current = currentPlayer();
+    const move = chooseMoveForPlayer(current.id);
+    if (move) {
+      const from = { q: move.piece.q, r: move.piece.r };
+      movePiece(move.piece, move.cell);
+      logSim(`${current.name} (${move.piece.shape}) ${from.q},${from.r} → ${move.cell.q},${move.cell.r} [range ${state.moveRange}]`);
+      endTurn(move.piece);
+    } else {
+      logSim(`${current.name} has no legal moves.`);
+      endTurn(null);
+    }
+    const delay = Number(simSpeed.value || 1000);
+    state.simTimer = setTimeout(stepSimulation, delay);
+  }
+
+  function getCss(name){
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  function drawHex(x, y, size){
+    const angle = Math.PI / 3;
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const px = x + size * Math.cos(angle * i + Math.PI / 6);
+      const py = y + size * Math.sin(angle * i + Math.PI / 6);
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+  }
+
+  function drawPiece(piece){
+    const pos = axialToPixel(piece.q, piece.r);
+    const size = state.cellSize * 0.92;
+    const color = getCss(state.players[piece.owner].colorVar);
+    const emoji = shapeEmoji(piece.shape);
+
+    ctx.save();
+    ctx.translate(pos.x, pos.y);
+    ctx.shadowColor = "rgba(0,0,0,0.45)";
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetY = 2;
+    ctx.fillStyle = color;
+    ctx.strokeStyle = "rgba(0,0,0,0.45)";
+    ctx.lineWidth = 2.2;
+    drawHex(0, 0, size);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.shadowBlur = 0;
+    ctx.font = `800 ${Math.max(16, size * 0.75)}px system-ui`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "#0b0f18";
+    ctx.fillText(emoji, 0, 2);
+    ctx.strokeStyle = "rgba(255,255,255,0.6)";
+    ctx.lineWidth = 2.5;
+    ctx.strokeText(emoji, 0, 2);
+    ctx.restore();
+  }
+
+  function drawInfluence(time){
+    const pulse = 0.5 + 0.5 * Math.sin(time / 900);
+    for (const source of state.pieces) {
+      const adj = neighbors(source).map(cell => pieceAt(cell)).filter(Boolean).filter(p => p.owner !== source.owner);
+      if (adj.length === 0) continue;
+      const role = adj.some(t => effectForPair(source, t) === "win") ? "win"
+        : adj.some(t => effectForPair(source, t) === "lose") ? "lose"
+        : "neutral";
+      if (role === "neutral") continue;
+      const pos = axialToPixel(source.q, source.r);
+      ctx.save();
+      ctx.globalAlpha = 0.18 + pulse * 0.15;
+      ctx.fillStyle = role === "win" ? getCss("--heart") : getCss("--muted");
+      drawHex(pos.x, pos.y, state.cellSize * 0.9);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  function drawBoard(time){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawInfluence(time);
+
+    for (const cell of CELLS) {
+      const pos = axialToPixel(cell.q, cell.r);
+      drawHex(pos.x, pos.y, state.cellSize * 0.9);
+      ctx.strokeStyle = "rgba(80,100,130,0.55)";
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+    }
+
+    if (state.selectedId) {
+      const selected = state.pieces.find(p => p.id === state.selectedId);
+      if (selected) {
+        const moves = legalMoves(selected);
+        for (const cell of moves) {
+          const pos = axialToPixel(cell.q, cell.r);
+          ctx.save();
+          drawHex(pos.x, pos.y, state.cellSize * 0.85);
+          ctx.strokeStyle = "rgba(122,211,255,0.9)";
+          ctx.lineWidth = 2.4;
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+    }
+
+    for (const piece of state.pieces) drawPiece(piece);
+
+    drawEvents(time);
+  }
+
+  function drawEvents(time){
+    const duration = 1200;
+    state.animEvents = state.animEvents.filter(ev => time - ev.start < duration);
+    for (const ev of state.animEvents) {
+      const t = (time - ev.start) / duration;
+      const y = ev.y - t * 20;
+      ctx.save();
+      ctx.globalAlpha = 1 - t;
+      ctx.fillStyle = ev.color;
+      ctx.font = "700 16px Space Grotesk";
+      ctx.textAlign = "center";
+      ctx.fillText(ev.text, ev.x, y);
+      ctx.restore();
+    }
+  }
+
+  function resizeCanvas(){
+    const rect = canvas.getBoundingClientRect();
+    const ratio = window.devicePixelRatio || 1;
+    canvas.width = rect.width * ratio;
+    canvas.height = rect.height * ratio;
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    state.cellSize = fitCellSize(rect.width, rect.height, 10);
+    state.origin = computeOrigin();
+  }
+
+  function fitCellSize(width, height, padding){
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (const cell of CELLS) {
+      const x = Math.sqrt(3) * (cell.q + cell.r / 2);
+      const y = 1.5 * cell.r;
+      minX = Math.min(minX, x);
+      maxX = Math.max(maxX, x);
+      minY = Math.min(minY, y);
+      maxY = Math.max(maxY, y);
+    }
+    const gridW = (maxX - minX) + 2;
+    const gridH = (maxY - minY) + 2;
+    const scaleX = (width - padding * 2) / gridW;
+    const scaleY = (height - padding * 2) / gridH;
+    return Math.max(10, Math.min(scaleX, scaleY));
+  }
+
+  function computeOrigin(){
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (const cell of CELLS) {
+      const size = state.cellSize;
+      const x = size * Math.sqrt(3) * (cell.q + cell.r / 2);
+      const y = size * 1.5 * cell.r;
+      minX = Math.min(minX, x);
+      maxX = Math.max(maxX, x);
+      minY = Math.min(minY, y);
+      maxY = Math.max(maxY, y);
+    }
+    const gridW = (maxX - minX) + state.cellSize * 2;
+    const gridH = (maxY - minY) + state.cellSize * 2;
+    const ox = (canvas.getBoundingClientRect().width - gridW) / 2 - minX + state.cellSize;
+    const oy = (canvas.getBoundingClientRect().height - gridH) / 2 - minY + state.cellSize;
+    return { ox, oy };
+  }
+
+  function handleClick(evt){
+    if (state.gameOver) return;
+    if (currentPlayer().isBot) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = evt.clientX - rect.left;
+    const y = evt.clientY - rect.top;
+    const cell = pixelToAxial(x, y);
+    if (!isCellValid(cell)) return;
+    const piece = pieceAt(cell);
+    if (piece && piece.owner === currentPlayer().id) {
+      state.selectedId = piece.id;
+      statusHint.textContent = "Choose a neighboring hex.";
+      return;
+    }
+    if (state.selectedId) {
+      const selected = state.pieces.find(p => p.id === state.selectedId);
+      const moves = legalMoves(selected);
+      if (moves.some(m => m.q === cell.q && m.r === cell.r)) {
+        movePiece(selected, cell);
+        state.selectedId = null;
+        endTurn(selected);
+      }
+    }
+  }
+
+  function rollRange(){
+    const maxRange = hexRadius === 4 ? 6 : 3;
+    return 1 + Math.floor(Math.random() * maxRange);
+  }
+
+  function loop(time){
+    drawBoard(time);
+    requestAnimationFrame(loop);
+  }
+
+  newGameBtn.addEventListener("click", () => {
+    if (state.simulating) stopSimulation();
+    initGame();
+  });
+
+  resetBtn.addEventListener("click", () => {
+    if (state.simulating) stopSimulation();
+    buildPlayers();
+    setupPieces();
+    resetScores();
+    resetTurns();
+    updateUI();
+    statusHint.textContent = `Match reset. ${currentPlayer().name} starts.`;
+  });
+
+  modeSelect.addEventListener("change", () => {
+    if (state.simulating) stopSimulation();
+    state.mode = modeSelect.value;
+    if (state.mode === "pve") playerSelect.value = "2";
+    buildPlayers();
+    resetScores();
+    resetTurns();
+    setupPieces();
+    updateLegendShapes();
+    updateRulesUI();
+    updateUI();
+    statusHint.textContent = state.mode === "pve" ? "PvE mode. Player 1 starts." : "PvP mode. Player 1 starts.";
+  });
+
+  ruleSelect.addEventListener("change", () => {
+    if (state.simulating) stopSimulation();
+    state.ruleset = ruleSelect.value;
+    if (state.ruleset === "advanced") hexRadius = 4;
+    CELLS = buildCells();
+    resizeCanvas();
+    buildPlayers();
+    resetScores();
+    resetTurns();
+    setupPieces();
+    updateLegendShapes();
+    updateRulesUI();
+    updateUI();
+    statusHint.textContent = state.ruleset === "basic" ? "Rules: RPS." : "Rules: RPSLS.";
+  });
+
+  playerSelect.addEventListener("change", () => {
+    if (state.simulating) stopSimulation();
+    if (state.mode === "pve") {
+      playerSelect.value = "2";
+      statusHint.textContent = "PvE is always 2 players (you vs bot). Switch to PvP for 3–4 players.";
+      return;
+    }
+    buildPlayers();
+    resetScores();
+    resetTurns();
+    setupPieces();
+    updateLegendShapes();
+    updateRulesUI();
+    updateUI();
+    statusHint.textContent = `Players set to ${state.players.length}.`;
+  });
+
+  boardSelect.addEventListener("change", () => {
+    if (state.simulating) stopSimulation();
+    const requested = Number(boardSelect.value);
+    if (state.ruleset === "advanced" && requested !== 4) {
+      boardSelect.value = "4";
+      statusHint.textContent = "RPSLS requires radius 4.";
+      return;
+    }
+    hexRadius = requested;
+    CELLS = buildCells();
+    resizeCanvas();
+    setupPieces();
+    resetScores();
+    resetTurns();
+    updateUI();
+    statusHint.textContent = `Board radius set to ${hexRadius}.`;
+  });
+
+  simBtn.addEventListener("click", () => {
+    startSimulation();
+  });
+
+  stopBtn.addEventListener("click", () => {
+    stopSimulation();
+  });
+
+  canvas.addEventListener("click", handleClick);
+  window.addEventListener("resize", resizeCanvas);
+
+  resizeCanvas();
+  initGame();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

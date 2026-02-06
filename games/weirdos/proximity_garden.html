@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>GROWTH PROXIMITY — Prototype</title>
+<style>
+  :root{
+    --bg:#121510;
+    --ink:#f0f4e8;
+    --muted:#a4b09b;
+    --soil:#2a2f25;
+    --panel:#1b2018;
+    --line:#313a2c;
+    --accent:#9ed36a;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: "Trebuchet MS","Georgia",serif;
+    color:var(--ink);
+    background:
+      radial-gradient(900px 600px at 20% 0%, rgba(158,211,106,.18), transparent 60%),
+      radial-gradient(900px 600px at 80% 10%, rgba(255,196,107,.12), transparent 55%),
+      var(--bg);
+  }
+  .wrap{max-width:1200px; margin:0 auto; padding:18px 16px 28px;}
+  header{display:flex; flex-direction:column; gap:6px; align-items:center; text-align:center;}
+  header h1{margin:0; letter-spacing:.14em; font-size:26px;}
+  header .sub{color:var(--muted); font-size:13px;}
+
+  .layout{
+    display:grid;
+    grid-template-columns: minmax(320px, 720px) 1fr;
+    gap:16px;
+    margin-top:16px;
+    align-items:start;
+  }
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow: 0 16px 36px rgba(0,0,0,.35);
+  }
+  .fieldCard{padding:12px;}
+  .field{
+    position:relative;
+    width:100%;
+    aspect-ratio: 1 / 1;
+    border-radius:12px;
+    background:
+      radial-gradient(400px 200px at 50% 0%, rgba(255,255,255,.05), transparent 60%),
+      var(--soil);
+    border:1px solid #2f3a2a;
+    overflow:hidden;
+  }
+  canvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:block;
+  }
+
+  .sideCard{padding:12px; display:grid; gap:12px;}
+  .controls{display:grid; gap:8px;}
+  button{
+    padding:10px 12px;
+    border-radius:12px;
+    border:1px solid #2d372a;
+    background:#1f261d;
+    color:var(--ink);
+    font-weight:700;
+    cursor:pointer;
+  }
+  button:hover{background:#26301f;}
+
+  .stats{display:grid; gap:4px;}
+  .statsRow{display:flex; justify-content:space-between; gap:10px; align-items:baseline;}
+  .big{font-weight:800; font-size:18px;}
+  .pill{padding:4px 10px; border-radius:999px; border:1px solid #2c3a28; background:#1e251a; font-size:12px; color:var(--muted);}
+
+  .palette{display:grid; gap:8px;}
+  .seed{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:8px 10px;
+    border-radius:12px;
+    border:1px solid #2c3728;
+    background:#1e241b;
+    cursor:pointer;
+    user-select:none;
+  }
+  .seed.selected{outline:2px solid rgba(158,211,106,.35); background:#222b1f;}
+  .seed .icon{
+    width:28px; height:28px; border-radius:50%;
+    display:grid; place-items:center; color:#fff; font-weight:700; font-size:12px;
+  }
+  .seed .meta{display:flex; flex-direction:column; gap:2px;}
+  .seed .meta .name{font-weight:700; font-size:13px;}
+  .seed .meta .rel{font-size:11px; color:var(--muted);}
+
+  .legend{display:flex; gap:8px; flex-wrap:wrap; font-size:12px; color:var(--muted);}
+  .legend span{padding:3px 8px; border-radius:999px; border:1px solid #2c3728; background:#1e251a;}
+
+  @media (max-width: 980px){
+    .layout{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>GROWTH PROXIMITY</h1>
+    <div class="sub">Plant seeds on the grid. Crops boost or hinder nearby crops. Score grows continuously.</div>
+  </header>
+
+  <div class="layout">
+    <div class="card fieldCard">
+      <div class="field">
+        <canvas id="field" width="600" height="600" aria-label="garden grid"></canvas>
+      </div>
+    </div>
+
+    <div class="card sideCard">
+      <div class="controls">
+        <button id="clearBtn">Clear field</button>
+        <button id="randomBtn">Random plant</button>
+      </div>
+
+      <div class="stats">
+        <div class="statsRow">
+          <div class="big">Yield: <span id="score">0</span></div>
+          <div class="pill" id="rate">+0.0 / sec</div>
+        </div>
+        <div class="statsRow">
+          <div class="pill" id="planted">Planted: 0</div>
+          <div class="pill" id="time">Time: 0s</div>
+        </div>
+      </div>
+
+      <div class="legend">
+        <span>Adjacency = 4-neighbors</span>
+        <span>Boosts add to rate</span>
+        <span>Hindrances reduce rate</span>
+      </div>
+
+      <div>
+        <div style="font-weight:700; margin:6px 0;">Seeds</div>
+        <div id="palette" class="palette"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const GRID = 7;
+const CROPS = [
+  { id:"herb",  name:"Herb",  color:"#7cc96f", likes:["tomato"], dislikes:["mushroom"] },
+  { id:"tomato",name:"Tomato",color:"#e46b5a", likes:["bean","herb"], dislikes:["mushroom"] },
+  { id:"bean",  name:"Bean",  color:"#7db0e3", likes:["corn"], dislikes:["onion"] },
+  { id:"corn",  name:"Corn",  color:"#e0c15a", likes:["bean"], dislikes:["tomato"] },
+  { id:"onion", name:"Onion", color:"#b58bd6", likes:["mushroom"], dislikes:["bean"] },
+  { id:"mushroom",name:"Mushroom",color:"#b08b7a", likes:["onion"], dislikes:["herb","tomato"] }
+];
+
+const canvas = document.getElementById("field");
+const ctx = canvas.getContext("2d");
+const paletteEl = document.getElementById("palette");
+const scoreEl = document.getElementById("score");
+const rateEl = document.getElementById("rate");
+const plantedEl = document.getElementById("planted");
+const timeEl = document.getElementById("time");
+const clearBtn = document.getElementById("clearBtn");
+const randomBtn = document.getElementById("randomBtn");
+
+let selectedCropId = CROPS[0].id;
+let grid = Array.from({length:GRID}, ()=>Array(GRID).fill(null));
+let score = 0;
+let lastTime = performance.now();
+let elapsed = 0;
+
+function cellSize(){ return canvas.width / GRID; }
+
+function cropById(id){ return CROPS.find(c=>c.id===id); }
+
+function renderPalette(){
+  paletteEl.innerHTML = "";
+  for(const c of CROPS){
+    const card = document.createElement("div");
+    card.className = "seed" + (selectedCropId===c.id ? " selected" : "");
+    const icon = document.createElement("div");
+    icon.className = "icon";
+    icon.style.background = c.color;
+    icon.textContent = c.name.slice(0,1);
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    const rel = `+ ${c.likes.join(", ")} · − ${c.dislikes.join(", ")}`;
+    meta.innerHTML = `<div class="name">${c.name}</div><div class="rel">${rel}</div>`;
+    card.appendChild(icon);
+    card.appendChild(meta);
+    card.addEventListener("click", ()=>{
+      selectedCropId = c.id;
+      renderPalette();
+    });
+    paletteEl.appendChild(card);
+  }
+}
+
+function neighbors(x,y){
+  const n=[];
+  if(x>0) n.push([x-1,y]);
+  if(x<GRID-1) n.push([x+1,y]);
+  if(y>0) n.push([x,y-1]);
+  if(y<GRID-1) n.push([x,y+1]);
+  return n;
+}
+
+function computeRate(){
+  let rate = 0;
+  for(let x=0;x<GRID;x++){
+    for(let y=0;y<GRID;y++){
+      const id = grid[x][y];
+      if(!id) continue;
+      const crop = cropById(id);
+      for(const [nx,ny] of neighbors(x,y)){
+        const nid = grid[nx][ny];
+        if(!nid) continue;
+        if(crop.likes.includes(nid)) rate += 0.25;
+        if(crop.dislikes.includes(nid)) rate -= 0.25;
+      }
+    }
+  }
+  return rate;
+}
+
+function renderGrid(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const cs = cellSize();
+  ctx.strokeStyle = "rgba(255,255,255,.08)";
+  ctx.lineWidth = 1;
+  for(let i=0;i<=GRID;i++){
+    ctx.beginPath(); ctx.moveTo(i*cs,0); ctx.lineTo(i*cs,canvas.height); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,i*cs); ctx.lineTo(canvas.width,i*cs); ctx.stroke();
+  }
+
+  for(let x=0;x<GRID;x++){
+    for(let y=0;y<GRID;y++){
+      const id = grid[x][y];
+      if(!id) continue;
+      const crop = cropById(id);
+      const cx = x*cs + cs/2;
+      const cy = y*cs + cs/2;
+      const r = cs*0.32;
+      ctx.fillStyle = crop.color;
+      ctx.beginPath();
+      ctx.arc(cx,cy,r,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      ctx.font = `${Math.max(10, cs*0.22)}px serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(crop.name.slice(0,1), cx, cy);
+    }
+  }
+}
+
+function placeAt(x,y){
+  grid[x][y] = selectedCropId;
+  renderGrid();
+  updateStats();
+}
+
+function removeAt(x,y){
+  grid[x][y] = null;
+  renderGrid();
+  updateStats();
+}
+
+function updateStats(){
+  const rate = computeRate();
+  rateEl.textContent = `${rate>=0?"+":""}${rate.toFixed(2)} / sec`;
+  let count = 0;
+  for(let x=0;x<GRID;x++) for(let y=0;y<GRID;y++) if(grid[x][y]) count++;
+  plantedEl.textContent = `Planted: ${count}`;
+}
+
+canvas.addEventListener("pointerdown", (ev)=>{
+  ev.preventDefault();
+  const r = canvas.getBoundingClientRect();
+  const x = Math.floor((ev.clientX - r.left) * (canvas.width / r.width) / cellSize());
+  const y = Math.floor((ev.clientY - r.top) * (canvas.height / r.height) / cellSize());
+  if(x<0 || y<0 || x>=GRID || y>=GRID) return;
+  if(grid[x][y]) removeAt(x,y);
+  else placeAt(x,y);
+},{passive:false});
+
+function tick(){
+  const now = performance.now();
+  const dt = (now - lastTime) / 1000;
+  lastTime = now;
+  elapsed += dt;
+  const rate = computeRate();
+  score += Math.max(-2, Math.min(2, rate)) * dt;
+  scoreEl.textContent = score.toFixed(1);
+  timeEl.textContent = `Time: ${Math.floor(elapsed)}s`;
+  requestAnimationFrame(tick);
+}
+
+function clearField(){
+  grid = Array.from({length:GRID}, ()=>Array(GRID).fill(null));
+  score = 0;
+  elapsed = 0;
+  renderGrid();
+  updateStats();
+}
+
+function randomPlant(){
+  const empty = [];
+  for(let x=0;x<GRID;x++) for(let y=0;y<GRID;y++) if(!grid[x][y]) empty.push([x,y]);
+  if(!empty.length) return;
+  const [x,y] = empty[(Math.random()*empty.length)|0];
+  const c = CROPS[(Math.random()*CROPS.length)|0];
+  grid[x][y] = c.id;
+  renderGrid();
+  updateStats();
+}
+
+clearBtn.addEventListener("click", clearField);
+randomBtn.addEventListener("click", randomPlant);
+
+function resize(){
+  const rect = canvas.getBoundingClientRect();
+  const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+  const size = Math.floor(rect.width * dpr);
+  if(canvas.width !== size || canvas.height !== size){
+    canvas.width = size;
+    canvas.height = size;
+    renderGrid();
+  }
+}
+const ro = new ResizeObserver(resize);
+ro.observe(canvas.parentElement);
+window.addEventListener("resize", resize, {passive:true});
+
+renderPalette();
+resize();
+updateStats();
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>

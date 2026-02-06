@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>WEDDING PROXIMITY — Prototype</title>
+<style>
+  :root{
+    --bg:#f7f2ea;
+    --ink:#2b1f1a;
+    --muted:#6e6158;
+    --rose:#d07a7a;
+    --sage:#7b8b6f;
+    --gold:#c9a45b;
+    --paper:#fffaf2;
+    --line:#e4d7c7;
+    --shadow: 0 18px 40px rgba(43,31,26,.18);
+    --radius:16px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: "Georgia","Garamond","Times New Roman",serif;
+    color:var(--ink);
+    background:
+      radial-gradient(800px 500px at 15% -10%, #fff5e5, transparent 60%),
+      radial-gradient(900px 600px at 90% 10%, #f2d7d2, transparent 55%),
+      var(--bg);
+  }
+  .wrap{max-width:1200px; margin:0 auto; padding:18px 16px 30px;}
+  header{display:flex; flex-direction:column; gap:6px; align-items:center; text-align:center;}
+  header h1{margin:0; letter-spacing:.18em; font-size:28px;}
+  header .sub{color:var(--muted); font-size:14px;}
+
+  .layout{
+    display:grid;
+    grid-template-columns: minmax(320px, 720px) 1fr;
+    gap:16px;
+    margin-top:16px;
+    align-items:start;
+  }
+
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .roomCard{padding:14px;}
+  .room{
+    position:relative;
+    width:100%;
+    aspect-ratio: 4 / 3;
+    min-height:340px;
+    border-radius:14px;
+    background:
+      radial-gradient(500px 300px at 50% 0%, rgba(208,122,122,.15), transparent 60%),
+      linear-gradient(120deg, #fff, #f7efe6);
+    border:1px dashed #eadfce;
+    overflow:hidden;
+  }
+  .aisle{
+    position:absolute;
+    left:50%;
+    top:-40px;
+    transform:translateX(-50%);
+    width:100px;
+    height:120%;
+    background:linear-gradient(180deg, rgba(208,122,122,.12), rgba(208,122,122,.03));
+    border-left:1px solid rgba(208,122,122,.18);
+    border-right:1px solid rgba(208,122,122,.18);
+  }
+  .table{
+    position:absolute;
+    width:150px;
+    height:150px;
+    border-radius:999px;
+    background: radial-gradient(circle at 30% 30%, #fff, #f3e9db);
+    border:2px solid #e3d4c2;
+    display:grid;
+    place-items:center;
+    color:var(--muted);
+    font-size:13px;
+    letter-spacing:.08em;
+  }
+  .table .label{
+    text-transform:uppercase;
+    font-size:11px;
+  }
+  .seat{
+    position:absolute;
+    width:74px;
+    height:36px;
+    border-radius:12px;
+    background:#fff;
+    border:2px solid #e0d1c1;
+    display:grid;
+    place-items:center;
+    font-size:12px;
+    cursor:pointer;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .seat:hover{transform:translateY(-2px); box-shadow:0 6px 12px rgba(0,0,0,.08);}
+  .seat.selected{border-color:var(--rose); box-shadow:0 0 0 3px rgba(208,122,122,.18);}
+  .seat.occupied{background:#fff8ee;}
+
+  .guestToken{
+    width:100%;
+    height:100%;
+    border-radius:10px;
+    background:var(--sage);
+    color:#fff;
+    display:grid;
+    place-items:center;
+    font-size:11px;
+    font-weight:700;
+    padding:0 6px;
+    text-align:center;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .sideCard{padding:14px; display:grid; gap:12px;}
+  .controls{display:grid; gap:8px;}
+  button{
+    padding:10px 12px;
+    border-radius:12px;
+    border:1px solid #dfd1bf;
+    background:#fff6ea;
+    color:var(--ink);
+    font-weight:700;
+    cursor:pointer;
+  }
+  button:hover{background:#fff0de;}
+
+  .stats{display:grid; gap:4px;}
+  .statsRow{display:flex; justify-content:space-between; gap:10px; align-items:baseline;}
+  .big{font-weight:800; font-size:18px;}
+  .pill{padding:4px 10px; border-radius:999px; border:1px solid #e1d3c2; background:#fff7ec; font-size:12px; color:var(--muted);}
+
+  .guestList{display:grid; gap:8px;}
+  .guestCard{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:8px 10px;
+    border-radius:12px;
+    border:1px solid #e7d8c6;
+    background:#fffdf8;
+    cursor:pointer;
+    animation: arrive .6s ease both;
+  }
+  .guestCard.selected{outline:2px solid rgba(208,122,122,.35); background:#fff3ea;}
+  .guestBadge{
+    width:32px; height:32px; border-radius:50%;
+    display:grid; place-items:center; color:#fff; font-weight:700; font-size:12px;
+  }
+  .guestMeta{display:flex; flex-direction:column; gap:2px;}
+  .guestMeta .name{font-weight:700; font-size:13px;}
+  .guestMeta .rel{color:var(--muted); font-size:11px;}
+
+  .hint{font-size:12px; color:var(--muted);}
+  .legend{display:flex; gap:8px; flex-wrap:wrap; font-size:12px; color:var(--muted);}
+  .legend span{padding:3px 8px; border-radius:999px; border:1px solid #e3d4c2; background:#fff7ec;}
+
+  @keyframes arrive{
+    from{transform:translateY(8px); opacity:0;}
+    to{transform:translateY(0); opacity:1;}
+  }
+
+  @media (max-width: 980px){
+    .layout{grid-template-columns:1fr;}
+    .room{min-height:320px;}
+  }
+  @media (max-width: 520px){
+    header h1{font-size:22px;}
+    .room{min-height:280px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>WEDDING PROXIMITY</h1>
+    <div class="sub">Seat guests as they arrive. Friends want the same table · avoid pairs want different tables.</div>
+  </header>
+
+  <div class="layout">
+    <div class="card roomCard">
+      <div class="room" id="room">
+        <div class="aisle"></div>
+      </div>
+    </div>
+
+    <div class="card sideCard">
+      <div class="controls">
+        <button id="resetBtn">Reset seating</button>
+        <button id="shuffleBtn">Shuffle guests</button>
+      </div>
+
+      <div class="stats">
+        <div class="statsRow">
+          <div class="big">Score: <span id="score">0</span></div>
+          <div class="pill" id="status">Guests seated: 0/0</div>
+        </div>
+        <div class="hint">Higher is better. Max is unknown — aim to reduce conflicts.</div>
+      </div>
+
+      <div class="legend">
+        <span>+3 same table = friends</span>
+        <span>−3 same table = avoid</span>
+        <span>+1 avoid across tables</span>
+      </div>
+
+      <div>
+        <div style="font-weight:700; margin:6px 0;">Arriving Guests</div>
+        <div id="guestList" class="guestList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const TABLES = [
+  { id:0, label:"Table A", x:16, y:18 },
+  { id:1, label:"Table B", x:58, y:18 },
+  { id:2, label:"Table C", x:37, y:58 }
+];
+
+const SEATS_PER_TABLE = 4;
+const GUESTS = [
+  { id:0, name:"Ava",  color:"#d07a7a" },
+  { id:1, name:"Noah", color:"#7b8b6f" },
+  { id:2, name:"Mia",  color:"#c9a45b" },
+  { id:3, name:"Leo",  color:"#8c7a6b" },
+  { id:4, name:"Ivy",  color:"#d29b7f" },
+  { id:5, name:"Eli",  color:"#6f8ba6" },
+  { id:6, name:"Sage", color:"#b98baf" },
+  { id:7, name:"Theo", color:"#9e7a5e" },
+  { id:8, name:"Zoe",  color:"#a67f7f" },
+  { id:9, name:"Kai",  color:"#7f8a6b" }
+];
+
+const REL = {
+  "Ava":  { friends:["Mia","Zoe"], avoid:["Theo"] },
+  "Noah": { friends:["Leo"], avoid:["Kai"] },
+  "Mia":  { friends:["Ava"], avoid:["Eli"] },
+  "Leo":  { friends:["Noah","Ivy"], avoid:["Sage"] },
+  "Ivy":  { friends:["Leo","Zoe"], avoid:[] },
+  "Eli":  { friends:["Kai"], avoid:["Mia"] },
+  "Sage": { friends:["Theo"], avoid:["Leo"] },
+  "Theo": { friends:["Sage"], avoid:["Ava"] },
+  "Zoe":  { friends:["Ava","Ivy"], avoid:["Kai"] },
+  "Kai":  { friends:["Eli"], avoid:["Noah","Zoe"] }
+};
+
+const roomEl = document.getElementById("room");
+const guestListEl = document.getElementById("guestList");
+const scoreEl = document.getElementById("score");
+const statusEl = document.getElementById("status");
+const resetBtn = document.getElementById("resetBtn");
+const shuffleBtn = document.getElementById("shuffleBtn");
+
+let selectedGuestId = null;
+let seating = new Map(); // seatId -> guestId
+let guestSeat = new Map(); // guestId -> seatId
+
+function seatId(tableId, seatIdx){ return `${tableId}:${seatIdx}`; }
+
+function buildRoom(){
+  roomEl.querySelectorAll(".table").forEach(n=>n.remove());
+  for(const t of TABLES){
+    const table = document.createElement("div");
+    table.className = "table";
+    table.style.left = `${t.x}%`;
+    table.style.top = `${t.y}%`;
+    table.style.transform = "translate(-50%, -50%)";
+    table.innerHTML = `<div class="label">${t.label}</div>`;
+
+    for(let i=0;i<SEATS_PER_TABLE;i++){
+      const seat = document.createElement("div");
+      seat.className = "seat";
+      seat.dataset.table = t.id;
+      seat.dataset.seat = i;
+      const angle = (Math.PI*2/SEATS_PER_TABLE)*i - Math.PI/2;
+      const r = 72;
+      seat.style.left = `${50 + Math.cos(angle)*r/1.5}%`;
+      seat.style.top = `${50 + Math.sin(angle)*r/1.5}%`;
+      seat.addEventListener("click", () => onSeatClick(t.id, i, seat));
+      table.appendChild(seat);
+    }
+
+    roomEl.appendChild(table);
+  }
+}
+
+function renderGuests(){
+  guestListEl.innerHTML = "";
+  for(const g of GUESTS){
+    if(guestSeat.has(g.id)) continue;
+    const card = document.createElement("div");
+    card.className = "guestCard" + (selectedGuestId===g.id ? " selected" : "");
+    const badge = document.createElement("div");
+    badge.className = "guestBadge";
+    badge.style.background = g.color;
+    badge.textContent = g.name.slice(0,1);
+    const meta = document.createElement("div");
+    meta.className = "guestMeta";
+    const rel = REL[g.name];
+    const relText = [
+      rel.friends.length ? `Friends: ${rel.friends.join(", ")}` : "Friends: —",
+      rel.avoid.length ? `Avoid: ${rel.avoid.join(", ")}` : "Avoid: —"
+    ].join(" · ");
+    meta.innerHTML = `<div class="name">${g.name}</div><div class="rel">${relText}</div>`;
+    card.appendChild(badge);
+    card.appendChild(meta);
+    card.addEventListener("click", ()=>{
+      selectedGuestId = (selectedGuestId===g.id ? null : g.id);
+      renderGuests();
+      highlightSelectedSeats();
+    });
+    guestListEl.appendChild(card);
+  }
+  updateStatus();
+}
+
+function highlightSelectedSeats(){
+  document.querySelectorAll(".seat").forEach(s=>{
+    s.classList.toggle("selected", selectedGuestId !== null);
+  });
+}
+
+function onSeatClick(tableId, seatIdx, seatEl){
+  if(selectedGuestId === null){
+    const sid = seatId(tableId, seatIdx);
+    if(seating.has(sid)){
+      unseatGuest(seating.get(sid));
+      renderGuests();
+      renderSeats();
+      computeScore();
+    }
+    return;
+  }
+
+  const sid = seatId(tableId, seatIdx);
+  if(seating.has(sid)){
+    const occGuest = seating.get(sid);
+    if(guestSeat.has(selectedGuestId)){
+      // swap
+      const oldSid = guestSeat.get(selectedGuestId);
+      seating.set(sid, selectedGuestId);
+      seating.set(oldSid, occGuest);
+      guestSeat.set(selectedGuestId, sid);
+      guestSeat.set(occGuest, oldSid);
+    } else {
+      // replace
+      seating.set(sid, selectedGuestId);
+      guestSeat.set(selectedGuestId, sid);
+      guestSeat.delete(occGuest);
+    }
+  } else {
+    if(guestSeat.has(selectedGuestId)){
+      const oldSid = guestSeat.get(selectedGuestId);
+      seating.delete(oldSid);
+    }
+    seating.set(sid, selectedGuestId);
+    guestSeat.set(selectedGuestId, sid);
+  }
+
+  selectedGuestId = null;
+  renderGuests();
+  renderSeats();
+  computeScore();
+}
+
+function unseatGuest(guestId){
+  const sid = guestSeat.get(guestId);
+  if(sid){
+    seating.delete(sid);
+    guestSeat.delete(guestId);
+  }
+}
+
+function renderSeats(){
+  document.querySelectorAll(".seat").forEach(seat=>{
+    const sid = seatId(seat.dataset.table, seat.dataset.seat);
+    seat.classList.toggle("occupied", seating.has(sid));
+    seat.innerHTML = "";
+    if(seating.has(sid)){
+      const g = GUESTS.find(x=>x.id===seating.get(sid));
+      const tok = document.createElement("div");
+      tok.className = "guestToken";
+      tok.style.background = g.color;
+      tok.textContent = g.name;
+      seat.appendChild(tok);
+    }
+  });
+}
+
+function tableOfGuest(guestId){
+  const sid = guestSeat.get(guestId);
+  if(!sid) return null;
+  return parseInt(sid.split(":")[0],10);
+}
+
+function computeScore(){
+  let score = 0;
+  for(let i=0;i<GUESTS.length;i++){
+    for(let j=i+1;j<GUESTS.length;j++){
+      const a = GUESTS[i];
+      const b = GUESTS[j];
+      const ta = tableOfGuest(a.id);
+      const tb = tableOfGuest(b.id);
+      if(ta === null || tb === null) continue;
+      const sameTable = ta === tb;
+      const relA = REL[a.name];
+      const isFriend = relA.friends.includes(b.name);
+      const isAvoid = relA.avoid.includes(b.name);
+      if(isFriend && sameTable) score += 3;
+      if(isAvoid && sameTable) score -= 3;
+      if(isAvoid && !sameTable) score += 1;
+    }
+  }
+  scoreEl.textContent = score;
+  updateStatus();
+}
+
+function updateStatus(){
+  statusEl.textContent = `Guests seated: ${guestSeat.size}/${GUESTS.length}`;
+}
+
+function resetSeating(){
+  seating = new Map();
+  guestSeat = new Map();
+  selectedGuestId = null;
+  renderGuests();
+  renderSeats();
+  computeScore();
+}
+
+function shuffleGuests(){
+  GUESTS.sort(()=>Math.random()-0.5);
+  resetSeating();
+}
+
+resetBtn.addEventListener("click", resetSeating);
+shuffleBtn.addEventListener("click", shuffleGuests);
+
+buildRoom();
+renderGuests();
+renderSeats();
+computeScore();
+</script>
+</body>
+</html>
