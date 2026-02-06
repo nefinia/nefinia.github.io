@@ -14,40 +14,104 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Mini Games</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      --bg:#0b1020;
-      --panel:#121a33;
-      --border:#24315a;
+      --bg:#0b0f1c;
+      --panel:#0f162e;
+      --border:#233058;
       --text:#eef2ff;
-      --muted:#aab3d6;
+      --muted:#9aa7cf;
       --accent:#7aa2ff;
-      --radius:16px;
+      --accent-2:#43e3a2;
+      --radius:18px;
+      --shadow: 0 22px 60px rgba(5, 10, 24, .55);
     }
 
     *{ box-sizing:border-box; }
 
     body{
       margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      background: radial-gradient(1200px 600px at 20% 0%, #1a2450, var(--bg));
+      font-family: "Outfit", system-ui, -apple-system, Segoe UI, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 15% -10%, rgba(122,162,255,.35), transparent 65%),
+        radial-gradient(900px 520px at 90% 0%, rgba(67,227,162,.18), transparent 55%),
+        linear-gradient(180deg, #0b0f1c, #0a1022 70%, #090d1a);
       color: var(--text);
     }
 
+    body::before{
+      content:"";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: radial-gradient(70% 45% at 50% 0%, #000 0%, transparent 70%);
+      opacity: .35;
+    }
+
     main{
-      max-width: 900px;
+      max-width: 980px;
       margin: 0 auto;
-      padding: 32px 20px 48px;
+      padding: 28px 22px 52px;
+    }
+
+    .nav{
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      margin-bottom: 18px;
+    }
+
+    .back{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-weight: 600;
+      font-size: 13px;
+      text-decoration:none;
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(122,162,255,.35);
+      background: rgba(9,14,30,.55);
+      box-shadow: 0 10px 24px rgba(0,0,0,.35);
+      backdrop-filter: blur(8px);
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+    }
+
+    .back:hover{
+      transform: translateY(-1px);
+      border-color: rgba(122,162,255,.7);
+      background: rgba(12,18,36,.8);
+    }
+
+    .meta{
+      font-size: 12px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      font-family: "Space Mono", ui-monospace, Menlo, Monaco, Consolas, monospace;
+      color: rgba(154,167,207,.7);
     }
 
     header{
       margin-bottom: 28px;
+      padding: 18px 18px 0;
+      border: 1px solid rgba(35,48,88,.55);
+      border-radius: calc(var(--radius) + 6px);
+      background: linear-gradient(180deg, rgba(15,22,46,.85), rgba(9,14,30,.6));
+      box-shadow: var(--shadow);
     }
 
     h1{
-      margin:0 0 8px;
-      font-size: 28px;
+      margin:0 0 10px;
+      font-size: 32px;
       font-weight: 800;
       letter-spacing: .3px;
     }
@@ -56,29 +120,33 @@
       margin:0;
       color: var(--muted);
       max-width: 70ch;
-      line-height: 1.4;
+      line-height: 1.5;
+      padding-bottom: 16px;
     }
 
     .games{
       display:grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 18px;
+      gap: 20px;
     }
 
     .game{
-      background: linear-gradient(180deg, #16204a, var(--panel));
-      border: 1px solid var(--border);
+      position: relative;
+      background: linear-gradient(180deg, rgba(20,30,64,.9), var(--panel));
+      border: 1px solid rgba(35,48,88,.85);
       border-radius: var(--radius);
-      padding: 16px;
+      padding: 16px 16px 18px;
       display:flex;
       flex-direction: column;
       gap: 12px;
-      transition: transform .15s ease, border-color .15s ease;
+      transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+      box-shadow: 0 14px 40px rgba(7, 12, 28, .45);
     }
 
     .game:hover{
       transform: translateY(-2px);
-      border-color: var(--accent);
+      border-color: rgba(122,162,255,.7);
+      box-shadow: 0 20px 44px rgba(7, 12, 28, .6);
     }
 
     .thumbWrap{
@@ -94,7 +162,8 @@
       image-rendering: pixelated;
       border-radius: 12px;
       background: #0a0f25;
-      border: 1px solid var(--border);
+      border: 1px solid rgba(35,48,88,.85);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
     }
 
     h2{
@@ -106,7 +175,7 @@
     .desc{
       margin:0;
       font-size: 14px;
-      line-height: 1.45;
+      line-height: 1.5;
       color: var(--muted);
       flex: 1;
     }
@@ -115,13 +184,16 @@
       text-decoration:none;
       margin-top: 8px;
       align-self: flex-start;
-      padding: 8px 14px;
+      padding: 9px 14px;
       border-radius: 999px;
       background: rgba(122,162,255,.15);
-      border: 1px solid rgba(122,162,255,.4);
+      border: 1px solid rgba(122,162,255,.5);
       color: var(--text);
       font-weight: 600;
       font-size: 14px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
     }
 
     a.play:hover{
@@ -132,6 +204,10 @@
 
 <body>
 <main>
+  <div class="nav">
+    <a class="back" href="../index.html">← Back to home</a>
+    <div class="meta">Experimental puzzles</div>
+  </div>
   <header>
     <h1>Mini Games</h1>
     <p>

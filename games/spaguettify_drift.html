@@ -1,6 +1,15 @@
 <!doctype html>
 <html lang="en">
 <head>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-20EEFX7Q6N"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-20EEFX7Q6N');
+</script>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Spaghettify: Drift</title>
@@ -12,9 +21,38 @@
   .hud .help{color:var(--muted);font-size:12px;margin:6px 0 2px;}
   .hud button{margin-top:6px;margin-right:4px;background:#182046;color:var(--text);border:1px solid #2a3a6a;border-radius:8px;padding:6px 10px;font-weight:600;cursor:pointer;}
   .hud button:hover{border-color:var(--accent);}  
-</style>
+
+    .back-link{
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 1000;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(9, 14, 30, 0.72);
+      border: 1px solid rgba(122,162,255,.45);
+      color: #eef2ff;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      box-shadow: 0 12px 30px rgba(0,0,0,.35);
+      backdrop-filter: blur(8px);
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+    }
+    .back-link:hover{
+      transform: translateY(-1px);
+      border-color: rgba(122,162,255,.8);
+      background: rgba(12, 18, 36, 0.9);
+    }
+  </style>
 </head>
 <body>
+
+  <a class="back-link" href="index.html" aria-label="Back to games">← Back to games</a>
 <canvas id="c"></canvas>
 <div class="hud">
   Time: <b id="time">0.0</b>s<br>

@@ -222,9 +222,38 @@
     header{ flex-direction: column; }
     .topActions{ justify-content:flex-start; }
   }
-</style>
+
+    .back-link{
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 1000;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(9, 14, 30, 0.72);
+      border: 1px solid rgba(122,162,255,.45);
+      color: #eef2ff;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      box-shadow: 0 12px 30px rgba(0,0,0,.35);
+      backdrop-filter: blur(8px);
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+    }
+    .back-link:hover{
+      transform: translateY(-1px);
+      border-color: rgba(122,162,255,.8);
+      background: rgba(12, 18, 36, 0.9);
+    }
+  </style>
 </head>
 <body>
+
+  <a class="back-link" href="index.html" aria-label="Back to games">← Back to games</a>
 <div class="app">
 
   <header>
