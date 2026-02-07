@@ -705,7 +705,8 @@
   
     .back-link{
       position: fixed;
-      top: 16px;
+      bottom: 16px;
+      top: auto;
       left: 16px;
       z-index: 1000;
       display: inline-flex;
@@ -763,6 +764,8 @@
               <option value="medium" selected>Medium</option>
               <option value="hard">Hard</option>
               <option value="cruel">Cruel</option>
+              <option value="brutal">Brutal</option>
+              <option value="nightmare">Nightmare</option>
             </select>
           </span>
 
@@ -821,6 +824,8 @@
           <option data-action="medium">Difficulty: Medium</option>
           <option data-action="hard">Difficulty: Hard</option>
           <option data-action="cruel">Difficulty: Cruel</option>
+          <option data-action="brutal">Difficulty: Brutal</option>
+          <option data-action="nightmare">Difficulty: Nightmare</option>
           <option data-action="size8">Grid: 8×8</option>
           <option data-action="size10">Grid: 10×10</option>
           <option data-action="size12">Grid: 12×12</option>
@@ -902,6 +907,8 @@
     medium: { targetStamps: 9,  moveLimit: 999 },
     hard:   { targetStamps: 14, moveLimit: 999 },
     cruel:  { targetStamps: 20, moveLimit: 999 },
+    brutal: { targetStamps: 26, moveLimit: 999 },
+    nightmare: { targetStamps: 34, moveLimit: 999 },
   };
 
   // 3-bit CMY XOR
@@ -1601,7 +1608,7 @@
       if (action === "hints") toggleHints();
       if (action === "solution") toggleSolution();
       if (action === "apply") applySettings();
-      if (["easy","medium","hard","cruel"].includes(action)) {
+      if (["easy","medium","hard","cruel","brutal","nightmare"].includes(action)) {
         elDiff.value = action;
       }
       if (action === "size8") elSize.value = "8";
