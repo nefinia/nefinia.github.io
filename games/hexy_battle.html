@@ -160,9 +160,15 @@
       text-transform:uppercase;
     }
     .shapeIcon{
-      width:22px;
-      height:22px;
+      width:45px;
+      height:45px;
       display:inline-block;
+    }
+    .captureRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:4px;
+      align-items:center;
     }
     .shapeLabel{
       display:flex;
@@ -254,6 +260,39 @@
       font-size:12px;
       margin-top:8px;
       line-height:1.4;
+    }
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(6,10,16,0.65);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:20;
+    }
+    .modal.hidden{ display:none; }
+    .modalCard{
+      background: linear-gradient(180deg, rgba(18,24,36,0.97), rgba(14,18,26,0.97));
+      border:1px solid var(--edge);
+      border-radius:14px;
+      padding:16px;
+      width:min(320px, 90vw);
+      box-shadow: var(--shadow);
+    }
+    .modalTitle{
+      font-weight:800;
+      margin-bottom:8px;
+      font-size:14px;
+    }
+    .modalBody{
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:12px;
+    }
+    .modalActions{
+      display:flex;
+      gap:8px;
+      justify-content:flex-end;
     }
 
     @media (max-width: 940px){
@@ -364,7 +403,7 @@
           <div class="rpsRow" id="rulesRow"></div>
           <div class="footerNote" id="rulesExplain" style="margin-top:8px"></div>
           <div class="footerNote" style="margin-top:8px">
-            If your piece is adjacent to an opponent it beats, you gain +1 ❤️. If an adjacent opponent beats you, you lose 1 ❤️.
+            If your piece is adjacent to an opponent it beats, that opponent loses 1 life. If an adjacent opponent beats you, you lose 1 life.
           </div>
         </div>
 
@@ -372,8 +411,8 @@
           <h3>Legend</h3>
           <div class="row" id="playerLegend"></div>
           <div class="row" style="margin-top:8px">
-            <span class="pill" style="color:var(--heart)">❤️ Win = +1</span>
-            <span class="pill" style="color:var(--muted)">❤️ Loss = -1</span>
+            <span class="pill" style="color:var(--heart)">Win = -1 life (enemy)</span>
+            <span class="pill" style="color:var(--muted)">Loss = -1 life (you)</span>
           </div>
           <div class="row" style="margin-top:8px">
             <span class="pill"><span id="legendCircle"></span> Rock</span>
@@ -390,11 +429,22 @@
         </div>
 
         <div class="footerNote">
-          Each player starts with 10 hearts. Only the piece you move competes. For each adjacent enemy: if you beat it, you steal 1 heart; if it beats you, you lose 1 heart. No adjacency = no change. Play until someone hits 0.
+          Each piece has lives. In 2‑player games, each piece has 3 lives. In 3–4 player games, each piece has 2 lives. The moved piece fights adjacent enemies: if it beats one, that enemy loses 1 life; if it loses, it loses 1 life. When a piece hits 0 lives, it disappears. Last player with pieces wins.
         </div>
       </div>
+  </div>
+</div>
+
+<div id="challengeModal" class="modal hidden">
+  <div class="modalCard">
+    <div class="modalTitle">Center Challenge</div>
+    <div class="modalBody" id="challengeText">Reclaim captured piece?</div>
+    <div class="modalActions">
+      <button id="challengeNo">No</button>
+      <button id="challengeYes">Yes</button>
     </div>
   </div>
+</div>
 
 <script>
 (() => {
@@ -418,6 +468,10 @@
   const simBtn = document.getElementById("simBtn");
   const stopBtn = document.getElementById("stopBtn");
   const simLog = document.getElementById("simLog");
+  const challengeModal = document.getElementById("challengeModal");
+  const challengeText = document.getElementById("challengeText");
+  const challengeYes = document.getElementById("challengeYes");
+  const challengeNo = document.getElementById("challengeNo");
   const rulesTitle = document.getElementById("rulesTitle");
   const rulesRow = document.getElementById("rulesRow");
   const rulesExplain = document.getElementById("rulesExplain");
@@ -461,7 +515,11 @@
     ruleset: "basic",
     moveRange: 1,
     simTimer: null,
-    simulating: false
+    simulating: false,
+    captures: [],
+    spawnInfo: [],
+    lastSimDelay: 0,
+    pendingChallenge: null
   };
 
   const PLAYER_COLORS = ["--player", "--bot", "--p3", "--p4"];
@@ -615,22 +673,26 @@
 
   function setupPieces(){
     ensureBoardSize();
-    const shapes = state.ruleset === "basic" ? BASE_SHAPES : ADV_SHAPES;
+    const shapes = currentShapes();
     const ring = ringCells(hexRadius);
     const perPlayer = shapes.length;
+    const livesPerPiece = livesPerPieceCount();
 
     state.pieces = [];
+    state.spawnInfo = [];
     state.players.forEach((player, idx) => {
       const start = Math.floor(idx * ring.length / state.players.length);
+      state.spawnInfo.push({ start, len: perPlayer });
       for (let i = 0; i < perPlayer; i++) {
         const cell = ring[(start + i) % ring.length];
-        state.pieces.push({ id: `p${idx}-${shapes[i]}`, owner: idx, shape: shapes[i], q: cell.q, r: cell.r });
+        state.pieces.push({ id: `p${idx}-${shapes[i]}`, owner: idx, shape: shapes[i], q: cell.q, r: cell.r, lives: livesPerPiece });
       }
     });
+    updatePieceCounts();
   }
 
   function ensureBoardSize(){
-    const shapes = state.ruleset === "basic" ? BASE_SHAPES : ADV_SHAPES;
+    const shapes = currentShapes();
     const needed = shapes.length * state.players.length;
     const ringLen = 6 * hexRadius;
     if (needed > ringLen) {
@@ -641,7 +703,20 @@
   }
 
   function resetScores(){
-    state.scores = state.players.map(() => ({ hearts: 10 }));
+    state.scores = state.players.map(() => ({ pieces: 0 }));
+    state.captures = state.players.map(() => []);
+  }
+
+  function currentShapes(){
+    return state.ruleset === "basic" ? BASE_SHAPES : ADV_SHAPES;
+  }
+
+  function livesPerPieceCount(){
+    return state.players.length <= 2 ? 3 : 2;
+  }
+
+  function updatePieceCounts(){
+    state.scores = state.players.map((_, i) => ({ pieces: state.pieces.filter(p => p.owner === i).length }));
   }
 
   function resetTurns(){
@@ -733,14 +808,16 @@
       : `${currentPlayer().name} turn ${turnIndex}`;
     turnBanner.textContent = turnText;
 
+    updatePieceCounts();
     scoreGridEl.innerHTML = "";
     state.players.forEach((p, i) => {
       const card = document.createElement("div");
       card.className = "scoreCard";
+      const captured = state.captures[i].map(c => captureIconHTML(c)).join("");
       card.innerHTML = `
-        <h4>${p.name} Hearts</h4>
-        <div class="big">${state.scores[i].hearts}</div>
-        <div class="sub">Start: 10</div>
+        <h4>${p.name}</h4>
+        <div class="sub">Captured:</div>
+        <div class="captureRow">${captured || "—"}</div>
       `;
       scoreGridEl.appendChild(card);
     });
@@ -760,6 +837,7 @@
     playerSelect.value = String(state.players.length);
     boardSelect.disabled = state.ruleset === "advanced";
     rangePill.textContent = `Move range: ${state.moveRange}`;
+
   }
 
   function logSim(text){
@@ -782,21 +860,32 @@
     const now = performance.now();
     const targets = neighbors(movedPiece).map(cell => pieceAt(cell)).filter(Boolean).filter(p => p.owner !== movedPiece.owner);
     let delta = 0;
+    const toRemove = [];
     for (const target of targets) {
       const role = effectForPair(movedPiece, target);
       if (role === "win") {
         delta += 1;
-        state.scores[movedPiece.owner].hearts += 1;
-        state.scores[target.owner].hearts -= 1;
+        target.lives -= 1;
+        state.captures[movedPiece.owner].push({ shape: target.shape, emoji: shapeEmoji(target.shape), colorVar: state.players[target.owner].colorVar });
+        if (target.lives <= 0) {
+          toRemove.push({ piece: target, captor: movedPiece.owner });
+        }
       } else if (role === "lose") {
         delta -= 1;
-        state.scores[movedPiece.owner].hearts -= 1;
-        state.scores[target.owner].hearts += 1;
+        movedPiece.lives -= 1;
+        state.captures[target.owner].push({ shape: movedPiece.shape, emoji: shapeEmoji(movedPiece.shape), colorVar: state.players[movedPiece.owner].colorVar });
+        if (movedPiece.lives <= 0) {
+          toRemove.push({ piece: movedPiece, captor: target.owner });
+        }
       }
     }
+    if (toRemove.length) {
+      state.pieces = state.pieces.filter(p => p.lives > 0);
+    }
+    updatePieceCounts();
     if (delta !== 0) {
       const pos = axialToPixel(movedPiece.q, movedPiece.r);
-      const text = delta > 0 ? `+${delta}❤️` : `${delta}❤️`;
+      const text = delta > 0 ? `+${delta}` : `${delta}`;
       const color = delta > 0 ? getCss("--heart") : getCss("--muted");
       events.push({ x: pos.x, y: pos.y - 6, text, color, start: now });
       state.animEvents.push(...events);
@@ -804,21 +893,105 @@
     updateUI();
   }
 
+  function tryCenterReclaim(movedPiece){
+    if (!movedPiece) return;
+    if (movedPiece.q !== 0 || movedPiece.r !== 0) return;
+    const captorId = movedPiece.owner;
+    const capturedList = state.captures[captorId];
+    const idx = capturedList.findIndex(c => c.shape === movedPiece.shape);
+    if (idx === -1) return;
+
+    const player = state.players[captorId];
+    if (state.simulating || player.isBot) {
+      const won = Math.random() < 0.5;
+      spawnCenterEvent("BATTLE", won ? getCss("--heart") : getCss("--muted"));
+      logSim(`Center battle: ${player.name} ${won ? "won" : "lost"} for ${movedPiece.shape}.`);
+      if (won) reclaimCaptured(captorId, movedPiece.shape, idx);
+      return { resolved: true };
+    }
+
+    challengeText.textContent = `Reclaim captured ${movedPiece.shape}? Did you win?`;
+    challengeModal.classList.remove("hidden");
+    state.pendingChallenge = { captorId, shape: movedPiece.shape, index: idx };
+    return { pending: true };
+  }
+
+  function reclaimCaptured(captorId, shape, idx){
+    const capturedList = state.captures[captorId];
+    capturedList.splice(idx, 1);
+    const spawnCell = findSpawnCell(captorId);
+    if (!spawnCell) return;
+    state.pieces.push({
+      id: `p${captorId}-${shape}-r${Date.now()}`,
+      owner: captorId,
+      shape,
+      q: spawnCell.q,
+      r: spawnCell.r,
+      lives: livesPerPieceCount()
+    });
+    updatePieceCounts();
+  }
+
+  function findSpawnCell(playerId){
+    const ring = ringCells(hexRadius);
+    const info = state.spawnInfo[playerId];
+    if (!info) return null;
+    for (let i = 0; i < info.len; i++) {
+      const cell = ring[(info.start + i) % ring.length];
+      if (!pieceAt(cell)) return cell;
+    }
+    for (let i = 0; i < ring.length; i++) {
+      const cell = ring[(info.start + i) % ring.length];
+      if (!pieceAt(cell)) return cell;
+    }
+    return null;
+  }
+
   function endTurn(movedPiece){
-    if (movedPiece) resolveMoveCombat(movedPiece);
+    if (movedPiece) {
+      resolveMoveCombat(movedPiece);
+      const reclaim = tryCenterReclaim(movedPiece);
+      if (reclaim && reclaim.pending) return;
+    }
+    finalizeTurn();
+  }
+
+  function finalizeTurn(){
     state.movesMade[state.turnIndex] += 1;
 
-    const anyZero = state.scores.some(s => s.hearts <= 0);
-    if (anyZero) {
+    const alivePlayers = state.players.map((_, i) => state.pieces.some(p => p.owner === i));
+    const aliveCount = alivePlayers.filter(Boolean).length;
+    if (aliveCount <= 1) {
       state.gameOver = true;
-      const winnerIndex = state.scores.reduce((bestIdx, s, i, arr) =>
-        (bestIdx === -1 || s.hearts > arr[bestIdx].hearts) ? i : bestIdx, -1);
+      const winnerIndex = alivePlayers.findIndex(Boolean);
       const winnerName = winnerIndex >= 0 ? state.players[winnerIndex].name : "No one";
       statusHint.textContent = `${winnerName} wins. Click New Game to play again.`;
     } else {
+      const dominance = dominanceWinner();
+      if (dominance !== null) {
+        applyDominanceCapture(dominance);
+        state.gameOver = true;
+        statusHint.textContent = `${state.players[dominance].name} dominates and captures the rest.`;
+        updateUI();
+        return;
+      }
+      if (!anyCapturePossible()) {
+        state.gameOver = true;
+        const scores = state.players.map((p, i) => ({
+          name: p.name,
+          score: state.captures[i].length
+        }));
+        const max = Math.max(...scores.map(s => s.score));
+        const winners = scores.filter(s => s.score === max).map(s => s.name);
+        statusHint.textContent = winners.length === 1
+          ? `No more captures possible. ${winners[0]} wins (${max}).`
+          : `No more captures possible. Tie (${max}).`;
+        updateUI();
+        return;
+      }
       do {
         state.turnIndex = (state.turnIndex + 1) % state.players.length;
-      } while (state.scores[state.turnIndex].hearts <= 0);
+      } while (!alivePlayers[state.turnIndex]);
       state.moveRange = rollRange();
 
       const current = currentPlayer();
@@ -830,6 +1003,48 @@
       }
     }
     updateUI();
+  }
+
+  function dominanceWinner(){
+    const beats = state.ruleset === "basic" ? BEATS_BASIC : BEATS_ADV;
+    for (const player of state.players) {
+      const myPieces = state.pieces.filter(p => p.owner === player.id);
+      const enemyPieces = state.pieces.filter(p => p.owner !== player.id);
+      if (enemyPieces.length === 0) return player.id;
+      for (const mine of myPieces) {
+        const canBeatAll = enemyPieces.every(e => beats[mine.shape].includes(e.shape));
+        if (canBeatAll) return player.id;
+      }
+    }
+    return null;
+  }
+
+  function applyDominanceCapture(winnerId){
+    const enemyPieces = state.pieces.filter(p => p.owner !== winnerId);
+    for (const p of enemyPieces) {
+      const lives = p.lives ?? 1;
+      for (let i = 0; i < lives; i++) {
+        state.captures[winnerId].push({ shape: p.shape, emoji: shapeEmoji(p.shape), colorVar: state.players[p.owner].colorVar });
+      }
+    }
+    state.pieces = state.pieces.filter(p => p.owner === winnerId);
+    updatePieceCounts();
+  }
+
+  function anyCapturePossible(){
+    const range = maxMoveRange();
+    for (const player of state.players) {
+      const pieces = state.pieces.filter(p => p.owner === player.id);
+      for (const piece of pieces) {
+        const moves = reachableCells(piece, range);
+        for (const cell of moves) {
+          const snapshot = { ...piece, q: cell.q, r: cell.r };
+          const adj = neighbors(snapshot).map(c => pieceAt(c)).filter(Boolean).filter(p => p.owner !== snapshot.owner);
+          if (adj.some(t => effectForPair(snapshot, t) !== "neutral")) return true;
+        }
+      }
+    }
+    return false;
   }
 
   function legalMoves(piece){
@@ -943,7 +1158,8 @@
       logSim(`${current.name} has no legal moves.`);
       endTurn(null);
     }
-    const delay = Number(simSpeed.value || 1000);
+    const delay = Number(simSpeed.value || 1000) + (state.lastSimDelay || 0);
+    state.lastSimDelay = 0;
     state.simTimer = setTimeout(stepSimulation, delay);
   }
 
@@ -982,7 +1198,7 @@
     ctx.stroke();
 
     ctx.shadowBlur = 0;
-    ctx.font = `800 ${Math.max(16, size * 0.75)}px system-ui`;
+    ctx.font = `800 ${Math.max(14, size * 0.55)}px system-ui`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#0b0f18";
@@ -990,6 +1206,15 @@
     ctx.strokeStyle = "rgba(255,255,255,0.6)";
     ctx.lineWidth = 2.5;
     ctx.strokeText(emoji, 0, 2);
+
+    // Lives badge at top center
+    const lives = piece.lives ?? 0;
+    ctx.font = `900 ${Math.max(10, size * 0.25)}px system-ui`;
+    ctx.fillStyle = "rgba(255,255,255,0.9)";
+    ctx.strokeStyle = "rgba(0,0,0,0.6)";
+    ctx.lineWidth = 2;
+    ctx.strokeText(String(lives), 0, -size * 0.55);
+    ctx.fillText(String(lives), 0, -size * 0.55);
     ctx.restore();
   }
 
@@ -1024,6 +1249,8 @@
       ctx.stroke();
     }
 
+    drawCenterMarker();
+
     if (state.selectedId) {
       const selected = state.pieces.find(p => p.id === state.selectedId);
       if (selected) {
@@ -1043,6 +1270,31 @@
     for (const piece of state.pieces) drawPiece(piece);
 
     drawEvents(time);
+  }
+
+  function drawCenterMarker(){
+    const pos = axialToPixel(0, 0);
+    ctx.save();
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = "rgba(122,211,255,0.08)";
+    drawHex(pos.x, pos.y, state.cellSize * 0.92);
+    ctx.fill();
+    ctx.globalAlpha = 0.9;
+    ctx.strokeStyle = "rgba(122,211,255,0.9)";
+    ctx.lineWidth = 2;
+    drawHex(pos.x, pos.y, state.cellSize * 0.92);
+    ctx.stroke();
+    ctx.font = `700 ${Math.max(14, state.cellSize * 0.35)}px system-ui`;
+    ctx.fillStyle = "rgba(200,220,255,0.9)";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("★", pos.x, pos.y);
+    ctx.restore();
+  }
+
+  function spawnCenterEvent(text, color){
+    const pos = axialToPixel(0, 0);
+    state.animEvents.push({ x: pos.x, y: pos.y - 12, text, color, start: performance.now() });
   }
 
   function drawEvents(time){
@@ -1136,6 +1388,22 @@
     return 1 + Math.floor(Math.random() * maxRange);
   }
 
+  function maxMoveRange(){
+    return hexRadius === 4 ? 6 : 3;
+  }
+
+  function captureIconHTML(capture){
+    const fill = getCss(capture.colorVar);
+    const stroke = "rgba(0,0,0,0.45)";
+    const emoji = capture.emoji;
+    return `
+      <svg class="shapeIcon" viewBox="0 0 24 24" aria-hidden="true" style="vertical-align:middle;">
+        <path d="M12 2.2 L20.2 7 L20.2 17 L12 21.8 L3.8 17 L3.8 7 Z" fill="${fill}" stroke="${stroke}" stroke-width="1.2"/>
+        <text x="12" y="15" font-size="11.5" text-anchor="middle">${emoji}</text>
+      </svg>
+    `;
+  }
+
   function loop(time){
     drawBoard(time);
     requestAnimationFrame(loop);
@@ -1227,6 +1495,22 @@
 
   stopBtn.addEventListener("click", () => {
     stopSimulation();
+  });
+
+  challengeYes.addEventListener("click", () => {
+    if (!state.pendingChallenge) return;
+    const { captorId, shape, index } = state.pendingChallenge;
+    reclaimCaptured(captorId, shape, index);
+    challengeModal.classList.add("hidden");
+    state.pendingChallenge = null;
+    finalizeTurn();
+  });
+
+  challengeNo.addEventListener("click", () => {
+    if (!state.pendingChallenge) return;
+    challengeModal.classList.add("hidden");
+    state.pendingChallenge = null;
+    finalizeTurn();
   });
 
   canvas.addEventListener("click", handleClick);

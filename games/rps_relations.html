@@ -1,0 +1,835 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-20EEFX7Q6N"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-20EEFX7Q6N');
+</script>
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>RPS Relations — Unique Grid Logic</title>
+<style>
+  :root{
+    --bg:#0b0f1c;
+    --panel:rgba(12,18,36,.9);
+    --ink:#eef2ff;
+    --muted:#9aa7cf;
+    --accent:#7aa2ff;
+    --ok:#7cff9b;
+    --bad:#ff6b6b;
+    --grid:#202b54;
+    --edge:rgba(210,220,255,.72);
+    --edge-glow: rgba(122,162,255,.25);
+  }
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;overflow:hidden;}
+  #wrap{position:fixed;inset:0;display:grid;grid-template-rows:auto 1fr;}
+  #top{
+    padding:10px 10px 8px;
+    display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+    background: linear-gradient(180deg, rgba(14,22,46,0.98), rgba(14,22,46,0.72));
+    border-bottom:1px solid rgba(255,255,255,0.10);
+    backdrop-filter: blur(10px);
+  }
+  button, select{
+    background:rgba(255,255,255,0.07);
+    color:var(--ink);
+    border:1px solid rgba(255,255,255,0.14);
+    border-radius:12px;
+    padding:10px 12px;
+    font-size:14px;
+    cursor:pointer;
+    user-select:none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  select, option{
+    background:#0f162e;
+    color:var(--ink);
+  }
+  button:active{transform:translateY(1px);}
+  button.primary{border-color:rgba(122,162,255,0.65);}
+  .pill{
+    padding:8px 12px;border-radius:999px;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.10);
+    color:rgba(220,230,255,0.92);
+    font-size:13px;
+    white-space:nowrap;
+  }
+  .pill strong{color:var(--ink);}
+  .pill.ok{border-color:rgba(124,255,155,0.6);}
+  .pill.bad{border-color:rgba(255,107,107,0.6);}
+  .pill.ok{
+    background: rgba(19, 34, 24, 0.6);
+    color: #d9ffe6;
+  }
+  #board{position:relative;overflow:hidden;}
+  #c{width:100%;height:100%;display:block;touch-action:none;}
+  #hintBar{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    padding:8px 10px 10px;
+    gap:10px;
+    background:rgba(0,0,0,0.18);
+    border-bottom:1px solid rgba(255,255,255,0.06);
+  }
+  #hintChip{
+    display:flex;align-items:center;gap:10px;
+    background:rgba(0,0,0,0.28);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:999px;
+    padding:8px 12px;
+    font-size:13px;
+    color:rgba(220,230,255,0.92);
+    max-width:min(980px, 96vw);
+  }
+  #hintChip .x{
+    border:1px solid rgba(255,255,255,0.14);
+    background:rgba(255,255,255,0.06);
+    padding:2px 8px;
+    border-radius:999px;
+    cursor:pointer;
+    user-select:none;
+  }
+  #win{
+    position:absolute;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    padding:10px 16px;
+    border-radius:999px;
+    background: rgba(19, 34, 24, 0.9);
+    border: 1px solid rgba(124,255,155,0.6);
+    color: #d9ffe6;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: .02em;
+    box-shadow: 0 16px 40px rgba(0,0,0,.35);
+    display:none;
+    pointer-events:none;
+    z-index: 5;
+  }
+  #palette{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    padding:6px 10px;
+    border-radius:999px;
+    background:rgba(8,12,24,0.75);
+    border:1px solid rgba(122,162,255,0.35);
+  }
+  .token{
+    width:32px;height:32px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.22);
+    cursor:pointer;
+    font-size:18px;
+    background:rgba(9,14,30,.65);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+  }
+  .token.active{
+    border-color: rgba(124,255,155,0.9);
+    box-shadow: 0 0 0 2px rgba(124,255,155,0.35), 0 6px 16px rgba(0,0,0,.35);
+  }
+  .back-link{
+    position: fixed;
+    bottom: 16px;
+    left: 16px;
+    z-index: 1000;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(9, 14, 30, 0.72);
+    border: 1px solid rgba(122,162,255,.45);
+    color: #eef2ff;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    box-shadow: 0 12px 30px rgba(0,0,0,.35);
+    backdrop-filter: blur(8px);
+    transition: transform .12s ease, border-color .12s ease, background .12s ease;
+  }
+  .back-link:hover{
+    transform: translateY(-1px);
+    border-color: rgba(122,162,255,.8);
+    background: rgba(12, 18, 36, 0.9);
+  }
+  @media (max-width: 520px){
+    button, select{font-size:13px;padding:9px 10px;border-radius:11px;}
+    .pill{font-size:12px;padding:7px 10px;}
+  }
+</style>
+</head>
+<body>
+  <a class="back-link" href="index.html" aria-label="Back to games">← Back to games</a>
+  <div id="wrap">
+    <div id="top">
+      <select id="sizeSel">
+        <option value="3">3×3</option>
+        <option value="4">4×4</option>
+        <option value="5" selected>5×5</option>
+        <option value="6">6×6</option>
+        <option value="7">7×7</option>
+        <option value="8">8×8</option>
+        <option value="9">9×9</option>
+        <option value="10">10×10</option>
+        <option value="12">12×12</option>
+      </select>
+      <select id="diffSel">
+        <option value="easy">Easy</option>
+        <option value="medium" selected>Medium</option>
+        <option value="hard">Hard</option>
+        <option value="cruel">Cruel</option>
+      </select>
+      <div id="palette" aria-label="Symbol palette">
+        <div class="token" data-val="0">🪨</div>
+        <div class="token" data-val="1">📄</div>
+        <div class="token" data-val="2">✂️</div>
+        <div class="token" data-val="3">🦎</div>
+        <div class="token" data-val="4">🖖</div>
+      </div>
+      <button id="new" class="primary">New puzzle</button>
+      <button id="undo">Undo</button>
+      <button id="clear">Clear</button>
+      <button id="reveal">Reveal</button>
+      <button id="debug">Debug</button>
+      <div class="pill">Grid: <strong id="size">6×6</strong></div>
+      <div class="pill">Clues: <strong id="clues">0</strong></div>
+      <div class="pill">Counts: <strong id="counts">-</strong></div>
+      <div class="pill">Solutions: <strong id="solutions">?</strong></div>
+      <div class="pill" id="status">Status: <strong>In progress</strong></div>
+    </div>
+    <div id="board">
+      <div id="hintBar">
+        <div id="hintChip">
+          Place symbols so every edge clue matches. 
+          Horizontal clue: left op right. Vertical clue: top op bottom.
+          Rock, Paper, Scissors, Lizard, Spock. Use all five icons.
+          Rule: left/top op right/bottom. Arrow points to the winner.
+          Use the exact counts shown in the top bar.
+          <span class="x" id="hintX">✕</span>
+        </div>
+      </div>
+      <div id="win">Solved — Great job</div>
+      <canvas id="c"></canvas>
+    </div>
+  </div>
+
+<script>
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+
+const ui = {
+  newBtn: document.getElementById("new"),
+  undoBtn: document.getElementById("undo"),
+  clearBtn: document.getElementById("clear"),
+  revealBtn: document.getElementById("reveal"),
+  debugBtn: document.getElementById("debug"),
+  sizeSel: document.getElementById("sizeSel"),
+  diffSel: document.getElementById("diffSel"),
+  size: document.getElementById("size"),
+  clues: document.getElementById("clues"),
+  counts: document.getElementById("counts"),
+  solutions: document.getElementById("solutions"),
+  status: document.getElementById("status"),
+  win: document.getElementById("win"),
+  hintX: document.getElementById("hintX"),
+  palette: document.getElementById("palette")
+};
+
+let N = parseInt(ui.sizeSel.value, 10);
+let difficulty = ui.diffSel.value;
+const VALS = [0,1,2,3,4]; // 0=Rock,1=Paper,2=Scissors,3=Lizard,4=Spock
+const SHAPES = ["Rock","Paper","Scissors","Lizard","Spock"];
+
+let solution = new Array(N*N).fill(0);
+let player = new Array(N*N).fill(-1);
+let givens = new Array(N*N).fill(-1);
+let edges = [];
+let shownEdges = [];
+let revealed = false;
+let debug = false;
+let selectedVal = 0;
+let targetCounts = new Array(VALS.length).fill(0);
+let lastSolutionCount = 0;
+let history = [];
+
+function idx(x,y){ return y*N + x; }
+function xy(i){ return [i%N, Math.floor(i/N)]; }
+
+function beats(a,b){
+  // 0=Rock,1=Paper,2=Scissors,3=Lizard,4=Spock
+  return (
+    (a===0 && (b===2 || b===3)) || // Rock crushes Scissors/Lizard
+    (a===1 && (b===0 || b===4)) || // Paper covers Rock/disproves Spock
+    (a===2 && (b===1 || b===3)) || // Scissors cuts Paper/decapitates Lizard
+    (a===3 && (b===1 || b===4)) || // Lizard eats Paper/poisons Spock
+    (a===4 && (b===0 || b===2))    // Spock vaporizes Rock/smashes Scissors
+  );
+}
+
+function relFrom(a,b){
+  if(a===b) return "=";
+  return beats(a,b) ? ">" : "<";
+}
+
+function relationHolds(a,b,rel){
+  if(rel==="=") return a===b;
+  if(rel===">") return beats(a,b);
+  return beats(b,a);
+}
+
+function edgeHolds(e, aVal, bVal){
+  return relationHolds(aVal, bVal, e.rel); // left/top op right/bottom
+}
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function buildEdges(){
+  edges = [];
+  for(let y=0;y<N;y++){
+    for(let x=0;x<N;x++){
+      if(x<N-1){
+        const a = idx(x,y);
+        const b = idx(x+1,y);
+        edges.push({a,b,rel: relFrom(solution[a], solution[b]), orient:"h"});
+      }
+      if(y<N-1){
+        const a = idx(x,y);
+        const b = idx(x,y+1);
+        edges.push({a,b,rel: relFrom(solution[a], solution[b]), orient:"v"});
+      }
+    }
+  }
+  shownEdges = edges.map(() => true);
+}
+
+function solverCount(limit){
+  const adj = Array.from({length: N*N}, () => []);
+  edges.forEach((e, ei) => {
+    if(!shownEdges[ei]) return;
+    adj[e.a].push({ei, side:"a"});
+    adj[e.b].push({ei, side:"b"});
+  });
+
+  const assignment = new Array(N*N).fill(-1);
+  for(let i=0;i<givens.length;i++){
+    if(givens[i] !== -1) assignment[i] = givens[i];
+  }
+  let solutions = 0;
+
+  function countsSoFar(){
+    const c = new Array(VALS.length).fill(0);
+    for(const v of assignment){
+      if(v !== -1) c[v]++;
+    }
+    return c;
+  }
+
+  function countsFeasible(){
+    const c = countsSoFar();
+    let remaining = 0;
+    for(const v of assignment) if(v === -1) remaining++;
+    let need = 0;
+    for(let i=0;i<VALS.length;i++){
+      if(c[i] > targetCounts[i]) return false;
+      need += (targetCounts[i] - c[i]);
+    }
+    return need === remaining;
+  }
+
+  function domain(i){
+    const opts = [];
+    const counts = countsSoFar();
+    for(const v of VALS){
+      if(counts[v] >= targetCounts[v]) continue;
+      let ok = true;
+      for(const link of adj[i]){
+        const e = edges[link.ei];
+        const other = link.side === "a" ? e.b : e.a;
+        const ov = assignment[other];
+        if(ov === -1) continue;
+        const holds = link.side === "a"
+          ? edgeHolds(e, v, ov)
+          : edgeHolds(e, ov, v);
+        if(!holds){ ok = false; break; }
+      }
+      if(ok) opts.push(v);
+    }
+    return opts;
+  }
+
+  function choose(){
+    let best = -1;
+    let bestOpts = null;
+    let unassigned = 0;
+    for(let i=0;i<assignment.length;i++){
+      if(assignment[i] !== -1) continue;
+      unassigned++;
+      const opts = domain(i);
+      if(opts.length === 0) return {i:-1, opts: []};
+      if(best === -1 || opts.length < bestOpts.length){
+        best = i;
+        bestOpts = opts;
+        if(opts.length === 1) break;
+      }
+    }
+    if(unassigned === 0) return {i:-2, opts: [0]};
+    return {i: best, opts: bestOpts || []};
+  }
+
+  function backtrack(){
+    if(solutions >= limit) return;
+    const choice = choose();
+    if(choice.i === -1) return;
+    if(choice.i === -2){
+      if(countsFeasible()) solutions += 1;
+      return;
+    }
+    if(!countsFeasible()) return;
+    const counts = countsSoFar();
+    for(const v of shuffle([...choice.opts])){
+      if(counts[v] >= targetCounts[v]) continue;
+      assignment[choice.i] = v;
+      backtrack();
+      assignment[choice.i] = -1;
+      if(solutions >= limit) return;
+    }
+  }
+
+  backtrack();
+  return solutions;
+}
+
+function difficultyParams(){
+  let givenBase = 0.5;
+  let minCluesFrac = 0.45;
+  if(difficulty === "easy"){
+    givenBase = 0.75;
+    minCluesFrac = 0.62;
+  }else if(difficulty === "medium"){
+    givenBase = 0.6;
+    minCluesFrac = 0.52;
+  }else if(difficulty === "hard"){
+    givenBase = 0.48;
+    minCluesFrac = 0.46;
+  }else{
+    givenBase = 0.4;
+    minCluesFrac = 0.4;
+  }
+  if(N <= 4){
+    minCluesFrac = Math.max(minCluesFrac, 0.8);
+    givenBase = Math.max(givenBase, 0.9);
+  }
+  let givenCount = Math.round(N * givenBase);
+  givenCount = Math.max(VALS.length, Math.min(N*N - 1, Math.max(5, Math.min(12, givenCount))));
+  return {givenCount, minCluesFrac};
+}
+
+function generatePuzzle(){
+  const params = difficultyParams();
+
+  function degree(i){
+    let d = 0;
+    for(let ei=0;ei<edges.length;ei++){
+      if(!shownEdges[ei]) continue;
+      const e = edges[ei];
+      if(e.a === i || e.b === i) d++;
+    }
+    return d;
+  }
+
+  function makeCounts(){
+    const total = N*N;
+    const base = Math.floor(total / VALS.length);
+    const rem = total % VALS.length;
+    const counts = new Array(VALS.length).fill(base);
+    for(let i=0;i<rem;i++) counts[i] += 1;
+    return counts;
+  }
+
+  function buildSolutionWithCounts(counts){
+    const bag = [];
+    for(let v=0;v<counts.length;v++){
+      for(let k=0;k<counts[v];k++) bag.push(v);
+    }
+    shuffle(bag);
+    for(let i=0;i<solution.length;i++) solution[i] = bag[i];
+  }
+
+  for(let attempt=0; attempt<200; attempt++){
+    const counts = makeCounts();
+    targetCounts = counts.slice();
+    buildSolutionWithCounts(counts);
+    buildEdges();
+
+    givens = new Array(N*N).fill(-1);
+    const cells = shuffle([...Array(N*N).keys()]);
+    // Ensure every symbol appears in givens at least once
+    let gi = 0;
+    for(let v=0; v<VALS.length; v++){
+      const idxs = cells.filter(c => solution[c] === v);
+      if(idxs.length){
+        givens[idxs[0]] = v;
+        gi++;
+      }
+    }
+    for(let i=0; i<cells.length && gi < params.givenCount; i++){
+      const c = cells[i];
+      if(givens[c] !== -1) continue;
+      givens[c] = solution[c];
+      gi++;
+    }
+
+    const minClues = Math.floor(edges.length * params.minCluesFrac);
+    const order = shuffle([...edges.keys()]);
+    for(const ei of order){
+      shownEdges[ei] = false;
+      const e = edges[ei];
+      if(degree(e.a) === 0 || degree(e.b) === 0){
+        shownEdges[ei] = true;
+        continue;
+      }
+      const count = solverCount(2);
+      if(count !== 1 || shownEdges.filter(Boolean).length < minClues) shownEdges[ei] = true;
+    }
+
+    // Enforce uniqueness and exact counts
+    lastSolutionCount = solverCount(3);
+    if(lastSolutionCount === 1) break;
+  }
+
+  player = new Array(N*N).fill(-1);
+  history = [];
+  revealed = false;
+  updateUI();
+  resize();
+  draw();
+}
+
+function checkSolved(){
+  for(let i=0;i<player.length;i++){
+    if(givens[i] === -1 && player[i] === -1) return false;
+  }
+  const counts = new Array(VALS.length).fill(0);
+  for(let ei=0;ei<edges.length;ei++){
+    if(!shownEdges[ei]) continue;
+    const e = edges[ei];
+    const a = (givens[e.a] !== -1) ? givens[e.a] : player[e.a];
+    const b = (givens[e.b] !== -1) ? givens[e.b] : player[e.b];
+    if(!edgeHolds(e, a, b)) return false;
+  }
+  for(let i=0;i<player.length;i++){
+    const v = (givens[i] !== -1) ? givens[i] : player[i];
+    counts[v] += 1;
+  }
+  for(let v=0;v<VALS.length;v++){
+    if(counts[v] !== targetCounts[v]) return false;
+  }
+  return true;
+}
+
+function allFilled(){
+  for(let i=0;i<player.length;i++){
+    if(givens[i] === -1 && player[i] === -1) return false;
+  }
+  return true;
+}
+
+function updateUI(){
+  const cluesN = shownEdges.filter(Boolean).length;
+  ui.clues.textContent = cluesN;
+  if(targetCounts && targetCounts.length){
+    ui.counts.textContent = `🪨${targetCounts[0]} 📄${targetCounts[1]} ✂️${targetCounts[2]} 🦎${targetCounts[3]} 🖖${targetCounts[4]}`;
+  }
+  ui.solutions.textContent = String(lastSolutionCount || 0);
+  if(revealed){
+    ui.status.innerHTML = "Status: <strong>Solution shown</strong>";
+    ui.status.classList.remove("ok");
+    ui.win.style.display = "none";
+  }else if(checkSolved()){
+    ui.status.innerHTML = "Status: <strong style=\"color:var(--ok)\">Solved</strong>";
+    ui.status.classList.add("ok");
+    ui.win.style.display = "block";
+  }else if(allFilled()){
+    ui.status.innerHTML = "Status: <strong style=\"color:var(--bad)\">Not correct</strong>";
+    ui.status.classList.remove("ok");
+    ui.win.style.display = "none";
+  }else{
+    ui.status.innerHTML = "Status: <strong>In progress</strong>";
+    ui.status.classList.remove("ok");
+    ui.win.style.display = "none";
+  }
+}
+
+function resize(){
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = Math.floor(rect.width * dpr);
+  canvas.height = Math.floor(rect.height * dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+
+function draw(){
+  const w = canvas.width / (window.devicePixelRatio||1);
+  const h = canvas.height / (window.devicePixelRatio||1);
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle = "#0b1020";
+  ctx.fillRect(0,0,w,h);
+
+  const legendH = 22;
+  const pad = 16;
+  const gridSize = Math.max(120, Math.min(w - pad*2, h - legendH - pad*2) * 0.82);
+  const offsetX = (w - gridSize)/2;
+  const offsetY = (h - legendH - gridSize)/2 + 6;
+  const cell = gridSize / N;
+
+  // grid
+  ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue("--grid").trim();
+  ctx.lineWidth = 1;
+  for(let i=0;i<=N;i++){
+    const x = offsetX + i*cell;
+    const y = offsetY + i*cell;
+    ctx.beginPath(); ctx.moveTo(x, offsetY); ctx.lineTo(x, offsetY + gridSize); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(offsetX, y); ctx.lineTo(offsetX + gridSize, y); ctx.stroke();
+  }
+
+  // clues
+  ctx.font = `${Math.max(10, cell*0.22)}px system-ui`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const edgeColor = getComputedStyle(document.documentElement).getPropertyValue("--edge").trim();
+  const edgeGlow = getComputedStyle(document.documentElement).getPropertyValue("--edge-glow").trim();
+  ctx.fillStyle = edgeColor;
+  ctx.strokeStyle = edgeColor;
+  ctx.lineWidth = Math.max(1.1, cell*0.045);
+
+  function glyph(cx, cy, dir){
+    const g = dir === "left" ? "←" :
+              dir === "right" ? "→" :
+              dir === "up" ? "↑" : "↓";
+    ctx.save();
+    ctx.shadowColor = edgeGlow;
+    ctx.shadowBlur = Math.max(3, cell*0.1);
+    ctx.font = `700 ${Math.max(10, cell*0.20)}px "Space Mono", ui-monospace, system-ui`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(g, cx, cy);
+    ctx.restore();
+  }
+
+  edges.forEach((e, ei) => {
+    if(!shownEdges[ei]) return;
+    const [ax, ay] = xy(e.a);
+    const [bx, by] = xy(e.b);
+    const cx = offsetX + (ax+bx+1)*cell/2;
+    const cy = offsetY + (ay+by+1)*cell/2;
+    if(e.rel === "="){
+      ctx.save();
+      ctx.shadowColor = edgeGlow;
+      ctx.shadowBlur = Math.max(4, cell*0.12);
+      ctx.fillText("=", cx, cy);
+      ctx.restore();
+    }else{
+      if(e.orient === "h"){
+        // left op right: ">" means left wins, arrow points to winner
+        glyph(cx, cy, e.rel === ">" ? "left" : "right");
+      }else{
+        // top op bottom: ">" means top wins, arrow points up
+        glyph(cx, cy, e.rel === ">" ? "up" : "down");
+      }
+    }
+
+    if(debug){
+      const axc = offsetX + (ax+0.5)*cell;
+      const ayc = offsetY + (ay+0.5)*cell;
+      const bxc = offsetX + (bx+0.5)*cell;
+      const byc = offsetY + (by+0.5)*cell;
+      const winIsA = (e.rel === ">") ? true : (e.rel === "<") ? false : null;
+      const wA = winIsA === null ? null : (winIsA ? "W" : "L");
+      const wB = winIsA === null ? null : (winIsA ? "L" : "W");
+      ctx.fillStyle = "rgba(255,255,255,0.7)";
+      ctx.font = `${Math.max(10, cell*0.22)}px system-ui`;
+      if(wA !== null){
+        ctx.fillText(wA, axc, ayc);
+        ctx.fillText(wB, bxc, byc);
+      }
+    }
+  });
+
+  if(debug && allFilled() && !checkSolved()){
+    ctx.strokeStyle = "rgba(255,107,107,0.85)";
+    ctx.lineWidth = Math.max(2, cell*0.08);
+    edges.forEach((e, ei) => {
+      if(!shownEdges[ei]) return;
+      const a = (givens[e.a] !== -1) ? givens[e.a] : player[e.a];
+      const b = (givens[e.b] !== -1) ? givens[e.b] : player[e.b];
+      if(edgeHolds(e, a, b)) return;
+      const [ax, ay] = xy(e.a);
+      const [bx, by] = xy(e.b);
+      const x1 = offsetX + (ax+0.5)*cell;
+      const y1 = offsetY + (ay+0.5)*cell;
+      const x2 = offsetX + (bx+0.5)*cell;
+      const y2 = offsetY + (by+0.5)*cell;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+    });
+  }
+
+  // pieces
+  for(let y=0;y<N;y++){
+    for(let x=0;x<N;x++){
+      const i = idx(x,y);
+      const base = (givens[i] !== -1) ? givens[i] : player[i];
+      const v = revealed ? solution[i] : base;
+      if(v === -1) continue;
+      const cx = offsetX + (x+0.5)*cell;
+      const cy = offsetY + (y+0.5)*cell;
+      const r = cell*0.32;
+      const icon = v===0 ? "🪨" : v===1 ? "📄" : v===2 ? "✂️" : v===3 ? "🦎" : "🖖";
+      ctx.font = `${Math.max(14, cell*0.30)}px "Apple Color Emoji", "Segoe UI Emoji", system-ui`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "#eef2ff";
+      ctx.fillText(icon, cx, cy);
+      if(!revealed && givens[i] !== -1){
+        ctx.strokeStyle = "rgba(255,255,255,0.65)";
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(cx-r-2, cy-r-2, r*2+4, r*2+4);
+      }
+    }
+  }
+
+  // legend
+  ctx.fillStyle = "rgba(255,255,255,.5)";
+  ctx.font = `${Math.max(11, cell*0.22)}px system-ui`;
+  ctx.textAlign = "left";
+  ctx.fillText("🪨 Rock  📄 Paper  ✂️ Scissors  🦎 Lizard  🖖 Spock", 12, h-10);
+
+  if(checkSolved()){
+    ctx.strokeStyle = "rgba(124,255,155,0.8)";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(offsetX-4, offsetY-4, gridSize+8, gridSize+8);
+  }
+}
+
+canvas.addEventListener("click", (e) => {
+  if(revealed) return;
+  const rect = canvas.getBoundingClientRect();
+  const w = rect.width;
+  const h = rect.height;
+  const legendH = 22;
+  const pad = 16;
+  const gridSize = Math.max(120, Math.min(w - pad*2, h - legendH - pad*2) * 0.82);
+  const offsetX = (w - gridSize)/2;
+  const offsetY = (h - legendH - gridSize)/2 + 6;
+  const cell = gridSize / N;
+  const x = e.clientX - rect.left - offsetX;
+  const y = e.clientY - rect.top - offsetY;
+  if(x < 0 || y < 0 || x >= gridSize || y >= gridSize) return;
+  const gx = Math.floor(x / cell);
+  const gy = Math.floor(y / cell);
+  const i = idx(gx,gy);
+  if(givens[i] !== -1) return;
+  const prev = player[i];
+  if(prev === selectedVal) return;
+  history.push({i, prev});
+  player[i] = selectedVal;
+  updateUI();
+  draw();
+});
+
+ui.newBtn.addEventListener("click", generatePuzzle);
+ui.clearBtn.addEventListener("click", () => {
+  for(let i=0;i<player.length;i++){
+    if(givens[i] === -1) player[i] = -1;
+  }
+  history = [];
+  revealed = false;
+  updateUI();
+  draw();
+});
+ui.revealBtn.addEventListener("click", () => {
+  revealed = !revealed;
+  updateUI();
+  draw();
+});
+ui.debugBtn.addEventListener("click", () => {
+  debug = !debug;
+  ui.debugBtn.textContent = debug ? "Debug: on" : "Debug";
+  updateUI();
+  draw();
+});
+
+ui.undoBtn.addEventListener("click", () => {
+  const step = history.pop();
+  if(!step) return;
+  player[step.i] = step.prev;
+  updateUI();
+  draw();
+});
+
+ui.palette.addEventListener("click", (e) => {
+  const t = e.target.closest(".token");
+  if(!t) return;
+  selectedVal = parseInt(t.dataset.val, 10);
+  [...ui.palette.querySelectorAll(".token")].forEach(el => {
+    el.classList.toggle("active", parseInt(el.dataset.val,10) === selectedVal);
+  });
+});
+ui.hintX.addEventListener("click", () => {
+  const bar = document.getElementById("hintBar");
+  bar.style.display = "none";
+  resize();
+  draw();
+});
+
+function setSize(n){
+  N = n;
+  solution = new Array(N*N).fill(0);
+  player = new Array(N*N).fill(-1);
+  givens = new Array(N*N).fill(-1);
+  edges = [];
+  shownEdges = [];
+  ui.size.textContent = `${N}×${N}`;
+}
+
+ui.sizeSel.addEventListener("change", () => {
+  setSize(parseInt(ui.sizeSel.value, 10));
+  generatePuzzle();
+});
+
+ui.diffSel.addEventListener("change", () => {
+  difficulty = ui.diffSel.value;
+  generatePuzzle();
+});
+
+window.addEventListener("resize", () => { resize(); draw(); });
+
+ui.size.textContent = `${N}×${N}`;
+[...ui.palette.querySelectorAll(".token")].forEach(el => {
+  el.classList.toggle("active", parseInt(el.dataset.val,10) === selectedVal);
+});
+resize();
+generatePuzzle();
+</script>
+</body>
+</html>

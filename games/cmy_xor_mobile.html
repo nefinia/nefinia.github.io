@@ -140,7 +140,7 @@
       align-items: start !important;
     }
     .targetRow{
-      flex-direction: row !important;
+      flex-direction: column !important;
       align-items: flex-start !important;
       justify-content: flex-start !important;
       flex-wrap: nowrap !important;
@@ -160,8 +160,8 @@
     }
     .paletteWrap.nearBoard{
       max-width: none !important;
-      width: auto !important;
-      order: 0 !important;
+      width: 100% !important;
+      order: 2 !important;
     }
     .mobilePreview{
       width: 100% !important;
@@ -670,7 +670,7 @@
     .mini{ padding: 8px; }
     .mini .cell{ width: var(--cellMini); height: var(--cellMini); border-radius: 4px; }
     #targetGrid{
-      --cellMini: 12.5px;
+      --cellMini: 13.5px;
     }
     #targetGrid .cell,
     #targetGrid .cell.ghost::after,
@@ -1974,9 +1974,15 @@
   });
   elPlayGrid.addEventListener("click", (e) => {
     if (Date.now() < suppressClickUntil) return;
+    if (hover) {
+      stampAt(hover.x, hover.y);
+      return;
+    }
     const cell = e.target.closest(".cell");
     if (!cell) return;
-    stampAt(Number(cell.dataset.x), Number(cell.dataset.y));
+    hover = { x: Number(cell.dataset.x), y: Number(cell.dataset.y) };
+    renderGhost();
+    stampAt(hover.x, hover.y);
   });
 
   function updateHoverFromPoint(clientX, clientY){
@@ -1993,6 +1999,8 @@
   elPlayGrid.addEventListener("touchstart", (e) => {
     if (e.touches.length !== 1) return;
     touchMoved = false;
+    const touch = e.touches[0];
+    updateHoverFromPoint(touch.clientX, touch.clientY);
   }, { passive: true });
 
   elPlayGrid.addEventListener("touchmove", (e) => {
@@ -2004,7 +2012,7 @@
 
   elPlayGrid.addEventListener("touchend", (e) => {
     if (e.changedTouches.length !== 1) return;
-    if (!touchMoved && hover) {
+    if (hover) {
       stampAt(hover.x, hover.y);
       suppressClickUntil = Date.now() + 350;
     }

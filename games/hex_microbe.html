@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-20EEFX7Q6N"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-20EEFX7Q6N');
+</script>
+
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Hex Microbe Puzzle — Levels</title>
+<style>
+  :root{
+    --bg:#0b1020;
+    --panel:#121a33;
+    --panel2:#0d1530;
+    --border:#24315a;
+    --text:#eef2ff;
+    --muted:#aab3d6;
+    --accent:#7aa2ff;
+    --ok:#46e08b;
+    --warn:#ffd66a;
+    --bad:#ff5b6e;
+    --radius:16px;
+    --shadow: 0 10px 30px rgba(0,0,0,0.25);
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    background: radial-gradient(1200px 700px at 20% 10%, rgba(122,162,255,0.18), transparent 55%),
+                radial-gradient(900px 600px at 90% 20%, rgba(70,224,139,0.10), transparent 60%),
+                var(--bg);
+    color:var(--text);
+    font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+  }
+
+  /* Layout */
+  .app{ max-width: 1180px; margin: 0 auto; padding: 16px; }
+  header{
+    display:flex; align-items:flex-start; justify-content:space-between;
+    gap:14px; margin-bottom: 12px;
+  }
+  .brand{
+    display:flex; flex-direction:column; gap:4px;
+    background: linear-gradient(180deg, rgba(18,26,51,0.92), rgba(13,21,48,0.92));
+    border:1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    box-shadow: var(--shadow);
+    flex: 1;
+  }
+  .brand h1{ margin:0; font-size:16px; letter-spacing:0.2px; }
+  .brand .sub{ margin:0; color:var(--muted); font-size:12.5px; line-height:1.35; max-width: 70ch; }
+  .brand .sub b{ color: var(--text); }
+
+  .topActions{
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  /* Cards */
+  .card{
+    background: linear-gradient(180deg, rgba(18,26,51,0.94), rgba(13,21,48,0.94));
+    border:1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+    box-shadow: var(--shadow);
+  }
+  .cardTitleRow{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    margin-bottom: 8px;
+  }
+  .cardTitleRow .title{
+    font-weight: 800; font-size: 13.5px; letter-spacing: 0.2px;
+    color: var(--text);
+  }
+  .hint{
+    color: var(--muted);
+    font-size: 12px;
+    display:flex; align-items:center; gap:8px;
+    white-space: nowrap;
+  }
+
+  /* Canvas */
+  canvas{
+    width:100%;
+    height:auto;
+    border-radius: 14px;
+    border:1px solid rgba(36,49,90,0.9);
+    background: radial-gradient(600px 500px at 30% 25%, rgba(255,255,255,0.03), transparent 55%),
+                #060a16;
+  }
+
+  /* Controls area */
+  .controls{
+    margin-top: 10px;
+    display:grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+
+  button, select, input[type="range"]{
+    background: rgba(14,23,51,0.92);
+    color: var(--text);
+    border:1px solid rgba(36,49,90,0.95);
+    padding:8px 10px;
+    border-radius: 12px;
+    font-weight: 700;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+  }
+  button{ cursor:pointer; }
+  button:hover{ filter:brightness(1.08); }
+  button:active{ transform:translateY(1px); }
+
+  select{ cursor:pointer; }
+
+  .pill{
+    background: rgba(14,23,51,0.75);
+    border:1px solid rgba(36,49,90,0.9);
+    border-radius: 999px;
+    padding: 8px 12px;
+    color: var(--muted);
+    font-weight: 650;
+    font-size: 12px;
+  }
+  .statusPill{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:8px 12px;
+    border-radius: 999px;
+    border:1px solid rgba(36,49,90,0.9);
+    background: rgba(14,23,51,0.70);
+    color: var(--muted);
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .dot{ width:9px; height:9px; border-radius: 50%; background: rgba(255,255,255,0.22); }
+  .dot.ok{ background: rgba(70,224,139,0.85); }
+  .dot.bad{ background: rgba(255,91,110,0.85); }
+
+  .panel{
+    background: rgba(13,21,48,0.72);
+    border: 1px solid rgba(36,49,90,0.9);
+    border-radius: 14px;
+    padding: 10px;
+  }
+  .panelTitle{
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 800;
+    letter-spacing: 0.2px;
+    margin: 0 0 8px;
+  }
+  .panelBody{
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+  }
+
+  label{
+    display:flex; align-items:center; gap:8px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .rangeWrap{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  }
+  .rangeWrap .mini{
+    color: var(--muted); font-size: 12px; font-weight: 800;
+    padding: 6px 10px; border-radius: 999px;
+    border:1px solid rgba(36,49,90,0.85);
+    background: rgba(14,23,51,0.55);
+  }
+  input[type="checkbox"]{
+    width: 16px; height: 16px;
+    accent-color: var(--accent);
+  }
+
+  footer{
+    margin-top: 14px;
+    background: linear-gradient(180deg, rgba(18,26,51,0.92), rgba(13,21,48,0.92));
+    border:1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    box-shadow: var(--shadow);
+  }
+  details{
+    border-radius: 12px;
+  }
+  summary{
+    cursor:pointer;
+    list-style:none;
+    font-weight: 850;
+    color: var(--text);
+    display:flex; align-items:center; justify-content:space-between;
+    gap:10px;
+  }
+  summary::-webkit-details-marker{ display:none; }
+  .rules{
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 12.5px;
+    line-height: 1.45;
+    max-width: 90ch;
+  }
+  .rules b{ color: var(--text); }
+
+  /* Responsive */
+  @media (max-width: 980px){
+    .grid{ grid-template-columns: 1fr; }
+    header{ flex-direction: column; }
+    .topActions{ justify-content:flex-start; }
+  }
+
+    .back-link{
+      position: fixed;
+      bottom: 16px;
+      top: auto;
+      left: 16px;
+      z-index: 1000;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(9, 14, 30, 0.72);
+      border: 1px solid rgba(122,162,255,.45);
+      color: #eef2ff;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      box-shadow: 0 12px 30px rgba(0,0,0,.35);
+      backdrop-filter: blur(8px);
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+    }
+    .back-link:hover{
+      transform: translateY(-1px);
+      border-color: rgba(122,162,255,.8);
+      background: rgba(12, 18, 36, 0.9);
+    }
+  </style>
+</head>
+<body>
+
+  <a class="back-link" href="index.html" aria-label="Back to games">← Back to games</a>
+<div class="app">
+
+  <header>
+    <div class="brand">
+      <h1>Hex Microbe Puzzle</h1>
+      <p class="sub">
+        Match the <b>target field</b> by placing a limited number of sources on a circular hex board.
+        Use the controls below to pick a level or customize the board size.
+      </p>
+    </div>
+
+    <div class="topActions">
+      <span class="pill" id="hudTop">Board R=2 • Cells 19 • Emitters 0/2</span>
+      <span class="statusPill" id="solvePill"><span class="dot bad" id="solveDot"></span><span id="solveText">Not solved</span></span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <div class="cardTitleRow">
+        <div class="title">Target field</div>
+        <div class="hint">Goal pattern</div>
+      </div>
+      <canvas id="target" width="560" height="560"></canvas>
+    </div>
+
+    <div class="card">
+      <div class="cardTitleRow">
+        <div class="title">Your field</div>
+        <div class="hint">Click hexes to place/remove</div>
+      </div>
+      <canvas id="play" width="560" height="560"></canvas>
+
+      <div class="controls">
+
+        <div class="row">
+          <button id="reset">Reset</button>
+          <button id="newtarget">New target</button>
+          <span class="pill" id="hud"></span>
+        </div>
+
+        <div class="panel">
+          <div class="panelTitle">Level</div>
+          <div class="panelBody">
+            <label>Preset
+              <select id="levelSelect"></select>
+            </label>
+            <button id="applyLevel">Apply</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panelTitle">Customize</div>
+          <div class="panelBody rangeWrap">
+            <label>Radius
+              <input id="radius" type="range" min="2" max="5" step="1" value="2"/>
+            </label>
+            <span class="mini" id="radiusVal">2</span>
+
+            <label>Emitters
+              <input id="emit" type="range" min="1" max="5" step="1" value="2"/>
+            </label>
+            <span class="mini" id="emitVal">2</span>
+
+            <button id="applyCustom">Apply</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panelTitle">View</div>
+          <div class="panelBody">
+            <label><input id="nums" type="checkbox" checked/> Numbers</label>
+            <label><input id="showSolution" type="checkbox"/> Show solution</label>
+          </div>
+        </div>
+
+        <div class="row">
+          <span class="pill" id="status">Not solved yet.</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <details open>
+      <summary>
+        How it works
+        <span class="pill">Rule: 1, 2, 3, 4 by hex-distance</span>
+      </summary>
+      <div class="rules">
+        Each emitter contributes a ring pattern based on <b>hex distance</b>:
+        distance 0 → <b>1</b>, distance 1 → <b>2</b>, distance 2 → <b>3</b>, distance 3 → <b>4</b>, and so on (+1 per ring).
+        All emitters <b>add together</b>. You win when <b>every cell</b> in your field matches the target field.
+        <br/><br/>
+        Notes:
+        <br/>• Difficulty depends on both <b>board radius</b> and <b>number of emitters</b>. R=2 can be hard if K is high.
+        <br/>• “Show solution” reveals the hidden emitter locations on the target board (useful for learning or debugging).
+      </div>
+    </details>
+  </footer>
+
+</div>
+
+<script>
+/* -------------------------
+   Hex math (axial coords, pointy-top)
+-------------------------- */
+const SQRT3 = Math.sqrt(3);
+
+function axialToPixel(q, r, size, ox, oy){
+  const x = size * (SQRT3 * q + (SQRT3/2) * r) + ox;
+  const y = size * ((3/2) * r) + oy;
+  return {x,y};
+}
+function pixelToAxial(x, y, size, ox, oy){
+  const px = (x - ox) / size;
+  const py = (y - oy) / size;
+  const q = (SQRT3/3) * px - (1/3) * py;
+  const r = (2/3) * py;
+  return cubeRound(q, -q-r, r);
+}
+function cubeRound(x, y, z){
+  let rx = Math.round(x), ry = Math.round(y), rz = Math.round(z);
+  const dx = Math.abs(rx - x), dy = Math.abs(ry - y), dz = Math.abs(rz - z);
+  if(dx > dy && dx > dz) rx = -ry - rz;
+  else if(dy > dz)       ry = -rx - rz;
+  else                   rz = -rx - ry;
+  return {q: rx, r: rz};
+}
+function hexDistance(a,b){
+  const dq = a.q - b.q;
+  const dr = a.r - b.r;
+  return (Math.abs(dq) + Math.abs(dr) + Math.abs(dq + dr)) / 2;
+}
+function key(q,r){ return `${q},${r}`; }
+
+/* -------------------------
+   Puzzle parameters
+-------------------------- */
+let RADIUS = 2;          // start at R2
+let K = 2;               // start at K2
+let HEX_SIZE = 32;       // adjusted by radius
+let showNumbers = true;
+let showSolution = false;
+
+function ringValue(d){
+  return d + 1;
+}
+
+function diskCells(radius){
+  const out = [];
+  for(let q=-radius; q<=radius; q++){
+    for(let r=-radius; r<=radius; r++){
+      const s = -q - r;
+      if(Math.max(Math.abs(q), Math.abs(r), Math.abs(s)) <= radius){
+        out.push({q,r});
+      }
+    }
+  }
+  return out;
+}
+
+/* -------------------------
+   UI refs
+-------------------------- */
+const cvT = document.getElementById("target");
+const cvP = document.getElementById("play");
+const ctxT = cvT.getContext("2d");
+const ctxP = cvP.getContext("2d");
+
+const hud = document.getElementById("hud");
+const hudTop = document.getElementById("hudTop");
+const statusEl = document.getElementById("status");
+
+const solvePill = document.getElementById("solvePill");
+const solveDot = document.getElementById("solveDot");
+const solveText = document.getElementById("solveText");
+
+const radiusSlider = document.getElementById("radius");
+const emitSlider = document.getElementById("emit");
+const radiusVal = document.getElementById("radiusVal");
+const emitVal = document.getElementById("emitVal");
+
+const numsChk = document.getElementById("nums");
+const solChk = document.getElementById("showSolution");
+
+/* -------------------------
+   Levels (start at R2 K2; difficulty depends on R and K)
+-------------------------- */
+const LEVELS = [
+  {name:"R2 • K2 (starter)", radius:2, emitters:2},
+  {name:"R2 • K3 (hard)",    radius:2, emitters:3},
+  {name:"R2 • K4 (expert)",  radius:2, emitters:4},
+  {name:"R3 • K2 (medium)",  radius:3, emitters:2},
+  {name:"R3 • K3 (expert)",  radius:3, emitters:3},
+  {name:"R4 • K3 (hard+)",   radius:4, emitters:3},
+  {name:"R4 • K4 (ultimate)",radius:4, emitters:4},
+  {name:"R5 • K5 (nightmare)",radius:5, emitters:5},
+];
+
+const levelSelect = document.getElementById("levelSelect");
+function rebuildLevelSelect(){
+  levelSelect.innerHTML = "";
+  LEVELS.forEach((L,i)=>{
+    const opt = document.createElement("option");
+    opt.value = String(i);
+    opt.textContent = L.name;
+    levelSelect.appendChild(opt);
+  });
+  levelSelect.value = "0";
+}
+rebuildLevelSelect();
+
+/* -------------------------
+   State
+-------------------------- */
+let cells = [];
+let orgT = {ox:0, oy:0};
+let orgP = {ox:0, oy:0};
+
+let hiddenEmitters = [];
+let playerEmitters = [];
+
+/* -------------------------
+   Sizing + centering
+-------------------------- */
+function updateSizing(){
+  const map = {2:40, 3:32, 4:26, 5:22};
+  HEX_SIZE = map[RADIUS] ?? 26;
+}
+
+function computeOrigin(cv){
+  let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+  for(const c of cells){
+    const p = axialToPixel(c.q,c.r,HEX_SIZE,0,0);
+    minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
+    minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
+  }
+  const gridW = (maxX - minX) + HEX_SIZE*2;
+  const gridH = (maxY - minY) + HEX_SIZE*2;
+  const ox = (cv.width  - gridW)/2 - minX + HEX_SIZE;
+  const oy = (cv.height - gridH)/2 - minY + HEX_SIZE;
+  return {ox, oy};
+}
+
+/* -------------------------
+   Field computation
+-------------------------- */
+function randomDistinctCells(n){
+  const pool = cells.slice();
+  for(let i=pool.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [pool[i],pool[j]] = [pool[j],pool[i]];
+  }
+  return pool.slice(0,n).map(c => ({q:c.q, r:c.r}));
+}
+
+function computeField(emitters){
+  const map = new Map();
+  for(const c of cells){
+    let sum = 0;
+    for(const e of emitters){
+      const d = hexDistance(c, e);
+      sum += ringValue(d);
+    }
+    map.set(key(c.q,c.r), sum);
+  }
+  return map;
+}
+
+function maxAbsInField(field){
+  let m=0;
+  for(const v of field.values()) m = Math.max(m, Math.abs(v));
+  return Math.max(1, m);
+}
+
+/* -------------------------
+   Rendering
+-------------------------- */
+function hexPath(ctx, cx, cy, size){
+  ctx.beginPath();
+  for(let i=0;i<6;i++){
+    const ang = Math.PI/180 * (60*i - 30);
+    const x = cx + size * Math.cos(ang);
+    const y = cy + size * Math.sin(ang);
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.closePath();
+}
+
+function colorForValue(v, maxAbs){
+  const a = Math.min(1, Math.abs(v) / maxAbs);
+  // single hue family: deep -> bright cyan-ish
+  const baseR = 10, baseG = 18, baseB = 42;
+  let r = baseR + Math.floor(22  * a);
+  let g = baseG + Math.floor(128 * a);
+  let b = baseB + Math.floor(210 * a);
+
+  // slight sign cue, still same family
+  if(v > 0) { g += Math.floor(10*a); r += Math.floor(6*a); }
+  if(v < 0) { b += Math.floor(12*a); }
+
+  return `rgb(${r},${g},${b})`;
+}
+
+function drawBoard(ctx, origin, field, emitters, revealEmitters=false){
+  ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+  const maxAbs = maxAbsInField(field);
+
+  // Draw cells
+  for(const c of cells){
+    const p = axialToPixel(c.q,c.r,HEX_SIZE, origin.ox, origin.oy);
+    const v = field.get(key(c.q,c.r)) ?? 0;
+
+    ctx.fillStyle = colorForValue(v, maxAbs);
+    hexPath(ctx, p.x, p.y, HEX_SIZE-0.8);
+    ctx.fill();
+
+    // subtle border
+    ctx.strokeStyle = "rgba(255,255,255,0.07)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    if(showNumbers){
+      ctx.font = `${Math.max(11, HEX_SIZE*0.48)}px system-ui`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = (v===0) ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.88)";
+      ctx.fillText(String(v), p.x, p.y);
+    }
+  }
+
+  // emitter marker: inner hex outline inside the cell
+  const drawEmitter = (e, alpha=0.85)=>{
+    const p = axialToPixel(e.q,e.r,HEX_SIZE, origin.ox, origin.oy);
+    ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
+    ctx.lineWidth = 2;
+    hexPath(ctx, p.x, p.y, HEX_SIZE*0.38);
+    ctx.stroke();
+  };
+
+  if(revealEmitters){
+    for(const e of emitters) drawEmitter(e, 0.48);
+  }else{
+    for(const e of emitters) drawEmitter(e, 0.86);
+  }
+}
+
+/* -------------------------
+   UI sync
+-------------------------- */
+function syncUI(){
+  radiusSlider.value = String(RADIUS);
+  emitSlider.value = String(K);
+  radiusVal.textContent = String(RADIUS);
+  emitVal.textContent = String(K);
+  numsChk.checked = showNumbers;
+  solChk.checked = showSolution;
+}
+
+radiusSlider.addEventListener("input", ()=> radiusVal.textContent = radiusSlider.value);
+emitSlider.addEventListener("input", ()=> emitVal.textContent = emitSlider.value);
+
+numsChk.addEventListener("change", ()=>{
+  showNumbers = numsChk.checked;
+  render();
+});
+solChk.addEventListener("change", ()=>{
+  showSolution = solChk.checked;
+  render();
+});
+
+/* -------------------------
+   Game logic
+-------------------------- */
+function emitterIndexAt(q,r, list){
+  return list.findIndex(e => e.q===q && e.r===r);
+}
+
+function render(){
+  const targetField = computeField(hiddenEmitters);
+  const playerField = computeField(playerEmitters);
+
+  drawBoard(ctxT, orgT, targetField, showSolution ? hiddenEmitters : [], showSolution);
+  drawBoard(ctxP, orgP, playerField, playerEmitters, false);
+
+  const head = `Board R=${RADIUS} • Cells ${cells.length} • Emitters ${playerEmitters.length}/${K}`;
+  hud.textContent = head;
+  hudTop.textContent = head;
+
+  // exact match (require using all emitters to count as solved)
+  let solved = (playerEmitters.length === K);
+  if(solved){
+    for(const c of cells){
+      const kk = key(c.q,c.r);
+      if(targetField.get(kk) !== playerField.get(kk)){ solved = false; break; }
+    }
+  }
+
+  if(solved){
+    statusEl.textContent = "Solved. Field matches the target.";
+    solveText.textContent = "Solved";
+    solveDot.className = "dot ok";
+  }else{
+    statusEl.textContent = `Not solved yet. Use up to ${K} emitters.`;
+    solveText.textContent = "Not solved";
+    solveDot.className = "dot bad";
+  }
+}
+
+function newTarget(){
+  hiddenEmitters = randomDistinctCells(K);
+  playerEmitters = [];
+  render();
+}
+
+function applySettings(radius, emitters){
+  RADIUS = radius;
+  K = emitters;
+
+  updateSizing();
+  cells = diskCells(RADIUS);
+  orgT = computeOrigin(cvT);
+  orgP = computeOrigin(cvP);
+
+  hiddenEmitters = [];
+  playerEmitters = [];
+
+  syncUI();
+  newTarget();
+}
+
+/* -------------------------
+   Input: click placement
+-------------------------- */
+cvP.addEventListener("click", (ev)=>{
+  const r = cvP.getBoundingClientRect();
+  const px = (ev.clientX - r.left) * (cvP.width / r.width);
+  const py = (ev.clientY - r.top)  * (cvP.height/ r.height);
+  const a = pixelToAxial(px, py, HEX_SIZE, orgP.ox, orgP.oy);
+
+  const inDisk = cells.some(c => c.q===a.q && c.r===a.r);
+  if(!inDisk) return;
+
+  const i = emitterIndexAt(a.q, a.r, playerEmitters);
+  if(i >= 0){
+    playerEmitters.splice(i,1);
+    render();
+    return;
+  }
+  if(playerEmitters.length >= K) return;
+
+  playerEmitters.push({q:a.q, r:a.r});
+  render();
+});
+
+/* -------------------------
+   Buttons
+-------------------------- */
+document.getElementById("reset").addEventListener("click", ()=>{
+  playerEmitters = [];
+  render();
+});
+document.getElementById("newtarget").addEventListener("click", ()=>{
+  newTarget();
+});
+
+document.getElementById("applyLevel").addEventListener("click", ()=>{
+  const L = LEVELS[+levelSelect.value];
+  applySettings(L.radius, L.emitters);
+});
+
+document.getElementById("applyCustom").addEventListener("click", ()=>{
+  const rad = +radiusSlider.value;
+  const em  = +emitSlider.value;
+  applySettings(rad, em);
+});
+
+/* init */
+updateSizing();
+cells = diskCells(RADIUS);
+orgT = computeOrigin(cvT);
+orgP = computeOrigin(cvP);
+syncUI();
+newTarget();
+</script>
+</body>
+</html>

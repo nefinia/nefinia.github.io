@@ -269,6 +269,19 @@
       <a class="play" href="lumen_logic.html" target="_blank">Play</a>
     </div>
 
+    <!-- RPS Relations -->
+    <div class="game">
+      <div class="thumbWrap">
+        <canvas id="thumb-rps" width="96" height="96"></canvas>
+      </div>
+      <h2>RPS Relations</h2>
+      <p class="desc">
+        A logic grid where each edge declares who wins.
+        Fill every cell with Rock, Paper, or Scissors.
+      </p>
+      <a class="play" href="rps_relations.html" target="_blank">Play</a>
+    </div>
+
     <!-- Maxwell Demon -->
     <div class="game">
       <div class="thumbWrap">
@@ -668,6 +681,57 @@ function rint(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
   emitter(62,58);
 })();
 
+/* Hexy Battle preview */
+(function(){
+  const c = document.getElementById("thumb-hexy");
+  const ctx = c.getContext("2d");
+
+  ctx.fillStyle = "#0a0f25";
+  ctx.fillRect(0,0,c.width,c.height);
+
+  const cols = 5;
+  const rows = 5;
+  const size = 8;
+  const startX = 18;
+  const startY = 18;
+
+  function hex(cx,cy,r,stroke){
+    ctx.beginPath();
+    for(let i=0;i<6;i++){
+      const ang = (Math.PI/180) * (60*i + 30);
+      const x = cx + r*Math.cos(ang);
+      const y = cy + r*Math.sin(ang);
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  for(let y=0;y<rows;y++){
+    for(let x=0;x<cols;x++){
+      const cx = startX + x*size*1.8 + (y%2 ? size*0.9 : 0);
+      const cy = startY + y*size*1.6;
+      hex(cx, cy, size, "rgba(122,162,255,0.35)");
+    }
+  }
+
+  function token(cx,cy,col){
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    ctx.arc(cx,cy,5.2,0,Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,0.65)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  token(40,38,"#7aa2ff");
+  token(60,50,"#43e3a2");
+  token(32,58,"#ffb86b");
+})();
+
 /* Lumen Logic preview */
 (function(){
   const c = document.getElementById("thumb-lumen");
@@ -719,6 +783,62 @@ function rint(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
   ctx.textBaseline = "middle";
   ctx.fillText("9", pad+3*cell+4.5, pad+3*cell+4.5);
   ctx.fillText("7", pad+5*cell+4.5, pad+2*cell+4.5);
+})();
+
+/* RPS Relations preview */
+(function(){
+  const c = document.getElementById("thumb-rps");
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = "#0a0f25";
+  ctx.fillRect(0,0,c.width,c.height);
+
+  const n = 5;
+  const cell = 14;
+  const pad = 10;
+
+  ctx.strokeStyle = "#24315a";
+  for(let y=0;y<=n;y++){
+    ctx.beginPath();
+    ctx.moveTo(pad, pad + y*cell);
+    ctx.lineTo(pad + n*cell, pad + y*cell);
+    ctx.stroke();
+  }
+  for(let x=0;x<=n;x++){
+    ctx.beginPath();
+    ctx.moveTo(pad + x*cell, pad);
+    ctx.lineTo(pad + x*cell, pad + n*cell);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = "rgba(255,255,255,0.45)";
+  ctx.font = "bold 10px system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(">", pad + 2.5*cell, pad + 1.5*cell);
+  ctx.fillText("=", pad + 1.5*cell, pad + 2.5*cell);
+  ctx.fillText("<", pad + 3.5*cell, pad + 3.5*cell);
+
+  function square(cx,cy,r,col){
+    ctx.fillStyle = col;
+    ctx.fillRect(cx-r, cy-r, r*2, r*2);
+  }
+  function circle(cx,cy,r,col){
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
+  }
+  function triangle(cx,cy,r,col){
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy-r);
+    ctx.lineTo(cx+r, cy+r);
+    ctx.lineTo(cx-r, cy+r);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  square(pad+1.5*cell, pad+1.5*cell, 4.2, "#7aa2ff");
+  circle(pad+3.5*cell, pad+1.5*cell, 4.2, "#43e3a2");
+  triangle(pad+2.5*cell, pad+3.5*cell, 4.6, "#ffb86b");
 })();
 
 /* Maxwell Demon preview */
