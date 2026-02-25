@@ -21,6 +21,8 @@
   .hud .help{color:var(--muted);font-size:12px;margin:6px 0 2px;}
   .hud button{margin-top:6px;margin-right:4px;background:#182046;color:var(--text);border:1px solid #2a3a6a;border-radius:8px;padding:6px 10px;font-weight:600;cursor:pointer;}
   .hud button:hover{border-color:var(--accent);}  
+  .hud select{margin-left:4px;background:#182046;color:var(--text);border:1px solid #2a3a6a;border-radius:8px;padding:4px 8px;font-weight:600;}
+  .hud .row{margin-top:4px;}
 
     .back-link{
       position: fixed;
@@ -59,7 +61,15 @@
   Time: <b id="time">0.0</b>s<br>
   Distance: <b id="dist">0</b> km<br>
   Fuel: <b id="fuel">100</b>%<br>
+  Trap: <b id="trap">0%</b><br>
   Status: <b id="status">Running</b>
+  <div class="row">Difficulty:
+    <select id="difficulty" aria-label="Difficulty">
+      <option value="kid">Kid</option>
+      <option value="normal" selected>Normal</option>
+      <option value="chaos">Chaos</option>
+    </select>
+  </div>
   <div class="help">Drag to move · WASD/Arrows</div>
   <button id="pause">Pause</button>
   <button id="reset">Reset</button>
@@ -108,30 +118,212 @@ let statusText = "Running";
 const timeEl = document.getElementById("time");
 const distEl = document.getElementById("dist");
 const fuelEl = document.getElementById("fuel");
+const trapEl = document.getElementById("trap");
 const statusEl = document.getElementById("status");
+const difficultyEl = document.getElementById("difficulty");
 
 const DT = 1/60;
 const DAMP = 0.99;
 const MAX_V = 1800;
-const G = 8200;
 const SOFTEN = 14;
 const SPRING_K = 0.07;
 const SOLVER_ITERS = 4;
+const FIELD_EPS = 1e-6;
 
-const BASE_SPEED = 300*dpr;
-const MAX_SPEED = 860*dpr;
-const SPEED_UP = 8*dpr;
+const DIFFICULTY = {
+  kid: {
+    gravity: 7000,
+    baseSpeed: 250*dpr,
+    maxSpeed: 700*dpr,
+    speedUp: 5*dpr,
+    holeLimit: 5,
+    holeSpawnMin: 1.05,
+    holeSpawnMax: 1.55,
+    holeRadiusMin: 4.0,
+    holeRadiusMax: 6.6,
+    coreScale: 0.28,
+    coreMin: 2.5*dpr,
+    horizonScale: 1.85,
+    warpScale: 170,
+    influenceScale: 120,
+    controlGain: 6.3,
+    controlResponse: 0.24,
+    controlSuppression: 0.45,
+    controlRadius: 420*dpr,
+    tangentialStrength: 0.10,
+    tangentialRadius: 500*dpr,
+    tideRadius: 560*dpr,
+    stretchWarn: 1.13,
+    stretchKill: 1.72,
+    stretchTime: 0.40,
+    swallowTime: 0.42,
+    trapRadius: 430*dpr,
+    trapRise: 1.7,
+    trapFall: 1.25,
+    trapGrab: 0.18,
+    fuelBaseDrain: 1.45,
+    fuelGravityDrain: 4.8,
+    fuelTrapDrain: 2.0,
+    fuelSpawnMin: 2.2,
+    fuelSpawnMax: 3.0,
+    fuelLimit: 5,
+    fuelPickup: 28,
+    gridWarpGain: 220,
+    gridWarpMaxScale: 7,
+    deformRadius: 260*dpr,
+    deformLongMax: 1.1,
+    deformLatShrink: 0.5,
+    deformResponse: 12,
+    deformPulseRise: 5.0,
+    deformPulseDecay: 2.2,
+    deformWobble: 2.2,
+    deformTwist: 0.22,
+    idleControlDecay: 8.5,
+    orbitRadiusScale: 2.8,
+    orbitBuild: 1.0,
+    orbitDecay: 0.9,
+    orbitSpinStrength: 180,
+    orbitBandPull: 12,
+    orbitControlSuppression: 0.52,
+    orbitEscapeBoost: 1.45,
+    orbitEscapeGain: 1.5,
+    orbitEscapeDecay: 1.0,
+    orbitFailTime: 2.2
+  },
+  normal: {
+    gravity: 8400,
+    baseSpeed: 300*dpr,
+    maxSpeed: 860*dpr,
+    speedUp: 8*dpr,
+    holeLimit: 7,
+    holeSpawnMin: 0.78,
+    holeSpawnMax: 1.28,
+    holeRadiusMin: 4.4,
+    holeRadiusMax: 7.5,
+    coreScale: 0.33,
+    coreMin: 3.0*dpr,
+    horizonScale: 1.65,
+    warpScale: 220,
+    influenceScale: 95,
+    controlGain: 6.0,
+    controlResponse: 0.20,
+    controlSuppression: 0.30,
+    controlRadius: 380*dpr,
+    tangentialStrength: 0.18,
+    tangentialRadius: 470*dpr,
+    tideRadius: 520*dpr,
+    stretchWarn: 1.10,
+    stretchKill: 1.55,
+    stretchTime: 0.30,
+    swallowTime: 0.30,
+    trapRadius: 390*dpr,
+    trapRise: 2.1,
+    trapFall: 1.45,
+    trapGrab: 0.26,
+    fuelBaseDrain: 1.9,
+    fuelGravityDrain: 6.2,
+    fuelTrapDrain: 3.1,
+    fuelSpawnMin: 2.3,
+    fuelSpawnMax: 4.2,
+    fuelLimit: 4,
+    fuelPickup: 22,
+    gridWarpGain: 260,
+    gridWarpMaxScale: 8,
+    deformRadius: 230*dpr,
+    deformLongMax: 1.45,
+    deformLatShrink: 0.65,
+    deformResponse: 14,
+    deformPulseRise: 5.8,
+    deformPulseDecay: 2.3,
+    deformWobble: 3.2,
+    deformTwist: 0.28,
+    idleControlDecay: 9.8,
+    orbitRadiusScale: 3.0,
+    orbitBuild: 1.35,
+    orbitDecay: 1.1,
+    orbitSpinStrength: 240,
+    orbitBandPull: 16,
+    orbitControlSuppression: 0.45,
+    orbitEscapeBoost: 1.55,
+    orbitEscapeGain: 1.9,
+    orbitEscapeDecay: 1.2,
+    orbitFailTime: 1.8
+  },
+  chaos: {
+    gravity: 9600,
+    baseSpeed: 340*dpr,
+    maxSpeed: 980*dpr,
+    speedUp: 12*dpr,
+    holeLimit: 9,
+    holeSpawnMin: 0.55,
+    holeSpawnMax: 0.95,
+    holeRadiusMin: 5.0,
+    holeRadiusMax: 8.6,
+    coreScale: 0.38,
+    coreMin: 3.6*dpr,
+    horizonScale: 1.50,
+    warpScale: 270,
+    influenceScale: 88,
+    controlGain: 5.6,
+    controlResponse: 0.17,
+    controlSuppression: 0.18,
+    controlRadius: 345*dpr,
+    tangentialStrength: 0.28,
+    tangentialRadius: 430*dpr,
+    tideRadius: 500*dpr,
+    stretchWarn: 1.07,
+    stretchKill: 1.44,
+    stretchTime: 0.24,
+    swallowTime: 0.24,
+    trapRadius: 360*dpr,
+    trapRise: 2.7,
+    trapFall: 1.55,
+    trapGrab: 0.34,
+    fuelBaseDrain: 2.3,
+    fuelGravityDrain: 7.2,
+    fuelTrapDrain: 4.0,
+    fuelSpawnMin: 2.7,
+    fuelSpawnMax: 4.9,
+    fuelLimit: 3,
+    fuelPickup: 18,
+    gridWarpGain: 300,
+    gridWarpMaxScale: 9,
+    deformRadius: 210*dpr,
+    deformLongMax: 1.8,
+    deformLatShrink: 0.8,
+    deformResponse: 16,
+    deformPulseRise: 6.4,
+    deformPulseDecay: 2.4,
+    deformWobble: 4.4,
+    deformTwist: 0.34,
+    idleControlDecay: 11.0,
+    orbitRadiusScale: 3.2,
+    orbitBuild: 1.7,
+    orbitDecay: 1.3,
+    orbitSpinStrength: 300,
+    orbitBandPull: 20,
+    orbitControlSuppression: 0.38,
+    orbitEscapeBoost: 1.7,
+    orbitEscapeGain: 2.3,
+    orbitEscapeDecay: 1.4,
+    orbitFailTime: 1.45
+  }
+};
 
-const TIDE_RADIUS = 520*dpr;
-const STRETCH_WARN = 1.1;
-const STRETCH_KILL = 1.55;
-const STRETCH_TIME = 0.3;
+let difficultyKey = "normal";
+let cfg = DIFFICULTY[difficultyKey];
+
+function applyDifficulty(key){
+  difficultyKey = DIFFICULTY[key] ? key : "normal";
+  cfg = DIFFICULTY[difficultyKey];
+  difficultyEl.value = difficultyKey;
+}
 
 const stars = [];
 const holes = [];
 const fuels = [];
 let holeTimer = 0;
-let speed = BASE_SPEED;
+let speed = cfg.baseSpeed;
 let fuel = 100;
 let fuelTimer = 0;
 
@@ -210,37 +402,68 @@ function makeAstronautHorizontal(x,y){
   const foot = pts[idx.footL].x < pts[idx.footR].x ? pts[idx.footL] : pts[idx.footR];
   const restLen = Math.hypot(foot.x-head.x, foot.y-head.y);
 
-  return {pts,links,idx,restLen,stretchRatio:1,stretchTime:0,swallowTime:0};
+  return {
+    pts,
+    links,
+    idx,
+    restLen,
+    stretchRatio:1,
+    stretchTime:0,
+    swallowTime:0,
+    trapMeter:0,
+    deformPulse:0,
+    orbitMeter:0,
+    orbitLocked:false,
+    orbitTimer:0,
+    escapeMeter:0,
+    orbitHole:null,
+    escapeFlash:0
+  };
 }
 
 const player = {rig:null,targetX:0,targetY:0,ctrlVX:0,ctrlVY:0};
 
 function resetGame(){
-  running = true; paused = false; time=0; distance=0; speed=BASE_SPEED; statusText="Running";
+  running = true;
+  paused = false;
+  time = 0;
+  distance = 0;
+  speed = cfg.baseSpeed;
+  statusText = "Running";
   const px = W*0.5;
   const py = H*0.5;
   player.rig = makeAstronautHorizontal(px, py);
   player.targetX = px;
   player.targetY = py;
-  player.ctrlVX = 0; player.ctrlVY = 0;
-  stars.length=0; holes.length=0; fuels.length=0; holeTimer=0; fuelTimer=0;
+  player.ctrlVX = 0;
+  player.ctrlVY = 0;
+  stars.length = 0;
+  holes.length = 0;
+  fuels.length = 0;
+  holeTimer = 0;
+  fuelTimer = 0;
   fuel = 100;
+  trapEl.textContent = "0%";
   for(let i=0;i<120;i++){
     stars.push({x:Math.random()*W,y:Math.random()*H,s:Math.random()*1.8+0.4,a:Math.random()*0.6+0.2});
   }
 }
+applyDifficulty(difficultyEl.value);
 resetGame();
 
 function spawnHole(){
-  const r = (4+Math.random()*7)*dpr;
+  const r = (cfg.holeRadiusMin + Math.random()*(cfg.holeRadiusMax - cfg.holeRadiusMin))*dpr;
   const y = 60*dpr + Math.random()*(H-120*dpr);
   holes.push({
     x: W+r+Math.random()*180*dpr,
     y,
     r,
-    core: r*0.12,
-    warp: r*220,
-    influence: r*90
+    core: Math.max(cfg.coreMin, r*cfg.coreScale),
+    horizon: r*cfg.horizonScale,
+    orbit: r*cfg.orbitRadiusScale,
+    warp: r*cfg.warpScale,
+    influence: r*cfg.influenceScale,
+    spin: Math.random()<0.5 ? -1 : 1
   });
 }
 
@@ -250,9 +473,105 @@ function spawnFuel(){
   fuels.push({x:W+r+Math.random()*220*dpr,y,r,spin:Math.random()*Math.PI*2});
 }
 
+function sampleGravityField(x,y){
+  let ax = 0;
+  let ay = 0;
+  let nearest = Infinity;
+  let nearestHole = null;
+  for(let i=0;i<holes.length;i++){
+    const h = holes[i];
+    const dx = h.x - x;
+    const dy = h.y - y;
+    const r2 = dx*dx + dy*dy + SOFTEN*SOFTEN;
+    const r = Math.sqrt(r2);
+    const f = (cfg.gravity * h.r) / r2;
+    ax += (dx / r) * f;
+    ay += (dy / r) * f;
+    const edge = r - h.r;
+    if(edge < nearest){
+      nearest = edge;
+      nearestHole = h;
+    }
+  }
+  return {ax, ay, nearest, nearestHole};
+}
+
+function warpPoint(x,y){
+  if(holes.length===0) return {x, y};
+  const field = sampleGravityField(x,y);
+  if(!field.nearestHole) return {x, y};
+  const mag = Math.hypot(field.ax, field.ay);
+  if(mag < FIELD_EPS) return {x, y};
+  const influence = field.nearestHole.influence;
+  const localGain = cfg.gridWarpGain + field.nearestHole.warp*0.12;
+  const nearFactor = Math.min(1, Math.max(0, (influence - field.nearest) / influence));
+  const warp = Math.min(
+    field.nearestHole.r * cfg.gridWarpMaxScale,
+    mag * localGain * nearFactor
+  );
+  return {
+    x: x + (field.ax / mag) * warp,
+    y: y + (field.ay / mag) * warp
+  };
+}
+
+function buildRenderPoints(rig){
+  const src = rig.pts;
+  const out = src.map(p=>({x:p.x, y:p.y}));
+  const head = src[rig.idx.head];
+  const field = sampleGravityField(head.x, head.y);
+  const hole = (rig.orbitLocked && rig.orbitHole) ? rig.orbitHole : field.nearestHole;
+  const pressure = hole
+    ? Math.min(1, Math.max(0, (cfg.deformRadius - field.nearest) / cfg.deformRadius))
+    : 0;
+  const strength = Math.min(1, Math.max(rig.deformPulse, pressure) * 1.08);
+  if(!hole || strength <= FIELD_EPS) return out;
+
+  let cx = 0;
+  let cy = 0;
+  for(let i=0;i<out.length;i++){
+    cx += out[i].x;
+    cy += out[i].y;
+  }
+  cx /= out.length;
+  cy /= out.length;
+
+  const dx = hole.x - cx;
+  const dy = hole.y - cy;
+  const d = Math.hypot(dx,dy) || 1;
+  const rx = dx / d;
+  const ry = dy / d;
+  const tx = -ry;
+  const ty = rx;
+  const rest = Math.max(1, rig.restLen);
+  const longScale = 1 + strength * (cfg.deformLongMax * 1.75);
+  const latScale = Math.max(0.10, 1 - strength * (cfg.deformLatShrink * 1.15));
+  const wobbleAmp = (cfg.deformWobble || 0) * strength * 1.8 * dpr;
+  const twist = (cfg.deformTwist || 0) * 1.15;
+
+  for(let i=0;i<out.length;i++){
+    const p = out[i];
+    const relX = p.x - cx;
+    const relY = p.y - cy;
+    const along = relX*rx + relY*ry;
+    const side = relX*tx + relY*ty;
+    const alongN = Math.min(1.15, Math.abs(along) / rest);
+    const pointLongScale = longScale * (1 + alongN * 0.35);
+    const pointLatScale = Math.max(0.09, latScale * (1 - alongN * twist));
+    const wobble = Math.sin(time*11 + i*0.85 + along*0.045) * wobbleAmp;
+    p.x = cx + rx*(along*pointLongScale) + tx*(side*pointLatScale + wobble);
+    p.y = cy + ry*(along*pointLongScale) + ty*(side*pointLatScale + wobble);
+  }
+
+  return out;
+}
+
 function update(dt){
   if(!running || paused) return;
-  time += dt; speed = Math.min(MAX_SPEED, speed + dt*SPEED_UP); distance += speed*dt;
+  time += dt;
+  speed = Math.min(cfg.maxSpeed, speed + dt*cfg.speedUp);
+  distance += speed*dt;
+  const hasManualInput = pointer.active || keys.up || keys.down || keys.left || keys.right;
 
   let tx = player.targetX;
   let ty = player.targetY;
@@ -275,9 +594,9 @@ function update(dt){
   });
 
   holeTimer -= dt;
-  if(holeTimer<=0 && holes.length<7){
+  if(holeTimer<=0 && holes.length<cfg.holeLimit){
     spawnHole();
-    holeTimer = 0.8 + Math.random()*0.6;
+    holeTimer = cfg.holeSpawnMin + Math.random()*(cfg.holeSpawnMax - cfg.holeSpawnMin);
   }
   for(let i=holes.length-1;i>=0;i--){
     const h = holes[i];
@@ -286,9 +605,9 @@ function update(dt){
   }
 
   fuelTimer -= dt;
-  if(fuelTimer<=0 && fuels.length<4){
+  if(fuelTimer<=0 && fuels.length<cfg.fuelLimit){
     spawnFuel();
-    fuelTimer = 2.5 + Math.random()*2.5;
+    fuelTimer = cfg.fuelSpawnMin + Math.random()*(cfg.fuelSpawnMax - cfg.fuelSpawnMin);
   }
   for(let i=fuels.length-1;i>=0;i--){
     const f = fuels[i];
@@ -300,12 +619,44 @@ function update(dt){
   const rig = player.rig;
   const pts = rig.pts;
   const head = pts[rig.idx.head];
+  const intentX = hasManualInput ? (player.targetX - head.x) : 0;
+  const intentY = hasManualInput ? (player.targetY - head.y) : 0;
+  const intentMag = hasManualInput ? Math.hypot(intentX, intentY) : 0;
 
-  // control velocity (applied uniformly so movement doesn't stretch)
-  const targetVX = (player.targetX - head.x) * 6.0;
-  const targetVY = (player.targetY - head.y) * 6.0;
-  player.ctrlVX += (targetVX - player.ctrlVX) * 0.2;
-  player.ctrlVY += (targetVY - player.ctrlVY) * 0.2;
+  const headFieldBeforeMove = sampleGravityField(head.x, head.y);
+  const controlPressure = Math.min(1, Math.max(0, (cfg.controlRadius - headFieldBeforeMove.nearest) / cfg.controlRadius));
+  let controlScale = Math.max(cfg.controlSuppression, 1 - controlPressure*(1 - cfg.controlSuppression));
+
+  if(rig.orbitLocked && rig.orbitHole){
+    const hole = rig.orbitHole;
+    const awayX = head.x - hole.x;
+    const awayY = head.y - hole.y;
+    const awayMag = Math.hypot(awayX, awayY) || 1;
+    let awayDot = -1;
+    if(intentMag > FIELD_EPS){
+      awayDot = (intentX/intentMag) * (awayX/awayMag) + (intentY/intentMag) * (awayY/awayMag);
+    }
+    const boost = awayDot > 0.22 ? cfg.orbitEscapeBoost : 1;
+    controlScale *= cfg.orbitControlSuppression * boost;
+  }
+
+  if(hasManualInput){
+    // Control weakens near black holes, so escaping takes planning.
+    const targetVX = (player.targetX - head.x) * cfg.controlGain * controlScale;
+    const targetVY = (player.targetY - head.y) * cfg.controlGain * controlScale;
+    player.ctrlVX += (targetVX - player.ctrlVX) * cfg.controlResponse;
+    player.ctrlVY += (targetVY - player.ctrlVY) * cfg.controlResponse;
+    const grabDrag = Math.max(0.5, 1 - controlPressure * cfg.trapGrab);
+    player.ctrlVX *= grabDrag;
+    player.ctrlVY *= grabDrag;
+  }else{
+    // With no input, stop steering and let the body follow geodesic-like flow.
+    player.targetX = head.x;
+    player.targetY = head.y;
+    const idleDecay = Math.max(0, 1 - dt*(cfg.idleControlDecay || 9));
+    player.ctrlVX *= idleDecay;
+    player.ctrlVY *= idleDecay;
+  }
 
   const dxMove = player.ctrlVX * dt;
   const dyMove = player.ctrlVY * dt;
@@ -313,19 +664,43 @@ function update(dt){
     pts.forEach(p=>{ p.x += dxMove; p.y += dyMove; });
   }
 
-  // gravity per-point
+  // Gravity per point (shared field model used by both physics and spacetime grid).
+  const orbitHole = rig.orbitLocked ? rig.orbitHole : null;
   for(let i=0;i<pts.length;i++){
     const p = pts[i];
-    for(let h=0; h<holes.length; h++){
-      const bh = holes[h];
-      const dx = bh.x - p.x;
-      const dy = bh.y - p.y;
-      const r2 = dx*dx + dy*dy + SOFTEN*SOFTEN;
-      const r = Math.sqrt(r2);
-      const f = (G * bh.r) / r2;
-      p.vx += dx/r * f * dt;
-      p.vy += dy/r * f * dt;
+    const field = sampleGravityField(p.x, p.y);
+    p.vx += field.ax * dt;
+    p.vy += field.ay * dt;
+
+    if(field.nearestHole){
+      const h = field.nearestHole;
+      const dx = h.x - p.x;
+      const dy = h.y - p.y;
+      const r = Math.hypot(dx,dy) || 1;
+      const edge = r - h.r;
+      if(edge < cfg.tangentialRadius){
+        const swirl = Math.min(1, Math.max(0, (cfg.tangentialRadius - edge) / cfg.tangentialRadius));
+        const tx = (-dy / r) * h.spin;
+        const ty = ( dx / r) * h.spin;
+        const tangential = ((cfg.gravity * h.r) / (r*r + SOFTEN*SOFTEN)) * cfg.tangentialStrength * swirl;
+        p.vx += tx * tangential * dt;
+        p.vy += ty * tangential * dt;
+      }
     }
+
+    if(orbitHole){
+      const dx = orbitHole.x - p.x;
+      const dy = orbitHole.y - p.y;
+      const r = Math.hypot(dx,dy) || 1;
+      const tx = (-dy / r) * orbitHole.spin;
+      const ty = ( dx / r) * orbitHole.spin;
+      const radialErr = r - orbitHole.orbit;
+      p.vx += tx * cfg.orbitSpinStrength * dt;
+      p.vy += ty * cfg.orbitSpinStrength * dt;
+      p.vx += (dx / r) * (radialErr * cfg.orbitBandPull) * dt;
+      p.vy += (dy / r) * (radialErr * cfg.orbitBandPull) * dt;
+    }
+
     p.vx *= DAMP;
     p.vy *= DAMP;
     const v = Math.hypot(p.vx,p.vy);
@@ -353,8 +728,77 @@ function update(dt){
     });
   }
 
-  // collisions, fuel, spaghettify
-  let nearest = Infinity;
+  const headField = sampleGravityField(head.x, head.y);
+  const nearestHole = headField.nearestHole;
+  const nearest = headField.nearest;
+  const passPressure = nearestHole
+    ? Math.min(1, Math.max(0, (cfg.deformRadius - nearest) / cfg.deformRadius))
+    : 0;
+
+  if(passPressure > FIELD_EPS){
+    rig.deformPulse = Math.min(1, rig.deformPulse + dt * cfg.deformPulseRise * (0.2 + passPressure));
+    if(passPressure > 0.14 && rig.deformPulse < 0.38) rig.deformPulse = 0.38;
+  }else{
+    rig.deformPulse = Math.max(0, rig.deformPulse - dt * cfg.deformPulseDecay);
+  }
+
+  if(!rig.orbitLocked){
+    if(nearestHole && nearest < nearestHole.orbit){
+      const orbitPressure = Math.min(1, Math.max(0, (nearestHole.orbit - nearest) / nearestHole.orbit));
+      rig.orbitMeter = Math.min(1.25, rig.orbitMeter + dt * cfg.orbitBuild * (0.35 + orbitPressure));
+      if(rig.orbitMeter >= 1){
+        rig.orbitLocked = true;
+        rig.orbitHole = nearestHole;
+        rig.orbitTimer = 0;
+        rig.escapeMeter = 0;
+        rig.deformPulse = Math.max(rig.deformPulse, 0.75);
+      }
+    }else{
+      rig.orbitMeter = Math.max(0, rig.orbitMeter - dt * cfg.orbitDecay);
+    }
+  }else{
+    if(!rig.orbitHole || holes.indexOf(rig.orbitHole) === -1){
+      rig.orbitLocked = false;
+      rig.orbitHole = null;
+      rig.orbitMeter = 0;
+      rig.orbitTimer = 0;
+      rig.escapeMeter = 0;
+    }else{
+      rig.orbitTimer += dt;
+      const hole = rig.orbitHole;
+      const awayX = head.x - hole.x;
+      const awayY = head.y - hole.y;
+      const awayMag = Math.hypot(awayX, awayY) || 1;
+      let awayDot = -1;
+      if(intentMag > FIELD_EPS){
+        awayDot = (intentX/intentMag) * (awayX/awayMag) + (intentY/intentMag) * (awayY/awayMag);
+      }
+      if(awayDot > 0.2 && intentMag > 24*dpr){
+        rig.escapeMeter = Math.min(1.15, rig.escapeMeter + dt * cfg.orbitEscapeGain * awayDot);
+      }else{
+        rig.escapeMeter = Math.max(0, rig.escapeMeter - dt * cfg.orbitEscapeDecay);
+      }
+
+      if(rig.escapeMeter >= 1){
+        rig.orbitLocked = false;
+        rig.orbitHole = null;
+        rig.orbitMeter = 0;
+        rig.orbitTimer = 0;
+        rig.escapeMeter = 0;
+        rig.trapMeter = Math.max(0, rig.trapMeter - 0.25);
+        rig.deformPulse = Math.max(rig.deformPulse, 0.55);
+        rig.escapeFlash = 0.55;
+        statusText = "Orbit Escaped";
+      }else if(rig.orbitTimer > cfg.orbitFailTime){
+        statusText = "Shredded in Orbit";
+        running = false;
+        return;
+      }
+    }
+  }
+
+  rig.escapeFlash = Math.max(0, rig.escapeFlash - dt);
+
   let deep = false;
   holes.forEach(h=>{
     for(let i=0;i<pts.length;i++){
@@ -362,24 +806,37 @@ function update(dt){
       const d = Math.hypot(h.x - p.x, h.y - p.y);
       if(d < h.core){
         deep = true;
-        rig.swallowTime += dt;
         break;
       }
     }
-    const dx = h.x - head.x; const dy = h.y - head.y;
-    nearest = Math.min(nearest, Math.hypot(dx,dy) - h.r);
   });
+
+  const trapPressure = Math.min(1, Math.max(0, (cfg.trapRadius - nearest) / cfg.trapRadius));
+  if(trapPressure > rig.trapMeter){
+    rig.trapMeter = Math.min(1, rig.trapMeter + dt * cfg.trapRise * (0.35 + trapPressure));
+  }else{
+    rig.trapMeter = Math.max(0, rig.trapMeter - dt * cfg.trapFall * (1.1 - trapPressure));
+  }
   if(!deep){
     rig.swallowTime = Math.max(0, rig.swallowTime - dt*0.6);
+  }else{
+    rig.swallowTime += dt * (1 + rig.trapMeter*0.25);
   }
+  if(rig.orbitLocked) rig.swallowTime += dt * 0.25;
 
   // fuel drain
-  const gravityDrain = Math.max(0, (TIDE_RADIUS - nearest) / TIDE_RADIUS);
-  fuel -= dt * (2.0 + gravityDrain * 6.0);
+  const gravityDrain = Math.max(0, (cfg.tideRadius - nearest) / cfg.tideRadius);
+  fuel -= dt * (
+    cfg.fuelBaseDrain +
+    gravityDrain * cfg.fuelGravityDrain +
+    rig.trapMeter * cfg.fuelTrapDrain +
+    (rig.orbitLocked ? 2.2 : 0)
+  );
   if(fuel <= 0){
     fuel = 0;
     statusText = "Out of Fuel";
     running = false;
+    return;
   }
 
   // fuel pickup (any body point)
@@ -395,7 +852,7 @@ function update(dt){
       }
     }
     if(got){
-      fuel = Math.min(100, fuel + 22);
+      fuel = Math.min(100, fuel + cfg.fuelPickup);
       fuels.splice(i,1);
     }
   }
@@ -406,20 +863,90 @@ function update(dt){
   const length = Math.hypot(foot.x - head.x, foot.y - head.y);
   rig.stretchRatio = length / rig.restLen;
 
-  if(nearest < TIDE_RADIUS && rig.stretchRatio > STRETCH_WARN){
+  if(nearest < cfg.tideRadius && rig.stretchRatio > cfg.stretchWarn){
     rig.stretchTime += dt;
   }else{
     rig.stretchTime = Math.max(0, rig.stretchTime - dt*1.6);
   }
 
-  if(rig.swallowTime > 0.3){
+  if(rig.swallowTime > cfg.swallowTime){
     statusText = "Swallowed";
     running = false;
+    return;
   }
-  if(nearest < TIDE_RADIUS && rig.stretchRatio > STRETCH_KILL && rig.stretchTime > STRETCH_TIME){
+  if(nearest < cfg.tideRadius && rig.stretchRatio > cfg.stretchKill && rig.stretchTime > cfg.stretchTime){
     statusText = "Spaghettified";
     running = false;
+    return;
   }
+
+  if(rig.orbitLocked){
+    const remain = Math.max(0, cfg.orbitFailTime - rig.orbitTimer);
+    statusText = `Orbit Locked ${remain.toFixed(1)}s`;
+  }else if(rig.escapeFlash > 0.01){
+    statusText = "Orbit Escaped";
+  }else if(rig.orbitMeter > 0.35){
+    statusText = "Orbit Capture";
+  }else if(rig.trapMeter > 0.72){
+    statusText = "Trapped";
+  }else if(nearest < cfg.tideRadius && rig.stretchRatio > cfg.stretchWarn){
+    statusText = "Tidal Stress";
+  }else if(rig.trapMeter > 0.35){
+    statusText = "Unstable";
+  }else{
+    statusText = "Running";
+  }
+}
+
+function strokeSmoothPath(points){
+  if(points.length < 2) return;
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+  if(points.length === 2){
+    ctx.lineTo(points[1].x, points[1].y);
+    ctx.stroke();
+    return;
+  }
+  for(let i=1;i<points.length-1;i++){
+    const mx = (points[i].x + points[i+1].x) * 0.5;
+    const my = (points[i].y + points[i+1].y) * 0.5;
+    ctx.quadraticCurveTo(points[i].x, points[i].y, mx, my);
+  }
+  const last = points[points.length-1];
+  ctx.lineTo(last.x, last.y);
+  ctx.stroke();
+}
+
+function sampleWarpedLine(vertical, fixed, step){
+  const points = [];
+  let sx = 0;
+  let sy = 0;
+  if(vertical){
+    for(let y=0; y<=H; y+=step){
+      const raw = warpPoint(fixed, y);
+      if(points.length===0){
+        sx = raw.x;
+        sy = raw.y;
+      }else{
+        sx = sx*0.34 + raw.x*0.66;
+        sy = sy*0.34 + raw.y*0.66;
+      }
+      points.push({x:sx,y:sy});
+    }
+  }else{
+    for(let x=0; x<=W; x+=step){
+      const raw = warpPoint(x, fixed);
+      if(points.length===0){
+        sx = raw.x;
+        sy = raw.y;
+      }else{
+        sx = sx*0.34 + raw.x*0.66;
+        sy = sy*0.34 + raw.y*0.66;
+      }
+      points.push({x:sx,y:sy});
+    }
+  }
+  return points;
 }
 
 function drawGrid(){
@@ -427,59 +954,31 @@ function drawGrid(){
   ctx.lineWidth = 1.0*dpr;
   ctx.lineJoin = "round";
   ctx.lineCap = "round";
-  const spacing = 8*dpr;
-  const amp = 1400*dpr;
-  const step = spacing/3;
+  const spacing = 10*dpr;
+  const step = spacing/2.6;
 
   for(let gx=0; gx<=W; gx+=spacing){
-    ctx.beginPath();
-    for(let y=0; y<=H; y+=step){
-      let wx = gx;
-      let wy = y;
-      holes.forEach(h=>{
-        const dx = wx - h.x;
-        const dy = wy - h.y;
-        const r2 = dx*dx + dy*dy + 1;
-        const inf = h.influence;
-        const raw = (amp + h.warp) / (r2/(inf*inf) + 1);
-        const maxPull = h.r * 8;
-        const pull = maxPull * Math.tanh(raw / maxPull);
-        wx += (dx/Math.sqrt(r2)) * pull;
-        wy += (dy/Math.sqrt(r2)) * pull;
-      });
-      if(y===0) ctx.moveTo(wx,wy); else ctx.lineTo(wx,wy);
-    }
-    ctx.stroke();
+    strokeSmoothPath(sampleWarpedLine(true, gx, step));
   }
 
   for(let gy=0; gy<=H; gy+=spacing){
-    ctx.beginPath();
-    for(let x=0; x<=W; x+=step){
-      let wx = x;
-      let wy = gy;
-      holes.forEach(h=>{
-        const dx = wx - h.x;
-        const dy = wy - h.y;
-        const r2 = dx*dx + dy*dy + 1;
-        const inf = h.influence;
-        const raw = (amp + h.warp) / (r2/(inf*inf) + 1);
-        const maxPull = h.r * 8;
-        const pull = maxPull * Math.tanh(raw / maxPull);
-        wx += (dx/Math.sqrt(r2)) * pull;
-        wy += (dy/Math.sqrt(r2)) * pull;
-      });
-      if(x===0) ctx.moveTo(wx,wy); else ctx.lineTo(wx,wy);
-    }
-    ctx.stroke();
+    strokeSmoothPath(sampleWarpedLine(false, gy, step));
   }
 }
 
 function drawAstronaut(){
   const rig = player.rig;
-  const p = rig.pts;
+  const p = buildRenderPoints(rig);
   const i = rig.idx;
   const head = p[i.head];
-  const heat = Math.min(1, Math.max(0, (rig.stretchRatio-1.05)/0.9));
+  const heat = Math.min(
+    1,
+    Math.max(0, (rig.stretchRatio-1.05)/0.9) +
+    rig.trapMeter*0.45 +
+    rig.deformPulse*0.55 +
+    rig.escapeFlash*0.3 +
+    (rig.orbitLocked ? 0.2 : 0)
+  );
 
   p.forEach((pt,idx)=>{
     const base = idx===i.head ? 12.5*dpr : 8.8*dpr;
@@ -494,7 +993,7 @@ function drawAstronaut(){
   });
 
   ctx.strokeStyle = `rgba(${200+55*heat},${220-80*heat},${255-140*heat},0.92)`;
-  ctx.lineWidth = (2.1 + heat*1.2) * dpr;
+  ctx.lineWidth = (2.1 + heat*1.6) * dpr;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   ctx.beginPath();
@@ -514,6 +1013,7 @@ function draw(){
   ctx.clearRect(0,0,W,H);
   ctx.fillStyle = "#05060f";
   ctx.fillRect(0,0,W,H);
+  const rig = player.rig;
 
   drawGrid();
 
@@ -525,6 +1025,9 @@ function draw(){
   ctx.globalAlpha = 1;
 
   holes.forEach(h=>{
+    const horizon = h.horizon || h.r*1.6;
+    const orbitR = h.orbit || h.r*3.0;
+    const isOrbitTarget = rig && rig.orbitHole === h;
     const grad = ctx.createRadialGradient(h.x,h.y,h.r*0.1,h.x,h.y,h.r*5.0);
     grad.addColorStop(0,"#000");
     grad.addColorStop(0.5,"#000");
@@ -532,9 +1035,34 @@ function draw(){
     grad.addColorStop(1,"rgba(120,170,255,0)");
     ctx.fillStyle = grad;
     ctx.beginPath(); ctx.arc(h.x,h.y,h.r*5.0,0,Math.PI*2); ctx.fill();
+
+    ctx.strokeStyle = "rgba(255,198,132,0.28)";
+    ctx.lineWidth = 1.0*dpr;
+    ctx.beginPath(); ctx.arc(h.x,h.y,horizon,0,Math.PI*2); ctx.stroke();
+
+    ctx.setLineDash([4*dpr, 4*dpr]);
+    ctx.strokeStyle = isOrbitTarget ? "rgba(255,130,96,0.95)" : "rgba(255,130,96,0.35)";
+    ctx.lineWidth = isOrbitTarget ? 2.1*dpr : 1.1*dpr;
+    ctx.beginPath(); ctx.arc(h.x,h.y,orbitR,0,Math.PI*2); ctx.stroke();
+    ctx.setLineDash([]);
+
+    if(isOrbitTarget){
+      const pct = Math.min(1, Math.max(0, rig.escapeMeter));
+      ctx.strokeStyle = "rgba(170,255,220,0.95)";
+      ctx.lineWidth = 2.6*dpr;
+      ctx.beginPath();
+      ctx.arc(h.x, h.y, orbitR + 7*dpr, -Math.PI/2, -Math.PI/2 + pct*Math.PI*2);
+      ctx.stroke();
+    }
+
     ctx.strokeStyle = "rgba(140,190,255,0.55)";
     ctx.lineWidth = 1.4*dpr;
     ctx.beginPath(); ctx.arc(h.x,h.y,h.r*1.1,0,Math.PI*2); ctx.stroke();
+
+    ctx.strokeStyle = "rgba(255,255,255,0.25)";
+    ctx.lineWidth = 1.0*dpr;
+    ctx.beginPath(); ctx.arc(h.x,h.y,h.core*1.35,0,Math.PI*2); ctx.stroke();
+
     ctx.fillStyle = "#000";
     ctx.beginPath(); ctx.arc(h.x,h.y,h.core,0,Math.PI*2); ctx.fill();
   });
@@ -563,6 +1091,7 @@ function loop(t){
   timeEl.textContent = time.toFixed(1);
   distEl.textContent = Math.floor(distance/120/dpr);
   fuelEl.textContent = Math.max(0, Math.round(fuel));
+  trapEl.textContent = `${Math.round((player.rig ? player.rig.trapMeter : 0) * 100)}%`;
   statusEl.textContent = paused ? "Paused" : statusText;
   requestAnimationFrame(loop);
 }
@@ -570,8 +1099,12 @@ loop(last);
 
 const pauseBtn = document.getElementById("pause");
 const resetBtn = document.getElementById("reset");
-pauseBtn.onclick = ()=>{ paused = !paused; statusText = paused ? "Paused" : "Running"; };
+pauseBtn.onclick = ()=>{ paused = !paused; if(!paused && running) statusText = "Running"; };
 resetBtn.onclick = ()=>{ resetGame(); };
+difficultyEl.onchange = ()=>{
+  applyDifficulty(difficultyEl.value);
+  resetGame();
+};
 </script>
 </body>
 </html>

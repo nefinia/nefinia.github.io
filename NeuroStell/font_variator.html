@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NeuroStell | Font Variator</title>
+  <link rel="icon" type="image/png" href="neurostell.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Fraunces:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="ns-accessibility.css" />
+  <style>
+    :root {
+      --bg: #0b1019;
+      --bg-2: #121b2a;
+      --bg-3: #19253a;
+      --ink: #eef4ff;
+      --muted: #a7b5cc;
+      --accent: #86f0c3;
+      --accent-2: #ffb568;
+      --border: rgba(134, 240, 195, 0.18);
+      --card: rgba(13, 20, 32, 0.88);
+      --shadow: 0 26px 70px rgba(5, 8, 15, 0.6);
+      --radius: 20px;
+      --font: "Archivo", system-ui, -apple-system, sans-serif;
+      --font-display: "Fraunces", serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font);
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 10%, rgba(134, 240, 195, 0.15), transparent 45%),
+        radial-gradient(circle at 90% 15%, rgba(255, 181, 104, 0.2), transparent 40%),
+        linear-gradient(160deg, var(--bg), var(--bg-2) 60%, var(--bg-3));
+    }
+
+    a { color: inherit; }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 20px 80px;
+    }
+
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 3.4vw, 3.3rem);
+      margin: 0;
+    }
+
+    .lead {
+      max-width: 720px;
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(280px, 1.05fr) minmax(280px, 0.95fr);
+      gap: 20px;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 1.1rem;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .field strong { color: var(--ink); font-weight: 600; }
+
+    input[type="file"],
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+      background: rgba(10, 16, 26, 0.9);
+      border: 1px solid rgba(134, 240, 195, 0.25);
+      border-radius: 12px;
+      padding: 10px 12px;
+      color: var(--ink);
+      font-family: var(--font);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .controls {
+      display: grid;
+      gap: 14px;
+    }
+
+    .control {
+      background: rgba(12, 18, 30, 0.75);
+      border: 1px solid rgba(134, 240, 195, 0.2);
+      border-radius: 14px;
+      padding: 12px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .control span {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button {
+      border: none;
+      background: var(--accent);
+      color: #0b1118;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: var(--font);
+    }
+
+    button.secondary {
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid rgba(134, 240, 195, 0.4);
+    }
+
+    .status {
+      background: rgba(20, 30, 48, 0.8);
+      border-radius: 12px;
+      padding: 10px 12px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+    }
+
+    .preview {
+      display: grid;
+      gap: 12px;
+    }
+
+    .preview-box {
+      min-height: 180px;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px dashed rgba(134, 240, 195, 0.35);
+      background: rgba(5, 10, 18, 0.55);
+      color: var(--ink);
+      font-size: 1.3rem;
+      line-height: 1.6;
+    }
+
+    .note {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .divider {
+      height: 1px;
+      background: rgba(134, 240, 195, 0.2);
+      margin: 12px 0;
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ns-accessibility"></div>
+  <div class="page">
+    <header>
+      <div class="eyebrow">NeuroStell experiment</div>
+      <h1>Font Variator</h1>
+      <p class="lead">
+        Upload a TTF/OTF, apply subtle outline perturbations, and export a new font. Designed for
+        playful exploration with open-licensed fonts.
+      </p>
+    </header>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>1) Load a font</h2>
+        <div class="controls">
+          <label class="field">
+            <strong>Font file</strong>
+            <input id="fontFile" type="file" accept=".ttf,.otf" />
+          </label>
+          <label class="field">
+            <strong>Variant name suffix</strong>
+            <input id="nameSuffix" type="text" placeholder="e.g. Drift" />
+          </label>
+          <div class="row">
+            <label class="field">
+              <strong>Random seed</strong>
+              <input id="seedInput" type="number" min="1" value="12345" />
+            </label>
+            <div class="field" style="justify-content:flex-end;">
+              <strong>&nbsp;</strong>
+              <button id="randomizeSeed" class="secondary" type="button">Randomize seed</button>
+            </div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <h2>2) Perturbation controls</h2>
+        <div class="controls">
+          <div class="control">
+            <strong>Top widen</strong>
+            <input id="topWiden" type="range" min="-6" max="6" step="0.2" value="1.2" />
+            <span><span>Compress</span><span id="topWidenVal">+1.2%</span></span>
+          </div>
+          <div class="control">
+            <strong>Bottom widen</strong>
+            <input id="bottomWiden" type="range" min="-6" max="6" step="0.2" value="0.6" />
+            <span><span>Compress</span><span id="bottomWidenVal">+0.6%</span></span>
+          </div>
+          <div class="control">
+            <strong>Curve jiggle</strong>
+            <input id="curveJiggle" type="range" min="0" max="8" step="0.5" value="2" />
+            <span><span>None</span><span id="curveJiggleVal">2 units</span></span>
+          </div>
+          <div class="control">
+            <strong>Slant</strong>
+            <input id="slant" type="range" min="-6" max="6" step="0.2" value="0" />
+            <span><span>Left</span><span id="slantVal">0°</span></span>
+          </div>
+          <div class="control">
+            <strong>Width scale</strong>
+            <input id="widthScale" type="range" min="95" max="105" step="0.2" value="100" />
+            <span><span>95%</span><span id="widthScaleVal">100%</span></span>
+          </div>
+          <div class="control">
+            <strong>Height scale</strong>
+            <input id="heightScale" type="range" min="95" max="105" step="0.2" value="100" />
+            <span><span>95%</span><span id="heightScaleVal">100%</span></span>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="pill-row">
+          <button id="generateBtn" type="button">Generate font</button>
+          <button id="downloadBtn" class="secondary" type="button" disabled>Download</button>
+        </div>
+        <div class="status" id="status">Upload a font to begin.</div>
+        <p class="note">Tip: start small (1–2%) and preview before exporting.</p>
+      </section>
+
+      <section class="panel preview">
+        <h2>3) Preview</h2>
+        <label class="field">
+          <strong>Preview text</strong>
+          <textarea id="previewText" rows="4">The quick brown fox jumps over the lazy dog. 0123456789</textarea>
+        </label>
+        <div id="previewBox" class="preview-box" contenteditable="true" spellcheck="false"></div>
+        <p class="note">You can edit this preview directly. The generated font will appear here.</p>
+      </section>
+    </div>
+  </div>
+
+  <script defer src="ns-accessibility.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
+  <script>
+    const fontFileInput = document.getElementById('fontFile');
+    const nameSuffixInput = document.getElementById('nameSuffix');
+    const seedInput = document.getElementById('seedInput');
+    const randomizeSeedBtn = document.getElementById('randomizeSeed');
+    const generateBtn = document.getElementById('generateBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const statusEl = document.getElementById('status');
+    const previewText = document.getElementById('previewText');
+    const previewBox = document.getElementById('previewBox');
+
+    const controls = {
+      topWiden: document.getElementById('topWiden'),
+      bottomWiden: document.getElementById('bottomWiden'),
+      curveJiggle: document.getElementById('curveJiggle'),
+      slant: document.getElementById('slant'),
+      widthScale: document.getElementById('widthScale'),
+      heightScale: document.getElementById('heightScale')
+    };
+
+    const controlValues = {
+      topWiden: document.getElementById('topWidenVal'),
+      bottomWiden: document.getElementById('bottomWidenVal'),
+      curveJiggle: document.getElementById('curveJiggleVal'),
+      slant: document.getElementById('slantVal'),
+      widthScale: document.getElementById('widthScaleVal'),
+      heightScale: document.getElementById('heightScaleVal')
+    };
+
+    let originalBuffer = null;
+    let originalName = 'Font';
+    let generatedBlobUrl = null;
+    let generatedBuffer = null;
+
+    function setStatus(message, isError = false) {
+      statusEl.textContent = message;
+      statusEl.style.color = isError ? '#ff9b9b' : 'var(--muted)';
+    }
+
+    function updateControlLabels() {
+      controlValues.topWiden.textContent = `${Number(controls.topWiden.value).toFixed(1)}%`;
+      controlValues.bottomWiden.textContent = `${Number(controls.bottomWiden.value).toFixed(1)}%`;
+      controlValues.curveJiggle.textContent = `${Number(controls.curveJiggle.value).toFixed(1)} units`;
+      controlValues.slant.textContent = `${Number(controls.slant.value).toFixed(1)}°`;
+      controlValues.widthScale.textContent = `${Number(controls.widthScale.value).toFixed(1)}%`;
+      controlValues.heightScale.textContent = `${Number(controls.heightScale.value).toFixed(1)}%`;
+    }
+
+    Object.values(controls).forEach(control => {
+      control.addEventListener('input', updateControlLabels);
+    });
+    updateControlLabels();
+
+    previewBox.textContent = previewText.value;
+    previewText.addEventListener('input', () => {
+      previewBox.textContent = previewText.value;
+    });
+
+    randomizeSeedBtn.addEventListener('click', () => {
+      seedInput.value = Math.floor(Math.random() * 1_000_000) + 1;
+    });
+
+    fontFileInput.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const buffer = await file.arrayBuffer();
+        const font = opentype.parse(buffer);
+        originalBuffer = buffer;
+        originalName = (font.names.fontFamily && (font.names.fontFamily.en || Object.values(font.names.fontFamily)[0])) || file.name.replace(/\.(ttf|otf)$/i, '');
+        setStatus(`Loaded ${file.name}. Ready to generate.`);
+      } catch (err) {
+        console.error(err);
+        setStatus('Could not read this font. Try a different TTF/OTF file.', true);
+        originalBuffer = null;
+      }
+    });
+
+    function mulberry32(seed) {
+      let t = seed >>> 0;
+      return function() {
+        t += 0x6D2B79F5;
+        let r = Math.imul(t ^ (t >>> 15), 1 | t);
+        r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+        return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    function randRange(rng, min, max) {
+      return min + (max - min) * rng();
+    }
+
+    function transformPoint(x, y, bbox, params, rng, isControl) {
+      let nx = x * params.widthScale;
+      let ny = y * params.heightScale;
+
+      if (bbox && bbox.yMax !== bbox.yMin) {
+        const t = (y - bbox.yMin) / (bbox.yMax - bbox.yMin);
+        const topFactor = 1 + params.topWiden * t;
+        const bottomFactor = 1 + params.bottomWiden * (1 - t);
+        nx *= topFactor * bottomFactor;
+      }
+
+      if (params.slant !== 0) {
+        nx += ny * params.slant;
+      }
+
+      if (isControl && params.curveJiggle > 0) {
+        nx += randRange(rng, -params.curveJiggle, params.curveJiggle);
+        ny += randRange(rng, -params.curveJiggle, params.curveJiggle);
+      }
+
+      return { x: nx, y: ny };
+    }
+
+    function transformGlyph(glyph, params, rng) {
+      if (!glyph.path || !glyph.path.commands || glyph.path.commands.length === 0) return;
+      const bbox = glyph.getBoundingBox();
+      if (!isFinite(bbox.xMin) || !isFinite(bbox.yMin)) return;
+
+      glyph.path.commands.forEach(cmd => {
+        if (cmd.type === 'M' || cmd.type === 'L') {
+          const p = transformPoint(cmd.x, cmd.y, bbox, params, rng, false);
+          cmd.x = p.x;
+          cmd.y = p.y;
+        } else if (cmd.type === 'C') {
+          const p1 = transformPoint(cmd.x1, cmd.y1, bbox, params, rng, true);
+          const p2 = transformPoint(cmd.x2, cmd.y2, bbox, params, rng, true);
+          const p3 = transformPoint(cmd.x, cmd.y, bbox, params, rng, false);
+          cmd.x1 = p1.x; cmd.y1 = p1.y;
+          cmd.x2 = p2.x; cmd.y2 = p2.y;
+          cmd.x = p3.x; cmd.y = p3.y;
+        } else if (cmd.type === 'Q') {
+          const p1 = transformPoint(cmd.x1, cmd.y1, bbox, params, rng, true);
+          const p2 = transformPoint(cmd.x, cmd.y, bbox, params, rng, false);
+          cmd.x1 = p1.x; cmd.y1 = p1.y;
+          cmd.x = p2.x; cmd.y = p2.y;
+        }
+      });
+
+      if (glyph.advanceWidth) {
+        glyph.advanceWidth *= params.widthScale;
+      }
+    }
+
+    function applyPreviewFont(buffer, familyName) {
+      if (generatedBlobUrl) {
+        URL.revokeObjectURL(generatedBlobUrl);
+      }
+      generatedBlobUrl = URL.createObjectURL(new Blob([buffer], { type: 'font/ttf' }));
+      let styleEl = document.getElementById('generatedFontStyle');
+      if (!styleEl) {
+        styleEl = document.createElement('style');
+        styleEl.id = 'generatedFontStyle';
+        document.head.appendChild(styleEl);
+      }
+      styleEl.textContent = `@font-face { font-family: "${familyName}"; src: url(${generatedBlobUrl}); }`;
+      previewBox.style.fontFamily = `"${familyName}", ${getComputedStyle(document.body).fontFamily}`;
+    }
+
+    generateBtn.addEventListener('click', () => {
+      if (!originalBuffer) {
+        setStatus('Please upload a font first.', true);
+        return;
+      }
+
+      const seed = Math.max(1, Number(seedInput.value) || 1);
+      const rng = mulberry32(seed);
+      const params = {
+        topWiden: Number(controls.topWiden.value) / 100,
+        bottomWiden: Number(controls.bottomWiden.value) / 100,
+        curveJiggle: Number(controls.curveJiggle.value),
+        slant: Math.tan(Number(controls.slant.value) * Math.PI / 180),
+        widthScale: Number(controls.widthScale.value) / 100,
+        heightScale: Number(controls.heightScale.value) / 100
+      };
+
+      try {
+        const font = opentype.parse(originalBuffer.slice(0));
+        font.glyphs.forEach(glyph => transformGlyph(glyph, params, rng));
+
+        const suffix = nameSuffixInput.value.trim();
+        const familyName = suffix ? `${originalName} ${suffix}` : `${originalName} Variant`;
+        if (font.names && font.names.fontFamily) {
+          font.names.fontFamily.en = familyName;
+        }
+        if (font.names && font.names.fullName) {
+          font.names.fullName.en = familyName;
+        }
+
+        generatedBuffer = font.toArrayBuffer();
+        applyPreviewFont(generatedBuffer, familyName);
+        downloadBtn.disabled = false;
+        setStatus('Generated! Preview updated and ready for download.');
+      } catch (err) {
+        console.error(err);
+        setStatus('Generation failed. Try a different font or smaller settings.', true);
+      }
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      if (!generatedBuffer) return;
+      const suffix = nameSuffixInput.value.trim();
+      const familyName = suffix ? `${originalName}-${suffix}` : `${originalName}-variant`;
+      const fileName = familyName.replace(/\s+/g, '-').replace(/[^a-z0-9\-_]/gi, '') + '.ttf';
+      const blob = new Blob([generatedBuffer], { type: 'font/ttf' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>
