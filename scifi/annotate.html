@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SciFi Prediction Benchmark Annotation</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero compact">
+      <div>
+        <p class="eyebrow">Manual Validation</p>
+        <h1>Prediction Annotation</h1>
+        <p class="lede">Review extracted predictions, mark accepted or uncertain cases, and export the reviewed set as JSON for downstream analysis.</p>
+      </div>
+      <div class="hero-meta">
+        <a class="secondary-link" href="./index.html">Back to Explorer</a>
+      </div>
+    </header>
+
+    <section class="panel wide">
+      <div class="panel-heading">
+        <h2>Annotation Queue</h2>
+        <p>Validate extracted records and capture notes on borderline matches or ambiguous descriptions</p>
+      </div>
+      <div class="annotation-actions">
+        <button id="exportAnnotations">Export annotations JSON</button>
+        <button id="resetAnnotations" class="secondary">Reset local annotations</button>
+      </div>
+      <div id="annotationList" class="annotation-list"></div>
+    </section>
+  </div>
+
+  <script src="./site-data.js"></script>
+  <script src="./annotate.js"></script>
+</body>
+</html>
