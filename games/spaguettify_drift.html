@@ -60,8 +60,11 @@
 <div class="hud">
   Time: <b id="time">0.0</b>s<br>
   Distance: <b id="dist">0</b> km<br>
+  Score: <b id="score">0</b><br>
+  Mult: <b id="mult">x1.00</b><br>
   Fuel: <b id="fuel">100</b>%<br>
   Trap: <b id="trap">0%</b><br>
+  Objective: <b id="objective">-</b><br>
   Status: <b id="status">Running</b>
   <div class="row">Difficulty:
     <select id="difficulty" aria-label="Difficulty">
@@ -114,11 +117,22 @@ let running = true;
 let paused = false;
 let time = 0;
 let distance = 0;
+let score = 0;
+let scoreMultiplier = 1;
+let efficiencyMeter = 0;
+let movementHeat = 0;
+let campTimer = 0;
+let runCounter = 0;
+let prevCtrlVX = 0;
+let prevCtrlVY = 0;
 let statusText = "Running";
 const timeEl = document.getElementById("time");
 const distEl = document.getElementById("dist");
+const scoreEl = document.getElementById("score");
+const multEl = document.getElementById("mult");
 const fuelEl = document.getElementById("fuel");
 const trapEl = document.getElementById("trap");
+const objectiveEl = document.getElementById("objective");
 const statusEl = document.getElementById("status");
 const difficultyEl = document.getElementById("difficulty");
 
@@ -326,6 +340,112 @@ let holeTimer = 0;
 let speed = cfg.baseSpeed;
 let fuel = 100;
 let fuelTimer = 0;
+let weatherTimer = 0;
+let compressionTimer = 0;
+let disturbance = null;
+let disturbanceId = 1;
+let compression = null;
+
+const OBJECTIVE_ROTATION = ["mult_hold","gradient_passes","disturbance_survive"];
+let objective = null;
+
+function clamp(v, lo, hi){
+  return Math.max(lo, Math.min(hi, v));
+}
+
+function diffTier(){
+  if(difficultyKey === "kid") return 0;
+  if(difficultyKey === "chaos") return 2;
+  return 1;
+}
+
+function runIntensity(){
+  return clamp(time / 110, 0, 1);
+}
+
+function scheduleWeather(){
+  const tier = diffTier();
+  const intensity = runIntensity();
+  const minBase = [13.5, 11.5, 9.0][tier];
+  const maxBase = [18.5, 15.0, 12.0][tier];
+  const tighten = 1 - intensity * 0.45;
+  weatherTimer = (minBase + Math.random()*(maxBase-minBase)) * tighten;
+}
+
+function scheduleCompression(){
+  const tier = diffTier();
+  const intensity = runIntensity();
+  const minBase = [18.0, 15.0, 12.0][tier];
+  const maxBase = [24.5, 20.5, 16.5][tier];
+  const tighten = 1 - intensity * 0.48;
+  compressionTimer = (minBase + Math.random()*(maxBase-minBase)) * tighten;
+}
+
+function pickObjective(){
+  const tier = diffTier();
+  const kind = OBJECTIVE_ROTATION[runCounter % OBJECTIVE_ROTATION.length];
+  runCounter += 1;
+  if(kind === "mult_hold"){
+    const target = [1.65, 1.95, 2.20][tier];
+    const duration = [4.0, 4.8, 5.5][tier];
+    return {
+      kind,
+      target,
+      duration,
+      progress:0,
+      done:false,
+      reward:[900, 1200, 1500][tier],
+      label:`Keep Mult > x${target.toFixed(2)} for ${duration.toFixed(1)}s`
+    };
+  }
+  if(kind === "gradient_passes"){
+    const count = [3,4,5][tier];
+    return {
+      kind,
+      targetCount:count,
+      count:0,
+      inside:false,
+      done:false,
+      reward:[850, 1100, 1400][tier],
+      label:`Pass ${count} high-gradient bands`
+    };
+  }
+  return {
+    kind,
+    minDanger:[0.43,0.48,0.52][tier],
+    tracking:false,
+    trackingId:0,
+    failed:false,
+    done:false,
+    reward:[1000, 1300, 1650][tier],
+    label:"Survive a disturbance while staying in danger band"
+  };
+}
+
+function completeObjective(){
+  if(!objective || objective.done) return;
+  objective.done = true;
+  score += objective.reward;
+  statusText = "Objective Complete";
+}
+
+function objectiveText(){
+  if(!objective) return "-";
+  if(objective.done) return `${objective.label} (+${Math.round(objective.reward)})`;
+  if(objective.kind === "mult_hold"){
+    return `${objective.label} [${objective.progress.toFixed(1)}s]`;
+  }
+  if(objective.kind === "gradient_passes"){
+    return `${objective.label} [${objective.count}/${objective.targetCount}]`;
+  }
+  if(objective.failed){
+    return `${objective.label} [Failed, wait next disturbance]`;
+  }
+  if(objective.tracking){
+    return `${objective.label} [In Progress]`;
+  }
+  return objective.label;
+}
 
 function makeAstronautHorizontal(x,y){
   const pts=[];
@@ -421,27 +541,70 @@ function makeAstronautHorizontal(x,y){
   };
 }
 
-const player = {rig:null,targetX:0,targetY:0,ctrlVX:0,ctrlVY:0};
+const player = {rig:null,targetX:0,targetY:0,ctrlVX:0,ctrlVY:0,spawnLock:0};
+
+function centerRigAt(rig, cx, cy){
+  const pts = rig.pts;
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+  for(let i=0;i<pts.length;i++){
+    const p = pts[i];
+    if(p.x < minX) minX = p.x;
+    if(p.x > maxX) maxX = p.x;
+    if(p.y < minY) minY = p.y;
+    if(p.y > maxY) maxY = p.y;
+  }
+  const mx = (minX + maxX) * 0.5;
+  const my = (minY + maxY) * 0.5;
+  const dx = cx - mx;
+  const dy = cy - my;
+  for(let i=0;i<pts.length;i++){
+    pts[i].x += dx;
+    pts[i].y += dy;
+  }
+}
 
 function resetGame(){
   running = true;
   paused = false;
   time = 0;
   distance = 0;
+  score = 0;
+  scoreMultiplier = 1;
+  efficiencyMeter = 0;
+  movementHeat = 0;
+  campTimer = 0;
   speed = cfg.baseSpeed;
   statusText = "Running";
   const px = W*0.5;
   const py = H*0.5;
   player.rig = makeAstronautHorizontal(px, py);
-  player.targetX = px;
-  player.targetY = py;
+  centerRigAt(player.rig, px, py);
+  pointer.active = false;
+  keys.up = false;
+  keys.down = false;
+  keys.left = false;
+  keys.right = false;
+  const head = player.rig.pts[player.rig.idx.head];
+  player.targetX = head.x;
+  player.targetY = head.y;
   player.ctrlVX = 0;
   player.ctrlVY = 0;
+  prevCtrlVX = 0;
+  prevCtrlVY = 0;
+  player.spawnLock = 1.2;
   stars.length = 0;
   holes.length = 0;
   fuels.length = 0;
-  holeTimer = 0;
-  fuelTimer = 0;
+  holeTimer = cfg.holeSpawnMin + Math.random()*(cfg.holeSpawnMax - cfg.holeSpawnMin);
+  fuelTimer = cfg.fuelSpawnMin + Math.random()*(cfg.fuelSpawnMax - cfg.fuelSpawnMin);
+  disturbance = null;
+  compression = null;
+  scheduleWeather();
+  scheduleCompression();
+  objective = pickObjective();
   fuel = 100;
   trapEl.textContent = "0%";
   for(let i=0;i<120;i++){
@@ -451,11 +614,13 @@ function resetGame(){
 applyDifficulty(difficultyEl.value);
 resetGame();
 
-function spawnHole(){
-  const r = (cfg.holeRadiusMin + Math.random()*(cfg.holeRadiusMax - cfg.holeRadiusMin))*dpr;
-  const y = 60*dpr + Math.random()*(H-120*dpr);
+function spawnHole(opts={}){
+  const scale = opts.scale || 1;
+  const r = (opts.r || ((cfg.holeRadiusMin + Math.random()*(cfg.holeRadiusMax - cfg.holeRadiusMin))*dpr)) * scale;
+  const y = typeof opts.y === "number" ? opts.y : (60*dpr + Math.random()*(H-120*dpr));
+  const x = typeof opts.x === "number" ? opts.x : (W+r+Math.random()*180*dpr);
   holes.push({
-    x: W+r+Math.random()*180*dpr,
+    x,
     y,
     r,
     core: Math.max(cfg.coreMin, r*cfg.coreScale),
@@ -463,7 +628,9 @@ function spawnHole(){
     orbit: r*cfg.orbitRadiusScale,
     warp: r*cfg.warpScale,
     influence: r*cfg.influenceScale,
-    spin: Math.random()<0.5 ? -1 : 1
+    spin: Math.random()<0.5 ? -1 : 1,
+    life: opts.life || 0,
+    cluster: !!opts.cluster
   });
 }
 
@@ -471,6 +638,96 @@ function spawnFuel(){
   const r = 8*dpr;
   const y = 70*dpr + Math.random()*(H-140*dpr);
   fuels.push({x:W+r+Math.random()*220*dpr,y,r,spin:Math.random()*Math.PI*2});
+}
+
+function startDisturbance(){
+  const intensity = runIntensity();
+  const tier = diffTier();
+  disturbance = {
+    id: disturbanceId++,
+    phase: "telegraph",
+    t: 0,
+    telegraph: 1.0 + Math.random()*0.4,
+    active: 2.7 + Math.random()*1.2,
+    x: W*(0.45 + Math.random()*0.45),
+    y: H*(0.20 + Math.random()*0.60),
+    r: (170 + Math.random()*120) * dpr,
+    spin: Math.random()<0.5 ? -1 : 1,
+    strength: (1100 + tier*320) * (1 + intensity*0.35),
+    pull: (220 + tier*70) * (1 + intensity*0.30),
+    driftY: (Math.random()*2-1) * (34 + tier*12) * dpr
+  };
+  statusText = "Tidal Disturbance Incoming";
+  scheduleWeather();
+}
+
+function startCompression(){
+  const tier = diffTier();
+  const intensity = runIntensity();
+  const baseLane = [250, 215, 185][tier] * dpr;
+  compression = {
+    phase: "telegraph",
+    t: 0,
+    telegraph: 1.0 + Math.random()*0.5,
+    active: 4.2 + Math.random()*1.7,
+    laneY: H*(0.24 + Math.random()*0.52),
+    laneW: baseLane * (1 - intensity*0.10),
+    driftY: (Math.random()<0.5?-1:1) * (28 + tier*10) * dpr,
+    spawned:false
+  };
+  statusText = "Compression Corridor Incoming";
+  scheduleCompression();
+}
+
+function spawnCompressionCluster(){
+  if(!compression || compression.spawned) return;
+  compression.spawned = true;
+  const edge = compression.laneW * 0.5;
+  const xBase = W + 100*dpr + Math.random()*200*dpr;
+  const topY = clamp(compression.laneY - edge - (40 + Math.random()*40)*dpr, 70*dpr, H-70*dpr);
+  const bottomY = clamp(compression.laneY + edge + (40 + Math.random()*40)*dpr, 70*dpr, H-70*dpr);
+  const life = compression.active + 2.8;
+  spawnHole({x:xBase, y:topY, scale:0.85, life, cluster:true});
+  spawnHole({x:xBase + 90*dpr, y:bottomY, scale:0.9, life, cluster:true});
+  if(Math.random()<0.5){
+    const y = Math.random()<0.5 ? topY : bottomY;
+    spawnHole({x:xBase + 170*dpr, y:y + (Math.random()*2-1)*26*dpr, scale:0.75, life, cluster:true});
+  }
+}
+
+function sampleDisturbanceField(x,y){
+  if(!disturbance || disturbance.phase !== "active") return {ax:0, ay:0, weight:0};
+  const dx = x - disturbance.x;
+  const dy = y - disturbance.y;
+  const r = Math.hypot(dx,dy);
+  if(r > disturbance.r) return {ax:0, ay:0, weight:0};
+  const inv = 1 / Math.max(1, r);
+  const fall = Math.pow(1 - r / disturbance.r, 2);
+  const tx = -dy * inv * disturbance.spin;
+  const ty = dx * inv * disturbance.spin;
+  const ax = tx * disturbance.strength * fall + (-dx * inv) * disturbance.pull * fall;
+  const ay = ty * disturbance.strength * fall + (-dy * inv) * disturbance.pull * fall;
+  return {ax, ay, weight:fall};
+}
+
+function sampleRechargeBand(x,y,trapPressure){
+  let best = 0;
+  for(let i=0;i<holes.length;i++){
+    const h = holes[i];
+    const d = Math.hypot(h.x - x, h.y - y);
+    const inner = h.r * 1.6;
+    const peak = h.r * 2.35;
+    const outer = h.r * 3.2;
+    let band = 0;
+    if(d > inner && d < peak){
+      band = (d - inner) / Math.max(1, peak-inner);
+    }else if(d >= peak && d < outer){
+      band = 1 - (d - peak) / Math.max(1, outer-peak);
+    }
+    if(band > best) best = band;
+  }
+  const dangerShape = clamp(1 - Math.abs(trapPressure - 0.58) / 0.55, 0, 1);
+  return best * dangerShape;
 }
 
 function sampleGravityField(x,y){
@@ -493,7 +750,10 @@ function sampleGravityField(x,y){
       nearestHole = h;
     }
   }
-  return {ax, ay, nearest, nearestHole};
+  const disturbanceField = sampleDisturbanceField(x,y);
+  ax += disturbanceField.ax;
+  ay += disturbanceField.ay;
+  return {ax, ay, nearest, nearestHole, disturbanceWeight: disturbanceField.weight};
 }
 
 function warpPoint(x,y){
@@ -569,7 +829,17 @@ function buildRenderPoints(rig){
 function update(dt){
   if(!running || paused) return;
   time += dt;
-  speed = Math.min(cfg.maxSpeed, speed + dt*cfg.speedUp);
+  const late = runIntensity();
+  const tier = diffTier();
+  const holeRateScale = 1 + late * (0.34 + tier*0.08);
+  const holeIntervalScale = 1 - late * (0.26 + tier*0.04);
+  const dynamicHoleLimit = cfg.holeLimit + Math.round(late * (tier===0 ? 1 : (tier===1 ? 2 : 3)));
+  const controlRadiusNow = cfg.controlRadius * (1 - late*0.14);
+  const trapRadiusNow = cfg.trapRadius * (1 - late*0.12);
+  const tideRadiusNow = cfg.tideRadius * (1 - late*0.10);
+  const deformRadiusNow = cfg.deformRadius * (1 - late*0.08);
+
+  speed = Math.min(cfg.maxSpeed * (1 + late*0.10), speed + dt*cfg.speedUp);
   distance += speed*dt;
   const hasManualInput = pointer.active || keys.up || keys.down || keys.left || keys.right;
 
@@ -588,23 +858,121 @@ function update(dt){
   ty = Math.max(margin, Math.min(H-margin, ty));
   player.targetX = tx; player.targetY = ty;
 
+  const rig = player.rig;
+  const pts = rig.pts;
+  const head = pts[rig.idx.head];
+
+  // Keep the astronaut pinned to exact center for a short launch window.
+  if(player.spawnLock > 0){
+    centerRigAt(rig, W*0.5, H*0.5);
+    for(let i=0;i<pts.length;i++){
+      pts[i].vx = 0;
+      pts[i].vy = 0;
+    }
+    const h = rig.pts[rig.idx.head];
+    player.targetX = h.x;
+    player.targetY = h.y;
+    player.ctrlVX = 0;
+    player.ctrlVY = 0;
+    player.spawnLock = Math.max(0, player.spawnLock - dt);
+    statusText = "Running";
+    return;
+  }
+
+  if(!disturbance){
+    weatherTimer -= dt * (1 + late*0.35);
+    if(weatherTimer <= 0) startDisturbance();
+  }else{
+    disturbance.t += dt;
+    if(disturbance.phase === "telegraph"){
+      disturbance.x -= speed * dt * 0.18;
+      disturbance.y += disturbance.driftY * dt * 0.18;
+      disturbance.y = clamp(disturbance.y, 80*dpr, H-80*dpr);
+      if(disturbance.t >= disturbance.telegraph){
+        disturbance.phase = "active";
+        disturbance.t = 0;
+        statusText = "Tidal Disturbance";
+      }
+    }else{
+      disturbance.x -= speed * dt * 0.65;
+      disturbance.y += disturbance.driftY * dt;
+      if(disturbance.y < 80*dpr || disturbance.y > H-80*dpr) disturbance.driftY *= -1;
+      disturbance.y = clamp(disturbance.y, 80*dpr, H-80*dpr);
+      if(disturbance.t >= disturbance.active || disturbance.x < -disturbance.r*1.4){
+        disturbance = null;
+      }
+    }
+  }
+
+  if(!compression){
+    compressionTimer -= dt * (1 + late*0.32);
+    if(compressionTimer <= 0) startCompression();
+  }else{
+    compression.t += dt;
+    const driftScale = compression.phase === "telegraph" ? 0.35 : 1;
+    compression.laneY += compression.driftY * dt * driftScale;
+    if(compression.laneY < 90*dpr || compression.laneY > H-90*dpr) compression.driftY *= -1;
+    compression.laneY = clamp(compression.laneY, 90*dpr, H-90*dpr);
+    if(compression.phase === "telegraph" && compression.t >= compression.telegraph){
+      compression.phase = "active";
+      compression.t = 0;
+      compression.spawned = false;
+      spawnCompressionCluster();
+      statusText = "Compression Corridor";
+    }else if(compression.phase === "active"){
+      if(!compression.spawned) spawnCompressionCluster();
+      if(compression.t >= compression.active){
+        compression = null;
+      }
+    }
+  }
+
   stars.forEach(s=>{
     s.x -= speed * dt * 0.35;
     if(s.x < -10*dpr){ s.x = W + Math.random()*W*0.2; s.y = Math.random()*H; }
   });
 
-  holeTimer -= dt;
-  if(holeTimer<=0 && holes.length<cfg.holeLimit){
+  holeTimer -= dt * holeRateScale;
+  if(holeTimer<=0 && holes.length<dynamicHoleLimit){
     spawnHole();
-    holeTimer = cfg.holeSpawnMin + Math.random()*(cfg.holeSpawnMax - cfg.holeSpawnMin);
+    const interval = cfg.holeSpawnMin + Math.random()*(cfg.holeSpawnMax - cfg.holeSpawnMin);
+    holeTimer = Math.max(0.18, interval * holeIntervalScale);
   }
   for(let i=holes.length-1;i>=0;i--){
     const h = holes[i];
     h.x -= speed * dt;
+    if(compression && compression.phase === "active"){
+      const edge = compression.laneW * 0.5;
+      const dy = h.y - compression.laneY;
+      const absDy = Math.abs(dy);
+      if(absDy < edge + h.r*1.2){
+        const dir = dy >= 0 ? 1 : -1;
+        const push = 1 - absDy / Math.max(1, edge + h.r*1.2);
+        h.y += dir * push * (140 + speed*0.08) * dt;
+      }
+    }
+    if(disturbance && disturbance.phase === "active"){
+      const dxh = h.x - disturbance.x;
+      const dyh = h.y - disturbance.y;
+      const rh = Math.hypot(dxh, dyh);
+      if(rh < disturbance.r*1.15){
+        const f = Math.pow(1 - rh/(disturbance.r*1.15), 2);
+        h.y += disturbance.spin * f * 120 * dt;
+        h.x += f * (-65 + disturbance.spin*30) * dt;
+      }
+    }
+    h.y = clamp(h.y, 55*dpr, H-55*dpr);
+    if(h.life > 0){
+      h.life -= dt;
+      if(h.life <= 0){
+        holes.splice(i,1);
+        continue;
+      }
+    }
     if(h.x < -h.r*3) holes.splice(i,1);
   }
 
-  fuelTimer -= dt;
+  fuelTimer -= dt * (1 + late*0.12);
   if(fuelTimer<=0 && fuels.length<cfg.fuelLimit){
     spawnFuel();
     fuelTimer = cfg.fuelSpawnMin + Math.random()*(cfg.fuelSpawnMax - cfg.fuelSpawnMin);
@@ -616,15 +984,12 @@ function update(dt){
     if(f.x < -f.r*3) fuels.splice(i,1);
   }
 
-  const rig = player.rig;
-  const pts = rig.pts;
-  const head = pts[rig.idx.head];
   const intentX = hasManualInput ? (player.targetX - head.x) : 0;
   const intentY = hasManualInput ? (player.targetY - head.y) : 0;
   const intentMag = hasManualInput ? Math.hypot(intentX, intentY) : 0;
 
   const headFieldBeforeMove = sampleGravityField(head.x, head.y);
-  const controlPressure = Math.min(1, Math.max(0, (cfg.controlRadius - headFieldBeforeMove.nearest) / cfg.controlRadius));
+  const controlPressure = Math.min(1, Math.max(0, (controlRadiusNow - headFieldBeforeMove.nearest) / controlRadiusNow));
   let controlScale = Math.max(cfg.controlSuppression, 1 - controlPressure*(1 - cfg.controlSuppression));
 
   if(rig.orbitLocked && rig.orbitHole){
@@ -657,6 +1022,9 @@ function update(dt){
     player.ctrlVX *= idleDecay;
     player.ctrlVY *= idleDecay;
   }
+  const steerDelta = Math.hypot(player.ctrlVX - prevCtrlVX, player.ctrlVY - prevCtrlVY);
+  prevCtrlVX = player.ctrlVX;
+  prevCtrlVY = player.ctrlVY;
 
   const dxMove = player.ctrlVX * dt;
   const dyMove = player.ctrlVY * dt;
@@ -731,8 +1099,11 @@ function update(dt){
   const headField = sampleGravityField(head.x, head.y);
   const nearestHole = headField.nearestHole;
   const nearest = headField.nearest;
+  const tidalGradient = nearestHole
+    ? Math.min(1, Math.max(0, (tideRadiusNow - nearest) / tideRadiusNow))
+    : 0;
   const passPressure = nearestHole
-    ? Math.min(1, Math.max(0, (cfg.deformRadius - nearest) / cfg.deformRadius))
+    ? Math.min(1, Math.max(0, (deformRadiusNow - nearest) / deformRadiusNow))
     : 0;
 
   if(passPressure > FIELD_EPS){
@@ -811,7 +1182,7 @@ function update(dt){
     }
   });
 
-  const trapPressure = Math.min(1, Math.max(0, (cfg.trapRadius - nearest) / cfg.trapRadius));
+  const trapPressure = Math.min(1, Math.max(0, (trapRadiusNow - nearest) / trapRadiusNow));
   if(trapPressure > rig.trapMeter){
     rig.trapMeter = Math.min(1, rig.trapMeter + dt * cfg.trapRise * (0.35 + trapPressure));
   }else{
@@ -824,14 +1195,74 @@ function update(dt){
   }
   if(rig.orbitLocked) rig.swallowTime += dt * 0.25;
 
-  // fuel drain
-  const gravityDrain = Math.max(0, (cfg.tideRadius - nearest) / cfg.tideRadius);
-  fuel -= dt * (
-    cfg.fuelBaseDrain +
-    gravityDrain * cfg.fuelGravityDrain +
-    rig.trapMeter * cfg.fuelTrapDrain +
-    (rig.orbitLocked ? 2.2 : 0)
-  );
+  // Active fuel economy: low ambient recovery in safe space, high-yield recharge in danger bands.
+  const headSpeed = Math.hypot(head.vx, head.vy);
+  const moveTarget = Math.min(1, headSpeed / (285*dpr));
+  movementHeat += (moveTarget - movementHeat) * dt * 3.0;
+  if(moveTarget < 0.09){
+    campTimer = Math.min(6, campTimer + dt);
+  }else{
+    campTimer = Math.max(0, campTimer - dt*1.25);
+  }
+  const antiCamp = Math.max(0.06, 1 - campTimer/4.3);
+  const motionEff = Math.min(1, Math.max(0, (movementHeat - 0.04)/0.92)) * antiCamp;
+  const safeRecharge = Math.max(0, 1 - trapPressure/0.34);
+  const bandRecharge = sampleRechargeBand(head.x, head.y, trapPressure);
+  const ambientRate = cfg.fuelBaseDrain * 0.66;
+  const zoneRate = cfg.fuelBaseDrain * 1.55 + cfg.fuelTrapDrain * 0.7;
+  let drainRate =
+    cfg.fuelBaseDrain * 0.62 +
+    tidalGradient * cfg.fuelGravityDrain * 0.52 +
+    rig.trapMeter * cfg.fuelTrapDrain * 0.56 +
+    (rig.orbitLocked ? 1.9 + tier*0.55 : 0);
+  if(motionEff < 0.22) drainRate += (0.22 - motionEff) * cfg.fuelBaseDrain * 2.2;
+  fuel += dt * ((ambientRate * safeRecharge + zoneRate * bandRecharge) * motionEff - drainRate);
+
+  // Continuous risk multiplier + small efficiency bonus.
+  const maxMultBonus = [1.6, 2.1, 2.6][tier];
+  const targetMult = 1 + Math.pow(tidalGradient, 1.25) * maxMultBonus;
+  const multRate = targetMult > scoreMultiplier ? 1.8 : 5.2;
+  scoreMultiplier += (targetMult - scoreMultiplier) * dt * multRate;
+  scoreMultiplier = clamp(scoreMultiplier, 1, 1 + maxMultBonus);
+
+  const steerSmooth = Math.max(0, 1 - steerDelta / (95*dpr));
+  const controlBand = Math.max(0, 1 - Math.abs(tidalGradient - 0.62)/0.36);
+  const speedSkill = Math.min(1, headSpeed / (300*dpr));
+  const effTarget = controlBand * (0.55*speedSkill + 0.45*steerSmooth);
+  efficiencyMeter += (effTarget - efficiencyMeter) * dt * 2.8;
+
+  const distancePoints = (speed*dt) / (3.0*dpr);
+  score += distancePoints * scoreMultiplier;
+  score += distancePoints * efficiencyMeter * 0.45;
+
+  if(objective && !objective.done){
+    if(objective.kind === "mult_hold"){
+      if(scoreMultiplier >= objective.target){
+        objective.progress += dt;
+      }else{
+        objective.progress = Math.max(0, objective.progress - dt*1.8);
+      }
+      if(objective.progress >= objective.duration) completeObjective();
+    }else if(objective.kind === "gradient_passes"){
+      const inBand = tidalGradient > 0.46 && tidalGradient < 0.92;
+      if(inBand && !objective.inside) objective.count += 1;
+      objective.inside = inBand;
+      if(objective.count >= objective.targetCount) completeObjective();
+    }else if(objective.kind === "disturbance_survive"){
+      if(disturbance && disturbance.phase === "active"){
+        if(!objective.tracking || objective.trackingId !== disturbance.id){
+          objective.tracking = true;
+          objective.trackingId = disturbance.id;
+          objective.failed = false;
+        }
+        if(tidalGradient < objective.minDanger) objective.failed = true;
+      }else if(objective.tracking){
+        if(!objective.failed) completeObjective();
+        objective.tracking = false;
+      }
+    }
+  }
+
   if(fuel <= 0){
     fuel = 0;
     statusText = "Out of Fuel";
@@ -863,7 +1294,7 @@ function update(dt){
   const length = Math.hypot(foot.x - head.x, foot.y - head.y);
   rig.stretchRatio = length / rig.restLen;
 
-  if(nearest < cfg.tideRadius && rig.stretchRatio > cfg.stretchWarn){
+  if(nearest < tideRadiusNow && rig.stretchRatio > cfg.stretchWarn){
     rig.stretchTime += dt;
   }else{
     rig.stretchTime = Math.max(0, rig.stretchTime - dt*1.6);
@@ -874,7 +1305,7 @@ function update(dt){
     running = false;
     return;
   }
-  if(nearest < cfg.tideRadius && rig.stretchRatio > cfg.stretchKill && rig.stretchTime > cfg.stretchTime){
+  if(nearest < tideRadiusNow && rig.stretchRatio > cfg.stretchKill && rig.stretchTime > cfg.stretchTime){
     statusText = "Spaghettified";
     running = false;
     return;
@@ -887,9 +1318,17 @@ function update(dt){
     statusText = "Orbit Escaped";
   }else if(rig.orbitMeter > 0.35){
     statusText = "Orbit Capture";
+  }else if(disturbance && disturbance.phase === "telegraph"){
+    statusText = "Disturbance Warning";
+  }else if(disturbance && disturbance.phase === "active"){
+    statusText = "Disturbance Active";
+  }else if(compression && compression.phase === "telegraph"){
+    statusText = "Compression Warning";
+  }else if(compression && compression.phase === "active"){
+    statusText = "Narrow Corridor";
   }else if(rig.trapMeter > 0.72){
     statusText = "Trapped";
-  }else if(nearest < cfg.tideRadius && rig.stretchRatio > cfg.stretchWarn){
+  }else if(nearest < tideRadiusNow && rig.stretchRatio > cfg.stretchWarn){
     statusText = "Tidal Stress";
   }else if(rig.trapMeter > 0.35){
     statusText = "Unstable";
@@ -1009,6 +1448,60 @@ function drawAstronaut(){
   ctx.beginPath(); ctx.arc(head.x, head.y, 9.2*dpr, 0, Math.PI*2); ctx.stroke();
 }
 
+function drawFieldEvents(){
+  if(compression){
+    const edge = compression.laneW * 0.5;
+    const top = compression.laneY - edge;
+    const bottom = compression.laneY + edge;
+    if(compression.phase === "telegraph"){
+      ctx.setLineDash([9*dpr, 6*dpr]);
+      ctx.strokeStyle = "rgba(255,214,150,0.65)";
+      ctx.lineWidth = 1.4*dpr;
+      ctx.beginPath(); ctx.moveTo(0, top); ctx.lineTo(W, top); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, bottom); ctx.lineTo(W, bottom); ctx.stroke();
+      ctx.setLineDash([]);
+    }else{
+      ctx.fillStyle = "rgba(100,220,170,0.07)";
+      ctx.fillRect(0, top, W, compression.laneW);
+      ctx.strokeStyle = "rgba(100,220,170,0.45)";
+      ctx.lineWidth = 1.4*dpr;
+      ctx.beginPath(); ctx.moveTo(0, top); ctx.lineTo(W, top); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, bottom); ctx.lineTo(W, bottom); ctx.stroke();
+    }
+  }
+
+  if(disturbance){
+    const pulse = 0.82 + 0.18*Math.sin(time*8);
+    if(disturbance.phase === "telegraph"){
+      ctx.setLineDash([7*dpr, 5*dpr]);
+      ctx.strokeStyle = `rgba(255,180,140,${0.55 + 0.2*pulse})`;
+      ctx.lineWidth = 1.6*dpr;
+      ctx.beginPath();
+      ctx.arc(disturbance.x, disturbance.y, disturbance.r * (0.9 + 0.08*pulse), 0, Math.PI*2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }else{
+      const g = ctx.createRadialGradient(
+        disturbance.x, disturbance.y, disturbance.r*0.1,
+        disturbance.x, disturbance.y, disturbance.r*1.45
+      );
+      g.addColorStop(0, "rgba(255,150,120,0.14)");
+      g.addColorStop(0.55, "rgba(255,140,110,0.07)");
+      g.addColorStop(1, "rgba(255,140,110,0)");
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(disturbance.x, disturbance.y, disturbance.r*1.45, 0, Math.PI*2);
+      ctx.fill();
+
+      ctx.strokeStyle = "rgba(255,176,128,0.55)";
+      ctx.lineWidth = 1.2*dpr;
+      ctx.beginPath();
+      ctx.arc(disturbance.x, disturbance.y, disturbance.r, 0, Math.PI*2);
+      ctx.stroke();
+    }
+  }
+}
+
 function draw(){
   ctx.clearRect(0,0,W,H);
   ctx.fillStyle = "#05060f";
@@ -1016,6 +1509,7 @@ function draw(){
   const rig = player.rig;
 
   drawGrid();
+  drawFieldEvents();
 
   stars.forEach(s=>{
     ctx.globalAlpha = s.a;
@@ -1039,6 +1533,10 @@ function draw(){
     ctx.strokeStyle = "rgba(255,198,132,0.28)";
     ctx.lineWidth = 1.0*dpr;
     ctx.beginPath(); ctx.arc(h.x,h.y,horizon,0,Math.PI*2); ctx.stroke();
+
+    ctx.strokeStyle = "rgba(124,255,198,0.28)";
+    ctx.lineWidth = 1.0*dpr;
+    ctx.beginPath(); ctx.arc(h.x,h.y,h.r*2.35,0,Math.PI*2); ctx.stroke();
 
     ctx.setLineDash([4*dpr, 4*dpr]);
     ctx.strokeStyle = isOrbitTarget ? "rgba(255,130,96,0.95)" : "rgba(255,130,96,0.35)";
@@ -1090,8 +1588,11 @@ function loop(t){
   draw();
   timeEl.textContent = time.toFixed(1);
   distEl.textContent = Math.floor(distance/120/dpr);
+  scoreEl.textContent = Math.floor(score).toString();
+  multEl.textContent = `x${scoreMultiplier.toFixed(2)}`;
   fuelEl.textContent = Math.max(0, Math.round(fuel));
   trapEl.textContent = `${Math.round((player.rig ? player.rig.trapMeter : 0) * 100)}%`;
+  objectiveEl.textContent = objectiveText();
   statusEl.textContent = paused ? "Paused" : statusText;
   requestAnimationFrame(loop);
 }

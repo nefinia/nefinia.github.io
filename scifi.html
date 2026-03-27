@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SciFi Prediction Benchmark</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Research Prototype</p>
+        <h1>SciFi Prediction Benchmark</h1>
+        <p class="lede">A benchmark of technological foresight in science fiction, tracing how fictional devices, infrastructures, and social systems line up with later real-world technologies.</p>
+      </div>
+      <div class="hero-meta">
+        <a class="secondary-link" href="./annotate.html">Open Local Annotation Workspace</a>
+        <div class="hero-panel">
+          <span>What is measured</span>
+          <strong>Specificity, lead time, functional fit, mechanism, and societal role</strong>
+        </div>
+      </div>
+    </header>
+
+    <section class="method-grid">
+      <article class="method-card">
+        <span class="method-kicker">Idea</span>
+        <h2>Turn passages into structured predictions</h2>
+        <p>Each entry is represented as a prediction with a domain, description, implied mechanism, social role, and an initial specificity estimate.</p>
+      </article>
+      <article class="method-card">
+        <span class="method-kicker">Estimation</span>
+        <h2>Compare fiction against candidate technologies</h2>
+        <p>The benchmark combines semantic similarity with rule-based domain and phrase overlap to rank plausible real-world counterparts.</p>
+      </article>
+      <article class="method-card">
+        <span class="method-kicker">Scoring</span>
+        <h2>Reward accuracy, detail, and anticipation</h2>
+        <p>Final scores blend existence, functional, mechanistic, and societal alignment, then adjust for specificity, novelty, lead time, vagueness, and redundancy.</p>
+      </article>
+    </section>
+
+    <section class="control-bar">
+      <label>
+        Domain
+        <select id="domainFilter"></select>
+      </label>
+      <label>
+        Timeline Cutoff
+        <input id="yearSlider" type="range" min="1860" max="2000" step="1" value="2000">
+        <span id="yearLabel">2000</span>
+      </label>
+    </section>
+
+    <main class="dashboard-grid">
+      <section class="panel">
+        <div class="panel-heading">
+          <h2>Leaderboard</h2>
+          <p>Average adjusted prediction score by author</p>
+        </div>
+        <div id="leaderboard" class="leaderboard"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <h2>Author Profile</h2>
+          <p>Drill into domains, subscores, and matched technologies</p>
+        </div>
+        <div id="authorProfile" class="author-profile empty-state">Select an author from the leaderboard.</div>
+      </section>
+
+      <section class="panel wide">
+        <div class="panel-heading">
+          <h2>Prediction Explorer</h2>
+          <p>Inspect individual prediction-to-technology comparisons</p>
+        </div>
+        <div class="prediction-layout">
+          <div id="predictionList" class="prediction-list"></div>
+          <div id="matchDetail" class="match-detail empty-state">Select a prediction to view the top candidate match and subscore breakdown.</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="./site-data.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

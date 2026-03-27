@@ -256,6 +256,19 @@
       <a class="play" href="hexy_battle.html" target="_blank">Play</a>
     </div>
 
+    <!-- Arrows -->
+    <div class="game">
+      <div class="thumbWrap">
+        <canvas id="thumb-arrows" width="96" height="96"></canvas>
+      </div>
+      <h2>Arrows</h2>
+      <p class="desc">
+        Clear tangled arrow paths by tapping only the pieces that have an open lane to the edge.
+        Mobile-first, with a replica-inspired app shell.
+      </p>
+      <a class="play" href="arrows.html" target="_blank">Play</a>
+    </div>
+
     <!-- Lumen Logic -->
     <div class="game">
       <div class="thumbWrap">
@@ -730,6 +743,58 @@ function rint(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
   token(40,38,"#7aa2ff");
   token(60,50,"#43e3a2");
   token(32,58,"#ffb86b");
+})();
+
+/* Arrows preview */
+(function(){
+  const c = document.getElementById("thumb-arrows");
+  const ctx = c.getContext("2d");
+
+  ctx.fillStyle = "#f3f4f8";
+  ctx.fillRect(0,0,c.width,c.height);
+
+  ctx.fillStyle = "rgba(93,101,151,0.16)";
+  for(let y=10;y<=86;y+=12){
+    for(let x=10;x<=86;x+=12){
+      ctx.beginPath();
+      ctx.arc(x,y,1.7,0,Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  ctx.strokeStyle = "#111846";
+  ctx.lineWidth = 5;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  function path(points, tip){
+    ctx.beginPath();
+    ctx.moveTo(points[0][0], points[0][1]);
+    for(let i=1;i<points.length;i++){
+      ctx.lineTo(points[i][0], points[i][1]);
+    }
+    ctx.stroke();
+
+    const a = points[points.length-2];
+    const b = points[points.length-1];
+    const ang = Math.atan2(b[1]-a[1], b[0]-a[0]);
+    ctx.save();
+    ctx.translate(tip[0], tip[1]);
+    ctx.rotate(ang);
+    ctx.fillStyle = "#111846";
+    ctx.beginPath();
+    ctx.moveTo(7,0);
+    ctx.lineTo(-4,5);
+    ctx.lineTo(-2,0);
+    ctx.lineTo(-4,-5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  path([[18,72],[18,28],[48,28],[48,58],[30,58],[30,76]], [30,76]);
+  path([[58,22],[78,22],[78,42],[68,42],[68,30]], [68,30]);
+  path([[58,72],[40,72],[40,58],[66,58],[66,82],[48,82]], [48,82]);
 })();
 
 /* Lumen Logic preview */

@@ -164,6 +164,17 @@
       height:45px;
       display:inline-block;
     }
+    .coinIcon{
+      width:45px;
+      height:45px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-size:31px;
+      line-height:1;
+      filter: grayscale(1) saturate(0.15) brightness(1.25);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+    }
     .captureRow{
       display:flex;
       flex-wrap:wrap;
@@ -288,6 +299,11 @@
       font-size:13px;
       color:var(--muted);
       margin-bottom:12px;
+    }
+    .challengeSelect{
+      width:100%;
+      margin-bottom:12px;
+      font-size:13px;
     }
     .modalActions{
       display:flex;
@@ -429,7 +445,7 @@
         </div>
 
         <div class="footerNote">
-          Each piece has lives. In 2‑player games, each piece has 3 lives. In 3–4 player games, each piece has 2 lives. The moved piece fights adjacent enemies: if it beats one, that enemy loses 1 life; if it loses, it loses 1 life. When a piece hits 0 lives, it disappears. Last player with pieces wins.
+          Each piece has lives. In 2‑player games, each piece has 3 lives. In 3–4 player games, each piece has 2 lives. Non-final damage gives the winner a coin (🪙). The last life gives the winner the defeated piece. Move to center (★) to challenge the captor and recover one stolen piece.
         </div>
       </div>
   </div>
@@ -438,10 +454,11 @@
 <div id="challengeModal" class="modal hidden">
   <div class="modalCard">
     <div class="modalTitle">Center Challenge</div>
-    <div class="modalBody" id="challengeText">Reclaim captured piece?</div>
+    <div class="modalBody" id="challengeText">Choose a captured piece to challenge for.</div>
+    <select id="challengeSelect" class="challengeSelect"></select>
     <div class="modalActions">
-      <button id="challengeNo">No</button>
-      <button id="challengeYes">Yes</button>
+      <button id="challengeNo">Lost</button>
+      <button id="challengeYes">Won</button>
     </div>
   </div>
 </div>
@@ -470,6 +487,7 @@
   const simLog = document.getElementById("simLog");
   const challengeModal = document.getElementById("challengeModal");
   const challengeText = document.getElementById("challengeText");
+  const challengeSelect = document.getElementById("challengeSelect");
   const challengeYes = document.getElementById("challengeYes");
   const challengeNo = document.getElementById("challengeNo");
   const rulesTitle = document.getElementById("rulesTitle");
@@ -746,6 +764,23 @@
     return "🖖";
   }
 
+  function shapeName(shape){
+    return shape.charAt(0).toUpperCase() + shape.slice(1);
+  }
+
+  function captureTokenForHit(victim, livesBeforeHit){
+    if (livesBeforeHit > 1) {
+      return { type: "coin", emoji: "🪙" };
+    }
+    return {
+      type: "piece",
+      shape: victim.shape,
+      emoji: shapeEmoji(victim.shape),
+      colorVar: state.players[victim.owner].colorVar,
+      ownerId: victim.owner
+    };
+  }
+
   function shapeIcon(shape, color){
     const stroke = "rgba(0,0,0,0.45)";
     const emoji = shapeEmoji(shape);
@@ -865,15 +900,17 @@
       const role = effectForPair(movedPiece, target);
       if (role === "win") {
         delta += 1;
+        const livesBeforeHit = target.lives;
         target.lives -= 1;
-        state.captures[movedPiece.owner].push({ shape: target.shape, emoji: shapeEmoji(target.shape), colorVar: state.players[target.owner].colorVar });
+        state.captures[movedPiece.owner].push(captureTokenForHit(target, livesBeforeHit));
         if (target.lives <= 0) {
           toRemove.push({ piece: target, captor: movedPiece.owner });
         }
       } else if (role === "lose") {
         delta -= 1;
+        const livesBeforeHit = movedPiece.lives;
         movedPiece.lives -= 1;
-        state.captures[target.owner].push({ shape: movedPiece.shape, emoji: shapeEmoji(movedPiece.shape), colorVar: state.players[movedPiece.owner].colorVar });
+        state.captures[target.owner].push(captureTokenForHit(movedPiece, livesBeforeHit));
         if (movedPiece.lives <= 0) {
           toRemove.push({ piece: movedPiece, captor: target.owner });
         }
@@ -896,35 +933,57 @@
   function tryCenterReclaim(movedPiece){
     if (!movedPiece) return;
     if (movedPiece.q !== 0 || movedPiece.r !== 0) return;
-    const captorId = movedPiece.owner;
-    const capturedList = state.captures[captorId];
-    const idx = capturedList.findIndex(c => c.shape === movedPiece.shape);
-    if (idx === -1) return;
+    const reclaimerId = movedPiece.owner;
+    const options = findReclaimOptions(reclaimerId);
+    if (options.length === 0) return;
 
-    const player = state.players[captorId];
+    const player = state.players[reclaimerId];
     if (state.simulating || player.isBot) {
+      const choice = options[Math.floor(Math.random() * options.length)];
       const won = Math.random() < 0.5;
       spawnCenterEvent("BATTLE", won ? getCss("--heart") : getCss("--muted"));
-      logSim(`Center battle: ${player.name} ${won ? "won" : "lost"} for ${movedPiece.shape}.`);
-      if (won) reclaimCaptured(captorId, movedPiece.shape, idx);
+      logSim(`Center battle: ${player.name} challenged ${state.players[choice.captorId].name} for ${shapeName(choice.shape)} and ${won ? "won" : "lost"}.`);
+      if (won) reclaimCapturedPiece(choice.captorId, choice.index);
       return { resolved: true };
     }
 
-    challengeText.textContent = `Reclaim captured ${movedPiece.shape}? Did you win?`;
+    challengeSelect.innerHTML = "";
+    options.forEach((option, idx) => {
+      const el = document.createElement("option");
+      el.value = String(idx);
+      el.textContent = `${option.emoji} ${shapeName(option.shape)} from ${state.players[option.captorId].name}`;
+      challengeSelect.appendChild(el);
+    });
+    challengeText.textContent = "Choose which captured piece to recover, then resolve your duel.";
     challengeModal.classList.remove("hidden");
-    state.pendingChallenge = { captorId, shape: movedPiece.shape, index: idx };
+    state.pendingChallenge = { options };
     return { pending: true };
   }
 
-  function reclaimCaptured(captorId, shape, idx){
+  function findReclaimOptions(playerId){
+    const options = [];
+    state.captures.forEach((capturedList, captorId) => {
+      if (captorId === playerId) return;
+      capturedList.forEach((capture, index) => {
+        if (capture.type === "piece" && capture.ownerId === playerId) {
+          options.push({ captorId, index, shape: capture.shape, emoji: capture.emoji });
+        }
+      });
+    });
+    return options;
+  }
+
+  function reclaimCapturedPiece(captorId, idx){
     const capturedList = state.captures[captorId];
-    capturedList.splice(idx, 1);
-    const spawnCell = findSpawnCell(captorId);
+    const capture = capturedList[idx];
+    if (!capture || capture.type !== "piece") return;
+    const spawnCell = findSpawnCell(capture.ownerId);
     if (!spawnCell) return;
+    capturedList.splice(idx, 1);
     state.pieces.push({
-      id: `p${captorId}-${shape}-r${Date.now()}`,
-      owner: captorId,
-      shape,
+      id: `p${capture.ownerId}-${capture.shape}-r${Date.now()}`,
+      owner: capture.ownerId,
+      shape: capture.shape,
       q: spawnCell.q,
       r: spawnCell.r,
       lives: livesPerPieceCount()
@@ -1023,9 +1082,16 @@
     const enemyPieces = state.pieces.filter(p => p.owner !== winnerId);
     for (const p of enemyPieces) {
       const lives = p.lives ?? 1;
-      for (let i = 0; i < lives; i++) {
-        state.captures[winnerId].push({ shape: p.shape, emoji: shapeEmoji(p.shape), colorVar: state.players[p.owner].colorVar });
+      for (let i = 0; i < Math.max(0, lives - 1); i++) {
+        state.captures[winnerId].push({ type: "coin", emoji: "🪙" });
       }
+      state.captures[winnerId].push({
+        type: "piece",
+        shape: p.shape,
+        emoji: shapeEmoji(p.shape),
+        colorVar: state.players[p.owner].colorVar,
+        ownerId: p.owner
+      });
     }
     state.pieces = state.pieces.filter(p => p.owner === winnerId);
     updatePieceCounts();
@@ -1393,6 +1459,9 @@
   }
 
   function captureIconHTML(capture){
+    if (capture.type === "coin") {
+      return `<span class="coinIcon" title="Life coin" aria-label="Life coin">${capture.emoji || "🪙"}</span>`;
+    }
     const fill = getCss(capture.colorVar);
     const stroke = "rgba(0,0,0,0.45)";
     const emoji = capture.emoji;
@@ -1499,8 +1568,12 @@
 
   challengeYes.addEventListener("click", () => {
     if (!state.pendingChallenge) return;
-    const { captorId, shape, index } = state.pendingChallenge;
-    reclaimCaptured(captorId, shape, index);
+    const selectedIdx = Number(challengeSelect.value || "0");
+    const option = state.pendingChallenge.options[selectedIdx];
+    if (option) {
+      reclaimCapturedPiece(option.captorId, option.index);
+      spawnCenterEvent("WIN", getCss("--heart"));
+    }
     challengeModal.classList.add("hidden");
     state.pendingChallenge = null;
     finalizeTurn();
@@ -1508,6 +1581,7 @@
 
   challengeNo.addEventListener("click", () => {
     if (!state.pendingChallenge) return;
+    spawnCenterEvent("LOSE", getCss("--muted"));
     challengeModal.classList.add("hidden");
     state.pendingChallenge = null;
     finalizeTurn();
