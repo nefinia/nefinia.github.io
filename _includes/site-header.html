@@ -1,0 +1,36 @@
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="brand" href="{{ '/index.html' | relative_url }}" aria-label="{{ site.title }} home">
+      <span class="brand__mark">SG</span>
+      <span class="brand__text">
+        <strong>{{ site.title }}</strong>
+        <span>Science, art, and venture design</span>
+      </span>
+    </a>
+
+    <button
+      class="nav-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="site-nav"
+      data-nav-toggle
+    >
+      Menu
+    </button>
+
+    <nav id="site-nav" class="site-nav" aria-label="Primary">
+      <ul>
+        {% for item in site.data.navigation %}
+        <li>
+          <a
+            href="{{ item.url | relative_url }}"
+            {% if page.nav == item.id %}aria-current="page"{% endif %}
+          >
+            {{ item.title }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </nav>
+  </div>
+</header>

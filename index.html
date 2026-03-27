@@ -1,120 +1,148 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-20EEFX7Q6N"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-20EEFX7Q6N');
-</script>
-
-  <meta charset="UTF-8">
-  <meta content="IE=edge" http-equiv="X-UA-Compatible">
-  <meta content="width=device-width,initial-scale=1" name="viewport">
-  <meta content="description" name="description">
-  <!-- <meta name="google" content="notranslate" />  -->
-  <meta content="Mashup templates have been developped by Orson.io team" name="author">
-
-  <!-- Disable tap highlight on IE -->
-  <meta name="msapplication-tap-highlight" content="no">
-  
-  <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-icon-180x180.png">
-  <link href="./assets/cosmovision.ico" rel="icon">
-
-  <title>Sofia Gallego</title>
-
-  <link href="./main.3f6952e4.css" rel="stylesheet">
-
-  <style>
-    /* Ensure white text in hero section */
-    .hero-full-container .text-content h1, 
-    .hero-full-container .text-content span {
-      color: white !important;
-    }
-  </style>
-
-</head>
-
-<!-- Add your content of header -->
-<header>
-
-  <nav class="navbar  navbar-fixed-top navbar-inverse">
-    <div class="container">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-
-      <div class="collapse navbar-collapse" id="navbar-collapse">
-        <ul class="nav navbar-nav ">
-          <li><a href="./index.html" title="">01 : Home</a></li>
-          <li><a href="./science.html" title="">02 : Science</a></li>
-          <li><a href="./art.html" title="">03 : Art</a></li>
-          <li><a href="./ventures.html" title="">04 : Ventures</a></li>
-          <li><a href="./about.html" title="">05 : About</a></li>
-          <li><a href="./cv.html" title="">06 : CV</a></li>
-          <li><a href="./contact.html" title="">07 : Contact</a></li>
-        </ul>
+---
+layout: default
+title: Home
+description: Personal hub for Sofia Gallego's research, artistic work, public events, and venture experiments.
+nav: home
+---
+<section class="hero">
+  <div class="wrap hero__grid">
+    <div>
+      <p class="eyebrow">Astrophysics. Performance. Venture Design.</p>
+      <h1 class="display">A multidisciplinary practice built around curiosity, clarity, and public imagination.</h1>
+      <p class="lede">
+        I work as an astrophysicist, performer, and builder of educational and creative projects.
+        This site is now organized as a hub: the main sections explain the work, and the strongest projects live as focused microsites.
+      </p>
+      <div class="hero-actions">
+        <a class="button" href="{{ '/science.html' | relative_url }}">Explore research</a>
+        <a class="button-secondary" href="{{ '/ventures.html' | relative_url }}">See ventures</a>
+        <a class="button-link" href="{{ '/events/' | relative_url }}">Book events</a>
       </div>
-    </div>
-
-  </nav>
-</header>
-
-
-<body class="minimal" style="background-color:black;">
-<div id="site-border-left"></div>
-<div id="site-border-right"></div>
-<div id="site-border-top"></div>
-<div id="site-border-bottom"></div>
-
-
-<!-- Hero Section -->
-
-
-
-<div class="hero-full-container background-image-container white-text-container" style="background-image: url('./assets/images/space.jpg')">
-  <div class="container">
-    <div class="row">
-      <div class="col-xs-12">
-        <div class="hero-full-wrapper">
-          <div class="text-content">
-          	<p style="color: white;font-size: 70px;font-weight: bold">Hello,</p>>
-            <h1>
-              <span id="typed-strings">
-                <span>I'm Dr. Sofia Gallego </span>
-                <span>Scientist, Artist and Venturer</span>
-              </span>
-              <span id="typed"></span>
-            </h1>
-          </div>
+      <div class="stat-strip">
+        <div class="stat-card">
+          <strong>3</strong>
+          <span>Core pillars: research, art, ventures</span>
+        </div>
+        <div class="stat-card">
+          <strong>Paris</strong>
+          <span>Base for collaborations, talks, and performances</span>
+        </div>
+        <div class="stat-card">
+          <strong>Global</strong>
+          <span>Work shaped by Chile, Switzerland, the US, and France</span>
         </div>
       </div>
     </div>
+    <aside class="hero-panel">
+      <div class="hero-panel__stack">
+        <div>
+          <p class="card__meta">Current Focus</p>
+          <h2>Connecting rigorous science to public-facing experiences.</h2>
+          <p>
+            My work ranges from galaxy evolution and cosmic environments to music, science communication,
+            cognitive tools, and experimental educational products.
+          </p>
+        </div>
+        <div class="metric-list">
+          <div class="metric">
+            <div>
+              <strong>Research</strong>
+              <p>Galaxy evolution, protoclusters, diffuse gas, and science communication.</p>
+            </div>
+          </div>
+          <div class="metric">
+            <div>
+              <strong>Art</strong>
+              <p>Singing, violin, musical theater, and transdisciplinary conversations.</p>
+            </div>
+          </div>
+          <div class="metric">
+            <div>
+              <strong>Ventures</strong>
+              <p>Microsites, educational games, interactive tools, and early-stage concepts.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
   </div>
-</div>
+</section>
 
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="section-kicker">Site Structure</p>
+      <h2 class="section-title">A simpler way to navigate the work</h2>
+      <p class="section-copy">
+        The main site now acts as an editorial layer. Each section gives context, then points to the most relevant project pages or standalone products.
+      </p>
+    </div>
+    <div class="card-grid">
+      <article class="card">
+        <p class="card__meta">Research</p>
+        <h3>Scientific work and publications</h3>
+        <p>Research themes, current projects, and a clearer path into the astrophysics portfolio.</p>
+        <a class="project-link" href="{{ '/science.html' | relative_url }}">Open research</a>
+      </article>
+      <article class="card">
+        <p class="card__meta">Art</p>
+        <h3>Performance, music, and communication</h3>
+        <p>Selected performances, original music, public-facing channels, and dialogue formats.</p>
+        <a class="project-link" href="{{ '/art.html' | relative_url }}">Open art</a>
+      </article>
+      <article class="card">
+        <p class="card__meta">Ventures</p>
+        <h3>Products, prototypes, and educational experiments</h3>
+        <p>Standalone tools and concepts grouped by purpose instead of being scattered across the root directory.</p>
+        <a class="project-link" href="{{ '/ventures.html' | relative_url }}">Open ventures</a>
+      </article>
+    </div>
+  </div>
+</section>
 
-<script>
-  document.addEventListener("DOMContentLoaded", function (event) {
-     type();
-     movingBackgroundImage();
-  });
-</script>
-
-
-
-<script type="text/javascript" src="./main.70a66962.js"></script>
-
-
-
-
-</body>
-</html>
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="section-kicker">Featured Destinations</p>
+      <h2 class="section-title">Selected work worth opening directly</h2>
+    </div>
+    <div class="grid-3">
+      <article class="card">
+        <p class="card__meta">Public Events</p>
+        <h3>Paris performance page</h3>
+        <p>A dedicated French-first page for singing and violin services, pricing, repertoire, and inquiries.</p>
+        <a class="project-link" href="{{ '/events/' | relative_url }}">Visit events page</a>
+      </article>
+      <article class="card">
+        <p class="card__meta">Learning Product</p>
+        <h3>SensoryVerse</h3>
+        <p>An adaptive learning playground using quizzes, games, and music to explore cognitive style.</p>
+        <a class="project-link" href="{{ '/SensoryVerse/' | relative_url }}">Open SensoryVerse</a>
+      </article>
+      <article class="card">
+        <p class="card__meta">Games</p>
+        <h3>Experimental puzzle collection</h3>
+        <p>A curated gateway into logic, perception, and systems-based mini-games.</p>
+        <a class="project-link" href="{{ '/games/' | relative_url }}">Open games</a>
+      </article>
+      <article class="card">
+        <p class="card__meta">Knowledge Tool</p>
+        <h3>WikiWander</h3>
+        <p>A more self-contained product page with focused interaction design and stronger visual identity.</p>
+        <a class="project-link" href="{{ '/wikiwander/' | relative_url }}">Open WikiWander</a>
+      </article>
+      <article class="card">
+        <p class="card__meta">Research Prototype</p>
+        <h3>SciFi Prediction Benchmark</h3>
+        <p>A research interface for comparing science-fiction predictions with later technologies.</p>
+        <a class="project-link" href="{{ '/scifi/' | relative_url }}">Open benchmark</a>
+      </article>
+      <article class="card">
+        <p class="card__meta">Contact</p>
+        <h3>Discuss a collaboration</h3>
+        <p>Use the contact page for research, performance bookings, media invitations, or venture conversations.</p>
+        <a class="project-link" href="{{ '/contact.html' | relative_url }}">Get in touch</a>
+      </article>
+    </div>
+  </div>
+</section>
