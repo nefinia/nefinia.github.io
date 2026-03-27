@@ -1,32 +1,194 @@
----
-layout: default
-title: CV
-description: Curriculum vitae, current profile, and direct access to the full document.
-nav: cv
----
-<section class="page-hero">
-  <div class="wrap">
-    <p class="eyebrow">CV</p>
-    <h1 class="page-title">A direct path to the full profile, without forcing everything into the website navigation.</h1>
-    <p class="page-lede">
-      The CV remains available as an embedded document, with a direct Canva fallback if the embed does not load.
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-20EEFX7Q6N"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-20EEFX7Q6N');
+</script>
+
+  <meta charset="UTF-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width,initial-scale=1" name="viewport">
+  <meta content="description" name="description">
+  <meta name="google" content="notranslate" />
+  <meta content="Mashup templates have been developed by Orson.io team" name="author">
+
+  <!-- Disable tap highlight on IE -->
+  <meta name="msapplication-tap-highlight" content="no">
+  
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-icon-180x180.png">
+  <link href="./assets/cosmovision.ico" rel="icon">
+
+  <title>About Me</title>  
+
+  <link href="./main.3f6952e4.css" rel="stylesheet">
+
+  <style>
+    /* Background settings */
+    body {
+      background-color: black;
+      background-image: url('./assets/images/space.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      padding: 0;
+      margin: 0;
+    }
+
+    /* Main container */
+    .section-container {
+      padding: 40px 0;
+      margin-top: 50px;
+    }
+
+    /* Content Box */
+    .container2 {
+      background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
+      padding: 20px;
+      border-radius: 0;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      margin: auto;
+      max-width: 60%;
+      text-align: center;
+      color: black !important; /* Ensures all text inside is black */
+    }
+
+    /* Profile Image */
+    .profile-img {
+      display: block;
+      max-width: 40%;
+      height: auto;
+      margin: 20px auto;
+      border-radius: 10px;
+    }
+  </style>
+
+</head>
+
+<body>
+<div id="site-border-left"></div>
+<div id="site-border-right"></div>
+<div id="site-border-top"></div>
+<div id="site-border-bottom"></div>
+
+<!-- Header -->
+<header>
+  <nav class="navbar navbar-fixed-top navbar-inverse">
+    <div class="container">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="./index.html">01 : Home</a></li>
+          <li><a href="./science.html">02 : Science</a></li>
+          <li><a href="./art.html">03 : Art</a></li>
+          <li><a href="./ventures.html">04 : Ventures</a></li>
+          <li><a href="./about.html">05 : About</a></li>
+          <li><a href="./cv.html" title="">06 : CV</a></li>
+          <li><a href="./contact.html">07 : Contact</a></li>
+        </ul>
+      </div> 
+    </div>
+  </nav>
+</header>
+
+<!-- Main Content -->
+
+
+<div class="section-container">
+  <div class="container2">
+    <h2>My CV</h2>
+
+    <div class="canva-embed">
+      <iframe loading="lazy" 
+        style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0; margin: 0;"
+        src="https://www.canva.com/design/DAFafr7Nk60/Kl0lQPwkZelMxi0mQNheHQ/view?embed" 
+        allowfullscreen="allowfullscreen" allow="fullscreen">
+      </iframe>
+    </div>
+
+    <p>
+      If the document does not load, you can view it directly on Canva: 
+      <a href="https://www.canva.com/design/DAFafr7Nk60/Kl0lQPwkZelMxi0mQNheHQ/view" target="_blank">
+        CV_SofiaGallego
+      </a>.
     </p>
-    <div class="button-row">
-      <a class="button" href="https://www.canva.com/design/DAFafr7Nk60/Kl0lQPwkZelMxi0mQNheHQ/view" target="_blank" rel="noreferrer">Open on Canva</a>
+  </div>
+</div>
+
+<!-- Styling -->
+<style>
+  .canva-embed {
+    position: relative;
+    width: 100%;
+    max-width: 800px; /* Limits the iframe size on large screens */
+    height: 0;
+    padding-top: 129.4118%; /* Keeps aspect ratio */
+    box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16);
+    margin: 1.6em auto 0.9em auto;
+    overflow: hidden;
+    border-radius: 8px;
+    will-change: transform;
+  }
+
+  /* Ensures the iframe inside scales properly */
+  .canva-embed iframe {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    border: none;
+  }
+
+  /* Fallback link style */
+  .container2 a {
+    color: #007BFF;
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  .container2 a:hover {
+    color: #0056b3;
+  }
+</style>
+
+
+
+<footer class="footer-container text-center">
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12">
+        <p style="color: white;">© Nefinia</p>
+                  <center>
+          <a href="./index.html" title="">
+          <img src="./assets/images/cosmovision.png" class="img-responsive" alt="" style="max-width: 10%;">
+          </a><br></center>
+      </div>
     </div>
   </div>
-</section>
+</footer>
 
-<section class="section">
-  <div class="wrap">
-    <article class="embed-card">
-      <p class="card__meta">Embedded CV</p>
-      <iframe
-        title="Sofia Gallego CV"
-        src="https://www.canva.com/design/DAFafr7Nk60/Kl0lQPwkZelMxi0mQNheHQ/view?embed"
-        style="min-height: 78vh; border-radius: 20px;"
-        allowfullscreen
-      ></iframe>
-    </article>
-  </div>
-</section>
+<script>
+  document.addEventListener("DOMContentLoaded", function (event) {
+     navActivePage();
+  });
+</script>
+
+<script type="text/javascript" src="./main.70a66962.js"></script></body>
+
+</html>
+
+
