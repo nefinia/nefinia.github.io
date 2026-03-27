@@ -46,23 +46,70 @@
     }
 
     .container2 {
-      background-color: rgba(255, 255, 255, 0.85);
+      background-color: rgba(255, 255, 255, 0.8);
       padding: 20px;
       border-radius: 0;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       margin: auto;
       max-width: 60%;
+      color: black !important;
     }
 
     h2 {
       margin-top: 30px;
       color: #222;
     }
+
+    .page-intro {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .venture-section {
+      margin-top: 35px;
+    }
+
+    .venture-section h2 {
+      text-align: center;
+    }
+
+    .venture-item {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(0,0,0,0.12);
+      text-align: left;
+    }
+
+    .venture-item:first-of-type {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    .venture-item h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+
+    .venture-link {
+      display: inline-block;
+      margin-top: 8px;
+      font-weight: bold;
+    }
+
+    .venture-video {
+      margin-top: 20px;
+    }
   </style>
 
 </head>
 
-<body>
+<body class="">
+<div id="site-border-left"></div>
+<div id="site-border-right"></div>
+<div id="site-border-top"></div>
+<div id="site-border-bottom"></div>
+
 <header>
   <nav class="navbar navbar-fixed-top navbar-inverse">
     <div class="container">
@@ -83,7 +130,6 @@
           <li><a href="./contact.html" title="">07 : Contact</a></li>
         </ul>
       </div>
-      <div id="google_translate_element" style="position: absolute; top: 10px; right: 10px; z-index: 1000;"></div>
     </div>
   </nav>
 </header>
@@ -93,83 +139,103 @@
   <div class="container2">
     <div class="section-container-spacer text-center">
       <h1 class="h2">Ventures</h1>
-    </div> 
+      <p class="page-intro">
+        <strong>CosmoVentures</strong> is the umbrella for my initiatives combining science, creativity, and public engagement.
+        The projects below are grouped more clearly, while keeping the same visual language as the rest of the site.
+      </p>
+    </div>
 
-    <h2>🌌 CosmoVentures</h2>
-    <p>
-      <strong>CosmoVentures</strong> is the umbrella for all my initiatives, combining science, creativity, and public engagement.  
-      Its mission is to create experiences and projects that connect people with the Universe through learning, art, and exploration.
-    </p> 
+    <div class="venture-section">
+      <h2>Main Projects</h2>
 
-	<h2>🎮 Games</h2>
-	<p>
-	  A growing collection of experimental mini-games exploring logic, perception, and problem-solving.
-	  These games use simple rules to reveal different ways people think, plan, and adapt.
-	</p>
-	<p>
-	  They are part of my broader work on playful learning, cognitive exploration, and interactive design.
-	  <br>
-	  <a href="./games/index.html" target="_blank">
-		Explore the games →
-	  </a>
-	</p>
+      <div class="venture-item">
+        <h3>SensoryVerse</h3>
+        <p>
+          An adaptive learning playground that uses AI, mini-games, and focus music to reveal how people process, focus, and learn best.
+        </p>
+        <a class="venture-link" href="./SensoryVerse/index.html" target="_blank">Visit SensoryVerse</a>
+      </div>
 
-    <h2>🧠 SensoryVerse</h2>
-    <p>
-      An adaptive learning playground that uses AI, mini-games, and focus music to reveal how people process, focus, and learn best.  
-      Visit: <a href="SensoryVerse/index.html" target="_blank">sofiagallego.com/SensoryVerse</a>
-    </p>
+      <div class="venture-item">
+        <h3>Games</h3>
+        <p>
+          A growing collection of experimental mini-games exploring logic, perception, and problem-solving.
+          These games use simple rules to reveal different ways people think, plan, and adapt.
+        </p>
+        <p>
+          They are part of my broader work on playful learning, cognitive exploration, and interactive design.
+        </p>
+        <a class="venture-link" href="./games/index.html" target="_blank">Explore the games</a>
+      </div>
 
-    <h2>🎤 CosmoTalks</h2>
-    <p>
-      A series of interactive workshops and talks blending science, performance, and communication skills.  
-      Designed to make scientific ideas resonate through storytelling and presence.
-    </p>
+      <div class="venture-item">
+        <h3>SolveHive</h3>
+        <p>
+          A collaborative platform for collective problem-solving, combining human creativity and AI to address challenges through community input and cross-disciplinary links.
+        </p>
+        <a class="venture-link" href="./SolveHive/index.html" target="_blank">Visit SolveHive</a>
+      </div>
 
-    <h2>🍰 Bake Your Own Universe</h2>
-    <p>
-      A science outreach activity where participants “cook” the cosmos using edible ingredients to model cosmic processes.  
-      Both fun and educational, linking gastronomy with astrophysics.
-    </p>
+      <div class="venture-item">
+        <h3>Cosmoneo</h3>
+        <p>
+          An astronomy-inspired board game where players explore cosmic evolution, galaxies, and hidden connections in the universe.
+          It is currently in beta testing, with plans for expansion.
+        </p>
+        <a class="venture-link" href="./cosmoneo.html" target="_blank">Read more about Cosmoneo</a>
+      </div>
+    </div>
 
-    <h2>🎲 Cosmoneo</h2>
-    <p>
-      An astronomy-inspired board game where players explore cosmic evolution, galaxies, and hidden connections in the universe.  
-      Currently under beta testing with plans for expansion.
-    </p>
+    <div class="venture-section">
+      <h2>Formats and Concepts</h2>
 
-    <h2>🌍 CosmoTourism</h2>
-    <p>
-      Astro-tourism experiences that connect travelers with observatories, dark-sky reserves, and cultural heritage sites.  
-      A finalist pitch idea for blending astronomy with sustainable travel.
-    </p>
+      <div class="venture-item">
+        <h3>CosmoTalks</h3>
+        <p>
+          A series of interactive workshops and talks blending science, performance, and communication skills,
+          designed to make scientific ideas resonate through storytelling and presence.
+        </p>
+      </div>
 
-    <h2>🐝 SolveHive</h2>
-    <p>
-      A collaborative platform for collective problem-solving, combining human creativity and AI to address challenges through community input and cross-disciplinary links.
-    </p>
+      <div class="venture-item">
+        <h3>Bake Your Own Universe</h3>
+        <p>
+          A science outreach activity where participants “cook” the cosmos using edible ingredients to model cosmic processes,
+          linking gastronomy with astrophysics in a playful way.
+        </p>
+      </div>
 
-    <br>
+      <div class="venture-item">
+        <h3>CosmoTourism</h3>
+        <p>
+          Astro-tourism experiences that connect travelers with observatories, dark-sky reserves, and cultural heritage sites.
+          It grew into a finalist pitch concept for blending astronomy with sustainable travel.
+        </p>
+      </div>
+    </div>
 
-    <h2>🚀 Entrepreneurial Journey</h2>
-    <p>
-      My entrepreneurial path has taken me through Switzerland, the United States, France, and Chile.  
-      At ETH Zurich, I trained in innovation through the Innosuisse Startup Campus “Business Concept” course.  
-      At Caltech, I joined the Entrepreneurship Club, expanding my experience in science-driven ventures.
-    </p>
-    <p>
-      In Chile, I co-founded <a href="https://casarota.github.io/" target="_blank">Casa Rota</a>, a sustainability-oriented circular economy business.  
-      Later, in Paris, I joined the <em>Start U Up</em> program at Cité Internationale Universitaire de Paris, where I refined ideas and met fellow founders.
-    </p>
-    <p>
-      In 2024, I was a Finalist in the International Pitch Competition at Cité Internationale Universitaire de Paris, presenting CosmoTourism as a novel way to blend astronomy with sustainable travel.
-    </p>
+    <div class="venture-section">
+      <h2>Entrepreneurial Journey</h2>
+      <p>
+        My entrepreneurial path has taken me through Switzerland, the United States, France, and Chile.
+        At ETH Zurich, I trained in innovation through the Innosuisse Startup Campus “Business Concept” course.
+        At Caltech, I joined the Entrepreneurship Club, expanding my experience in science-driven ventures.
+      </p>
+      <p>
+        In Chile, I co-founded <a href="https://casarota.github.io/" target="_blank">Casa Rota</a>, a sustainability-oriented circular economy business.
+        Later, in Paris, I joined the <em>Start U Up</em> program at Cité Internationale Universitaire de Paris, where I refined ideas and met fellow founders.
+      </p>
+      <p>
+        In 2024, I was a Finalist in the International Pitch Competition at Cité Internationale Universitaire de Paris, presenting CosmoTourism as a novel way to blend astronomy with sustainable travel.
+      </p>
 
-    <iframe width="100%" height="400" src="https://www.youtube.com/embed/QD7F5gOz8_o"
-      title="Cosmotourism Pitch Video" frameborder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowfullscreen></iframe><br>    
-
+      <div class="venture-video">
+        <iframe width="100%" height="400" src="https://www.youtube.com/embed/QD7F5gOz8_o"
+          title="Cosmotourism Pitch Video" frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+    </div>
   </div>
 </div>
 
