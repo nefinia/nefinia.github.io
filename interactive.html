@@ -20,18 +20,14 @@
   <meta name="google" content="notranslate" />
   <meta content="Mashup templates have been developed by Orson.io team" name="author">
 
-  <!-- Disable tap highlight on IE -->
-  <meta name="msapplication-tap-highlight" content="no">
-  
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-icon-180x180.png">
   <link href="./assets/cosmovision.ico" rel="icon">
 
-  <title>CV</title>  
+  <title>Interactive Work</title>
 
   <link href="./main.3f6952e4.css" rel="stylesheet">
 
   <style>
-    /* Background settings */
     body {
       background-color: black;
       background-image: url('./assets/images/space.jpg');
@@ -40,33 +36,57 @@
       background-repeat: no-repeat;
       padding: 0;
       margin: 0;
+      color: white !important;
+      text-align: center;
     }
 
-    /* Main container */
     .section-container {
       padding: 40px 0;
       margin-top: 50px;
     }
 
-    /* Content Box */
     .container2 {
-      background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
+      background-color: rgba(255, 255, 255, 0.8);
       padding: 20px;
       border-radius: 0;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       margin: auto;
       max-width: 60%;
-      text-align: center;
-      color: black !important; /* Ensures all text inside is black */
+      color: black !important;
+      text-align: left;
     }
 
-    /* Profile Image */
-    .profile-img {
-      display: block;
-      max-width: 40%;
-      height: auto;
-      margin: 20px auto;
-      border-radius: 10px;
+    h3 {
+      font-size: 24px;
+      font-weight: bold;
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    h4 {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+
+    .project-link {
+      font-size: 14px;
+      color: black;
+      font-weight: bold;
+      text-decoration: underline;
+    }
+
+    .interactive-item {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(0,0,0,0.12);
+    }
+
+    .interactive-item:first-of-type {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
     }
   </style>
 
@@ -78,7 +98,6 @@
 <div id="site-border-top"></div>
 <div id="site-border-bottom"></div>
 
-<!-- Header -->
 <header>
   <nav class="navbar navbar-fixed-top navbar-inverse">
     <div class="container">
@@ -100,73 +119,67 @@
           <li><a href="./about.html">07 : About</a></li>
           <li><a href="./contact.html">08 : Contact</a></li>
         </ul>
-      </div> 
+      </div>
     </div>
   </nav>
 </header>
 
-<!-- Main Content -->
-
-
 <div class="section-container">
   <div class="container2">
-    <h2>My CV</h2>
-
-    <div class="canva-embed">
-      <iframe loading="lazy" 
-        style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0; margin: 0;"
-        src="https://www.canva.com/design/DAFafr7Nk60/Kl0lQPwkZelMxi0mQNheHQ/view?embed" 
-        allowfullscreen="allowfullscreen" allow="fullscreen">
-      </iframe>
+    <div class="section-container-spacer text-center">
+      <h1 class="h2">Interactive Work</h1>
+      <p>
+        This page gathers the digital and interactive side of my work:
+        games, interfaces, tools, and experimental formats that explore logic, perception, learning, and science communication.
+      </p>
     </div>
 
+    <h3>Main Destinations</h3>
+
+    <div class="interactive-item">
+      <h4>Games</h4>
+      <p>
+        A growing collection of experimental mini-games exploring logic, perception, and problem-solving.
+        These games use simple rules to reveal different ways people think, plan, and adapt.
+      </p>
+      <a href="./games/index.html" class="project-link" target="_blank">Explore the games</a>
+    </div>
+
+    <div class="interactive-item">
+      <h4>WikiWander</h4>
+      <p>
+        An interactive exploration tool built around curiosity, topics, and visual navigation.
+        It is one of the standalone digital projects on the site.
+      </p>
+      <a href="./wikiwander/index.html" class="project-link" target="_blank">Open WikiWander</a>
+    </div>
+
+    <div class="interactive-item">
+      <h4>SciFi Prediction Benchmark</h4>
+      <p>
+        A research prototype focused on technological foresight in science fiction,
+        comparing fictional predictions with later real-world technologies.
+      </p>
+      <a href="./scifi/index.html" class="project-link" target="_blank">Open the benchmark</a>
+    </div>
+
+    <div class="interactive-item">
+      <h4>Perceptual Rendering</h4>
+      <p>
+        A proof of concept exploring adaptive reading and perceptual text rendering through interactive visual experiments.
+      </p>
+      <a href="./perceptual-rendering/index.html" class="project-link" target="_blank">Open Perceptual Rendering</a>
+    </div>
+
+    <h3>Related Project</h3>
     <p>
-      If the document does not load, you can view it directly on Canva: 
-      <a href="https://www.canva.com/design/DAFafr7Nk60/Kl0lQPwkZelMxi0mQNheHQ/view" target="_blank">
-        CV_SofiaGallego
-      </a>.
+      Some interactive work also connects with larger initiatives such as SensoryVerse.
+    </p>
+    <p>
+      <a href="./ventures.html" class="project-link">See the Projects page</a>
     </p>
   </div>
 </div>
-
-<!-- Styling -->
-<style>
-  .canva-embed {
-    position: relative;
-    width: 100%;
-    max-width: 800px; /* Limits the iframe size on large screens */
-    height: 0;
-    padding-top: 129.4118%; /* Keeps aspect ratio */
-    box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16);
-    margin: 1.6em auto 0.9em auto;
-    overflow: hidden;
-    border-radius: 8px;
-    will-change: transform;
-  }
-
-  /* Ensures the iframe inside scales properly */
-  .canva-embed iframe {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    border: none;
-  }
-
-  /* Fallback link style */
-  .container2 a {
-    color: #007BFF;
-    text-decoration: none;
-    font-weight: bold;
-  }
-
-  .container2 a:hover {
-    color: #0056b3;
-  }
-</style>
-
-
 
 <footer class="footer-container text-center">
   <div class="container">
