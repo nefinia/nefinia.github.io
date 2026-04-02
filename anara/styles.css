@@ -70,10 +70,14 @@ a {
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  padding: 1rem clamp(1.2rem, 3vw, 2.4rem);
-  background: rgba(7, 10, 22, 0.78);
+  width: min(var(--max-width), calc(100% - 2.4rem));
+  margin: 1rem auto 0;
+  padding: 1rem clamp(1.2rem, 3vw, 1.8rem);
+  border: 1px solid rgba(190, 157, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(7, 10, 22, 0.88);
   backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28);
 }
 
 .brand,
@@ -83,7 +87,8 @@ h2 {
 }
 
 .brand {
-  font-size: 1.5rem;
+  color: var(--text);
+  font-size: 2rem;
   font-weight: 600;
   letter-spacing: 0.06em;
 }
@@ -92,13 +97,22 @@ h2 {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
 .site-nav a {
-  color: var(--muted);
-  font-size: 0.92rem;
-  transition: color 180ms ease;
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  transition:
+    color 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    transform 180ms ease;
 }
 
 .site-nav a:hover,
@@ -106,11 +120,15 @@ h2 {
 .contact-link:hover,
 .contact-link:focus-visible {
   color: var(--accent);
+  border-color: rgba(241, 166, 203, 0.35);
+  background: rgba(241, 166, 203, 0.08);
+  transform: translateY(-1px);
 }
 
 main {
   width: min(var(--max-width), calc(100% - 2.4rem));
   margin: 0 auto;
+  padding-top: 1rem;
   padding-bottom: 4rem;
 }
 
@@ -144,6 +162,7 @@ main {
 
 h1 {
   margin: 0;
+  color: var(--text);
   font-size: clamp(3.4rem, 9vw, 6.6rem);
   line-height: 0.94;
   letter-spacing: -0.03em;
@@ -255,6 +274,7 @@ h1 {
 
 h2 {
   margin: 0;
+  color: var(--text);
   font-size: clamp(2.3rem, 5vw, 3.8rem);
   line-height: 1.02;
 }
@@ -501,6 +521,8 @@ h2 {
   .site-header {
     align-items: flex-start;
     flex-direction: column;
+    width: min(var(--max-width), calc(100% - 1.4rem));
+    border-radius: 28px;
   }
 
   main {
@@ -513,6 +535,10 @@ h2 {
 
   .image-frame-hero {
     min-height: 300px;
+  }
+
+  .site-nav {
+    justify-content: flex-start;
   }
 
   .gallery-grid {
