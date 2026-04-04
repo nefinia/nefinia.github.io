@@ -67,29 +67,32 @@
     <header class="site-header">
       <a class="brand" href="#top">Anara</a>
       <nav class="site-nav" aria-label="Primary">
-        <a href="#concept">Concept</a>
-        <a href="#experience">Experience</a>
-        <a href="#world">World</a>
-        <a href="#about">About</a>
-        <a href="#gallery">Gallery</a>
-        <a href="#contact">Contact</a>
+        <a href="#concept" data-t="navConcept">Concept</a>
+        <a href="#experience" data-t="navExperience">Experience</a>
+        <a href="#world" data-t="navWorld">World</a>
+        <a href="#about" data-t="navAbout">About</a>
+        <a href="#gallery" data-t="navGallery">Gallery</a>
+        <a href="#contact" data-t="navContact">Contact</a>
       </nav>
+      <div class="lang-switch" aria-label="Language switcher">
+        <button class="lang-button is-active" id="enBtn" type="button">EN</button>
+        <button class="lang-button" id="frBtn" type="button">FR</button>
+      </div>
     </header>
 
     <main id="top">
       <!-- Hero -->
       <section class="hero section">
         <div class="hero-copy reveal">
-          <p class="eyebrow">Story, Music, and Cosmic Listening</p>
+          <p class="eyebrow" data-t="heroEyebrow">Story, Music, and Cosmic Listening</p>
           <h1>Anara, the Cosmic Weaver</h1>
-          <p class="hero-subtitle">Storytelling, music, and astrophysics for children</p>
+          <p class="hero-subtitle" data-t="heroSubtitle">Storytelling, music, and astrophysics for children</p>
           <p class="hero-text">
-            A live performance built around narrative, sound, images, and shared
-            attention.
+            <span data-t="heroText">A live performance built around narrative, sound, images, and shared attention.</span>
           </p>
           <div class="hero-actions">
-            <a class="button button-primary" href="#contact">Book a session</a>
-            <a class="button button-secondary" href="#world">Enter the World</a>
+            <a class="button button-primary" href="#contact" data-t="heroPrimary">Book a session</a>
+            <a class="button button-secondary" href="#world" data-t="heroSecondary">Enter the World</a>
           </div>
         </div>
 
@@ -106,10 +109,10 @@
       <!-- Concept -->
       <section class="section section-narrow reveal" id="concept">
         <div class="section-heading">
-          <p class="eyebrow">Concept</p>
-          <h2>Science approached through wonder</h2>
+          <p class="eyebrow" data-t="conceptEyebrow">Concept</p>
+          <h2 data-t="conceptTitle">Science approached through wonder</h2>
         </div>
-        <p class="lead">
+        <p class="lead" data-t-html="conceptLead">
           Created for children ages 6 to 10, <em>Anara, the Cosmic Weaver</em>
           combines storytelling and astrophysics in a live format shaped by music,
           images, and participation.
@@ -119,26 +122,23 @@
       <!-- Experience -->
       <section class="section experience-grid" id="experience">
         <div class="section-heading reveal">
-          <p class="eyebrow">The Experience</p>
-          <h2>During a session</h2>
+          <p class="eyebrow" data-t="experienceEyebrow">The Experience</p>
+          <h2 data-t="experienceTitle">During a session</h2>
         </div>
 
         <div class="content-card reveal">
           <ul class="experience-list">
             <li>
-              <strong>The story is told live</strong>, following Anara through a
-              universe of filaments, pulses, and beginnings.
+              <span data-t-html="experienceItem1"><strong>The story is told live</strong>, following Anara through a universe of filaments, pulses, and beginnings.</span>
             </li>
             <li>
-              <strong>Music and sound are part of the performance.</strong>
+              <span data-t-html="experienceItem2"><strong>Music and sound are part of the performance.</strong></span>
             </li>
             <li>
-              <strong>Illustrations and objects help make visible ideas</strong>
-              such as gravity, relation, light, and movement.
+              <span data-t-html="experienceItem3"><strong>Illustrations and objects help make visible ideas</strong> such as gravity, relation, light, and movement.</span>
             </li>
             <li>
-              <strong>Children listen, respond, and participate</strong>
-              throughout the session.
+              <span data-t-html="experienceItem4"><strong>Children listen, respond, and participate</strong> throughout the session.</span>
             </li>
           </ul>
         </div>
@@ -147,21 +147,17 @@
       <!-- Narrative World -->
       <section class="section world-section" id="world">
         <div class="section-heading reveal">
-          <p class="eyebrow">Narrative World</p>
-          <h2>A universe woven from invisible threads</h2>
+          <p class="eyebrow" data-t="worldEyebrow">Narrative World</p>
+          <h2 data-t="worldTitle">A universe woven from invisible threads</h2>
         </div>
 
         <div class="world-layout">
           <div class="world-copy reveal">
-            <p class="lead">
-              Anara is a cosmic spider who moves through the universe by listening to
-              vibration. Through her journey, children encounter stars, galaxies,
-              filaments, and the large-scale structure of the universe as part of a
-              narrative world shaped by movement, relation, and discovery.
+            <p class="lead" data-t="worldLead">
+              Anara is a cosmic spider who moves through the universe by listening to vibration. Through her journey, children encounter stars, galaxies, filaments, and the large-scale structure of the universe as part of a narrative world shaped by movement, relation, and discovery.
             </p>
-            <p>
-              The story offers children a way of meeting astronomy through narrative,
-              image, sound, and attention.
+            <p data-t="worldText">
+              The story offers children a way of meeting astronomy through narrative, image, sound, and attention.
             </p>
           </div>
 
@@ -170,6 +166,8 @@
               <img
                 src="images/anara-fireflies.png"
                 alt="Anara discovering the fireflies in a cosmic cloud"
+                data-alt-en="Anara discovering the fireflies in a cosmic cloud"
+                data-alt-fr="Anara decouvrant les lucioles dans un nuage cosmique"
                 loading="lazy"
               />
             </figure>
@@ -177,6 +175,8 @@
               <img
                 src="images/anara-marina.png"
                 alt="Illustration of Marina in the world of Anara"
+                data-alt-en="Illustration of Marina in the world of Anara"
+                data-alt-fr="Illustration de Marina dans le monde d'Anara"
                 loading="lazy"
               />
             </figure>
@@ -187,10 +187,10 @@
       <!-- About -->
       <section class="section section-narrow reveal" id="about">
         <div class="section-heading">
-          <p class="eyebrow">About Sofia</p>
-          <h2>Science, music, and storytelling</h2>
+          <p class="eyebrow" data-t="aboutEyebrow">About Sofia</p>
+          <h2 data-t="aboutTitle">Science, music, and storytelling</h2>
         </div>
-        <p class="lead">
+        <p class="lead" data-t-html="aboutLead">
           Sofia Gallego is an astrophysicist, musician, and storyteller. She is the
           founder of Cosmoventures and creates projects that bring science and
           artistic practice into dialogue. <a href="https://sofiagallego.com" target="_blank" rel="noreferrer">sofiagallego.com</a>
@@ -200,8 +200,8 @@
       <!-- Gallery -->
       <section class="section" id="gallery">
         <div class="section-heading reveal">
-          <p class="eyebrow">Gallery</p>
-          <h2>Fragments from Anara's world</h2>
+          <p class="eyebrow" data-t="galleryEyebrow">Gallery</p>
+          <h2 data-t="galleryTitle">Fragments from Anara's world</h2>
         </div>
 
         <div class="gallery-grid">
@@ -210,10 +210,14 @@
             type="button"
             data-lightbox-src="images/anara.png"
             data-lightbox-alt="Anara walking across the cosmic web"
+            data-lightbox-alt-en="Anara walking across the cosmic web"
+            data-lightbox-alt-fr="Anara marchant sur la toile cosmique"
           >
             <img
               src="images/anara.png"
               alt="Anara walking across the cosmic web"
+              data-alt-en="Anara walking across the cosmic web"
+              data-alt-fr="Anara marchant sur la toile cosmique"
               loading="lazy"
             />
           </button>
@@ -223,10 +227,14 @@
             type="button"
             data-lightbox-src="images/anara-fireflies.png"
             data-lightbox-alt="Anara discovering the fireflies"
+            data-lightbox-alt-en="Anara discovering the fireflies"
+            data-lightbox-alt-fr="Anara decouvrant les lucioles"
           >
             <img
               src="images/anara-fireflies.png"
               alt="Anara discovering the fireflies"
+              data-alt-en="Anara discovering the fireflies"
+              data-alt-fr="Anara decouvrant les lucioles"
               loading="lazy"
             />
           </button>
@@ -236,10 +244,14 @@
             type="button"
             data-lightbox-src="images/anara-marina.png"
             data-lightbox-alt="Illustration of Marina"
+            data-lightbox-alt-en="Illustration of Marina"
+            data-lightbox-alt-fr="Illustration de Marina"
           >
             <img
               src="images/anara-marina.png"
               alt="Illustration of Marina"
+              data-alt-en="Illustration of Marina"
+              data-alt-fr="Illustration de Marina"
               loading="lazy"
             />
           </button>
@@ -249,10 +261,14 @@
             type="button"
             data-lightbox-src="images/hippo.png"
             data-lightbox-alt="Illustration from the wider image archive"
+            data-lightbox-alt-en="Illustration from the wider image archive"
+            data-lightbox-alt-fr="Illustration issue des archives visuelles"
           >
             <img
               src="images/hippo.png"
               alt="Illustration from the wider image archive"
+              data-alt-en="Illustration from the wider image archive"
+              data-alt-fr="Illustration issue des archives visuelles"
               loading="lazy"
             />
           </button>
@@ -262,22 +278,21 @@
       <!-- Contact -->
       <section class="section contact-section reveal" id="contact">
         <div class="section-heading">
-          <p class="eyebrow">Contact</p>
-          <h2>Bookings and collaborations</h2>
+          <p class="eyebrow" data-t="contactEyebrow">Contact</p>
+          <h2 data-t="contactTitle">Bookings and collaborations</h2>
         </div>
-        <p class="lead contact-copy">
-          Libraries, schools, cultural centers, and festivals can get in touch to
-          host the performance.
+        <p class="lead contact-copy" data-t="contactCopy">
+          Libraries, schools, cultural centers, and festivals can get in touch to host the performance.
         </p>
         <a class="contact-link" href="mailto:sofiag.gallego@gmail.com"
           >sofiag.gallego@gmail.com</a
         >
-        <p class="contact-note">For programming, partnerships, and hosting inquiries.</p>
+        <p class="contact-note" data-t="contactNote">For programming, partnerships, and hosting inquiries.</p>
       </section>
     </main>
 
     <dialog class="lightbox" id="lightbox" aria-label="Expanded gallery image">
-      <button class="lightbox-close" id="lightbox-close" type="button" aria-label="Close image">
+      <button class="lightbox-close" id="lightbox-close" type="button" aria-label="Close image" data-t="lightboxClose">
         Close
       </button>
       <img id="lightbox-image" src="" alt="" />
@@ -285,7 +300,7 @@
 
     <div class="audio-dock" aria-label="Anara soundtrack player">
       <div class="audio-dock-copy">
-        <p class="audio-dock-title">Music Thread</p>
+        <p class="audio-dock-title" data-t="audioTitle">Music Thread</p>
       </div>
       <audio
         id="site-audio"
@@ -307,5 +322,153 @@
     </script>
     <script type="text/javascript" src="../main.70a66962.js"></script>
     <script src="script.js"></script>
+    <script>
+      const anaraCopy = {
+        en: {
+          pageTitle: "Anara, the Cosmic Weaver",
+          pageDescription: "A live science storytelling experience where children enter a universe of filaments, music, light, and wonder.",
+          navConcept: "Concept",
+          navExperience: "Experience",
+          navWorld: "World",
+          navAbout: "About",
+          navGallery: "Gallery",
+          navContact: "Contact",
+          heroEyebrow: "Story, Music, and Cosmic Listening",
+          heroSubtitle: "Storytelling, music, and astrophysics for children",
+          heroText: "A live performance built around narrative, sound, images, and shared attention.",
+          heroPrimary: "Book a session",
+          heroSecondary: "Enter the World",
+          conceptEyebrow: "Concept",
+          conceptTitle: "Science approached through wonder",
+          conceptLead: "Created for children ages 6 to 10, <em>Anara, the Cosmic Weaver</em> combines storytelling and astrophysics in a live format shaped by music, images, and participation.",
+          experienceEyebrow: "The Experience",
+          experienceTitle: "During a session",
+          experienceItem1: "<strong>The story is told live</strong>, following Anara through a universe of filaments, pulses, and beginnings.",
+          experienceItem2: "<strong>Music and sound are part of the performance.</strong>",
+          experienceItem3: "<strong>Illustrations and objects help make visible ideas</strong> such as gravity, relation, light, and movement.",
+          experienceItem4: "<strong>Children listen, respond, and participate</strong> throughout the session.",
+          worldEyebrow: "Narrative World",
+          worldTitle: "A universe woven from invisible threads",
+          worldLead: "Anara is a cosmic spider who moves through the universe by listening to vibration. Through her journey, children encounter stars, galaxies, filaments, and the large-scale structure of the universe as part of a narrative world shaped by movement, relation, and discovery.",
+          worldText: "The story offers children a way of meeting astronomy through narrative, image, sound, and attention.",
+          aboutEyebrow: "About Sofia",
+          aboutTitle: "Science, music, and storytelling",
+          aboutLead: "Sofia Gallego is an astrophysicist, musician, and storyteller. She is the founder of Cosmoventures and creates projects that bring science and artistic practice into dialogue. <a href=\"https://sofiagallego.com\" target=\"_blank\" rel=\"noreferrer\">sofiagallego.com</a>",
+          galleryEyebrow: "Gallery",
+          galleryTitle: "Fragments from Anara's world",
+          contactEyebrow: "Contact",
+          contactTitle: "Bookings and collaborations",
+          contactCopy: "Libraries, schools, cultural centers, and festivals can get in touch to host the performance.",
+          contactNote: "For programming, partnerships, and hosting inquiries.",
+          lightboxClose: "Close",
+          audioTitle: "Music Thread",
+          dialogLabel: "Expanded gallery image",
+          audioLabel: "Anara soundtrack player"
+        },
+        fr: {
+          pageTitle: "Anara, la Tisseuse Cosmique",
+          pageDescription: "Une experience de conte scientifique en direct ou les enfants entrent dans un univers de filaments, de musique, de lumiere et d'emerveillement.",
+          navConcept: "Concept",
+          navExperience: "Experience",
+          navWorld: "Univers",
+          navAbout: "A propos",
+          navGallery: "Galerie",
+          navContact: "Contact",
+          heroEyebrow: "Recit, musique et ecoute cosmique",
+          heroSubtitle: "Conte, musique et astrophysique pour les enfants",
+          heroText: "Une performance en direct construite autour du recit, du son, des images et de l'attention partagee.",
+          heroPrimary: "Reserver une session",
+          heroSecondary: "Entrer dans l'univers",
+          conceptEyebrow: "Concept",
+          conceptTitle: "La science approchee par l'emerveillement",
+          conceptLead: "Cree pour les enfants de 6 a 10 ans, <em>Anara, la Tisseuse Cosmique</em> combine conte et astrophysique dans un format vivant porte par la musique, les images et la participation.",
+          experienceEyebrow: "L'experience",
+          experienceTitle: "Pendant une session",
+          experienceItem1: "<strong>L'histoire est racontee en direct</strong>, en suivant Anara a travers un univers de filaments, d'impulsions et de commencements.",
+          experienceItem2: "<strong>La musique et le son font partie integrante de la performance.</strong>",
+          experienceItem3: "<strong>Les illustrations et les objets rendent visibles certaines idees</strong> comme la gravite, la relation, la lumiere et le mouvement.",
+          experienceItem4: "<strong>Les enfants ecoutent, repondent et participent</strong> tout au long de la session.",
+          worldEyebrow: "Univers narratif",
+          worldTitle: "Un univers tisse de fils invisibles",
+          worldLead: "Anara est une araignee cosmique qui traverse l'univers en ecoutant les vibrations. Au fil de son voyage, les enfants rencontrent des etoiles, des galaxies, des filaments et la structure a grande echelle de l'univers dans un monde narratif faconne par le mouvement, la relation et la decouverte.",
+          worldText: "L'histoire offre aux enfants une maniere de rencontrer l'astronomie a travers le recit, l'image, le son et l'attention.",
+          aboutEyebrow: "A propos de Sofia",
+          aboutTitle: "Science, musique et narration",
+          aboutLead: "Sofia Gallego est astrophysicienne, musicienne et conteuse. Elle est la fondatrice de Cosmoventures et cree des projets qui mettent en dialogue la science et les pratiques artistiques. <a href=\"https://sofiagallego.com\" target=\"_blank\" rel=\"noreferrer\">sofiagallego.com</a>",
+          galleryEyebrow: "Galerie",
+          galleryTitle: "Fragments du monde d'Anara",
+          contactEyebrow: "Contact",
+          contactTitle: "Reservations et collaborations",
+          contactCopy: "Les bibliotheques, ecoles, centres culturels et festivals peuvent me contacter pour accueillir la performance.",
+          contactNote: "Pour la programmation, les partenariats et les demandes d'accueil.",
+          lightboxClose: "Fermer",
+          audioTitle: "Fil musical",
+          dialogLabel: "Image de la galerie agrandie",
+          audioLabel: "Lecteur de la bande-son d'Anara"
+        }
+      };
+
+      const pageDescription = document.querySelector('meta[name="description"]');
+      const textNodes = document.querySelectorAll("[data-t]");
+      const htmlNodes = document.querySelectorAll("[data-t-html]");
+      const altNodes = document.querySelectorAll("[data-alt-en]");
+      const lightboxNodes = document.querySelectorAll("[data-lightbox-alt-en]");
+      const lightboxDialog = document.getElementById("lightbox");
+      const audioDock = document.querySelector(".audio-dock");
+      const enBtn = document.getElementById("enBtn");
+      const frBtn = document.getElementById("frBtn");
+
+      function setAnaraLang(lang) {
+        const copy = anaraCopy[lang];
+        document.documentElement.lang = lang;
+        document.title = copy.pageTitle;
+        if (pageDescription) {
+          pageDescription.setAttribute("content", copy.pageDescription);
+        }
+
+        textNodes.forEach((node) => {
+          const key = node.getAttribute("data-t");
+          if (copy[key]) {
+            node.textContent = copy[key];
+          }
+        });
+
+        htmlNodes.forEach((node) => {
+          const key = node.getAttribute("data-t-html");
+          if (copy[key]) {
+            node.innerHTML = copy[key];
+          }
+        });
+
+        altNodes.forEach((node) => {
+          const alt = node.getAttribute(lang === "fr" ? "data-alt-fr" : "data-alt-en");
+          if (alt) {
+            node.setAttribute("alt", alt);
+          }
+        });
+
+        lightboxNodes.forEach((node) => {
+          const alt = node.getAttribute(lang === "fr" ? "data-lightbox-alt-fr" : "data-lightbox-alt-en");
+          if (alt) {
+            node.setAttribute("data-lightbox-alt", alt);
+          }
+        });
+
+        if (lightboxDialog) {
+          lightboxDialog.setAttribute("aria-label", copy.dialogLabel);
+        }
+
+        if (audioDock) {
+          audioDock.setAttribute("aria-label", copy.audioLabel);
+        }
+
+        enBtn.classList.toggle("is-active", lang === "en");
+        frBtn.classList.toggle("is-active", lang === "fr");
+      }
+
+      enBtn.addEventListener("click", () => setAnaraLang("en"));
+      frBtn.addEventListener("click", () => setAnaraLang("fr"));
+      setAnaraLang("en");
+    </script>
   </body>
 </html>

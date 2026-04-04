@@ -32,6 +32,7 @@ body {
     radial-gradient(circle at 50% 82%, rgba(116, 148, 255, 0.12), transparent 28%),
     linear-gradient(180deg, #05070f 0%, #090d1d 45%, #060811 100%);
   font-family: "Manrope", sans-serif;
+  font-size: 17px;
   line-height: 1.6;
   padding-bottom: 6rem;
 }
@@ -100,11 +101,43 @@ h2 {
   gap: 0.5rem;
 }
 
+.lang-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 0 0 auto;
+}
+
+.lang-button {
+  min-width: 3rem;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    color 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease;
+}
+
+.lang-button:hover,
+.lang-button:focus-visible,
+.lang-button.is-active {
+  color: var(--text);
+  border-color: rgba(241, 166, 203, 0.35);
+  background: rgba(241, 166, 203, 0.14);
+}
+
 .site-nav a {
   color: var(--text);
-  font-size: 1rem;
+  font-size: 1.08rem;
   font-weight: 600;
-  padding: 0.55rem 0.9rem;
+  padding: 0.65rem 1rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.03);
@@ -154,7 +187,7 @@ main {
 .eyebrow {
   margin: 0 0 0.75rem;
   color: var(--accent);
-  font-size: 0.82rem;
+  font-size: 0.92rem;
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -178,7 +211,7 @@ h1 {
 .lead,
 .contact-copy {
   color: var(--muted);
-  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  font-size: clamp(1.08rem, 1.6vw, 1.24rem);
 }
 
 .hero-text {
@@ -201,6 +234,7 @@ h1 {
   padding: 0.85rem 1.35rem;
   border-radius: 999px;
   border: 1px solid transparent;
+  font-size: 1rem;
   font-weight: 600;
   transition:
     transform 180ms ease,
@@ -389,7 +423,7 @@ h2 {
 .contact-note {
   margin: 1rem 0 0;
   color: rgba(207, 200, 232, 0.72);
-  font-size: 0.92rem;
+  font-size: 1rem;
 }
 
 /* Fade-in reveal */
@@ -465,7 +499,7 @@ h2 {
 .audio-dock-title {
   margin: 0;
   color: var(--text);
-  font-size: 0.88rem;
+  font-size: 0.96rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -539,6 +573,10 @@ h2 {
 
   .site-nav {
     justify-content: flex-start;
+  }
+
+  .lang-switch {
+    width: 100%;
   }
 
   .gallery-grid {
