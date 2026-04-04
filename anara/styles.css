@@ -203,7 +203,7 @@ h1 {
 
 .hero-subtitle {
   margin: 1.2rem 0 0;
-  font-size: max(1.3rem, 22px);
+  font-size: max(1.2rem, 20px);
   color: #ffffff;
 }
 
@@ -211,7 +211,7 @@ h1 {
 .lead,
 .contact-copy {
   color: var(--muted);
-  font-size: max(1.3rem, 22px);
+  font-size: max(1.2rem, 20px);
   line-height: 1.7;
 }
 
@@ -340,7 +340,7 @@ h2 {
   margin: 0;
   padding-left: 1.2rem;
   color: var(--muted);
-  font-size: max(1.3rem, 22px);
+  font-size: max(1.2rem, 20px);
   line-height: 1.75;
 }
 
@@ -426,7 +426,7 @@ h2 {
 .contact-note {
   margin: 1rem 0 0;
   color: rgba(207, 200, 232, 0.72);
-  font-size: max(1.3rem, 22px);
+  font-size: max(1.2rem, 20px);
   line-height: 1.7;
 }
 
