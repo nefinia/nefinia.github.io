@@ -123,14 +123,39 @@ img {
 
 /* Navbar menu fonts - White & Larger */
 .navbar-nav > li > a {
+    font-family: "Roboto Mono", Helvetica, Arial, sans-serif;
     color: white !important;
     font-size: 14px; /* Slightly larger */
     font-weight: 600; /* Make it stand out */
+    white-space: nowrap;
 }
 
 .navbar-nav > li > a:hover,
 .navbar-nav > li > a:focus {
     color: #ccc !important; /* Slightly lighter on hover */
+}
+
+@media (min-width: 992px) {
+    .navbar-fixed-top .container {
+        width: auto;
+        max-width: 1440px;
+    }
+
+    .navbar-nav {
+        float: none;
+        display: flex;
+        justify-content: center;
+        flex-wrap: nowrap;
+    }
+
+    .navbar-nav > li {
+        float: none;
+    }
+
+    .navbar-nav > li > a {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
 }
 
 /* Section Container */
