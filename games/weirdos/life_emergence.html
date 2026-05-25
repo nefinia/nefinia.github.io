@@ -12,6 +12,7 @@
 
 <meta charset="UTF-8" />
 <title>Life Emergence</title>
+<link href="../../main.3f6952e4.css" rel="stylesheet">
 <style>
   body {
     margin: 0;
@@ -43,40 +44,124 @@
   .overlay.show {
     opacity: 1;
   }
+</style>
+<style id="nefinia-game-shell">
+  body {
+    padding-top: 68px !important;
+    background-color: black;
+    background-image: url('../../assets/images/space.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .nefinia-game-menu .navbar {
+    z-index: 10000;
+  }
 
-    .back-link{
-      position: fixed;
-      bottom: 16px;
-      top: auto;
-      left: 16px;
-      z-index: 1000;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(9, 14, 30, 0.72);
-      border: 1px solid rgba(122,162,255,.45);
-      color: #eef2ff;
-      text-decoration: none;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: .02em;
-      box-shadow: 0 12px 30px rgba(0,0,0,.35);
-      backdrop-filter: blur(8px);
-      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+  .nefinia-game-menu + #wrap,
+  .nefinia-game-menu + .wrap.fullscreen,
+  .nefinia-game-menu + canvas,
+  .nefinia-game-menu + .hud {
+    top: 68px !important;
+  }
+  .nefinia-game-menu + #wrap {
+    bottom: 0 !important;
+    height: auto !important;
+  }
+  #site-border-left,
+  #site-border-right,
+  #site-border-top,
+  #site-border-bottom {
+    pointer-events: none;
+    z-index: 9990;
+  }
+  @media (max-width: 768px) {
+    body { padding-top: 58px !important; }
+
+    .nefinia-game-menu + #wrap,
+    .nefinia-game-menu + .wrap.fullscreen,
+    .nefinia-game-menu + canvas,
+    .nefinia-game-menu + .hud {
+      top: 58px !important;
     }
-    .back-link:hover{
-      transform: translateY(-1px);
-      border-color: rgba(122,162,255,.8);
-      background: rgba(12, 18, 36, 0.9);
-    }
-  </style>
+  }
+
+  .nefinia-game-menu + .app h1,
+  .nefinia-game-menu + .wrap h1,
+  .nefinia-game-menu + main h1,
+  .nefinia-game-menu + .app .title,
+  .nefinia-game-menu + .wrap .title {
+    color: #fff !important;
+  }
+
+  body > h1,
+  body > h2,
+  body > h3,
+  .nefinia-game-menu ~ #hud,
+  .nefinia-game-menu ~ #hud .hudLabel,
+  .nefinia-game-menu ~ #hud .hudValue,
+  .nefinia-game-menu ~ .hud,
+  .nefinia-game-menu ~ .hud span,
+  .nefinia-game-menu ~ .stats,
+  .nefinia-game-menu ~ .stats span {
+    color: #fff !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
+  }
+
+  .nefinia-game-menu ~ #hud .label,
+  .nefinia-game-menu ~ #hud .value {
+    color: #fff !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
+  }
+  .nefinia-game-menu ~ #hud .p1 {
+    color: #8fc2ff !important;
+  }
+  .nefinia-game-menu ~ #hud .p2 {
+    color: #ff9aa8 !important;
+  }
+
+  .nefinia-game-menu ~ #hud select,
+  .nefinia-game-menu ~ .hud select {
+    color: #111 !important;
+    background: #fff !important;
+    text-shadow: none !important;
+  }
+  body > .muted {
+    color: rgba(255,255,255,0.82) !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
+  }
+</style>
 </head>
 <body>
+<div id="site-border-left"></div>
+<div id="site-border-right"></div>
+<div id="site-border-top"></div>
+<div id="site-border-bottom"></div>
 
-  <a class="back-link" href="../index.html" aria-label="Back to games">← Back to games</a>
-
+<header class="nefinia-game-menu">
+  <nav class="navbar navbar-fixed-top navbar-inverse">
+    <div class="container">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbar-collapse">
+        <ul class="nav navbar-nav ">
+          <li><a href="../../index.html">01 : Home</a></li>
+          <li><a href="../../science.html">02 : Research</a></li>
+          <li><a href="../../outreach.html">03 : Outreach</a></li>
+          <li><a href="../../ventures.html">04 : Ventures</a></li>
+          <li><a href="../../games/index.html">05 : Games</a></li>
+          <li><a href="../../art.html">06 : Art</a></li>
+          <li><a href="../../about.html">07 : About</a></li>
+          <li><a href="../../contact.html">08 : Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>
 <canvas id="grid" width="480" height="480"></canvas>
 <div class="overlay" id="winText">Life emerges</div>
 

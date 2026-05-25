@@ -16,7 +16,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-  <style>
+  <link href="../main.3f6952e4.css" rel="stylesheet">
+<style>
     :root{
       --bg:#f3f4f8;
       --surface:#f9f9fd;
@@ -877,8 +878,124 @@
       .collection-grid{ grid-template-columns:repeat(3, 1fr); }
     }
   </style>
+<style id="nefinia-game-shell">
+  body {
+    padding-top: 68px !important;
+    background-color: black;
+    background-image: url('../assets/images/space.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .nefinia-game-menu .navbar {
+    z-index: 10000;
+  }
+
+  .nefinia-game-menu + #wrap,
+  .nefinia-game-menu + .wrap.fullscreen,
+  .nefinia-game-menu + canvas,
+  .nefinia-game-menu + .hud {
+    top: 68px !important;
+  }
+  .nefinia-game-menu + #wrap {
+    bottom: 0 !important;
+    height: auto !important;
+  }
+  #site-border-left,
+  #site-border-right,
+  #site-border-top,
+  #site-border-bottom {
+    pointer-events: none;
+    z-index: 9990;
+  }
+  @media (max-width: 768px) {
+    body { padding-top: 58px !important; }
+
+    .nefinia-game-menu + #wrap,
+    .nefinia-game-menu + .wrap.fullscreen,
+    .nefinia-game-menu + canvas,
+    .nefinia-game-menu + .hud {
+      top: 58px !important;
+    }
+  }
+
+  .nefinia-game-menu + .app h1,
+  .nefinia-game-menu + .wrap h1,
+  .nefinia-game-menu + main h1,
+  .nefinia-game-menu + .app .title,
+  .nefinia-game-menu + .wrap .title {
+    color: #fff !important;
+  }
+
+  body > h1,
+  body > h2,
+  body > h3,
+  .nefinia-game-menu ~ #hud,
+  .nefinia-game-menu ~ #hud .hudLabel,
+  .nefinia-game-menu ~ #hud .hudValue,
+  .nefinia-game-menu ~ .hud,
+  .nefinia-game-menu ~ .hud span,
+  .nefinia-game-menu ~ .stats,
+  .nefinia-game-menu ~ .stats span {
+    color: #fff !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
+  }
+
+  .nefinia-game-menu ~ #hud .label,
+  .nefinia-game-menu ~ #hud .value {
+    color: #fff !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
+  }
+  .nefinia-game-menu ~ #hud .p1 {
+    color: #8fc2ff !important;
+  }
+  .nefinia-game-menu ~ #hud .p2 {
+    color: #ff9aa8 !important;
+  }
+
+  .nefinia-game-menu ~ #hud select,
+  .nefinia-game-menu ~ .hud select {
+    color: #111 !important;
+    background: #fff !important;
+    text-shadow: none !important;
+  }
+  body > .muted {
+    color: rgba(255,255,255,0.82) !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
+  }
+</style>
 </head>
 <body>
+<div id="site-border-left"></div>
+<div id="site-border-right"></div>
+<div id="site-border-top"></div>
+<div id="site-border-bottom"></div>
+
+<header class="nefinia-game-menu">
+  <nav class="navbar navbar-fixed-top navbar-inverse">
+    <div class="container">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbar-collapse">
+        <ul class="nav navbar-nav ">
+          <li><a href="../index.html">01 : Home</a></li>
+          <li><a href="../science.html">02 : Research</a></li>
+          <li><a href="../outreach.html">03 : Outreach</a></li>
+          <li><a href="../ventures.html">04 : Ventures</a></li>
+          <li><a href="../games/index.html">05 : Games</a></li>
+          <li><a href="../art.html">06 : Art</a></li>
+          <li><a href="../about.html">07 : About</a></li>
+          <li><a href="../contact.html">08 : Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>
+
   <div class="phone">
     <section class="screen active" data-screen="home">
       <div class="top-pill">🔥 <span id="streakValue">3</span></div>

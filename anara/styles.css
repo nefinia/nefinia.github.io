@@ -99,7 +99,7 @@ h2 {
   display: flex;
   flex-wrap: nowrap;
   justify-content: center;
-  gap: 0.35rem;
+  gap: 0.28rem;
   min-width: 0;
 }
 
@@ -111,15 +111,15 @@ h2 {
 }
 
 .lang-button {
-  min-width: 3rem;
-  padding: 0.58rem 0.78rem;
+  min-width: 2.6rem;
+  padding: 0.42rem 0.62rem;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.04);
   color: var(--muted);
   font-family: "Roboto Mono", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   letter-spacing: 0;
   cursor: pointer;
   transition:
@@ -139,10 +139,10 @@ h2 {
 .site-nav a {
   color: var(--text);
   font-family: "Roboto Mono", Helvetica, Arial, sans-serif;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0;
-  padding: 0.58rem 0.88rem;
+  padding: 0.42rem 0.7rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.03);

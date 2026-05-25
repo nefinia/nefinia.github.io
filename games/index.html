@@ -13,140 +13,74 @@
 
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Mini Games</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <meta content="description" name="description">
+  <meta name="google" content="notranslate" />
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-icon-180x180.png">
+  <link href="../assets/cosmovision.ico" rel="icon">
+  <title>Games</title>
+  <link href="../main.3f6952e4.css" rel="stylesheet">
 
   <style>
-    :root{
-      --bg:#0b0f1c;
-      --panel:#0f162e;
-      --border:#233058;
-      --text:#eef2ff;
-      --muted:#9aa7cf;
-      --accent:#7aa2ff;
-      --accent-2:#43e3a2;
-      --radius:18px;
-      --shadow: 0 22px 60px rgba(5, 10, 24, .55);
-    }
-
     *{ box-sizing:border-box; }
 
     body{
       margin:0;
-      font-family: "Outfit", system-ui, -apple-system, Segoe UI, sans-serif;
-      background:
-        radial-gradient(1200px 600px at 15% -10%, rgba(122,162,255,.35), transparent 65%),
-        radial-gradient(900px 520px at 90% 0%, rgba(67,227,162,.18), transparent 55%),
-        linear-gradient(180deg, #0b0f1c, #0a1022 70%, #090d1a);
-      color: var(--text);
+      background-color: black;
+      background-image: url('../assets/images/space.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: black;
     }
 
-    body::before{
-      content:"";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background-image:
-        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
-      background-size: 32px 32px;
-      mask-image: radial-gradient(70% 45% at 50% 0%, #000 0%, transparent 70%);
-      opacity: .35;
+    .section-container {
+      padding: 40px 0;
+      margin-top: 50px;
     }
 
-    main{
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 28px 22px 52px;
-    }
-
-    .nav{
-      display:flex;
-      justify-content: space-between;
-      align-items:center;
-      margin-bottom: 18px;
-    }
-
-    .back{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      font-weight: 600;
-      font-size: 13px;
-      text-decoration:none;
-      color: var(--text);
-      padding: 8px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(122,162,255,.35);
-      background: rgba(9,14,30,.55);
-      box-shadow: 0 10px 24px rgba(0,0,0,.35);
-      backdrop-filter: blur(8px);
-      transition: transform .12s ease, border-color .12s ease, background .12s ease;
-    }
-
-    .back:hover{
-      transform: translateY(-1px);
-      border-color: rgba(122,162,255,.7);
-      background: rgba(12,18,36,.8);
-    }
-
-    .meta{
-      font-size: 12px;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      font-family: "Space Mono", ui-monospace, Menlo, Monaco, Consolas, monospace;
-      color: rgba(154,167,207,.7);
-    }
-
-    header{
-      margin-bottom: 28px;
-      padding: 18px 18px 0;
-      border: 1px solid rgba(35,48,88,.55);
-      border-radius: calc(var(--radius) + 6px);
-      background: linear-gradient(180deg, rgba(15,22,46,.85), rgba(9,14,30,.6));
-      box-shadow: var(--shadow);
+    .container2 {
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      border-radius: 0;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      margin: auto;
+      max-width: 72%;
+      color: black !important;
     }
 
     h1{
-      margin:0 0 10px;
       font-size: 32px;
-      font-weight: 800;
-      letter-spacing: .3px;
+      font-weight: bold;
     }
 
-    header p{
-      margin:0;
-      color: var(--muted);
-      max-width: 70ch;
-      line-height: 1.5;
-      padding-bottom: 16px;
+    .page-intro {
+      text-align: center;
+      margin-bottom: 30px;
     }
 
     .games{
       display:grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 20px;
+      gap: 18px;
     }
 
     .game{
       position: relative;
-      background: linear-gradient(180deg, rgba(20,30,64,.9), var(--panel));
-      border: 1px solid rgba(35,48,88,.85);
-      border-radius: var(--radius);
+      background: rgba(255,255,255,0.45);
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 0;
       padding: 16px 16px 18px;
       display:flex;
       flex-direction: column;
       gap: 12px;
       transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
-      box-shadow: 0 14px 40px rgba(7, 12, 28, .45);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
     }
 
     .game:hover{
       transform: translateY(-2px);
-      border-color: rgba(122,162,255,.7);
-      box-shadow: 0 20px 44px rgba(7, 12, 28, .6);
+      border-color: rgba(0,0,0,0.26);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.14);
     }
 
     .thumbWrap{
@@ -160,9 +94,9 @@
       width: 96px;
       height: 96px;
       image-rendering: pixelated;
-      border-radius: 12px;
+      border-radius: 0;
       background: #0a0f25;
-      border: 1px solid rgba(35,48,88,.85);
+      border: 1px solid rgba(0,0,0,0.16);
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
     }
 
@@ -170,51 +104,75 @@
       margin:4px 0 0;
       font-size: 18px;
       font-weight: 700;
+      color: #222;
     }
 
     .desc{
       margin:0;
       font-size: 14px;
       line-height: 1.5;
-      color: var(--muted);
+      color: #333;
       flex: 1;
     }
 
     a.play{
-      text-decoration:none;
       margin-top: 8px;
       align-self: flex-start;
-      padding: 9px 14px;
-      border-radius: 999px;
-      background: rgba(122,162,255,.15);
-      border: 1px solid rgba(122,162,255,.5);
-      color: var(--text);
+      color: black;
       font-weight: 600;
       font-size: 14px;
+      text-decoration: underline;
       display:inline-flex;
       align-items:center;
       gap:8px;
     }
 
     a.play:hover{
-      background: rgba(122,162,255,.25);
+      color: #555;
     }
   </style>
 </head>
 
-<body>
-<main>
-  <div class="nav">
-    <a class="back" href="../index.html">← Back to home</a>
-    <div class="meta">Experimental puzzles</div>
-  </div>
-  <header>
-    <h1>Mini Games</h1>
-    <p>
-      A small collection of experimental puzzle games.
-      Simple rules, different ways of thinking.
-    </p>
-  </header>
+<body class="">
+<div id="site-border-left"></div>
+<div id="site-border-right"></div>
+<div id="site-border-top"></div>
+<div id="site-border-bottom"></div>
+
+<header>
+  <nav class="navbar navbar-fixed-top navbar-inverse">
+    <div class="container">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbar-collapse">
+        <ul class="nav navbar-nav ">
+          <li><a href="../index.html">01 : Home</a></li>
+          <li><a href="../science.html">02 : Research</a></li>
+          <li><a href="../outreach.html">03 : Outreach</a></li>
+          <li><a href="../ventures.html">04 : Ventures</a></li>
+          <li><a href="../games/index.html">05 : Games</a></li>
+          <li><a href="../art.html">06 : Art</a></li>
+          <li><a href="../about.html">07 : About</a></li>
+          <li><a href="../contact.html">08 : Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="section-container">
+  <div class="container2">
+    <div class="section-container-spacer text-center">
+      <h1 class="h2">Games</h1>
+      <p class="page-intro">
+        A small collection of experimental puzzle games.
+        Simple rules, different ways of thinking.
+      </p>
+    </div>
 
   <section class="games">
 
@@ -228,7 +186,7 @@
         A colored variation of XOR Stamps using CMY bit-flips.
         Overlaps cancel per channel; mixing emerges from parity.
       </p>
-      <a class="play" href="cmy_xor.html" target="_blank">Play</a>
+      <a class="play" href="cmy_xor.html">Play</a>
     </div>
 
     <!-- Hex Wave Puzzle -->
@@ -241,7 +199,7 @@
         Match a target field on a circular hex board by placing a limited number of emitters.
         Rings add up by hex-distance.
       </p>
-      <a class="play" href="hex_wave.html" target="_blank">Play</a>
+      <a class="play" href="hex_wave.html">Play</a>
     </div>
 
     <!-- Hexy Battle -->
@@ -253,7 +211,7 @@
       <p class="desc">
         A fast, tactical brawl on a hex grid. Move, clash, and survive with RPS/RPSLS rules.
       </p>
-      <a class="play" href="hexy_battle.html" target="_blank">Play</a>
+      <a class="play" href="hexy_battle.html">Play</a>
     </div>
 
     <!-- Arrows -->
@@ -266,7 +224,7 @@
         Clear tangled arrow paths by tapping only the pieces that have an open lane to the edge.
         Mobile-first, with a replica-inspired app shell.
       </p>
-      <a class="play" href="arrows.html" target="_blank">Play</a>
+      <a class="play" href="arrows.html">Play</a>
     </div>
 
     <!-- Lumen Logic -->
@@ -279,7 +237,7 @@
         Place emitters on a walled grid. Light decays by distance and adds up.
         Match every target value exactly.
       </p>
-      <a class="play" href="lumen_logic.html" target="_blank">Play</a>
+      <a class="play" href="lumen_logic.html">Play</a>
     </div>
 
     <!-- RPS Relations -->
@@ -292,7 +250,7 @@
         A logic grid where each edge declares who wins.
         Fill every cell with Rock, Paper, or Scissors.
       </p>
-      <a class="play" href="rps_relations.html" target="_blank">Play</a>
+      <a class="play" href="rps_relations.html">Play</a>
     </div>
 
     <!-- Maxwell Demon -->
@@ -305,7 +263,7 @@
         A thermodynamics thought experiment turned into a timing game.
         Open brief “windows” in a wall to separate two particle colors.
       </p>
-      <a class="play" href="maxwell.html" target="_blank">Play</a>
+      <a class="play" href="maxwell.html">Play</a>
     </div>
 
     <!-- Plot Armor -->
@@ -317,7 +275,7 @@
       <p class="desc">
         Draw absurd movie logic ingredients and survive impossible threats.
       </p>
-      <a class="play" href="plot-armor-beta/index.html" target="_blank">Play</a>
+      <a class="play" href="plot-armor-beta/index.html">Play</a>
     </div>
 
     <!-- PolyClear -->
@@ -330,7 +288,7 @@
         A duel variant inspired by 9×9 clearing puzzles.
         Clear rows, columns, and 3×3 blocks for points.
       </p>
-      <a class="play" href="polyclear.html" target="_blank">Play</a>
+      <a class="play" href="polyclear.html">Play</a>
     </div>
 
     <!-- PolyPaint -->
@@ -343,7 +301,7 @@
         Two players paint the board with polyominoes from a shared pool.
         Overwrite opponents, aim for maximum coverage.
       </p>
-      <a class="play" href="polypaint.html" target="_blank">Play</a>
+      <a class="play" href="polypaint.html">Play</a>
     </div>
 
     <!-- Proximity -->
@@ -356,7 +314,7 @@
         A proximity-based puzzle: local choices ripple outward.
         The rule is simple; the edge cases are not.
       </p>
-      <a class="play" href="proximity.html" target="_blank">Play</a>
+      <a class="play" href="proximity.html">Play</a>
     </div>
 
     <!-- Queen Survival -->
@@ -369,7 +327,7 @@
         Move like a chess queen and stay alive.
         Every move changes what remains possible.
       </p>
-      <a class="play" href="queen_survival.html" target="_blank">Play</a>
+      <a class="play" href="queen_survival.html">Play</a>
     </div>
 
     <!-- Second Take -->
@@ -382,7 +340,7 @@
         Replay difficult moments and explore how situations might unfold differently.
         A rehearsal game about power, agency, and pause.
       </p>
-      <a class="play" href="second-take/index.html" target="_blank">Play</a>
+      <a class="play" href="second-take/index.html">Play</a>
     </div>
 
     <!-- Spaghettify Drift -->
@@ -395,7 +353,7 @@
         Pilot an astronaut through a rightward drift.
         Dodge black holes that bend and stretch you apart.
       </p>
-      <a class="play" href="spaguettify_drift.html" target="_blank">Play</a>
+      <a class="play" href="spaguettify_drift.html">Play</a>
     </div>
 
     <!-- Tint Tactics -->
@@ -408,7 +366,7 @@
         A strategy puzzle about color, contrast, and local interactions.
         What looks similar may not behave the same.
       </p>
-      <a class="play" href="tint_tactics.html" target="_blank">Play</a>
+      <a class="play" href="tint_tactics.html">Play</a>
     </div>
 
     <!-- XOR Stamps -->
@@ -421,11 +379,26 @@
         Recreate a silhouette by stamping shapes.
         Overlaps cancel. Order doesn’t save you.
       </p>
-      <a class="play" href="xor.html" target="_blank">Play</a>
+      <a class="play" href="xor.html">Play</a>
     </div>
 
   </section>
-</main>
+  </div>
+</div>
+
+<footer class="footer-container text-center">
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12">
+        <p style="color: white;">© Nefinia</p>
+        <center>
+          <a href="../index.html" title="">
+          <img src="../assets/images/cosmovision.png" class="img-responsive" alt="" style="max-width: 10%;">
+          </a><br></center>
+      </div>
+    </div>
+  </div>
+</footer>
 
 <script>
 /* ---------- tiny previews (procedural) ---------- */
@@ -1140,5 +1113,11 @@ function rint(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
   ctx.fill();
 })();
 </script>
+<script>
+  document.addEventListener("DOMContentLoaded", function (event) {
+     navActivePage();
+  });
+</script>
+<script type="text/javascript" src="../main.70a66962.js"></script>
 </body>
 </html>

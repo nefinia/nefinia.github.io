@@ -37,7 +37,19 @@
         <p class="topic-sub" id="topicSubtitle">—</p>
       </header>
 
-      <section class="viewer">
+      <section class="lesson-adjust" aria-label="Adjust this lesson">
+        <div class="adjust-kicker">Adjust This Lesson</div>
+        <h2>Need the system to react?</h2>
+        <p>These controls change how the current lesson is rendered right now, not just the next page.</p>
+        <div class="adjust-actions">
+          <button class="adjust-btn" data-feedback="clicked">This clicked</button>
+          <button class="adjust-btn" data-feedback="guidance">I need more guidance</button>
+          <button class="adjust-btn" data-feedback="focus">I lost focus</button>
+        </div>
+        <div class="adjust-status" id="adjustStatus" aria-live="polite">Current lesson is live-adjustable.</div>
+      </section>
+
+      <section class="viewer" id="lessonViewer">
         <div class="content">
           <div id="summary" class="summary"><b>TL;DR</b> —</div>
 
