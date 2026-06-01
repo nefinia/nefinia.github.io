@@ -24,3 +24,11 @@ npm run build
 The static website is generated in `dist/`. It can be copied into a GitHub Pages site or linked from a larger website.
 
 The Vite config uses `base: "./"` so the built files work from a subfolder such as `/nancay/`.
+
+To publish the app at this repository's `/nancay/` route, run:
+
+```bash
+npm run build:site
+```
+
+That command rebuilds `dist/`, then copies the compiled HTML and `assets/` into the `nancay/` folder that GitHub Pages serves.

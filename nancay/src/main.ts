@@ -624,10 +624,28 @@ function instrumentsForFrequency(freqMHz: number): Instrument[] {
 }
 
 app.innerHTML = `
+  <div id="site-border-left"></div>
+  <div id="site-border-right"></div>
+  <div id="site-border-top"></div>
+  <div id="site-border-bottom"></div>
+
+  <header class="site-header">
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">01 : Home</a>
+      <a href="../science.html">02 : Research</a>
+      <a href="../outreach.html">03 : Outreach</a>
+      <a href="../ventures.html">04 : Ventures</a>
+      <a href="../games/index.html">05 : Games</a>
+      <a href="../art.html">06 : Art</a>
+      <a href="../about.html">07 : About</a>
+      <a href="../contact.html">08 : Contact</a>
+    </nav>
+  </header>
+
   <main class="site-shell">
     <section class="hero" style="--hero-image: url('${nrtUrl}')">
       <nav class="topbar" aria-label="Page controls">
-        <a class="brand" href="#top">CosmoSofia · Nançay</a>
+        <a class="brand" href="../outreach.html">CosmoSofia · Nançay</a>
         <div class="nav-actions" role="group" aria-label="Language">
           <button class="lang-button is-active" type="button" data-lang="en">EN</button>
           <button class="lang-button" type="button" data-lang="fr">FR</button>
@@ -896,6 +914,13 @@ app.innerHTML = `
         ${sources.map(([label, url]) => `<li><a href="${url}" target="_blank" rel="noreferrer">${label}</a></li>`).join("")}
       </ul>
     </section>
+
+    <footer class="site-footer">
+      <p>© Nefinia</p>
+      <a href="../index.html" aria-label="Home">
+        <img src="../assets/images/cosmovision.png" alt="" />
+      </a>
+    </footer>
   </main>
 `;
 

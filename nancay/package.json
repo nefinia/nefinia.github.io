@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "Interactive bilingual outreach website for the Nançay Radio Observatory.",
   "scripts": {
-    "dev": "node ./node_modules/vite/bin/vite.js",
+    "dev": "node ./node_modules/vite/bin/vite.js --open /src/index.html",
     "build": "node ./node_modules/vite/bin/vite.js build",
+    "build:site": "npm run build && rm -rf assets && mkdir -p assets && cp -R dist/assets/. assets/ && cp dist/src/index.html index.html && perl -0pi -e 's#\\.\\./assets/#./assets/#g' index.html && cp index.html dist/index.html && rm -rf dist/src",
     "preview": "node ./node_modules/vite/bin/vite.js preview"
   },
   "repository": {
