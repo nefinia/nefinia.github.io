@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-20EEFX7Q6N"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-20EEFX7Q6N');
+</script>
+
+  <meta charset="UTF-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width,initial-scale=1" name="viewport">
+  <meta name="description" content="Cosmoventures SASU develops science outreach experiences at the intersection of astronomy, education, art, music, food, games, and culture.">
+  <meta name="google" content="notranslate" />
+  <meta content="Mashup templates have been developped by Orson.io team" name="author">
+
+  <meta name="msapplication-tap-highlight" content="no">
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-icon-180x180.png">
+  <link href="./assets/cosmovision.ico" rel="icon">
+
+  <title>Cosmoventures SASU</title>
+
+  <link href="./main.3f6952e4.css" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #05030f;
+      background-image:
+        linear-gradient(rgba(5, 3, 15, 0.4), rgba(5, 3, 15, 0.8)),
+        url('./assets/images/space.jpg');
+      background-attachment: fixed;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      color: #f7f4ff;
+      margin: 0;
+      padding: 0;
+    }
+
+    .cosmo-page {
+      margin: 0 auto;
+      max-width: 1180px;
+      padding: 105px 24px 60px;
+    }
+
+    .cosmo-hero {
+      align-items: center;
+      display: grid;
+      gap: 34px;
+      grid-template-columns: minmax(0, 0.95fr) minmax(340px, 0.75fr);
+      min-height: calc(100vh - 110px);
+      padding-bottom: 38px;
+    }
+
+    .eyebrow {
+      color: #e8b1c2;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+    }
+
+    .cosmo-hero h1 {
+      color: #fff;
+      font-family: "Roboto Mono", Helvetica, Arial, sans-serif;
+      font-size: clamp(42px, 8vw, 92px);
+      line-height: 0.94;
+      margin: 0 0 20px;
+      text-transform: uppercase;
+    }
+
+    .cosmo-hero h2 {
+      color: #fff;
+      font-size: clamp(21px, 3vw, 34px);
+      line-height: 1.25;
+      margin: 0 0 20px;
+      max-width: 820px;
+    }
+
+    .hero-lead {
+      color: rgba(255, 255, 255, 0.86);
+      font-size: 14px;
+      line-height: 1.9;
+      max-width: 770px;
+    }
+
+    .hero-actions,
+    .lang-switch,
+    .link-row {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .hero-actions {
+      margin-top: 26px;
+    }
+
+    .cosmo-button,
+    .lang-button {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      color: #fff;
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 10px 14px;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+    }
+
+    .cosmo-button:hover,
+    .cosmo-button:focus,
+    .lang-button:hover,
+    .lang-button:focus,
+    .lang-button.is-active {
+      background: #fff;
+      border-color: #fff;
+      color: #080511;
+      text-decoration: none;
+    }
+
+    .cosmo-button.primary {
+      background: #e8b1c2;
+      border-color: #e8b1c2;
+      color: #07040f;
+    }
+
+    .cosmo-button.primary:hover,
+    .cosmo-button.primary:focus {
+      background: #fff;
+      border-color: #fff;
+    }
+
+    .lang-switch {
+      margin: 26px 0 0;
+    }
+
+    .lang-button {
+      cursor: pointer;
+      font-family: "Roboto Mono", Helvetica, Arial, sans-serif;
+    }
+
+    .cosmo-collage {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.38);
+      padding: 10px;
+    }
+
+    .cosmo-collage img {
+      display: block;
+      width: 100%;
+    }
+
+    .quick-facts {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+      border-top: 1px solid rgba(255, 255, 255, 0.22);
+      display: grid;
+      gap: 0;
+      grid-template-columns: repeat(4, 1fr);
+      margin-bottom: 54px;
+    }
+
+    .fact {
+      border-right: 1px solid rgba(255, 255, 255, 0.18);
+      min-height: 108px;
+      padding: 18px 18px 16px;
+    }
+
+    .fact:last-child {
+      border-right: none;
+    }
+
+    .fact strong {
+      color: #fff;
+      display: block;
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+
+    .fact span {
+      color: rgba(255, 255, 255, 0.73);
+      display: block;
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    .lang-panel {
+      display: none;
+    }
+
+    .lang-panel.is-active {
+      display: block;
+    }
+
+    .content-section {
+      background: rgba(255, 255, 255, 0.88);
+      color: #080511;
+      margin-bottom: 24px;
+      padding: 30px;
+    }
+
+    .content-section.dark {
+      background: rgba(7, 4, 17, 0.84);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: #f7f4ff;
+    }
+
+    .content-section h2,
+    .content-section h3 {
+      margin-top: 0;
+    }
+
+    .content-section h2 {
+      color: inherit;
+      font-size: 28px;
+      margin-bottom: 18px;
+    }
+
+    .content-section h3 {
+      color: inherit;
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .lead-copy {
+      font-size: 13px;
+      line-height: 1.9;
+      margin-bottom: 0;
+      max-width: 930px;
+    }
+
+    .two-column {
+      display: grid;
+      gap: 22px;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .project-grid,
+    .format-grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .mini-card {
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      padding: 18px;
+    }
+
+    .dark .mini-card {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.14);
+    }
+
+    .mini-card p {
+      line-height: 1.72;
+      margin-bottom: 0;
+    }
+
+    .mini-card a,
+    .content-section a {
+      font-weight: 700;
+    }
+
+    .content-section .cosmo-button {
+      border-color: #080511;
+      color: #080511;
+    }
+
+    .content-section .cosmo-button:hover,
+    .content-section .cosmo-button:focus {
+      background: #080511;
+      border-color: #080511;
+      color: #fff;
+    }
+
+    .content-section .cosmo-button.primary {
+      border-color: #e8b1c2;
+      color: #07040f;
+    }
+
+    .dark a {
+      color: #f5c7d6;
+    }
+
+    .dark .cosmo-button {
+      border-color: rgba(255, 255, 255, 0.5);
+      color: #fff;
+    }
+
+    .application-note {
+      border-left: 4px solid #e8b1c2;
+      font-size: 13px;
+      line-height: 1.9;
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .footer-container {
+      padding-bottom: 38px;
+    }
+
+    @media (max-width: 980px) {
+      .cosmo-page {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .cosmo-hero,
+      .two-column {
+        grid-template-columns: 1fr;
+      }
+
+      .cosmo-hero {
+        min-height: auto;
+      }
+
+      .cosmo-collage {
+        max-width: 620px;
+      }
+
+      .quick-facts,
+      .project-grid,
+      .format-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .cosmo-page {
+        padding-top: 88px;
+      }
+
+      .cosmo-hero h1 {
+        font-size: 42px;
+      }
+
+      .cosmo-hero h2 {
+        font-size: 22px;
+      }
+
+      .quick-facts,
+      .project-grid,
+      .format-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .fact {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+        border-right: none;
+        min-height: auto;
+      }
+
+      .fact:last-child {
+        border-bottom: none;
+      }
+
+      .content-section {
+        padding: 22px;
+      }
+    }
+  </style>
+
+</head>
+
+<body class="">
+<div id="site-border-left"></div>
+<div id="site-border-right"></div>
+<div id="site-border-top"></div>
+<div id="site-border-bottom"></div>
+
+<header>
+  <nav class="navbar navbar-fixed-top navbar-inverse">
+    <div class="container">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbar-collapse">
+        <ul class="nav navbar-nav ">
+          <li><a href="./index.html">01 : Home</a></li>
+          <li><a href="./science.html">02 : Research</a></li>
+          <li><a href="./outreach.html">03 : Outreach</a></li>
+          <li><a href="./ventures.html">04 : Ventures</a></li>
+          <li><a href="./games/index.html">05 : Games</a></li>
+          <li><a href="./art.html">06 : Art</a></li>
+          <li><a href="./about.html">07 : About</a></li>
+          <li><a href="./contact.html">08 : Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<main class="cosmo-page">
+  <section class="cosmo-hero">
+    <div>
+      <p class="eyebrow">Cosmoventures SASU</p>
+      <h1>Bringing the Universe to Life</h1>
+      <h2 data-t="heroSubtitle">Science, art, music, food, storytelling, games, and community.</h2>
+      <p class="hero-lead" data-t="heroLead">
+        A French company developing memorable science mediation formats for children of all ages, adults included.
+      </p>
+      <div class="hero-actions">
+        <a class="cosmo-button primary" href="./contact.html" data-t="heroContact">Contact</a>
+        <a class="cosmo-button" href="./ventures.html" data-t="heroVentures">See related ventures</a>
+      </div>
+      <div class="lang-switch" aria-label="Language switcher">
+        <button class="lang-button is-active" type="button" data-lang-button="en">EN</button>
+        <button class="lang-button" type="button" data-lang-button="fr">FR</button>
+      </div>
+    </div>
+
+    <div class="cosmo-collage">
+      <img src="./assets/images/cosmoventures-collage.jpg" alt="Cosmoventures collage with science, music, food, storytelling, and games">
+    </div>
+  </section>
+
+  <section class="quick-facts" aria-label="Cosmoventures quick facts">
+    <div class="fact">
+      <strong data-t="factStructureTitle">Structure</strong>
+      <span data-t="factStructure">French SASU in launch phase</span>
+    </div>
+    <div class="fact">
+      <strong data-t="factFounderTitle">Founder</strong>
+      <span data-t="factFounder">Sofia Gallego, astrophysicist and artist</span>
+    </div>
+    <div class="fact">
+      <strong data-t="factBaseTitle">Base</strong>
+      <span data-t="factBase">Paris, France</span>
+    </div>
+    <div class="fact">
+      <strong data-t="factFocusTitle">Focus</strong>
+      <span data-t="factFocus">Science mediation through lived experiences</span>
+    </div>
+  </section>
+
+  <article class="lang-panel is-active" data-lang-panel="en">
+    <section class="content-section">
+      <h2>Company profile</h2>
+      <p class="lead-copy">
+        Cosmoventures SASU develops experiences, content, and mediation formats at the intersection of science,
+        education, art, play, music, food, and culture. Founded by Sofia Gallego, a Chilean astrophysicist whose path
+        includes ETH Zurich, Caltech, and Université Paris Cité, the company makes the sciences of the Universe
+        accessible, vivid, and memorable.
+      </p>
+    </section>
+
+    <section class="content-section dark">
+      <h2>What Cosmoventures creates</h2>
+      <div class="format-grid">
+        <div class="mini-card">
+          <h3>Workshops</h3>
+          <p>Hands-on formats where participants model cosmic processes through drawing, cooking, listening, movement, and collaborative making.</p>
+        </div>
+        <div class="mini-card">
+          <h3>Games</h3>
+          <p>Logic, astronomy, and perception games that make abstract scientific ideas concrete, playful, and repeatable.</p>
+        </div>
+        <div class="mini-card">
+          <h3>Stories and performance</h3>
+          <p>Live formats combining narrative, music, images, and participation so scientific concepts become embodied experiences.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Projects and formats</h2>
+      <div class="project-grid">
+        <div class="mini-card">
+          <h3>Cuisinez votre propre univers</h3>
+          <p>A workshop and future recipe book that turns cosmology into a culinary experience: explore the cosmos with taste, texture, and imagination.</p>
+        </div>
+        <div class="mini-card">
+          <h3>Anara, the Cosmic Weaver</h3>
+          <p>An original storytelling experience where astronomy, myth, music, and creation help children encounter stars, filaments, and the cosmic web.</p>
+          <p><a href="./anara/index.html">Open Anara</a></p>
+        </div>
+        <div class="mini-card">
+          <h3>Science-inspired games</h3>
+          <p>Experimental games around logic, color, systems, attention, and problem-solving, designed as playful gateways into scientific thinking.</p>
+          <p><a href="./games/index.html">Explore games</a></p>
+        </div>
+        <div class="mini-card">
+          <h3>Cosmoneo</h3>
+          <p>An astronomy-inspired board game about cosmic evolution, galaxies, and hidden connections in the Universe.</p>
+          <p><a href="./cosmoneo.html">Read more</a></p>
+        </div>
+        <div class="mini-card">
+          <h3>SensoryVerse</h3>
+          <p>An adaptive learning playground using AI, mini-games, and focus music to explore how different people process, focus, and learn.</p>
+          <p><a href="./SensoryVerse/index.html">Visit SensoryVerse</a></p>
+        </div>
+        <div class="mini-card">
+          <h3>Astro-music gatherings</h3>
+          <p>Intimate events such as Astro Jam and astronomy, wine, cheese, and live music evenings, where science becomes a shared cultural moment.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section dark">
+      <div class="two-column">
+        <div>
+          <h2>Founder</h2>
+          <p class="lead-copy">
+            Sofia Gallego is an astrophysicist, musician, storyteller, and entrepreneur. Her work bridges research,
+            science communication, performance, game design, and cultural programming. Cosmoventures gives that
+            interdisciplinary practice a legal and commercial structure in France.
+          </p>
+        </div>
+        <div>
+          <h2>Current stage</h2>
+          <p class="application-note">
+            Cosmoventures is in launch phase: the legal structure exists, several concepts have already been tested
+            or presented in science mediation contexts, and the next step is to make the offer more visible,
+            commercial, and directly accessible to the public through pilots, partnerships, and funded programs.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>For applications and partnerships</h2>
+      <p class="lead-copy">
+        Cosmoventures is built for educational institutions, cultural venues, festivals, public engagement programs,
+        municipalities, libraries, schools, science centers, and organizations looking for original ways to connect
+        audiences with astronomy and scientific imagination.
+      </p>
+      <div class="link-row" style="margin-top: 20px;">
+        <a class="cosmo-button primary" href="./contact.html">Contact Sofia</a>
+        <a class="cosmo-button" href="./outreach.html">Outreach work</a>
+        <a class="cosmo-button" href="./about.html">About Sofia</a>
+      </div>
+    </section>
+  </article>
+
+  <article class="lang-panel" data-lang-panel="fr">
+    <section class="content-section">
+      <h2>Profil de l'entreprise</h2>
+      <p class="lead-copy">
+        Cosmoventures SASU développe des expériences, contenus et formats de médiation à l'intersection de la science,
+        de l'éducation, de l'art, du jeu, de la musique, de la cuisine et de la culture. Fondée par Sofia Gallego,
+        astrophysicienne chilienne passée par l'ETH Zurich, Caltech et Université Paris Cité, l'entreprise vise à
+        rendre les sciences de l'Univers accessibles, vivantes et mémorables.
+      </p>
+    </section>
+
+    <section class="content-section dark">
+      <h2>Ce que Cosmoventures crée</h2>
+      <div class="format-grid">
+        <div class="mini-card">
+          <h3>Ateliers</h3>
+          <p>Des formats participatifs où l'on explore le cosmos par le dessin, la cuisine, l'écoute, le mouvement et la création collective.</p>
+        </div>
+        <div class="mini-card">
+          <h3>Jeux</h3>
+          <p>Des jeux de logique, d'astronomie et de perception qui rendent les idées scientifiques concrètes, ludiques et transmissibles.</p>
+        </div>
+        <div class="mini-card">
+          <h3>Récits et performance</h3>
+          <p>Des formats vivants mêlant narration, musique, images et participation pour transformer les concepts scientifiques en expériences sensibles.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Projets et formats</h2>
+      <div class="project-grid">
+        <div class="mini-card">
+          <h3>Cuisinez votre propre univers</h3>
+          <p>Un atelier et futur livre de recettes qui transforme la cosmologie en expérience culinaire : explorer le cosmos avec les goûts, les textures et l'imagination.</p>
+        </div>
+        <div class="mini-card">
+          <h3>Anara, l'araignée cosmique</h3>
+          <p>Une expérience de storytelling originale où astronomie, imaginaire, musique et création permettent d'aborder les étoiles, les filaments et la toile cosmique.</p>
+          <p><a href="./anara/index.html">Ouvrir Anara</a></p>
+        </div>
+        <div class="mini-card">
+          <h3>Jeux inspirés par la science</h3>
+          <p>Des jeux expérimentaux autour de la logique, de la couleur, des systèmes, de l'attention et de la résolution de problèmes.</p>
+          <p><a href="./games/index.html">Explorer les jeux</a></p>
+        </div>
+        <div class="mini-card">
+          <h3>Cosmoneo</h3>
+          <p>Un jeu de plateau inspiré par l'astronomie, l'évolution cosmique, les galaxies et les connexions cachées de l'Univers.</p>
+          <p><a href="./cosmoneo.html">En savoir plus</a></p>
+        </div>
+        <div class="mini-card">
+          <h3>SensoryVerse</h3>
+          <p>Un terrain d'apprentissage adaptatif qui utilise l'IA, les mini-jeux et la musique de concentration pour explorer différentes manières d'apprendre.</p>
+          <p><a href="./SensoryVerse/index_fr.html">Visiter SensoryVerse</a></p>
+        </div>
+        <div class="mini-card">
+          <h3>Rencontres astro-musicales</h3>
+          <p>Des événements intimes comme Astro Jam ou les soirées astronomie, vin, fromage et musique live, où la science devient un moment culturel partagé.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section dark">
+      <div class="two-column">
+        <div>
+          <h2>Fondatrice</h2>
+          <p class="lead-copy">
+            Sofia Gallego est astrophysicienne, musicienne, conteuse et entrepreneuse. Son travail relie recherche,
+            médiation scientifique, performance, conception de jeux et programmation culturelle. Cosmoventures donne
+            à cette pratique interdisciplinaire une structure juridique et commerciale en France.
+          </p>
+        </div>
+        <div>
+          <h2>Étape actuelle</h2>
+          <p class="application-note">
+            Cosmoventures est en phase de lancement : la structure juridique existe, plusieurs concepts ont déjà été
+            testés ou présentés dans des contextes de médiation scientifique, et l'objectif est maintenant de rendre
+            l'offre plus visible, plus commerciale et directement accessible au public à travers des pilotes, des
+            partenariats et des programmes financés.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>Pour candidatures et partenariats</h2>
+      <p class="lead-copy">
+        Cosmoventures s'adresse aux institutions éducatives, lieux culturels, festivals, programmes de médiation,
+        collectivités, bibliothèques, écoles, centres de sciences et organisations qui cherchent des formats originaux
+        pour relier les publics à l'astronomie et à l'imaginaire scientifique.
+      </p>
+      <div class="link-row" style="margin-top: 20px;">
+        <a class="cosmo-button primary" href="./contact.html">Contacter Sofia</a>
+        <a class="cosmo-button" href="./outreach.html">Médiation scientifique</a>
+        <a class="cosmo-button" href="./about.html">À propos de Sofia</a>
+      </div>
+    </section>
+  </article>
+</main>
+
+<footer class="footer-container text-center">
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12">
+        <p style="color: white;">© Nefinia</p>
+        <center>
+          <a href="./index.html" title="">
+            <img src="./assets/images/cosmovision.png" class="img-responsive" alt="" style="max-width: 10%;">
+          </a><br>
+        </center>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  var translations = {
+    en: {
+      heroSubtitle: "Science, art, music, food, storytelling, games, and community.",
+      heroLead: "A French company developing memorable science mediation formats for children of all ages, adults included.",
+      heroContact: "Contact",
+      heroVentures: "See related ventures",
+      factStructureTitle: "Structure",
+      factStructure: "French SASU in launch phase",
+      factFounderTitle: "Founder",
+      factFounder: "Sofia Gallego, astrophysicist and artist",
+      factBaseTitle: "Base",
+      factBase: "Paris, France",
+      factFocusTitle: "Focus",
+      factFocus: "Science mediation through lived experiences"
+    },
+    fr: {
+      heroSubtitle: "Science, art, musique, cuisine, récit, jeux et communauté.",
+      heroLead: "Une entreprise française qui développe des formats de médiation scientifique mémorables pour les enfants de tous les âges, adultes inclus.",
+      heroContact: "Contact",
+      heroVentures: "Voir les projets liés",
+      factStructureTitle: "Structure",
+      factStructure: "SASU française en phase de lancement",
+      factFounderTitle: "Fondatrice",
+      factFounder: "Sofia Gallego, astrophysicienne et artiste",
+      factBaseTitle: "Base",
+      factBase: "Paris, France",
+      factFocusTitle: "Approche",
+      factFocus: "Médiation scientifique par l'expérience vécue"
+    }
+  };
+
+  function setLanguage(lang) {
+    document.documentElement.lang = lang;
+    document.querySelectorAll("[data-lang-panel]").forEach(function(panel) {
+      panel.classList.toggle("is-active", panel.getAttribute("data-lang-panel") === lang);
+    });
+    document.querySelectorAll("[data-lang-button]").forEach(function(button) {
+      button.classList.toggle("is-active", button.getAttribute("data-lang-button") === lang);
+    });
+    Object.keys(translations[lang]).forEach(function(key) {
+      var node = document.querySelector("[data-t='" + key + "']");
+      if (node) {
+        node.textContent = translations[lang][key];
+      }
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", function (event) {
+    navActivePage();
+    document.querySelectorAll("[data-lang-button]").forEach(function(button) {
+      button.addEventListener("click", function() {
+        setLanguage(button.getAttribute("data-lang-button"));
+      });
+    });
+  });
+</script>
+
+<script type="text/javascript" src="./main.70a66962.js"></script>
+</body>
+</html>

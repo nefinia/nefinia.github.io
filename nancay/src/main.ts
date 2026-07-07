@@ -14,7 +14,8 @@ type Localized = Record<Language, string>;
 type Instrument = {
   id: string;
   name: string;
-  rangeMHz: [number, number];
+  bandsMHz: [number, number][];
+  bandLabel: string;
   wavelengths: string;
   facts: Localized[];
   image: string;
@@ -77,7 +78,8 @@ const instruments: Instrument[] = [
   {
     id: "nrt",
     name: "Radiotélescope décimétrique",
-    rangeMHz: [1060, 3500],
+    bandsMHz: [[1060, 3500]],
+    bandLabel: "1.06-3.5 GHz",
     wavelengths: "8.6-28 cm",
     facts: [
       { en: "Large single-dish radio telescope with a fixed spherical mirror and moving flat reflector.", fr: "Grand radiotélescope avec miroir sphérique fixe et miroir plan mobile." },
@@ -114,22 +116,26 @@ const instruments: Instrument[] = [
   {
     id: "lofar",
     name: "LOFAR FR606",
-    rangeMHz: [10, 240],
-    wavelengths: "1.25-30 m",
+    bandsMHz: [
+      [10, 90],
+      [110, 270],
+    ],
+    bandLabel: "10-90 MHz; 110-270 MHz",
+    wavelengths: "1.1-30 m, with a band gap",
     facts: [
-      { en: "French station in a European low-frequency interferometer.", fr: "Station française d’un interféromètre européen basse fréquence." },
-      { en: "Low-band and high-band antenna fields; pointing is digital.", fr: "Champs d’antennes basse et haute bande ; pointage numérique." },
-      { en: "Long baselines give angular resolution; many antennas give sensitivity.", fr: "Les longues lignes de base donnent la résolution ; les nombreuses antennes donnent la sensibilité." },
+      { en: "French station FR606 in the European International LOFAR Telescope network.", fr: "Station française FR606 du réseau européen International LOFAR Telescope." },
+      { en: "Two separate antenna systems: LBA 10-90 MHz and HBA 110-270 MHz; the 90-110 MHz interval is not an observing band.", fr: "Deux systèmes d’antennes séparés : LBA 10-90 MHz et HBA 110-270 MHz ; l’intervalle 90-110 MHz n’est pas une bande d’observation." },
+      { en: "Signals are digitally delayed to form beams, then correlated with other LOFAR stations for imaging.", fr: "Les signaux sont retardés numériquement pour former des faisceaux, puis corrélés avec les autres stations LOFAR pour l’imagerie." },
     ],
     image: lofarUrl,
     alt: "LOFAR antenna field at Nançay",
     tagline: {
-      en: "A French station in a European software telescope.",
-      fr: "Une station française dans un télescope logiciel européen.",
+      en: "A French station in a European software telescope, split into low and high bands.",
+      fr: "Une station française dans un télescope logiciel européen, séparée en bandes basse et haute.",
     },
     works: {
-      en: "LOFAR is a distributed telescope. Each station records low-frequency electric fields with many simple antennas. Digital delays form station beams, and correlations between station pairs measure phase and amplitude on many baselines. Those baselines sample spatial frequencies of the sky; Earth rotation improves the coverage. Nançay’s FR606 station adds collecting area and international baselines to the European network.",
-      fr: "LOFAR est un télescope distribué. Chaque station enregistre les champs électriques basse fréquence avec de nombreuses antennes simples. Des retards numériques forment les faisceaux de station, puis les corrélations entre paires de stations mesurent la phase et l’amplitude sur de nombreuses lignes de base. Ces lignes de base échantillonnent les fréquences spatiales du ciel ; la rotation terrestre améliore la couverture. La station FR606 de Nançay ajoute de la surface collectrice et des lignes de base internationales au réseau européen.",
+      en: "LOFAR is a distributed interferometer, not a single dish. At Nançay, FR606 has a low-band antenna field operating around 10-90 MHz and a high-band antenna field around 110-270 MHz, so LOFAR coverage is not continuous across 10-270 MHz. The gap matters operationally and scientifically: different antennas, receivers, calibration strategies, ionospheric effects, and radio-frequency-interference environments apply in the two bands. Digital delays form station beams; correlations between stations measure phase and amplitude on many baselines, converting timing information into angular structure.",
+      fr: "LOFAR est un interféromètre distribué, pas une parabole unique. À Nançay, FR606 possède un champ d’antennes basse bande autour de 10-90 MHz et un champ haute bande autour de 110-270 MHz : la couverture LOFAR n’est donc pas continue entre 10 et 270 MHz. Cette coupure compte techniquement et scientifiquement : antennes, récepteurs, calibration, effets ionosphériques et interférences radio diffèrent entre les deux bandes. Des retards numériques forment les faisceaux de station ; les corrélations entre stations mesurent phase et amplitude sur de nombreuses lignes de base, transformant le temps d’arrivée en structure angulaire.",
     },
     finds: [
       {
@@ -151,22 +157,23 @@ const instruments: Instrument[] = [
   {
     id: "nenufar",
     name: "NenuFAR",
-    rangeMHz: [10, 90],
-    wavelengths: "3.3-30 m",
+    bandsMHz: [[10, 85]],
+    bandLabel: "10-85 MHz",
+    wavelengths: "3.5-30 m",
     facts: [
-      { en: "New Extension in Nançay Upgrading LOFAR.", fr: "New Extension in Nançay Upgrading LOFAR." },
-      { en: "Dense low-frequency phased array; autonomous telescope and LOFAR super-station.", fr: "Réseau phasé basse fréquence dense ; télescope autonome et super-station LOFAR." },
-      { en: "Very long wavelengths: meters to tens of meters.", fr: "Très grandes longueurs d’onde : du mètre à plusieurs dizaines de mètres." },
+      { en: "New Extension in Nançay Upgrading LOFAR, optimized for 10-85 MHz.", fr: "New Extension in Nançay Upgrading LOFAR, optimisé pour 10-85 MHz." },
+      { en: "Not simply part of LOFAR: it is an autonomous telescope and can also act as a LOFAR super-station.", fr: "Pas simplement une partie de LOFAR : c’est un télescope autonome qui peut aussi agir comme super-station LOFAR." },
+      { en: "Dense mini-array layout gives much higher low-band sensitivity at Nançay than a standard LOFAR station.", fr: "Sa configuration dense en mini-réseaux donne à Nançay une sensibilité basse fréquence bien supérieure à celle d’une station LOFAR standard." },
     ],
     image: nenufarUrl,
     alt: "NenuFAR low-frequency antennas at Nançay",
     tagline: {
-      en: "A field of synchronized antennas for the very low-frequency sky.",
-      fr: "Un champ d’antennes synchronisées pour le ciel très basse fréquence.",
+      en: "A dense low-band array: autonomous telescope and LOFAR super-station.",
+      fr: "Un réseau basse bande dense : télescope autonome et super-station LOFAR.",
     },
     works: {
-      en: "NenuFAR is built from many low-frequency antennas grouped into mini-arrays. The signal from each antenna is delayed and summed so one direction of the sky adds coherently; several digital beams can be formed without moving metal. As a stand-alone telescope, NenuFAR is sensitive to faint, broad low-frequency emission. As a LOFAR super-station, it boosts the French contribution to international imaging and long-baseline measurements.",
-      fr: "NenuFAR est construit à partir de nombreuses antennes basse fréquence regroupées en mini-réseaux. Le signal de chaque antenne est retardé puis additionné pour qu’une direction du ciel s’ajoute de manière cohérente ; plusieurs faisceaux numériques peuvent être formés sans déplacer de structure métallique. Comme télescope autonome, NenuFAR est sensible aux émissions basses fréquences faibles et larges. Comme super-station LOFAR, il renforce la contribution française à l’imagerie internationale et aux mesures à longues lignes de base.",
+      en: "NenuFAR is a dense phased array built from many low-frequency antennas grouped into mini-arrays, optimized for 10-85 MHz. It overlaps LOFAR's low band, but its role is different: it can observe independently with multiple sensitive beams, produce low-frequency images on its own, and operate as a LOFAR super-station that greatly increases Nançay's collecting area in international LOFAR observations. In that super-station mode, NenuFAR is an extension/upgrading element for LOFAR; in autonomous mode, it is its own instrument.",
+      fr: "NenuFAR est un réseau phasé dense, construit avec de nombreuses antennes basse fréquence regroupées en mini-réseaux, optimisé pour 10-85 MHz. Il recouvre la basse bande de LOFAR, mais son rôle est différent : il peut observer de façon autonome avec plusieurs faisceaux sensibles, produire ses propres images basse fréquence et fonctionner comme super-station LOFAR en augmentant fortement la surface collectrice de Nançay dans les observations internationales LOFAR. Dans ce mode super-station, NenuFAR est une extension/amélioration de LOFAR ; en mode autonome, c’est un instrument à part entière.",
     },
     finds: [
       {
@@ -188,7 +195,8 @@ const instruments: Instrument[] = [
   {
     id: "nrh",
     name: "Radiohéliographe",
-    rangeMHz: [150, 450],
+    bandsMHz: [[150, 450]],
+    bandLabel: "150-450 MHz",
     wavelengths: "0.67-2 m",
     facts: [
       { en: "Dedicated solar radio interferometer.", fr: "Interféromètre radio solaire dédié." },
@@ -225,7 +233,8 @@ const instruments: Instrument[] = [
   {
     id: "nda",
     name: "Réseau décamétrique",
-    rangeMHz: [10, 100],
+    bandsMHz: [[10, 100]],
+    bandLabel: "10-100 MHz",
     wavelengths: "3-30 m",
     facts: [
       { en: "144 conical antennas observing decametric wavelengths.", fr: "144 antennes coniques observant les longueurs d’onde décamétriques." },
@@ -620,7 +629,13 @@ function commonsFile(filename: string): string {
 }
 
 function instrumentsForFrequency(freqMHz: number): Instrument[] {
-  return instruments.filter((instrument) => freqMHz >= instrument.rangeMHz[0] && freqMHz <= instrument.rangeMHz[1]);
+  return instruments.filter((instrument) =>
+    instrument.bandsMHz.some(([minMHz, maxMHz]) => freqMHz >= minMHz && freqMHz <= maxMHz),
+  );
+}
+
+function formatInstrumentBand(instrument: Instrument): string {
+  return `${instrument.bandLabel} · ${instrument.wavelengths}`;
 }
 
 app.innerHTML = `
@@ -671,6 +686,8 @@ app.innerHTML = `
         <h2 data-copy-en="A campus of complementary radio windows" data-copy-fr="Un campus de fenêtres radio complémentaires"></h2>
         <p data-copy-en="Nançay is not one telescope. It is a set of complementary radio instruments: each frequency band isolates different physics, from Jupiter’s magnetosphere and solar plasma to pulsar timing, neutral hydrogen in galaxies, and low-frequency searches for the Cosmic Dawn."
           data-copy-fr="Nançay n’est pas un seul télescope. C’est un ensemble d’instruments radio complémentaires : chaque bande de fréquence isole une physique différente, de la magnétosphère de Jupiter et du plasma solaire au chronométrage des pulsars, à l’hydrogène neutre des galaxies et aux recherches basse fréquence sur l’Aube cosmique."></p>
+        <p data-copy-en="Important distinction: LOFAR FR606 is a station of the European LOFAR interferometer with separate low and high bands. NenuFAR overlaps the LOFAR low band but is a distinct Nançay instrument that can run autonomously or as a LOFAR super-station."
+          data-copy-fr="Distinction importante : LOFAR FR606 est une station de l’interféromètre européen LOFAR avec des bandes basse et haute séparées. NenuFAR recouvre la basse bande de LOFAR, mais c’est un instrument distinct de Nançay, capable de fonctionner seul ou comme super-station LOFAR."></p>
       </article>
     </section>
 
@@ -703,8 +720,8 @@ app.innerHTML = `
               <strong id="instrument-readout"></strong>
             </div>
           </div>
-          <p class="fine-print" data-copy-en="λ = c / f · radio range shown: 10 MHz–3.5 GHz"
-            data-copy-fr="λ = c / f · domaine radio affiché : 10 MHz–3,5 GHz"></p>
+          <p class="fine-print" data-copy-en="λ = c / f · LOFAR is split into 10-90 and 110-270 MHz, so the slider intentionally shows a LOFAR gap."
+            data-copy-fr="λ = c / f · LOFAR est séparé en 10-90 et 110-270 MHz ; le curseur montre donc volontairement une coupure LOFAR."></p>
         </article>
 
         <article class="panel spectrum-card">
@@ -738,12 +755,12 @@ app.innerHTML = `
             </div>
             <div class="spectrum-callouts">
               <div class="spectrum-callout nenufar-callout">
-                <strong>NenuFAR: <span data-copy-en="about 4-30 m" data-copy-fr="environ 4-30 m"></span></strong>
-                <span data-copy-en="Low-frequency radio light." data-copy-fr="Lumière radio basse fréquence."></span>
+                <strong>NenuFAR: <span data-copy-en="10-85 MHz" data-copy-fr="10-85 MHz"></span></strong>
+                <span data-copy-en="Autonomous dense array and LOFAR super-station." data-copy-fr="Réseau dense autonome et super-station LOFAR."></span>
               </div>
               <div class="spectrum-callout visible-callout">
-                <strong data-copy-en="Visible light: about 400-700 nm" data-copy-fr="Lumière visible : environ 400-700 nm"></strong>
-                <span data-copy-en="The narrow band seen by human eyes." data-copy-fr="La bande étroite visible par nos yeux."></span>
+                <strong data-copy-en="LOFAR FR606: 10-90 + 110-270 MHz" data-copy-fr="LOFAR FR606 : 10-90 + 110-270 MHz"></strong>
+                <span data-copy-en="Low and high antenna bands separated by a gap." data-copy-fr="Bandes d’antennes basse et haute séparées par une coupure."></span>
               </div>
             </div>
           </div>
@@ -1072,7 +1089,7 @@ function renderInstrumentTabs(): void {
     const button = document.createElement("button");
     button.type = "button";
     button.className = `instrument-tab ${instrument.id === activeInstrumentId ? "is-active" : ""}`;
-    button.innerHTML = `<strong>${instrument.name}</strong><span>${instrument.wavelengths}</span>`;
+    button.innerHTML = `<strong>${instrument.name}</strong><span>${instrument.bandLabel}</span>`;
     button.addEventListener("click", () => {
       activeInstrumentId = instrument.id;
       renderInstrument();
@@ -1086,7 +1103,7 @@ function renderInstrument(): void {
   const instrument = instruments.find((item) => item.id === activeInstrumentId) ?? instruments[0];
   instrumentImage.src = instrument.image;
   instrumentImage.alt = instrument.alt;
-  instrumentBand.textContent = `${instrument.rangeMHz[0]}-${instrument.rangeMHz[1]} MHz · ${instrument.wavelengths}`;
+  instrumentBand.textContent = formatInstrumentBand(instrument);
   instrumentName.textContent = instrument.name;
   instrumentTagline.textContent = t(instrument.tagline);
   instrumentFacts.innerHTML = instrument.facts.map((fact) => `<p>${t(fact)}</p>`).join("");
@@ -1113,8 +1130,8 @@ function updateFrequency(): void {
     instrumentReadout.textContent = activeInstruments.map((instrument) => instrument.name).join(", ");
     frequencyExplanation.textContent =
       language === "en"
-        ? `At this frequency, these Nançay instruments can observe: ${activeInstruments.map((instrument) => instrument.name).join(", ")}. The science shifts toward: ${physics.join(", ")}.`
-        : `À cette fréquence, ces instruments de Nançay peuvent observer : ${activeInstruments.map((instrument) => instrument.name).join(", ")}. La science se déplace vers : ${physics.join(", ")}.`;
+        ? `At this frequency, these Nançay instruments can observe: ${activeInstruments.map((instrument) => `${instrument.name} (${instrument.bandLabel})`).join(", ")}. The science shifts toward: ${physics.join(", ")}.`
+        : `À cette fréquence, ces instruments de Nançay peuvent observer : ${activeInstruments.map((instrument) => `${instrument.name} (${instrument.bandLabel})`).join(", ")}. La science se déplace vers : ${physics.join(", ")}.`;
     frequencyExplanation.hidden = false;
   } else {
     instrumentReadoutCard.hidden = true;

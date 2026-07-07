@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arrows 3D</title>
+  <style>
+    :root {
+      --bg: #090d1d;
+      --panel: rgba(20, 27, 54, 0.92);
+      --panel-2: rgba(28, 35, 66, 0.92);
+      --line: rgba(196, 209, 255, 0.16);
+      --text: #eef2ff;
+      --muted: #aab6e6;
+      --accent: #6777ff;
+      --accent-2: #9ba7ff;
+      --warm: #f3b764;
+      --danger: #ff6a8f;
+      --shadow: 0 28px 90px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Inter", "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(94, 112, 255, 0.16), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(244, 185, 96, 0.14), transparent 28%),
+        linear-gradient(180deg, #0b1021 0%, #060914 100%);
+    }
+
+    .page {
+      width: min(1440px, calc(100vw - 32px));
+      margin: 24px auto 48px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero,
+    .game-shell {
+      background: linear-gradient(180deg, rgba(28, 36, 71, 0.94), rgba(18, 24, 49, 0.96));
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 28px 30px 22px;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: #f0c680;
+      font-size: 0.82rem;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.4rem, 5vw, 4.6rem);
+      line-height: 0.92;
+      letter-spacing: -0.05em;
+    }
+
+    .subtitle {
+      margin: 18px 0 0;
+      max-width: 920px;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 1.12rem;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .chip {
+      padding: 12px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(214, 223, 255, 0.14);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .game-shell {
+      overflow: hidden;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 18px 18px 16px;
+      border-bottom: 1px solid var(--line);
+      flex-wrap: wrap;
+    }
+
+    .toolbar-group,
+    .toolbar-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    button,
+    select,
+    input[type="range"] {
+      font: inherit;
+    }
+
+    button,
+    select {
+      border: 1px solid rgba(214, 223, 255, 0.14);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 12px 18px;
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+    }
+
+    button:hover,
+    select:hover {
+      transform: translateY(-1px);
+      border-color: rgba(214, 223, 255, 0.28);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .primary {
+      background: linear-gradient(135deg, #7b88ff, #5d6cff);
+      border-color: transparent;
+      box-shadow: 0 14px 36px rgba(95, 112, 255, 0.35);
+    }
+
+    .meta-title {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .meta-value {
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      min-height: 0;
+    }
+
+    .stage-column {
+      padding: 18px;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: 14px;
+      border-right: 1px solid var(--line);
+    }
+
+    .status-card,
+    .controls-card,
+    .stats-card,
+    .removable-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(214, 223, 255, 0.08);
+      border-radius: 24px;
+      padding: 18px;
+    }
+
+    .status-label,
+    .card-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(243, 183, 100, 0.12);
+      color: #f4ca82;
+      font-size: 0.82rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .status-copy {
+      margin: 14px 0 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 1rem;
+    }
+
+    .viewport {
+      position: relative;
+      width: min(100%, 760px);
+      max-width: 72vh;
+      aspect-ratio: 1 / 1;
+      min-height: 0;
+      justify-self: center;
+      border-radius: 28px;
+      border: 1px solid rgba(214, 223, 255, 0.1);
+      background:
+        radial-gradient(circle at center, rgba(102, 119, 255, 0.16), transparent 46%),
+        linear-gradient(180deg, rgba(37, 46, 88, 0.98), rgba(17, 23, 47, 0.98));
+      overflow: hidden;
+    }
+
+    .viewport canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .viewport-overlay {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+      background: rgba(8, 11, 24, 0.78);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .viewport-overlay.show {
+      display: flex;
+    }
+
+    .footer-tip {
+      padding: 0 6px 6px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      font-size: 0.94rem;
+    }
+
+    .sidebar {
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+      background: linear-gradient(180deg, rgba(17, 22, 43, 0.88), rgba(13, 17, 34, 0.96));
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .stat {
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(214, 223, 255, 0.08);
+      padding: 14px;
+    }
+
+    .stat-name {
+      color: var(--muted);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .stat-value {
+      margin-top: 8px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .slider-row {
+      margin-top: 16px;
+    }
+
+    .slider-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      color: var(--text);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #7182ff;
+    }
+
+    .removable-list {
+      margin-top: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .swatch {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 12px 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(214, 223, 255, 0.08);
+      background: rgba(255, 255, 255, 0.035);
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .swatch .left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .swatch .name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+      box-shadow: 0 0 12px currentColor;
+    }
+
+    .tag {
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(103, 119, 255, 0.14);
+      color: #c8d0ff;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .win-overlay {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(8, 11, 24, 0.7);
+      backdrop-filter: blur(10px);
+    }
+
+    .win-overlay.show {
+      display: flex;
+    }
+
+    .win-card {
+      width: min(460px, 100%);
+      border-radius: 28px;
+      border: 1px solid rgba(214, 223, 255, 0.12);
+      background: linear-gradient(180deg, rgba(27, 34, 63, 0.98), rgba(19, 24, 44, 0.98));
+      padding: 26px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .win-card h2 {
+      margin: 14px 0 8px;
+      font-size: 2rem;
+      letter-spacing: -0.04em;
+    }
+
+    .win-card p {
+      margin: 0 0 18px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .win-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    @media (max-width: 1100px) {
+      .game-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stage-column {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100vw - 18px, 1440px);
+        margin: 10px auto 24px;
+      }
+
+      .hero,
+      .stage-column,
+      .sidebar {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+
+      .toolbar {
+        padding: 14px;
+      }
+
+      .viewport {
+        width: 100%;
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <p class="eyebrow">Volumetric puzzle</p>
+      <h1>Arrows 3D</h1>
+      <p class="subtitle">
+        A cube packed with directional pieces. Rotate the volume, inspect the dependency order,
+        and only extract the arrows whose entire lane is clear all the way to the outside.
+      </p>
+        <div class="chips">
+          <div class="chip">True volumetric packing</div>
+          <div class="chip">Box-path rendering</div>
+          <div class="chip">Full-lane rigid removal</div>
+        </div>
+    </section>
+
+    <section class="game-shell">
+      <div class="toolbar">
+        <div class="toolbar-group">
+          <button class="primary" id="newPuzzleBtn">New Puzzle</button>
+          <button id="restartBtn">Restart</button>
+          <button id="undoBtn">Undo</button>
+          <button id="hintBtn">Highlight Removable</button>
+          <select id="difficultySelect" aria-label="Select cube difficulty">
+            <option value="0">Warmup Cube</option>
+            <option value="1">Dense Cube</option>
+            <option value="2">Tight Cube</option>
+            <option value="3">Solid Cube</option>
+          </select>
+        </div>
+        <div class="toolbar-meta">
+          <div>
+            <div class="meta-title">Current level</div>
+            <div class="meta-value" id="levelName">Warmup Cube</div>
+          </div>
+          <div>
+            <div class="meta-title">Size</div>
+            <div class="meta-value" id="levelSize">4×4×4</div>
+          </div>
+          <div>
+            <div class="meta-title">Seed</div>
+            <div class="meta-value" id="levelSeed">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-grid">
+        <div class="stage-column">
+          <div class="status-card">
+            <div class="status-label" id="statusLabel">How to play</div>
+            <p class="status-copy" id="statusCopy">
+              Rotate the cube, zoom in, and click only the glowing arrows. A piece can leave only if every occupied cell in that arrow has a clear lane to the boundary in its facing direction.
+            </p>
+          </div>
+
+          <div class="viewport" id="viewport">
+            <div class="viewport-overlay" id="viewportOverlay"></div>
+            <div class="win-overlay" id="winOverlay">
+              <div class="win-card">
+                <div class="status-label">Solved</div>
+                <h2>Cube cleared</h2>
+                <p id="winText">Every packed arrow has left the volume.</p>
+                <div class="win-actions">
+                  <button class="primary" id="nextLevelBtn">Next Puzzle</button>
+                  <button id="replayBtn">Replay Seed</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="footer-tip">
+            <span id="hoverLabel">Nothing selected</span>
+            <span>Drag to orbit. Scroll to zoom.</span>
+          </div>
+        </div>
+
+        <aside class="sidebar">
+          <div class="stats-card">
+            <div class="card-label">Cube state</div>
+            <div class="stats-grid">
+              <div class="stat">
+                <div class="stat-name">Moves</div>
+                <div class="stat-value" id="movesStat">0</div>
+              </div>
+              <div class="stat">
+                <div class="stat-name">Remaining</div>
+                <div class="stat-value" id="remainingStat">0</div>
+              </div>
+              <div class="stat">
+                <div class="stat-name">Removable</div>
+                <div class="stat-value" id="removableStat">0</div>
+              </div>
+              <div class="stat">
+                <div class="stat-name">Density</div>
+                <div class="stat-value" id="densityStat">0%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="controls-card">
+            <div class="card-label">View controls</div>
+            <div class="slider-row">
+              <div class="slider-header">
+                <span>Explode view</span>
+                <span id="explodeValue">34%</span>
+              </div>
+              <input id="explodeRange" type="range" min="0" max="100" step="1" value="34">
+            </div>
+            <div class="slider-row">
+              <div class="slider-header">
+                <span>Shell opacity</span>
+                <span id="shellValue">22%</span>
+              </div>
+              <input id="shellRange" type="range" min="0" max="100" step="1" value="22">
+            </div>
+          </div>
+
+          <div class="removable-card">
+            <div class="card-label">Free arrows</div>
+            <div class="removable-list" id="pieceList"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </div>
+
+  <script src="./vendor/three.min.js"></script>
+  <script>
+    (() => {
+      if (!window.THREE) {
+        const overlay = document.getElementById("viewportOverlay");
+        overlay.classList.add("show");
+        overlay.textContent = "Three.js did not load. Keep arrows_3d.html next to vendor/three.min.js.";
+        return;
+      }
+
+      const viewport = document.getElementById("viewport");
+      const viewportOverlay = document.getElementById("viewportOverlay");
+      const hoverLabel = document.getElementById("hoverLabel");
+      const statusLabel = document.getElementById("statusLabel");
+      const statusCopy = document.getElementById("statusCopy");
+      const levelNameEl = document.getElementById("levelName");
+      const levelSizeEl = document.getElementById("levelSize");
+      const levelSeedEl = document.getElementById("levelSeed");
+      const movesStat = document.getElementById("movesStat");
+      const remainingStat = document.getElementById("remainingStat");
+      const removableStat = document.getElementById("removableStat");
+      const densityStat = document.getElementById("densityStat");
+      const pieceList = document.getElementById("pieceList");
+      const explodeRange = document.getElementById("explodeRange");
+      const explodeValue = document.getElementById("explodeValue");
+      const shellRange = document.getElementById("shellRange");
+      const shellValue = document.getElementById("shellValue");
+      const difficultySelect = document.getElementById("difficultySelect");
+      const winOverlay = document.getElementById("winOverlay");
+      const winText = document.getElementById("winText");
+
+      const scene = new THREE.Scene();
+      scene.background = null;
+
+      const camera = new THREE.OrthographicCamera(-5, 5, 5, -5, 0.1, 200);
+      const boardGroup = new THREE.Group();
+      const shellGroup = new THREE.Group();
+      scene.add(shellGroup);
+      scene.add(boardGroup);
+
+      scene.add(new THREE.AmbientLight(0xe9ecff, 0.42));
+
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.95);
+      keyLight.position.set(8, 10, 12);
+      scene.add(keyLight);
+
+      const rimLight = new THREE.DirectionalLight(0x7f96ff, 0.9);
+      rimLight.position.set(-10, 6, -8);
+      scene.add(rimLight);
+
+      const fillLight = new THREE.PointLight(0xf6c67a, 0.16, 50);
+      fillLight.position.set(2, -3, 3);
+      scene.add(fillLight);
+
+      let renderer;
+      try {
+        renderer = new THREE.WebGLRenderer({
+          antialias: false,
+          alpha: true,
+          powerPreference: "high-performance"
+        });
+      } catch (error) {
+        viewportOverlay.classList.add("show");
+        viewportOverlay.textContent = "WebGL could not start in this browser. Open the page in a browser with WebGL enabled.";
+        throw error;
+      }
+
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      if (THREE.ACESFilmicToneMapping) {
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 0.9;
+      }
+      viewport.appendChild(renderer.domElement);
+
+      const cellSpacing = 0.92;
+      const armWidth = 0.24;
+      const coreSize = 0.24;
+      const armLength = cellSpacing * 0.52;
+      const armOffset = cellSpacing * 0.25 + coreSize * 0.125;
+      const coreGeometry = new THREE.BoxGeometry(coreSize, coreSize, coreSize);
+      const armGeometry = new THREE.BoxGeometry(armWidth, armLength, armWidth);
+      const pyramidHeight = 0.28;
+      const pyramidRadius = armWidth / Math.sqrt(2);
+      const pyramidGeometry = new THREE.ConeGeometry(pyramidRadius, pyramidHeight, 4, 1, false);
+      const raycaster = new THREE.Raycaster();
+      const pointer = new THREE.Vector2();
+      const clock = new THREE.Clock();
+      const placementCache = new Map();
+
+      class OrbitRig {
+        constructor(cameraRef, domElement) {
+          this.camera = cameraRef;
+          this.domElement = domElement;
+          this.target = new THREE.Vector3(0, 0, 0);
+          this.defaultYaw = Math.PI / 4;
+          this.defaultPitch = 0.6154797086703874;
+          this.radius = 9.5;
+          this.minRadius = 4.8;
+          this.maxRadius = 18;
+          this.yaw = this.defaultYaw;
+          this.pitch = this.defaultPitch;
+          this.dragging = false;
+          this.lastX = 0;
+          this.lastY = 0;
+
+          domElement.addEventListener("pointerdown", (event) => {
+            this.dragging = true;
+            this.lastX = event.clientX;
+            this.lastY = event.clientY;
+            domElement.setPointerCapture(event.pointerId);
+          });
+
+          domElement.addEventListener("pointermove", (event) => {
+            if (!this.dragging) return;
+            const dx = event.clientX - this.lastX;
+            const dy = event.clientY - this.lastY;
+            this.lastX = event.clientX;
+            this.lastY = event.clientY;
+            this.yaw -= dx * 0.01;
+            this.pitch = Math.max(0.18, Math.min(1.34, this.pitch - dy * 0.01));
+          });
+
+          const endDrag = (event) => {
+            if (!this.dragging) return;
+            this.dragging = false;
+            if (event.pointerId !== undefined) {
+              domElement.releasePointerCapture(event.pointerId);
+            }
+          };
+
+          domElement.addEventListener("pointerup", endDrag);
+          domElement.addEventListener("pointercancel", endDrag);
+          domElement.addEventListener("wheel", (event) => {
+            event.preventDefault();
+            if (this.camera.isOrthographicCamera) {
+              this.camera.zoom = Math.max(0.58, Math.min(2.1, this.camera.zoom - event.deltaY * 0.0012));
+              this.camera.updateProjectionMatrix();
+            } else {
+              this.radius = Math.max(this.minRadius, Math.min(this.maxRadius, this.radius + event.deltaY * 0.01));
+            }
+          }, { passive: false });
+        }
+
+        resetView(levelSize) {
+          this.yaw = this.defaultYaw;
+          this.pitch = this.defaultPitch;
+          if (this.camera.isOrthographicCamera) {
+            this.camera.zoom = levelSize >= 5 ? 0.68 : 0.78;
+            this.camera.updateProjectionMatrix();
+          } else {
+            this.radius = 9.5;
+          }
+        }
+
+        update() {
+          const x = this.target.x + this.radius * Math.cos(this.pitch) * Math.sin(this.yaw);
+          const y = this.target.y + this.radius * Math.sin(this.pitch);
+          const z = this.target.z + this.radius * Math.cos(this.pitch) * Math.cos(this.yaw);
+          this.camera.position.set(x, y, z);
+          this.camera.lookAt(this.target);
+        }
+      }
+
+      const controls = new OrbitRig(camera, renderer.domElement);
+
+      const faceDirections = [
+        [1, 0, 0],
+        [-1, 0, 0],
+        [0, 1, 0],
+        [0, -1, 0],
+        [0, 0, 1],
+        [0, 0, -1]
+      ];
+
+      const palette = [
+        "#7d8bff",
+        "#66c7ff",
+        "#72ddaf",
+        "#f0bc63",
+        "#fb7e89",
+        "#d89cff",
+        "#8ce3ff",
+        "#ffc780"
+      ];
+
+      const shapeLibrary = {
+        straight2: [[0, 0, 0], [1, 0, 0]],
+        straight3: [[0, 0, 0], [1, 0, 0], [2, 0, 0]],
+        straight4: [[0, 0, 0], [1, 0, 0], [2, 0, 0], [3, 0, 0]],
+        elbow3: [[0, 0, 0], [1, 0, 0], [1, 1, 0]],
+        elbow4: [[0, 0, 0], [1, 0, 0], [2, 0, 0], [2, 1, 0]],
+        hook4: [[0, 0, 0], [1, 0, 0], [2, 0, 0], [2, 1, 0]],
+        zig4: [[0, 0, 0], [1, 0, 0], [1, 1, 0], [2, 1, 0]],
+        staple4: [[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]]
+      };
+
+      const levelConfigs = [
+        { name: "Warmup Cube", size: 4, pieces: 14, shapes: ["straight3", "elbow3", "hook4"], seedBase: 0, attemptFactor: 140, retryCount: 9 },
+        { name: "Dense Cube", size: 4, pieces: 18, shapes: ["straight3", "elbow3", "hook4", "zig4"], seedBase: 131, attemptFactor: 160, retryCount: 10 },
+        { name: "Tight Cube", size: 5, pieces: 22, shapes: ["straight3", "straight4", "elbow3", "hook4", "zig4"], seedBase: 277, attemptFactor: 220, retryCount: 12 },
+        { name: "Solid Cube", size: 4, pieces: 64, shapes: ["straight2", "straight3", "elbow3", "zig4"], seedBase: 419, fullPack: true }
+      ];
+
+      const state = {
+        level: null,
+        levelIndex: 0,
+        cycle: 0,
+        explode: 0.24,
+        shellOpacity: 0.22,
+        pieceMap: new Map(),
+        occupancy: new Map(),
+        removable: new Set(),
+        hoveredId: null,
+        history: [],
+        moves: 0,
+        busy: false
+      };
+
+      function mulberry32(seed) {
+        let t = seed >>> 0;
+        return function () {
+          t += 0x6D2B79F5;
+          let r = Math.imul(t ^ (t >>> 15), 1 | t);
+          r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+          return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      function rngInt(rng, min, max) {
+        return Math.floor(rng() * (max - min + 1)) + min;
+      }
+
+      function choose(rng, items) {
+        return items[Math.floor(rng() * items.length)];
+      }
+
+      function keyOf(cell) {
+        return cell.join("|");
+      }
+
+      function addVec(a, b) {
+        return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+      }
+
+      function scaleVec(v, scale) {
+        return [v[0] * scale, v[1] * scale, v[2] * scale];
+      }
+
+      function dotVec(a, b) {
+        return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+      }
+
+      function cellDistance(a, b) {
+        return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]);
+      }
+
+      function buildAdjacency(cells) {
+        const adjacency = new Map();
+        cells.forEach((cell, index) => {
+          const links = [];
+          cells.forEach((other, otherIndex) => {
+            if (index !== otherIndex && cellDistance(cell, other) === 1) {
+              links.push(otherIndex);
+            }
+          });
+          adjacency.set(index, links);
+        });
+        return adjacency;
+      }
+
+      function chooseHeadCell(cells, direction) {
+        const adjacency = buildAdjacency(cells);
+        const endpoints = cells
+          .map((cell, index) => ({ cell, index, degree: adjacency.get(index).length }))
+          .filter((entry) => entry.degree <= 1);
+        const pool = endpoints.length ? endpoints : cells.map((cell, index) => ({ cell, index }));
+        return [...pool].sort((a, b) => dotVec(b.cell, direction) - dotVec(a.cell, direction))[0].cell;
+      }
+
+      function areOpposite(a, b) {
+        return a[0] === -b[0] && a[1] === -b[1] && a[2] === -b[2];
+      }
+
+      function inBounds(cell, size) {
+        return cell[0] >= 0 && cell[0] < size &&
+          cell[1] >= 0 && cell[1] < size &&
+          cell[2] >= 0 && cell[2] < size;
+      }
+
+      function basisForDirection(direction, roll) {
+        const [dx, dy] = direction;
+        let a;
+        let b;
+
+        if (dx !== 0) {
+          a = [0, 1, 0];
+          b = [0, 0, 1];
+        } else if (dy !== 0) {
+          a = [1, 0, 0];
+          b = [0, 0, 1];
+        } else {
+          a = [1, 0, 0];
+          b = [0, 1, 0];
+        }
+
+        if (roll === 1) return [b, scaleVec(a, -1)];
+        if (roll === 2) return [scaleVec(a, -1), scaleVec(b, -1)];
+        if (roll === 3) return [scaleVec(b, -1), a];
+        return [a, b];
+      }
+
+      function transformShape(shapeCells, direction, roll, translation) {
+        const [v, w] = basisForDirection(direction, roll);
+        return shapeCells.map(([x, y, z]) => ([
+          translation[0] + x * direction[0] + y * v[0] + z * w[0],
+          translation[1] + x * direction[1] + y * v[1] + z * w[1],
+          translation[2] + x * direction[2] + y * v[2] + z * w[2]
+        ]));
+      }
+
+      function candidateFits(cells, direction, occupancy, size) {
+        const localKeys = new Set(cells.map(keyOf));
+
+        for (const cell of cells) {
+          if (!inBounds(cell, size)) return false;
+          if (occupancy.has(keyOf(cell))) return false;
+        }
+
+        for (const cell of cells) {
+          let probe = addVec(cell, direction);
+          while (inBounds(probe, size)) {
+            const probeKey = keyOf(probe);
+            if (!localKeys.has(probeKey) && occupancy.has(probeKey)) {
+              return false;
+            }
+            probe = addVec(probe, direction);
+          }
+        }
+
+        return true;
+      }
+
+      function createPieceRecord(idNumber, shapeName, direction, cells) {
+        return {
+          id: `p${idNumber}`,
+          name: `${shapeName.toUpperCase()}-${idNumber}`,
+          direction,
+          cells,
+          color: palette[(idNumber - 1) % palette.length],
+          active: true,
+          status: "active",
+          leaveProgress: 0,
+          leaveDistance: 0,
+          pulse: 0,
+          errorPulse: 0,
+          group: null,
+          materials: [],
+          centroid: new THREE.Vector3(),
+          headCell: null
+        };
+      }
+
+      function getPlacementCatalog(config) {
+        const cacheKey = `${config.size}:${config.shapes.join(",")}`;
+        if (placementCache.has(cacheKey)) {
+          return placementCache.get(cacheKey);
+        }
+
+        const placements = [];
+        const cellMap = new Map();
+        const seen = new Set();
+
+        for (const shapeName of config.shapes) {
+          const shape = shapeLibrary[shapeName];
+          for (const direction of faceDirections) {
+            for (let roll = 0; roll < 4; roll += 1) {
+              const [basisA, basisB] = basisForDirection(direction, roll);
+              const rawCells = shape.map(([x, y, z]) => ([
+                x * direction[0] + y * basisA[0] + z * basisB[0],
+                x * direction[1] + y * basisA[1] + z * basisB[1],
+                x * direction[2] + y * basisA[2] + z * basisB[2]
+              ]));
+
+              const mins = [0, 1, 2].map((axis) => Math.min(...rawCells.map((cell) => cell[axis])));
+              const maxs = [0, 1, 2].map((axis) => Math.max(...rawCells.map((cell) => cell[axis])));
+              for (let tx = -mins[0]; tx <= config.size - 1 - maxs[0]; tx += 1) {
+                for (let ty = -mins[1]; ty <= config.size - 1 - maxs[1]; ty += 1) {
+                  for (let tz = -mins[2]; tz <= config.size - 1 - maxs[2]; tz += 1) {
+                    const cells = transformShape(shape, direction, roll, [tx, ty, tz]);
+                    const sortedKey = cells
+                      .map((cell) => keyOf(cell))
+                      .sort()
+                      .join(",");
+                    const placementKey = `${shapeName}|${direction.join(",")}|${sortedKey}`;
+                    if (seen.has(placementKey)) continue;
+                    seen.add(placementKey);
+
+                    const placement = { shapeName, direction: [...direction], cells };
+                    placements.push(placement);
+                    cells.forEach((cell) => {
+                      const cellKey = keyOf(cell);
+                      if (!cellMap.has(cellKey)) {
+                        cellMap.set(cellKey, []);
+                      }
+                      cellMap.get(cellKey).push(placement);
+                    });
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        const catalog = { placements, cellMap };
+        placementCache.set(cacheKey, catalog);
+        return catalog;
+      }
+
+      function buildSolidLevel(config, seed) {
+        const rng = mulberry32(seed);
+        const { cellMap } = getPlacementCatalog(config);
+        const occupancy = new Set();
+        const pieces = [];
+        const allCells = [];
+        for (let x = 0; x < config.size; x += 1) {
+          for (let y = 0; y < config.size; y += 1) {
+            for (let z = 0; z < config.size; z += 1) {
+              allCells.push([x, y, z]);
+            }
+          }
+        }
+
+        function placementFits(placement) {
+          for (const cell of placement.cells) {
+            if (occupancy.has(keyOf(cell))) return false;
+          }
+          return candidateFits(placement.cells, placement.direction, occupancy, config.size);
+        }
+
+        function chooseCellAndCandidates() {
+          let bestCell = null;
+          let bestCandidates = null;
+
+          for (const cell of allCells) {
+            const cellKey = keyOf(cell);
+            if (occupancy.has(cellKey)) continue;
+            const rawCandidates = cellMap.get(cellKey) || [];
+            const candidates = rawCandidates.filter(placementFits);
+            if (!candidates.length) {
+              return { cell: cellKey, candidates: [] };
+            }
+            if (!bestCandidates || candidates.length < bestCandidates.length) {
+              bestCell = cellKey;
+              bestCandidates = candidates;
+              if (candidates.length === 1) break;
+            }
+          }
+
+          return { cell: bestCell, candidates: bestCandidates || [] };
+        }
+
+        function search() {
+          if (occupancy.size === config.size ** 3) {
+            return true;
+          }
+
+          const { candidates } = chooseCellAndCandidates();
+          if (!candidates.length) {
+            return false;
+          }
+
+          const ordered = candidates
+            .map((placement) => ({ placement, rand: rng() }))
+            .sort((a, b) => (b.placement.cells.length - a.placement.cells.length) || (a.rand - b.rand))
+            .map((entry) => entry.placement);
+
+          for (const placement of ordered) {
+            placement.cells.forEach((cell) => occupancy.add(keyOf(cell)));
+            pieces.push(createPieceRecord(pieces.length + 1, placement.shapeName, [...placement.direction], placement.cells.map((cell) => [...cell])));
+            if (search()) {
+              return true;
+            }
+            pieces.pop();
+            placement.cells.forEach((cell) => occupancy.delete(keyOf(cell)));
+          }
+
+          return false;
+        }
+
+        if (!search()) {
+          return null;
+        }
+
+        return {
+          name: config.name,
+          size: config.size,
+          seed,
+          pieces
+        };
+      }
+
+      function buildLevel(config, seed) {
+        const rng = mulberry32(seed);
+        const occupancy = new Map();
+        const pieces = [];
+        const attemptFactor = config.attemptFactor || 140;
+
+        for (let attempt = 0; attempt < config.pieces * attemptFactor && pieces.length < config.pieces; attempt += 1) {
+          const shapeName = choose(rng, config.shapes);
+          const direction = choose(rng, faceDirections);
+          const roll = rngInt(rng, 0, 3);
+          const shape = shapeLibrary[shapeName];
+          const [basisA, basisB] = basisForDirection(direction, roll);
+          const rawCells = shape.map(([x, y, z]) => ([
+            x * direction[0] + y * basisA[0] + z * basisB[0],
+            x * direction[1] + y * basisA[1] + z * basisB[1],
+            x * direction[2] + y * basisA[2] + z * basisB[2]
+          ]));
+
+          const mins = [0, 1, 2].map((axis) => Math.min(...rawCells.map((cell) => cell[axis])));
+          const maxs = [0, 1, 2].map((axis) => Math.max(...rawCells.map((cell) => cell[axis])));
+          const translation = [
+            rngInt(rng, -mins[0], config.size - 1 - maxs[0]),
+            rngInt(rng, -mins[1], config.size - 1 - maxs[1]),
+            rngInt(rng, -mins[2], config.size - 1 - maxs[2])
+          ];
+
+          const cells = transformShape(shape, direction, roll, translation);
+          if (!candidateFits(cells, direction, occupancy, config.size)) {
+            continue;
+          }
+
+          const piece = createPieceRecord(pieces.length + 1, shapeName, [...direction], cells.map((cell) => [...cell]));
+          pieces.push(piece);
+          for (const cell of cells) {
+            occupancy.set(keyOf(cell), piece.id);
+          }
+        }
+
+        return {
+          name: config.name,
+          size: config.size,
+          seed,
+          pieces
+        };
+      }
+
+      function buildPackedLevel(config, seed) {
+        if (config.fullPack) {
+          const solid = buildSolidLevel(config, seed);
+          if (solid) return solid;
+        }
+        let best = null;
+        const retryCount = config.retryCount || 9;
+        for (let attempt = 0; attempt < retryCount; attempt += 1) {
+          const candidate = buildLevel(config, seed + attempt * 97);
+          if (!best || candidate.pieces.length > best.pieces.length) {
+            best = candidate;
+          }
+          if (candidate.pieces.length >= Math.ceil(config.pieces * 0.9)) {
+            return candidate;
+          }
+        }
+        return best;
+      }
+
+      function gridToWorld(cell, size) {
+        const offset = (size - 1) * 0.5;
+        return new THREE.Vector3(
+          (cell[0] - offset) * cellSpacing,
+          (cell[1] - offset) * cellSpacing,
+          (cell[2] - offset) * cellSpacing
+        );
+      }
+
+      function directionToVector(direction) {
+        return new THREE.Vector3(direction[0], direction[1], direction[2]);
+      }
+
+      function clearBoardMeshes() {
+        shellGroup.clear();
+        boardGroup.clear();
+        state.pieceMap.clear();
+      }
+
+      function createShell(size) {
+        shellGroup.clear();
+        const edgeSize = size * cellSpacing + 0.26;
+        const fill = new THREE.Mesh(
+          new THREE.BoxGeometry(edgeSize, edgeSize, edgeSize),
+          new THREE.MeshBasicMaterial({
+            color: 0xdbe3ff,
+            transparent: true,
+            opacity: state.shellOpacity,
+            depthWrite: false
+          })
+        );
+        fill.name = "shell-fill";
+
+        const edges = new THREE.LineSegments(
+          new THREE.EdgesGeometry(new THREE.BoxGeometry(edgeSize, edgeSize, edgeSize)),
+          new THREE.LineBasicMaterial({
+            color: 0xe8edff,
+            transparent: true,
+            opacity: Math.min(state.shellOpacity + 0.28, 0.88)
+          })
+        );
+        edges.name = "shell-edges";
+        shellGroup.add(fill, edges);
+      }
+
+      function createPieceMesh(piece) {
+        const group = new THREE.Group();
+        const bodyMaterial = new THREE.MeshStandardMaterial({
+          color: new THREE.Color(piece.color),
+          roughness: 0.52,
+          metalness: 0.02,
+          flatShading: true,
+          emissive: new THREE.Color(piece.color).multiplyScalar(0.01)
+        });
+
+        const tipMaterial = new THREE.MeshStandardMaterial({
+          color: new THREE.Color(piece.color),
+          roughness: 0.34,
+          metalness: 0.02,
+          flatShading: true,
+          emissive: new THREE.Color(piece.color).multiplyScalar(0.03)
+        });
+
+        piece.materials = [bodyMaterial, tipMaterial];
+        piece.headCell = chooseHeadCell(piece.cells, piece.direction);
+
+        const dirVec = directionToVector(piece.direction).normalize();
+
+        const worldCells = piece.cells.map((cell) => gridToWorld(cell, state.level.size));
+        const adjacency = buildAdjacency(piece.cells);
+        const centroid = new THREE.Vector3();
+        worldCells.forEach((position, index) => {
+          centroid.add(position);
+        });
+        centroid.multiplyScalar(1 / worldCells.length);
+        piece.centroid.copy(centroid);
+
+        piece.cells.forEach((cell, index) => {
+          const position = worldCells[index];
+          const core = new THREE.Mesh(coreGeometry, bodyMaterial);
+          core.position.copy(position);
+          core.userData.pieceId = piece.id;
+          group.add(core);
+
+          const neighborIndices = adjacency.get(index);
+          neighborIndices.forEach((neighborIndex) => {
+            const neighbor = piece.cells[neighborIndex];
+            const dir = new THREE.Vector3(
+              neighbor[0] - cell[0],
+              neighbor[1] - cell[1],
+              neighbor[2] - cell[2]
+            ).normalize();
+            const arm = new THREE.Mesh(armGeometry, bodyMaterial);
+            arm.position.copy(position).addScaledVector(dir, armOffset);
+            arm.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+            arm.userData.pieceId = piece.id;
+            group.add(arm);
+          });
+        });
+
+        const endpointAdjacency = buildAdjacency(piece.cells);
+        const headIndex = piece.cells.findIndex((cell) => keyOf(cell) === keyOf(piece.headCell));
+        const headNeighbors = endpointAdjacency.get(headIndex) || [];
+        if (headNeighbors.length === 1) {
+          const backCell = piece.cells[headNeighbors[0]];
+          const bodyDir = new THREE.Vector3(
+            piece.headCell[0] - backCell[0],
+            piece.headCell[1] - backCell[1],
+            piece.headCell[2] - backCell[2]
+          ).normalize();
+          if (bodyDir.dot(dirVec) < 0) {
+            dirVec.multiplyScalar(-1);
+          }
+        }
+        const headQuaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dirVec);
+
+        const headPosition = gridToWorld(piece.headCell, state.level.size);
+        const pyramid = new THREE.Mesh(pyramidGeometry, tipMaterial);
+        pyramid.position.copy(headPosition).addScaledVector(dirVec, coreSize * 0.5 + pyramidHeight * 0.5 - 0.015);
+        pyramid.quaternion.copy(headQuaternion);
+        pyramid.rotateY(Math.PI / 4);
+        pyramid.userData.pieceId = piece.id;
+        group.add(pyramid);
+
+        piece.group = group;
+        boardGroup.add(group);
+      }
+
+      function rebuildOccupancy() {
+        state.occupancy.clear();
+        for (const piece of state.level.pieces) {
+          if (!piece.active || piece.status === "removed") continue;
+          for (const cell of piece.cells) {
+            state.occupancy.set(keyOf(cell), piece.id);
+          }
+        }
+      }
+
+      function isPieceRemovable(piece) {
+        if (!piece.active || piece.status !== "active") return false;
+        const localKeys = new Set(piece.cells.map(keyOf));
+
+        for (const cell of piece.cells) {
+          let probe = addVec(cell, piece.direction);
+          while (inBounds(probe, state.level.size)) {
+            const probeKey = keyOf(probe);
+            const occupant = state.occupancy.get(probeKey);
+            if (occupant && !localKeys.has(probeKey)) {
+              return false;
+            }
+            probe = addVec(probe, piece.direction);
+          }
+        }
+
+        return true;
+      }
+
+      function recomputeRemovable() {
+        state.removable.clear();
+        for (const piece of state.level.pieces) {
+          if (isPieceRemovable(piece)) {
+            state.removable.add(piece.id);
+          }
+        }
+      }
+
+      function computeLeaveDistance(piece) {
+        let maxSteps = 0;
+        for (const cell of piece.cells) {
+          let steps = 0;
+          let probe = [...cell];
+          while (inBounds(probe, state.level.size)) {
+            probe = addVec(probe, piece.direction);
+            steps += 1;
+          }
+          maxSteps = Math.max(maxSteps, steps);
+        }
+        return maxSteps * cellSpacing + 1.2;
+      }
+
+      function updateStatus(title, copy) {
+        statusLabel.textContent = title;
+        statusCopy.textContent = copy;
+      }
+
+      function refreshSidebar() {
+        const visiblePieces = state.level.pieces.filter((piece) => piece.active || piece.status === "leaving");
+        const removablePieces = state.level.pieces.filter((piece) => state.removable.has(piece.id));
+        const occupied = visiblePieces.reduce((sum, piece) => sum + piece.cells.length, 0);
+        const capacity = state.level.size ** 3;
+
+        movesStat.textContent = String(state.moves);
+        remainingStat.textContent = String(visiblePieces.length);
+        removableStat.textContent = String(state.removable.size);
+        densityStat.textContent = `${Math.round((occupied / capacity) * 100)}%`;
+
+        levelNameEl.textContent = state.level.name;
+        levelSizeEl.textContent = `${state.level.size}×${state.level.size}×${state.level.size}`;
+        levelSeedEl.textContent = String(state.level.seed);
+
+        pieceList.innerHTML = "";
+        if (!removablePieces.length) {
+          const row = document.createElement("div");
+          row.className = "swatch";
+          row.innerHTML = `<span>No arrow is currently free. Undo or restart to recover the cube.</span>`;
+          pieceList.appendChild(row);
+          return;
+        }
+
+        removablePieces.forEach((piece) => {
+          const row = document.createElement("div");
+          row.className = "swatch";
+          row.innerHTML = `
+            <div class="left">
+              <span class="dot" style="background:${piece.color}; color:${piece.color};"></span>
+              <span class="name">${piece.name}</span>
+            </div>
+            <span class="tag">clear</span>
+          `;
+          pieceList.appendChild(row);
+        });
+      }
+
+      function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+      }
+
+      function applyExplode() {
+        explodeValue.textContent = `${Math.round(state.explode * 100)}%`;
+        for (const piece of state.level.pieces) {
+          if (!piece.group) continue;
+          const explodeOffset = piece.centroid.clone().multiplyScalar(state.explode * 0.52);
+          const dir = directionToVector(piece.direction);
+          const leaveAmount = piece.status === "leaving" ? easeOutCubic(piece.leaveProgress) * piece.leaveDistance : 0;
+          piece.group.position.copy(explodeOffset).addScaledVector(dir, leaveAmount);
+        }
+      }
+
+      function applyShellOpacity() {
+        shellValue.textContent = `${Math.round(state.shellOpacity * 100)}%`;
+        shellGroup.children.forEach((node) => {
+          if (node.name === "shell-fill") {
+            node.material.opacity = state.shellOpacity;
+          } else if (node.name === "shell-edges") {
+            node.material.opacity = Math.min(state.shellOpacity + 0.28, 0.88);
+          }
+        });
+      }
+
+      function lightenHex(hex, amount) {
+        const color = new THREE.Color(hex);
+        color.lerp(new THREE.Color(0xffffff), amount);
+        return `#${color.getHexString()}`;
+      }
+
+      function updatePieceMaterials(delta) {
+        for (const piece of state.level.pieces) {
+          piece.pulse = Math.max(0, piece.pulse - delta * 2.2);
+          piece.errorPulse = Math.max(0, piece.errorPulse - delta * 3.8);
+
+          const hovered = state.hoveredId === piece.id;
+          const removable = state.removable.has(piece.id);
+          const glow = removable ? 0.16 + piece.pulse * 0.42 : 0.03;
+          const hoverBoost = hovered ? 0.18 : 0;
+          const errorBoost = piece.errorPulse;
+
+          piece.materials.forEach((material, index) => {
+            if (piece.status === "removed") {
+              material.transparent = true;
+              material.opacity = 0;
+              return;
+            }
+
+            material.transparent = piece.status === "leaving";
+            material.opacity = piece.status === "leaving" ? 1 - piece.leaveProgress * 0.38 : 1;
+
+            const emissive = new THREE.Color(piece.color).multiplyScalar(glow + hoverBoost);
+            if (errorBoost > 0) {
+              emissive.lerp(new THREE.Color(varOrFallback("--danger", 0xff6a8f)), errorBoost * 0.45);
+            }
+            material.emissive.copy(emissive);
+
+            material.color.set(hovered ? lightenHex(piece.color, 0.18) : piece.color);
+          });
+
+          if (piece.group) {
+            piece.group.visible = piece.status !== "removed";
+          }
+        }
+      }
+
+      function varOrFallback(cssName, fallbackHex) {
+        const value = getComputedStyle(document.documentElement).getPropertyValue(cssName).trim();
+        return value || fallbackHex;
+      }
+
+      function setHovered(pieceId) {
+        state.hoveredId = pieceId;
+        if (!pieceId) {
+          hoverLabel.textContent = "Nothing selected";
+          return;
+        }
+        const piece = state.pieceMap.get(pieceId);
+        hoverLabel.textContent = `${piece.name} • ${state.removable.has(pieceId) ? "removable" : "blocked"}`;
+      }
+
+      function pickPiece(clientX, clientY) {
+        const rect = renderer.domElement.getBoundingClientRect();
+        pointer.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+        pointer.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera(pointer, camera);
+
+        const meshes = [];
+        for (const piece of state.level.pieces) {
+          if (piece.group && piece.status !== "removed") {
+            piece.group.children.forEach((child) => {
+              if (child.isMesh) meshes.push(child);
+            });
+          }
+        }
+
+        const hits = raycaster.intersectObjects(meshes, false);
+        if (!hits.length) return null;
+        return hits[0].object.userData.pieceId || null;
+      }
+
+      function finishRemoval(piece) {
+        piece.status = "removed";
+        piece.active = false;
+        piece.leaveProgress = 1;
+        rebuildOccupancy();
+        recomputeRemovable();
+        refreshSidebar();
+        applyExplode();
+
+        const remaining = state.level.pieces.filter((candidate) => candidate.active).length;
+        if (remaining === 0) {
+          winText.textContent = `Solved in ${state.moves} moves on seed ${state.level.seed}.`;
+          winOverlay.classList.add("show");
+          updateStatus("Solved", "Every packed arrow has left the cube. Start another seed or replay this one.");
+        } else {
+          updateStatus("Progress", `${remaining} arrows remain in the volume. The list on the right shows what can leave next.`);
+        }
+      }
+
+      function attemptRemove(pieceId) {
+        if (state.busy) return;
+        const piece = state.pieceMap.get(pieceId);
+        if (!piece || !piece.active || piece.status !== "active") return;
+
+        if (!state.removable.has(pieceId)) {
+          piece.errorPulse = 1;
+          updateStatus("Blocked", `${piece.name} cannot leave yet. Every occupied cell in that arrow needs a clear lane to the boundary.`);
+          return;
+        }
+
+        state.busy = true;
+        piece.leaveProgress = 0;
+        piece.leaveDistance = computeLeaveDistance(piece);
+        piece.status = "leaving";
+        state.history.push(piece.id);
+        state.moves += 1;
+        updateStatus("Extracting", `${piece.name} is sliding out through its full 3D lane.`);
+        refreshSidebar();
+      }
+
+      function resetPieces() {
+        winOverlay.classList.remove("show");
+        state.moves = 0;
+        state.history = [];
+        state.busy = false;
+        state.hoveredId = null;
+
+        clearBoardMeshes();
+        createShell(state.level.size);
+
+        state.level.pieces.forEach((piece) => {
+          piece.active = true;
+          piece.status = "active";
+          piece.leaveProgress = 0;
+          piece.leaveDistance = 0;
+          piece.pulse = 0;
+          piece.errorPulse = 0;
+          createPieceMesh(piece);
+          state.pieceMap.set(piece.id, piece);
+        });
+
+        rebuildOccupancy();
+        recomputeRemovable();
+        refreshSidebar();
+        applyExplode();
+        applyShellOpacity();
+        setHovered(null);
+      }
+
+      function loadLevel(levelIndex, cycle) {
+        state.levelIndex = levelIndex;
+        state.cycle = cycle;
+        const config = levelConfigs[levelIndex];
+        const seed = config.seedBase + cycle * 37;
+        state.level = buildPackedLevel(config, seed);
+        controls.resetView(state.level.size);
+        resize();
+        updateStatus("How to play", "Rotate the cube, inspect the interior, and click only the arrows whose full lane is already open.");
+        resetPieces();
+      }
+
+      function undoLastMove() {
+        if (state.busy) return;
+        const pieceId = state.history.pop();
+        if (!pieceId) {
+          updateStatus("Undo", "There is no move to undo yet.");
+          return;
+        }
+
+        const piece = state.pieceMap.get(pieceId);
+        piece.active = true;
+        piece.status = "active";
+        piece.leaveProgress = 0;
+        piece.leaveDistance = 0;
+        piece.errorPulse = 0;
+        state.moves = Math.max(0, state.moves - 1);
+        rebuildOccupancy();
+        recomputeRemovable();
+        refreshSidebar();
+        applyExplode();
+        updateStatus("Undo", `${piece.name} was restored to the cube.`);
+        winOverlay.classList.remove("show");
+      }
+
+      function pulseRemovable() {
+        if (!state.removable.size) {
+          updateStatus("Hint", "Nothing is currently free. Restart or undo to change the dependency order.");
+          return;
+        }
+
+        state.removable.forEach((pieceId) => {
+          const piece = state.pieceMap.get(pieceId);
+          piece.pulse = 1;
+        });
+        updateStatus("Hint", "The glowing arrows already have a full clear lane to the boundary.");
+      }
+
+      let dragStart = { x: 0, y: 0 };
+      renderer.domElement.addEventListener("pointerdown", (event) => {
+        dragStart = { x: event.clientX, y: event.clientY };
+      });
+
+      renderer.domElement.addEventListener("pointermove", (event) => {
+        setHovered(pickPiece(event.clientX, event.clientY));
+      });
+
+      renderer.domElement.addEventListener("pointerleave", () => {
+        setHovered(null);
+      });
+
+      renderer.domElement.addEventListener("pointerup", (event) => {
+        const dragDistance = Math.hypot(event.clientX - dragStart.x, event.clientY - dragStart.y);
+        if (dragDistance > 8) return;
+        const pieceId = pickPiece(event.clientX, event.clientY);
+        if (pieceId) {
+          attemptRemove(pieceId);
+        }
+      });
+
+      function resize() {
+        const rect = viewport.getBoundingClientRect();
+        renderer.setSize(rect.width, rect.height, false);
+        const aspect = rect.width / rect.height;
+        const cubeSize = (state.level ? state.level.size : 4) * cellSpacing + 2.4;
+        if (aspect >= 1) {
+          camera.top = cubeSize * 0.5;
+          camera.bottom = -cubeSize * 0.5;
+          camera.left = -cubeSize * aspect * 0.5;
+          camera.right = cubeSize * aspect * 0.5;
+        } else {
+          camera.left = -cubeSize * 0.5;
+          camera.right = cubeSize * 0.5;
+          camera.top = cubeSize * (1 / aspect) * 0.5;
+          camera.bottom = -cubeSize * (1 / aspect) * 0.5;
+        }
+        camera.updateProjectionMatrix();
+      }
+
+      window.addEventListener("resize", resize);
+
+      explodeRange.addEventListener("input", () => {
+        state.explode = Number(explodeRange.value) / 100;
+        applyExplode();
+      });
+
+      shellRange.addEventListener("input", () => {
+        state.shellOpacity = Number(shellRange.value) / 100;
+        applyShellOpacity();
+      });
+
+      difficultySelect.addEventListener("change", () => {
+        loadLevel(Number(difficultySelect.value), state.cycle);
+      });
+
+      document.getElementById("newPuzzleBtn").addEventListener("click", () => {
+        loadLevel(state.levelIndex, state.cycle + 1);
+      });
+
+      document.getElementById("restartBtn").addEventListener("click", () => {
+        loadLevel(state.levelIndex, state.cycle);
+      });
+
+      document.getElementById("undoBtn").addEventListener("click", undoLastMove);
+      document.getElementById("hintBtn").addEventListener("click", pulseRemovable);
+
+      document.getElementById("nextLevelBtn").addEventListener("click", () => {
+        const next = (state.levelIndex + 1) % levelConfigs.length;
+        difficultySelect.value = String(next);
+        loadLevel(next, state.cycle);
+      });
+
+      document.getElementById("replayBtn").addEventListener("click", () => {
+        loadLevel(state.levelIndex, state.cycle);
+      });
+
+      function animate() {
+        requestAnimationFrame(animate);
+        const delta = Math.min(clock.getDelta(), 0.033);
+
+        let hasLeaving = false;
+        for (const piece of state.level.pieces) {
+          if (piece.status === "leaving") {
+            hasLeaving = true;
+            piece.leaveProgress = Math.min(1, piece.leaveProgress + delta / 0.58);
+            if (piece.leaveProgress >= 1) {
+              finishRemoval(piece);
+            }
+          }
+        }
+
+        if (!hasLeaving && state.busy) {
+          state.busy = false;
+        }
+
+        applyExplode();
+        updatePieceMaterials(delta);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+
+      difficultySelect.value = "0";
+      resize();
+      loadLevel(0, 0);
+      animate();
+    })();
+  </script>
+</body>
+</html>
