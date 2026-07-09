@@ -189,6 +189,19 @@
       <a class="play" href="cmy_xor.html">Play</a>
     </div>
 
+    <!-- CM XOR Hex -->
+    <div class="game">
+      <div class="thumbWrap">
+        <canvas id="thumb-cmyxor-hex" width="96" height="96"></canvas>
+      </div>
+      <h2>CM XOR Hex</h2>
+      <p class="desc">
+        A circular hex-grid version using tetrahex stamps, 60° rotations,
+        mirrored pieces, and CMY XOR channel flips.
+      </p>
+      <a class="play" href="cmy_xor_hex.html">Play</a>
+    </div>
+
     <!-- Hex Wave Puzzle -->
     <div class="game">
       <div class="thumbWrap">
@@ -573,6 +586,104 @@ function rint(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
       ctx.fillRect(pad+x*cell, pad+y*cell, cell-1, cell-1);
     }
   }
+})();
+
+/* CM XOR Hex preview */
+(function(){
+  const c = document.getElementById("thumb-cmyxor-hex");
+  const ctx = c.getContext("2d");
+  const SQRT3 = Math.sqrt(3);
+  const radius = 8;
+  const boardRadius = 3;
+  const BIT_C = 1, BIT_M = 2, BIT_Y = 4;
+
+  const COL = {
+    paper: [232,236,255],
+    black: [11,15,23],
+    C: [0,210,255],
+    M: [255,0,170],
+    Y: [255,230,0]
+  };
+
+  function mix(bits){
+    if(bits === 0) return COL.paper;
+    if(bits === 7) return COL.black;
+    const picks = [];
+    if(bits & BIT_C) picks.push(COL.C);
+    if(bits & BIT_M) picks.push(COL.M);
+    if(bits & BIT_Y) picks.push(COL.Y);
+    let r=0,g=0,b=0;
+    for(const col of picks){ r+=col[0]; g+=col[1]; b+=col[2]; }
+    r = Math.round(r/picks.length);
+    g = Math.round(g/picks.length);
+    b = Math.round(b/picks.length);
+    if(picks.length === 2){ r=Math.round(r*.95); g=Math.round(g*.95); b=Math.round(b*.95); }
+    return [r,g,b];
+  }
+  function rgb([r,g,b]){ return `rgb(${r},${g},${b})`; }
+  function axial(q,r){
+    return {
+      x: 48 + radius * (SQRT3*q + (SQRT3/2)*r),
+      y: 48 + radius * (1.5*r)
+    };
+  }
+  function hex(cx,cy,size,fill){
+    ctx.beginPath();
+    for(let i=0;i<6;i++){
+      const ang = (Math.PI/180) * (60*i - 30);
+      const x = cx + size*Math.cos(ang);
+      const y = cy + size*Math.sin(ang);
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.strokeStyle = "rgba(10,15,35,.55)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+  function key(q,r){ return `${q},${r}`; }
+  function randBit(){
+    const r = Math.floor(Math.random()*3);
+    return r===0 ? BIT_C : r===1 ? BIT_M : BIT_Y;
+  }
+
+  ctx.fillStyle = "#0a0f25";
+  ctx.fillRect(0,0,c.width,c.height);
+
+  const cells = [];
+  const board = new Map();
+  for(let q=-boardRadius; q<=boardRadius; q++){
+    for(let r=-boardRadius; r<=boardRadius; r++){
+      const s = -q-r;
+      if(Math.max(Math.abs(q), Math.abs(r), Math.abs(s)) <= boardRadius){
+        cells.push({q,r});
+        board.set(key(q,r), 0);
+      }
+    }
+  }
+
+  const stamps = [
+    [[0,0],[0,1],[0,2],[0,3]],
+    [[0,0],[0,1],[1,1],[1,2]],
+    [[0,0],[0,1],[1,0],[1,1]]
+  ];
+  for(let k=0;k<5;k++){
+    const stamp = stamps[rint(0,stamps.length-1)];
+    const anchor = cells[rint(0,cells.length-1)];
+    const bit = randBit();
+    if(stamp.every(([dq,dr]) => board.has(key(anchor.q+dq, anchor.r+dr)))){
+      stamp.forEach(([dq,dr]) => {
+        const id = key(anchor.q+dq, anchor.r+dr);
+        board.set(id, board.get(id) ^ bit);
+      });
+    }
+  }
+
+  cells.forEach(({q,r}) => {
+    const p = axial(q,r);
+    hex(p.x,p.y,radius-0.7,rgb(mix(board.get(key(q,r)))));
+  });
 })();
 
 /* Proximity preview */
