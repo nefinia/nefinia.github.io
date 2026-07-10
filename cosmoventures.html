@@ -15,7 +15,12 @@
   <meta charset="UTF-8">
   <meta content="IE=edge" http-equiv="X-UA-Compatible">
   <meta content="width=device-width,initial-scale=1" name="viewport">
-  <meta name="description" content="Cosmoventures SASU provides scientific consulting, R&D support, science communication, educational content, training, and science-culture projects from Paris.">
+  <meta name="description" content="Cosmoventures provides scientific consulting, R&D support, product review, science communication, workshops and scientific advising for companies, startups, media and cultural organisations.">
+  <meta property="og:title" content="Scientific Consulting and R&D Support | Cosmoventures">
+  <meta property="og:description" content="Scientific consulting, R&D support, product review, science communication, workshops and scientific advising for companies, startups, media and cultural organisations.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://sofiagallego.com/cosmoventures.html">
+  <meta property="og:image" content="https://sofiagallego.com/assets/images/cosmoventures-collage.jpg">
   <meta name="google" content="notranslate" />
   <meta content="Mashup templates have been developped by Orson.io team" name="author">
 
@@ -23,7 +28,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-icon-180x180.png">
   <link href="./assets/cosmovision.ico" rel="icon">
 
-  <title>Cosmoventures SASU</title>
+  <title>Scientific Consulting and R&D Support | Cosmoventures</title>
 
   <link href="./main.3f6952e4.css" rel="stylesheet">
 
@@ -66,21 +71,21 @@
       text-transform: uppercase;
     }
 
-    .cosmo-hero h1 {
-      color: #fff;
-      font-family: "Roboto Mono", Helvetica, Arial, sans-serif;
-      font-size: clamp(42px, 8vw, 92px);
-      line-height: 0.94;
-      margin: 0 0 20px;
-      text-transform: uppercase;
+	    .cosmo-hero h1 {
+	      color: #fff;
+	      font-family: "Roboto Mono", Helvetica, Arial, sans-serif;
+	      font-size: 64px;
+	      line-height: 0.94;
+	      margin: 0 0 20px;
+	      text-transform: uppercase;
     }
 
-    .cosmo-hero h2 {
-      color: #fff;
-      font-size: clamp(21px, 3vw, 34px);
-      line-height: 1.25;
-      margin: 0 0 20px;
-      max-width: 820px;
+	    .cosmo-hero h2 {
+	      color: #fff;
+	      font-size: 28px;
+	      line-height: 1.25;
+	      margin: 0 0 20px;
+	      max-width: 820px;
     }
 
     .hero-lead {
@@ -268,10 +273,85 @@
       margin-bottom: 0;
     }
 
-    .mini-card a,
-    .content-section a {
-      font-weight: 700;
-    }
+	    .mini-card a,
+	    .content-section a {
+	      font-weight: 700;
+	    }
+
+	    .mini-card ul,
+	    .problem-list {
+	      line-height: 1.72;
+	      margin: 0;
+	      padding-left: 18px;
+	    }
+
+	    .mini-card li,
+	    .problem-list li {
+	      margin-bottom: 8px;
+	    }
+
+	    .service-grid {
+	      display: grid;
+	      gap: 18px;
+	      grid-template-columns: repeat(2, minmax(0, 1fr));
+	    }
+
+	    .service-card {
+	      background: rgba(255, 255, 255, 0.64);
+	      border: 1px solid rgba(0, 0, 0, 0.08);
+	      display: flex;
+	      flex-direction: column;
+	      gap: 12px;
+	      padding: 20px;
+	    }
+
+	    .dark .service-card {
+	      background: rgba(255, 255, 255, 0.07);
+	      border-color: rgba(255, 255, 255, 0.14);
+	    }
+
+	    .service-card p {
+	      line-height: 1.72;
+	      margin-bottom: 0;
+	    }
+
+	    .service-meta {
+	      border-top: 1px solid rgba(0, 0, 0, 0.12);
+	      display: grid;
+	      gap: 10px;
+	      grid-template-columns: repeat(2, minmax(0, 1fr));
+	      margin-top: auto;
+	      padding-top: 14px;
+	    }
+
+	    .dark .service-meta {
+	      border-top-color: rgba(255, 255, 255, 0.16);
+	    }
+
+	    .service-meta span {
+	      display: block;
+	      font-size: 11px;
+	      line-height: 1.5;
+	    }
+
+	    .service-meta strong {
+	      display: block;
+	      font-size: 13px;
+	      margin-top: 3px;
+	    }
+
+	    .credibility-line,
+	    .pricing-note {
+	      color: rgba(255, 255, 255, 0.82);
+	      font-size: 12px;
+	      line-height: 1.7;
+	      margin-top: 16px;
+	    }
+
+	    .pricing-note {
+	      color: inherit;
+	      opacity: 0.78;
+	    }
 
     .content-section .cosmo-button {
       border-color: #080511;
@@ -330,11 +410,12 @@
         max-width: 620px;
       }
 
-      .quick-facts,
-      .project-grid,
-      .format-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
+	      .quick-facts,
+	      .project-grid,
+	      .format-grid,
+	      .service-grid {
+	        grid-template-columns: repeat(2, 1fr);
+	      }
     }
 
     @media (max-width: 640px) {
@@ -342,19 +423,21 @@
         padding-top: 88px;
       }
 
-      .cosmo-hero h1 {
-        font-size: 42px;
-      }
+	      .cosmo-hero h1 {
+	        font-size: 42px;
+	      }
 
       .cosmo-hero h2 {
         font-size: 22px;
       }
 
-      .quick-facts,
-      .project-grid,
-      .format-grid {
-        grid-template-columns: 1fr;
-      }
+	      .quick-facts,
+	      .project-grid,
+	      .format-grid,
+	      .service-grid,
+	      .service-meta {
+	        grid-template-columns: 1fr;
+	      }
 
       .fact {
         border-bottom: 1px solid rgba(255, 255, 255, 0.18);
@@ -407,34 +490,35 @@
 </header>
 
 <main class="cosmo-page">
-  <section class="cosmo-hero">
-    <div>
-      <p class="eyebrow">Cosmoventures SASU</p>
-      <h1>Bringing the Universe to Life</h1>
-      <h2 data-t="heroSubtitle">Scientific consulting, R&D support, education, content, and culture.</h2>
-      <p class="hero-lead" data-t="heroLead">
-        A French SASU helping organizations make complex science rigorous, usable, and accessible.
-      </p>
-      <div class="hero-actions">
-        <a class="cosmo-button primary" href="./contact.html" data-t="heroContact">Contact</a>
-        <a class="cosmo-button" href="./ventures.html" data-t="heroVentures">See related ventures</a>
-      </div>
+	  <section class="cosmo-hero">
+	    <div>
+	      <p class="eyebrow">Cosmoventures SASU</p>
+	      <h1 data-t="heroHeadline">Make complex science rigorous, usable and engaging.</h1>
+	      <h2 data-t="heroSubtitle">Scientific consulting, R&D support, scientific advising and original educational formats for companies, startups, media and cultural organisations.</h2>
+	      <p class="hero-lead" data-t="heroLead">
+	        Cosmoventures is a scientific innovation and communication studio helping organisations transform complex science into rigorous analysis, usable strategy, credible content and engaging experiences.
+	      </p>
+	      <p class="credibility-line" data-t="heroCredibility">Founded by Sofia Gallego, astrophysicist with a research path through ETH Zurich, Caltech and Université Paris Cité.</p>
+	      <div class="hero-actions">
+	        <a class="cosmo-button primary" href="./contact.html" data-t="heroContact">Discuss a project</a>
+	        <a class="cosmo-button" href="#services-en" id="hero-services-link" data-t="heroVentures">View services</a>
+	      </div>
       <div class="lang-switch" aria-label="Language switcher">
         <button class="lang-button is-active" type="button" data-lang-button="en">EN</button>
         <button class="lang-button" type="button" data-lang-button="fr">FR</button>
       </div>
     </div>
 
-    <div class="cosmo-collage">
-      <img src="./assets/images/cosmoventures-collage.jpg" alt="Cosmoventures collage with science, music, food, storytelling, and games">
-    </div>
-  </section>
+	    <div class="cosmo-collage">
+	      <img src="./assets/images/cosmoventures-collage.jpg" alt="Cosmoventures scientific consulting, education, media, games, music and astronomy projects collage">
+	    </div>
+	  </section>
 
   <section class="quick-facts" aria-label="Cosmoventures quick facts">
-    <div class="fact">
-      <strong data-t="factStructureTitle">Structure</strong>
-      <span data-t="factStructure">French SASU in launch phase</span>
-    </div>
+	    <div class="fact">
+	      <strong data-t="factStructureTitle">Services</strong>
+	      <span data-t="factStructure">Scientific review, R&D, advising, workshops</span>
+	    </div>
     <div class="fact">
       <strong data-t="factFounderTitle">Founder</strong>
       <span data-t="factFounder">Sofia Gallego, astrophysicist and entrepreneur</span>
@@ -443,111 +527,144 @@
       <strong data-t="factBaseTitle">Base</strong>
       <span data-t="factBase">Paris, France</span>
     </div>
-    <div class="fact">
-      <strong data-t="factFocusTitle">Focus</strong>
-      <span data-t="factFocus">Scientific consulting and mediation</span>
-    </div>
-  </section>
+	    <div class="fact">
+	      <strong data-t="factFocusTitle">Formats</strong>
+	      <span data-t="factFocus">Reports, roadmaps, scripts, talks, formats</span>
+	    </div>
+	  </section>
 
-  <article class="lang-panel is-active" data-lang-panel="en">
-    <section class="content-section">
-      <h2>Company profile</h2>
-      <p class="lead-copy">
-        Cosmoventures SASU is a French company providing paid services in scientific consulting, R&D support,
-        science communication, educational content, training, events, and interdisciplinary projects. Founded by
-        Sofia Gallego, a Chilean astrophysicist whose path includes ETH Zurich, Caltech, and Université Paris Cité,
-        the company helps clients transform complex scientific subjects into reliable analysis, usable strategy,
-        credible content, and memorable public formats.
-      </p>
-    </section>
+	  <article class="lang-panel is-active" data-lang-panel="en">
+	    <section class="content-section">
+	      <h2>What can Cosmoventures help you solve?</h2>
+	      <ul class="problem-list">
+	        <li>You are building an AI, educational or deeptech product and need its scientific claims reviewed.</li>
+	        <li>You need a literature review, feasibility assessment or scientific roadmap.</li>
+	        <li>You are producing a video, podcast, exhibition or article and need scientific accuracy.</li>
+	        <li>Your technical team needs to communicate complex ideas clearly to investors, clients or the public.</li>
+	        <li>You need an original workshop, keynote or cultural format grounded in real science.</li>
+	      </ul>
+	    </section>
 
-    <section class="content-section">
-      <h2>Company facts</h2>
-      <div class="format-grid">
-        <div class="mini-card">
-          <h3>Legal structure</h3>
-          <p>French SASU based in Paris, created to commercialize scientific expertise, educational formats, content, and interdisciplinary project support.</p>
-        </div>
-        <div class="mini-card">
-          <h3>Core activity</h3>
-          <p>Scientific consulting, R&D and innovation support, science communication, training, workshops, public talks, and science-culture events.</p>
-        </div>
-        <div class="mini-card">
-          <h3>Target clients</h3>
-          <p>Companies, startups, research labs, universities, cultural institutions, media, public actors, associations, and educational organizations.</p>
-        </div>
-      </div>
-    </section>
+	    <section class="content-section dark" id="services-en">
+	      <h2>Services you can hire now</h2>
+	      <div class="service-grid">
+	        <div class="service-card">
+	          <h3>Scientific Product Review</h3>
+	          <p>For AI, education, deeptech and science-based products that need stronger scientific credibility before launch, fundraising, publication or partnership discussions.</p>
+	          <ul>
+	            <li>Review of scientific claims</li>
+	            <li>Literature and evidence assessment</li>
+	            <li>Identification of unsupported or misleading claims</li>
+	            <li>Written recommendations</li>
+	            <li>One feedback meeting</li>
+	          </ul>
+	          <div class="service-meta">
+	            <span>Typical duration <strong>1-3 weeks</strong></span>
+	            <span>Starting price <strong>From €1,500</strong></span>
+	          </div>
+	        </div>
+	        <div class="service-card">
+	          <h3>R&D and Scientific Strategy</h3>
+	          <p>For early-stage projects, startups and organisations developing scientifically informed concepts, products, educational tools or public programmes.</p>
+	          <ul>
+	            <li>Literature review</li>
+	            <li>Scientific framing</li>
+	            <li>Feasibility assessment</li>
+	            <li>Research questions and proof-of-concept definition</li>
+	            <li>R&D roadmap and relevant experts or partners</li>
+	          </ul>
+	          <div class="service-meta">
+	            <span>Typical duration <strong>2-6 weeks</strong></span>
+	            <span>Starting price <strong>From €3,000</strong></span>
+	          </div>
+	        </div>
+	        <div class="service-card">
+	          <h3>Scientific Advising for Media and Content</h3>
+	          <p>For YouTube videos, documentaries, podcasts, exhibitions, publishing and digital media that need accurate and engaging science.</p>
+	          <ul>
+	            <li>Script review and fact-checking</li>
+	            <li>Scientific corrections</li>
+	            <li>Narrative and visual feedback</li>
+	            <li>Source recommendations</li>
+	            <li>Ongoing advisory support when required</li>
+	          </ul>
+	          <div class="service-meta">
+	            <span>Typical duration <strong>Several days to several weeks</strong></span>
+	            <span>Starting price <strong>From €600 per assignment</strong></span>
+	          </div>
+	        </div>
+	        <div class="service-card">
+	          <h3>Workshops, Keynotes and Public Experiences</h3>
+	          <p>For companies, universities, schools, festivals, museums and cultural venues that want a rigorous, memorable science format.</p>
+	          <ul>
+	            <li>Thinking like a scientist</li>
+	            <li>Decision-making under uncertainty</li>
+	            <li>AI, evidence and scientific credibility</li>
+	            <li>Astronomy and the future</li>
+	            <li>Custom astronomy, music, game or culinary formats</li>
+	          </ul>
+	          <div class="service-meta">
+	            <span>Typical format <strong>60 minutes, half-day or full-day</strong></span>
+	            <span>Starting price <strong>From €900</strong></span>
+	          </div>
+	        </div>
+	      </div>
+	      <p class="pricing-note">Prices are indicative and depend on scope, preparation, number of revisions, travel, production needs and usage rights.</p>
+	    </section>
 
-    <section class="content-section dark">
-      <h2>Consulting and technical support</h2>
-      <div class="format-grid">
-        <div class="mini-card">
-          <h3>Scientific consulting</h3>
-          <p>Literature review, scientific framing, concept validation, technical synthesis, expert feedback, and translation of research into usable decisions.</p>
-        </div>
-        <div class="mini-card">
-          <h3>R&D and innovation</h3>
-          <p>Support for early-stage scientific projects, proof-of-concept definition, feasibility notes, research roadmaps, and collaboration with technical partners.</p>
-        </div>
-        <div class="mini-card">
-          <h3>AI, education, and deeptech</h3>
-          <p>Advising on educational AI concepts, scientific use cases, content quality, safety, learning design, and evidence-based product positioning.</p>
-        </div>
-        <div class="mini-card">
-          <h3>Scientific advising for content</h3>
-          <p>Script review, editorial guidance, factual checking, story structure, and scientific credibility for videos, podcasts, talks, exhibitions, and digital media.</p>
-        </div>
-        <div class="mini-card">
-          <h3>Training and workshops</h3>
-          <p>Custom sessions for schools, universities, companies, and cultural venues around astronomy, data, AI, climate, critical thinking, and science communication.</p>
-        </div>
-        <div class="mini-card">
-          <h3>Interdisciplinary projects</h3>
-          <p>Design and coordination of projects connecting science with education, art, music, games, food, storytelling, public engagement, and community formats.</p>
-        </div>
-      </div>
-    </section>
+	    <section class="content-section">
+	      <h2>Who Cosmoventures works with</h2>
+	      <div class="format-grid">
+	        <div class="mini-card"><h3>Startups and deeptech companies</h3><p>Scientific review, concept validation, product framing and R&D roadmaps.</p></div>
+	        <div class="mini-card"><h3>AI and educational technology companies</h3><p>Advising on learning design, evidence, claims, scientific positioning and responsible communication.</p></div>
+	        <div class="mini-card"><h3>Media producers and science creators</h3><p>Fact-checking, script review, narrative support and source recommendations.</p></div>
+	        <div class="mini-card"><h3>Universities and research organisations</h3><p>Public engagement formats, training, workshops and translation of research for broader audiences.</p></div>
+	        <div class="mini-card"><h3>Museums, science centres and cultural venues</h3><p>Exhibitions, talks, workshops and interdisciplinary science-culture programming.</p></div>
+	        <div class="mini-card"><h3>Public institutions, associations and companies</h3><p>Workshops, advisory work, scientific communication and custom educational experiences.</p></div>
+	      </div>
+	    </section>
 
-    <section class="content-section dark">
-      <h2>Scientific and entrepreneurial grounding</h2>
-      <p class="lead-copy">
-        The company is grounded in Sofia's international research background in astrophysics, cosmology, data analysis,
-        integral-field spectroscopy, simulations, and science communication. Her work has been connected to major
-        scientific instruments and survey environments including MUSE, KCWI, HST, and LSST, and to research settings in
-        Chile, Switzerland, the United States, and France.
-      </p>
-      <p>
-        Cosmoventures also builds on prior entrepreneurial and product-development experience: innovation training at
-        ETH Zurich through Innosuisse Startup Campus, exposure to the Caltech Entrepreneurship Club, cofounding Casa Rota
-        in Chile, participation in Start U Up in Paris, and a 2024 International Pitch Competition finalist project
-        around astronomy and sustainable travel.
-      </p>
-    </section>
+	    <section class="content-section dark">
+	      <h2>How it works</h2>
+	      <div class="format-grid">
+	        <div class="mini-card"><h3>1. Initial conversation</h3><p>A short call to understand the project, constraints and intended outcome.</p></div>
+	        <div class="mini-card"><h3>2. Defined scope</h3><p>Cosmoventures sends a written proposal with deliverables, schedule and price.</p></div>
+	        <div class="mini-card"><h3>3. Scientific and creative work</h3><p>Research, analysis, review, development or workshop preparation.</p></div>
+	        <div class="mini-card"><h3>4. Delivery and follow-up</h3><p>Final documents, recommendations, presentation, workshop or advisory session.</p></div>
+	      </div>
+	    </section>
 
-    <section class="content-section dark">
-      <h2>Mediation and public formats</h2>
-      <div class="format-grid">
-        <div class="mini-card">
-          <h3>Workshops</h3>
-          <p>Hands-on formats where participants model cosmic processes through drawing, cooking, listening, movement, and collaborative making.</p>
-        </div>
-        <div class="mini-card">
-          <h3>Games</h3>
-          <p>Logic, astronomy, and perception games that make abstract scientific ideas concrete, playful, and repeatable.</p>
-        </div>
-        <div class="mini-card">
-          <h3>Stories and performance</h3>
-          <p>Live formats combining narrative, music, images, and participation so scientific concepts become embodied experiences.</p>
-        </div>
-      </div>
-    </section>
+	    <section class="content-section">
+	      <h2>Selected work and evidence</h2>
+	      <div class="two-column">
+	        <div>
+	          <ul class="problem-list">
+	            <li>Scientific advising and collaboration for media or public science content.</li>
+	            <li>Junior UTC educational AI prototype work.</li>
+	            <li>Partnership framework with Soucoupe Flottante.</li>
+	            <li>Public workshops and astronomy-cultural events.</li>
+	            <li>Digital prototypes and science-inspired games.</li>
+	          </ul>
+	        </div>
+	        <div>
+	          <ul class="problem-list">
+	            <li>Research experience involving MUSE, KCWI, HST and LSST-related environments.</li>
+	            <li>International research background across Chile, Switzerland, the United States and France.</li>
+	            <li>Interdisciplinary practice across science, education, technology, storytelling, games, music and public engagement.</li>
+	          </ul>
+	        </div>
+	      </div>
+	    </section>
 
-    <section class="content-section">
-      <h2>Projects and formats</h2>
-      <div class="project-grid">
-        <div class="mini-card">
-          <h3>Cuisinez votre propre univers</h3>
+	    <section class="content-section dark">
+	      <h2>Original projects and intellectual property</h2>
+	      <p class="lead-copy">
+	        These projects show how Cosmoventures combines science, education, technology, storytelling, games, music and
+	        public engagement. They are examples of capability and original formats, not the only services available.
+	      </p>
+	      <div class="project-grid">
+	        <div class="mini-card">
+	          <h3>Cuisinez votre propre univers</h3>
           <p>A workshop and future recipe book that turns cosmology into a culinary experience: explore the cosmos with taste, texture, and imagination.</p>
         </div>
         <div class="mini-card">
@@ -578,148 +695,165 @@
         <div class="mini-card">
           <h3>Astro-music gatherings</h3>
           <p>Intimate events such as Astro Jam and astronomy, wine, cheese, and live music evenings, where science becomes a shared cultural moment.</p>
-        </div>
-      </div>
-    </section>
+	        </div>
+	      </div>
+	    </section>
 
-    <section class="content-section dark">
-      <div class="two-column">
-        <div>
-          <h2>Founder</h2>
-          <p class="lead-copy">
-            Sofia Gallego is an astrophysicist, musician, storyteller, and entrepreneur. Her work bridges research,
-            science communication, performance, game design, cultural programming, and digital learning prototypes.
-            Her Chilean background connects naturally with international astronomy, and her research path includes
-            large collaborative environments around instruments and surveys such as MUSE, KCWI, and LSST.
-            Cosmoventures gives that interdisciplinary practice a legal and commercial structure in France.
-          </p>
-        </div>
-        <div>
-          <h2>Activity and evidence</h2>
-          <p class="application-note">
-            Cosmoventures is in launch phase with concrete evidence of activity: registered company status,
-            a professional bank account, a partnership framework with Soucoupe Flottante, a Junior UTC AI-education
-            prototype order, public digital prototypes, and active acquisition channels such as Superprof and Gig Heaven.
-            A France 2030 / Bpifrance application was prepared as a funding effort and is not presented as awarded aid.
-          </p>
-        </div>
-      </div>
-    </section>
+	    <section class="content-section">
+	      <h2>Founder</h2>
+	      <p class="lead-copy">
+	        Sofia Gallego is an astrophysicist, scientific advisor, educator, musician and entrepreneur. Her research path
+	        includes ETH Zurich, Caltech and Université Paris Cité. She combines scientific analysis, communication, product
+	        thinking and interdisciplinary creation to help organisations work responsibly and imaginatively with complex
+	        scientific subjects.
+	      </p>
+	    </section>
 
-    <section class="content-section">
-      <h2>For applications and partnerships</h2>
-      <p class="lead-copy">
-        Cosmoventures is built for companies, startups, laboratories, universities, educational institutions, cultural
-        venues, festivals, public engagement programs, municipalities, libraries, science centers, media, and organizations
-        looking for reliable scientific expertise and original ways to connect audiences with astronomy and scientific imagination.
-      </p>
-      <div class="link-row" style="margin-top: 20px;">
-        <a class="cosmo-button primary" href="./contact.html">Contact Sofia</a>
-        <a class="cosmo-button" href="./outreach.html">Outreach work</a>
-        <a class="cosmo-button" href="./about.html">About Sofia</a>
-      </div>
-    </section>
-  </article>
+	    <section class="content-section dark">
+	      <h2>Have a scientific, educational or creative project?</h2>
+	      <p class="lead-copy">
+	        Cosmoventures can help define the scientific basis, validate the concept, improve the content or design a format
+	        that audiences can understand and remember.
+	      </p>
+	      <div class="link-row" style="margin-top: 20px;">
+	        <a class="cosmo-button primary" href="./contact.html">Discuss your project</a>
+	      </div>
+	    </section>
+	  </article>
 
-  <article class="lang-panel" data-lang-panel="fr">
-    <section class="content-section">
-      <h2>Profil de l'entreprise</h2>
-      <p class="lead-copy">
-        Cosmoventures SASU est une entreprise française de services payants en conseil scientifique, appui R&D,
-        communication scientifique, contenus éducatifs, formation, événements et projets interdisciplinaires. Fondée par
-        Sofia Gallego, astrophysicienne chilienne passée par l'ETH Zurich, Caltech et Université Paris Cité, l'entreprise
-        aide ses clients à transformer des sujets scientifiques complexes en analyses fiables, stratégies utilisables,
-        contenus crédibles et formats publics mémorables.
-      </p>
-    </section>
+	  <article class="lang-panel" data-lang-panel="fr">
+	    <section class="content-section">
+	      <h2>Quels problèmes Cosmoventures peut-elle vous aider à résoudre ?</h2>
+	      <ul class="problem-list">
+	        <li>Vous développez un produit IA, éducatif ou deeptech et devez vérifier ses affirmations scientifiques.</li>
+	        <li>Vous avez besoin d'une revue de littérature, d'une évaluation de faisabilité ou d'une feuille de route scientifique.</li>
+	        <li>Vous produisez une vidéo, un podcast, une exposition ou un article et devez garantir l'exactitude scientifique.</li>
+	        <li>Votre équipe technique doit communiquer des idées complexes à des investisseurs, clients ou publics.</li>
+	        <li>Vous cherchez un atelier, une conférence ou un format culturel original fondé sur la science réelle.</li>
+	      </ul>
+	    </section>
 
-    <section class="content-section">
-      <h2>Informations entreprise</h2>
-      <div class="format-grid">
-        <div class="mini-card">
-          <h3>Structure juridique</h3>
-          <p>SASU française basée à Paris, créée pour commercialiser une expertise scientifique, des formats éducatifs, des contenus et l'appui à des projets interdisciplinaires.</p>
-        </div>
-        <div class="mini-card">
-          <h3>Activité principale</h3>
-          <p>Conseil scientifique, appui R&D et innovation, communication scientifique, formation, ateliers, conférences et événements science-culture.</p>
-        </div>
-        <div class="mini-card">
-          <h3>Clients cibles</h3>
-          <p>Entreprises, startups, laboratoires, universités, institutions culturelles, médias, acteurs publics, associations et structures éducatives.</p>
-        </div>
-      </div>
-    </section>
+	    <section class="content-section dark" id="services-fr">
+	      <h2>Services disponibles maintenant</h2>
+	      <div class="service-grid">
+	        <div class="service-card">
+	          <h3>Revue scientifique de produit</h3>
+	          <p>Pour produits IA, éducation, deeptech ou science-based qui doivent renforcer leur crédibilité scientifique avant lancement, levée de fonds, publication ou partenariat.</p>
+	          <ul>
+	            <li>Revue des affirmations scientifiques</li>
+	            <li>Évaluation de la littérature et des preuves</li>
+	            <li>Identification des affirmations non étayées ou trompeuses</li>
+	            <li>Recommandations écrites</li>
+	            <li>Une réunion de restitution</li>
+	          </ul>
+	          <div class="service-meta">
+	            <span>Durée typique <strong>1-3 semaines</strong></span>
+	            <span>Prix indicatif <strong>À partir de 1 500 €</strong></span>
+	          </div>
+	        </div>
+	        <div class="service-card">
+	          <h3>R&D et stratégie scientifique</h3>
+	          <p>Pour projets amont, startups et organisations qui développent des concepts, produits, outils éducatifs ou programmes publics informés par la science.</p>
+	          <ul>
+	            <li>Revue de littérature</li>
+	            <li>Cadrage scientifique</li>
+	            <li>Évaluation de faisabilité</li>
+	            <li>Questions de recherche et définition de preuve de concept</li>
+	            <li>Feuille de route R&D et identification d'experts ou partenaires</li>
+	          </ul>
+	          <div class="service-meta">
+	            <span>Durée typique <strong>2-6 semaines</strong></span>
+	            <span>Prix indicatif <strong>À partir de 3 000 €</strong></span>
+	          </div>
+	        </div>
+	        <div class="service-card">
+	          <h3>Conseil scientifique pour médias et contenus</h3>
+	          <p>Pour vidéos YouTube, documentaires, podcasts, expositions, édition et médias numériques qui nécessitent une science exacte et engageante.</p>
+	          <ul>
+	            <li>Relecture de script et vérification factuelle</li>
+	            <li>Corrections scientifiques</li>
+	            <li>Retour narratif et visuel</li>
+	            <li>Recommandations de sources</li>
+	            <li>Accompagnement continu si nécessaire</li>
+	          </ul>
+	          <div class="service-meta">
+	            <span>Durée typique <strong>Quelques jours à plusieurs semaines</strong></span>
+	            <span>Prix indicatif <strong>À partir de 600 € par mission</strong></span>
+	          </div>
+	        </div>
+	        <div class="service-card">
+	          <h3>Ateliers, conférences et expériences publiques</h3>
+	          <p>Pour entreprises, universités, écoles, festivals, musées et lieux culturels qui veulent un format scientifique rigoureux et mémorable.</p>
+	          <ul>
+	            <li>Penser comme un scientifique</li>
+	            <li>Décider dans l'incertitude</li>
+	            <li>IA, preuve et crédibilité scientifique</li>
+	            <li>Astronomie et futur</li>
+	            <li>Formats sur mesure en astronomie, musique, jeu ou cuisine</li>
+	          </ul>
+	          <div class="service-meta">
+	            <span>Format typique <strong>60 minutes, demi-journée ou journée</strong></span>
+	            <span>Prix indicatif <strong>À partir de 900 €</strong></span>
+	          </div>
+	        </div>
+	      </div>
+	      <p class="pricing-note">Les prix sont indicatifs et dépendent du périmètre, de la préparation, du nombre de révisions, des déplacements, des besoins de production et des droits d'utilisation.</p>
+	    </section>
 
-    <section class="content-section dark">
-      <h2>Conseil et appui technique</h2>
-      <div class="format-grid">
-        <div class="mini-card">
-          <h3>Conseil scientifique</h3>
-          <p>Revue de littérature, cadrage scientifique, validation de concepts, synthèse technique, retour expert et traduction de la recherche en décisions exploitables.</p>
-        </div>
-        <div class="mini-card">
-          <h3>R&D et innovation</h3>
-          <p>Appui aux projets scientifiques en phase amont, définition de preuve de concept, notes de faisabilité, feuille de route recherche et collaboration avec partenaires techniques.</p>
-        </div>
-        <div class="mini-card">
-          <h3>IA, éducation et deeptech</h3>
-          <p>Conseil sur les concepts d'IA éducative, les cas d'usage scientifiques, la qualité des contenus, la sécurité, le design pédagogique et le positionnement produit.</p>
-        </div>
-        <div class="mini-card">
-          <h3>Conseil scientifique éditorial</h3>
-          <p>Relecture de scripts, accompagnement éditorial, vérification factuelle, structure narrative et crédibilité scientifique pour vidéos, podcasts, conférences, expositions et médias numériques.</p>
-        </div>
-        <div class="mini-card">
-          <h3>Formations et ateliers</h3>
-          <p>Sessions sur mesure pour écoles, universités, entreprises et lieux culturels autour de l'astronomie, des données, de l'IA, du climat, de l'esprit critique et de la communication scientifique.</p>
-        </div>
-        <div class="mini-card">
-          <h3>Projets interdisciplinaires</h3>
-          <p>Conception et coordination de projets reliant science, éducation, art, musique, jeux, cuisine, récit, médiation publique et formats communautaires.</p>
-        </div>
-      </div>
-    </section>
+	    <section class="content-section">
+	      <h2>Avec qui Cosmoventures travaille</h2>
+	      <div class="format-grid">
+	        <div class="mini-card"><h3>Startups et entreprises deeptech</h3><p>Revue scientifique, validation de concept, cadrage produit et feuilles de route R&D.</p></div>
+	        <div class="mini-card"><h3>IA et technologies éducatives</h3><p>Conseil sur le design pédagogique, les preuves, les affirmations, le positionnement scientifique et la communication responsable.</p></div>
+	        <div class="mini-card"><h3>Producteurs médias et créateurs science</h3><p>Vérification factuelle, relecture de scripts, appui narratif et recommandations de sources.</p></div>
+	        <div class="mini-card"><h3>Universités et organismes de recherche</h3><p>Médiation, formations, ateliers et traduction de la recherche pour des publics plus larges.</p></div>
+	        <div class="mini-card"><h3>Musées, centres de sciences et lieux culturels</h3><p>Expositions, conférences, ateliers et programmation interdisciplinaire science-culture.</p></div>
+	        <div class="mini-card"><h3>Institutions publiques, associations et entreprises</h3><p>Ateliers, conseil, communication scientifique et expériences éducatives sur mesure.</p></div>
+	      </div>
+	    </section>
 
-    <section class="content-section dark">
-      <h2>Ancrage scientifique et entrepreneurial</h2>
-      <p class="lead-copy">
-        L'entreprise s'appuie sur le parcours international de Sofia en astrophysique, cosmologie, analyse de données,
-        spectroscopie intégrale de champ, simulations et communication scientifique. Son travail est lié à des
-        instruments et environnements de grands relevés scientifiques comme MUSE, KCWI, HST et LSST, ainsi qu'à des
-        contextes de recherche au Chili, en Suisse, aux États-Unis et en France.
-      </p>
-      <p>
-        Cosmoventures s'appuie aussi sur une expérience entrepreneuriale et de prototypage : formation à l'innovation
-        à l'ETH Zurich via Innosuisse Startup Campus, participation à l'écosystème entrepreneurial de Caltech,
-        cofondation de Casa Rota au Chili, programme Start U Up à Paris et projet finaliste du concours international
-        de pitch 2024 autour de l'astronomie et du tourisme durable.
-      </p>
-    </section>
+	    <section class="content-section dark">
+	      <h2>Comment se déroule une mission</h2>
+	      <div class="format-grid">
+	        <div class="mini-card"><h3>1. Premier échange</h3><p>Un court appel pour comprendre le projet, les contraintes et le résultat attendu.</p></div>
+	        <div class="mini-card"><h3>2. Périmètre défini</h3><p>Cosmoventures envoie une proposition écrite avec livrables, calendrier et prix.</p></div>
+	        <div class="mini-card"><h3>3. Travail scientifique et créatif</h3><p>Recherche, analyse, revue, développement ou préparation d'atelier.</p></div>
+	        <div class="mini-card"><h3>4. Livraison et suivi</h3><p>Documents finaux, recommandations, présentation, atelier ou session de conseil.</p></div>
+	      </div>
+	    </section>
 
-    <section class="content-section dark">
-      <h2>Médiation et formats publics</h2>
-      <div class="format-grid">
-        <div class="mini-card">
-          <h3>Ateliers</h3>
-          <p>Des formats participatifs où l'on explore le cosmos par le dessin, la cuisine, l'écoute, le mouvement et la création collective.</p>
-        </div>
-        <div class="mini-card">
-          <h3>Jeux</h3>
-          <p>Des jeux de logique, d'astronomie et de perception qui rendent les idées scientifiques concrètes, ludiques et transmissibles.</p>
-        </div>
-        <div class="mini-card">
-          <h3>Récits et performance</h3>
-          <p>Des formats vivants mêlant narration, musique, images et participation pour transformer les concepts scientifiques en expériences sensibles.</p>
-        </div>
-      </div>
-    </section>
+	    <section class="content-section">
+	      <h2>Réalisations et éléments concrets</h2>
+	      <div class="two-column">
+	        <div>
+	          <ul class="problem-list">
+	            <li>Conseil scientifique et collaboration pour contenus médias ou de médiation scientifique.</li>
+	            <li>Travail de prototype IA-éducation avec Junior UTC.</li>
+	            <li>Convention de partenariat avec Soucoupe Flottante.</li>
+	            <li>Ateliers publics et événements astro-culturels.</li>
+	            <li>Prototypes numériques et jeux inspirés par la science.</li>
+	          </ul>
+	        </div>
+	        <div>
+	          <ul class="problem-list">
+	            <li>Expérience de recherche impliquant MUSE, KCWI, HST et des environnements liés à LSST.</li>
+	            <li>Parcours international de recherche entre le Chili, la Suisse, les États-Unis et la France.</li>
+	            <li>Pratique interdisciplinaire entre science, éducation, technologie, récit, jeux, musique et médiation.</li>
+	          </ul>
+	        </div>
+	      </div>
+	    </section>
 
-    <section class="content-section">
-      <h2>Projets et formats</h2>
-      <div class="project-grid">
-        <div class="mini-card">
-          <h3>Cuisinez votre propre univers</h3>
+	    <section class="content-section dark">
+	      <h2>Projets originaux et propriété intellectuelle</h2>
+	      <p class="lead-copy">
+	        Ces projets montrent la capacité de Cosmoventures à combiner science, éducation, technologie, storytelling,
+	        jeux, musique et engagement des publics. Ce sont des exemples de savoir-faire et de formats originaux, pas les
+	        seuls services proposés.
+	      </p>
+	      <div class="project-grid">
+	        <div class="mini-card">
+	          <h3>Cuisinez votre propre univers</h3>
           <p>Un atelier et futur livre de recettes qui transforme la cosmologie en expérience culinaire : explorer le cosmos avec les goûts, les textures et l'imagination.</p>
         </div>
         <div class="mini-card">
@@ -750,50 +884,30 @@
         <div class="mini-card">
           <h3>Rencontres astro-musicales</h3>
           <p>Des événements intimes comme Astro Jam ou les soirées astronomie, vin, fromage et musique live, où la science devient un moment culturel partagé.</p>
-        </div>
-      </div>
-    </section>
+	        </div>
+	      </div>
+	    </section>
 
-    <section class="content-section dark">
-      <div class="two-column">
-        <div>
-          <h2>Fondatrice</h2>
-          <p class="lead-copy">
-            Sofia Gallego est astrophysicienne, musicienne, conteuse et entrepreneuse. Son travail relie recherche,
-            médiation scientifique, performance, conception de jeux, programmation culturelle et prototypes
-            d'apprentissage numérique. Son origine chilienne la relie naturellement à l'astronomie internationale, et
-            son parcours de recherche inclut de grands environnements collaboratifs autour d'instruments et relevés
-            comme MUSE, KCWI et LSST. Cosmoventures donne à cette pratique interdisciplinaire une structure juridique
-            et commerciale en France.
-          </p>
-        </div>
-        <div>
-          <h2>Activité et justificatifs</h2>
-          <p class="application-note">
-            Cosmoventures est en phase de lancement avec des éléments concrets d'activité : société immatriculée,
-            compte bancaire professionnel, convention de partenariat avec Soucoupe Flottante, bon de commande Junior UTC
-            pour un prototype IA-éducation, prototypes numériques publics et canaux d'acquisition comme Superprof et
-            Gig Heaven. Une demande France 2030 / Bpifrance a été préparée comme démarche de financement et n'est pas
-            présentée comme une aide attribuée.
-          </p>
-        </div>
-      </div>
-    </section>
+	    <section class="content-section">
+	      <h2>Fondatrice</h2>
+	      <p class="lead-copy">
+	        Sofia Gallego est astrophysicienne, conseillère scientifique, éducatrice, musicienne et entrepreneuse. Son
+	        parcours de recherche inclut l'ETH Zurich, Caltech et Université Paris Cité. Elle combine analyse scientifique,
+	        communication, pensée produit et création interdisciplinaire pour aider les organisations à travailler de façon
+	        responsable et imaginative avec des sujets scientifiques complexes.
+	      </p>
+	    </section>
 
-    <section class="content-section">
-      <h2>Pour candidatures et partenariats</h2>
-      <p class="lead-copy">
-        Cosmoventures s'adresse aux entreprises, startups, laboratoires, universités, institutions éducatives, lieux
-        culturels, festivals, programmes de médiation, collectivités, bibliothèques, centres de sciences, médias et
-        organisations qui cherchent une expertise scientifique fiable et des formats originaux pour relier les publics
-        à l'astronomie et à l'imaginaire scientifique.
-      </p>
-      <div class="link-row" style="margin-top: 20px;">
-        <a class="cosmo-button primary" href="./contact.html">Contacter Sofia</a>
-        <a class="cosmo-button" href="./outreach.html">Médiation scientifique</a>
-        <a class="cosmo-button" href="./about.html">À propos de Sofia</a>
-      </div>
-    </section>
+	    <section class="content-section dark">
+	      <h2>Vous avez un projet scientifique, éducatif ou créatif ?</h2>
+	      <p class="lead-copy">
+	        Cosmoventures peut aider à définir la base scientifique, valider le concept, améliorer le contenu ou concevoir
+	        un format que les publics peuvent comprendre et retenir.
+	      </p>
+	      <div class="link-row" style="margin-top: 20px;">
+	        <a class="cosmo-button primary" href="./contact.html">Discuter votre projet</a>
+	      </div>
+	    </section>
   </article>
 </main>
 
@@ -813,36 +927,40 @@
 </footer>
 
 <script>
-  var translations = {
-	    en: {
-	      heroSubtitle: "Scientific consulting, R&D support, education, content, and culture.",
-	      heroLead: "A French SASU helping organizations make complex science rigorous, usable, and accessible.",
-	      heroContact: "Contact",
-	      heroVentures: "See related ventures",
-	      factStructureTitle: "Structure",
-	      factStructure: "French SASU in launch phase",
-	      factFounderTitle: "Founder",
-	      factFounder: "Sofia Gallego, astrophysicist and entrepreneur",
-	      factBaseTitle: "Base",
-	      factBase: "Paris, France",
-	      factFocusTitle: "Focus",
-	      factFocus: "Scientific consulting and mediation"
-	    },
-	    fr: {
-	      heroSubtitle: "Conseil scientifique, appui R&D, éducation, contenus et culture.",
-	      heroLead: "Une SASU française qui aide les organisations à rendre les sciences complexes rigoureuses, utiles et accessibles.",
-	      heroContact: "Contact",
-	      heroVentures: "Voir les projets liés",
-	      factStructureTitle: "Structure",
-	      factStructure: "SASU française en phase de lancement",
-	      factFounderTitle: "Fondatrice",
-	      factFounder: "Sofia Gallego, astrophysicienne et entrepreneuse",
-	      factBaseTitle: "Base",
-	      factBase: "Paris, France",
-	      factFocusTitle: "Approche",
-	      factFocus: "Conseil scientifique et médiation"
-	    }
-  };
+	  var translations = {
+		    en: {
+		      heroHeadline: "Make complex science rigorous, usable and engaging.",
+		      heroSubtitle: "Scientific consulting, R&D support, scientific advising and original educational formats for companies, startups, media and cultural organisations.",
+		      heroLead: "Cosmoventures is a scientific innovation and communication studio helping organisations transform complex science into rigorous analysis, usable strategy, credible content and engaging experiences.",
+		      heroCredibility: "Founded by Sofia Gallego, astrophysicist with a research path through ETH Zurich, Caltech and Université Paris Cité.",
+		      heroContact: "Discuss a project",
+		      heroVentures: "View services",
+		      factStructureTitle: "Services",
+		      factStructure: "Scientific review, R&D, advising, workshops",
+		      factFounderTitle: "Founder",
+		      factFounder: "Sofia Gallego, astrophysicist and entrepreneur",
+		      factBaseTitle: "Base",
+		      factBase: "Paris, France",
+		      factFocusTitle: "Formats",
+		      factFocus: "Reports, roadmaps, scripts, talks, formats"
+		    },
+		    fr: {
+		      heroHeadline: "Rendre la science complexe rigoureuse, utile et engageante.",
+		      heroSubtitle: "Conseil scientifique, appui R&D, accompagnement éditorial et formats éducatifs originaux pour entreprises, startups, médias et organisations culturelles.",
+		      heroLead: "Cosmoventures est un studio d'innovation et de communication scientifique qui aide les organisations à transformer la science complexe en analyse rigoureuse, stratégie utilisable, contenus crédibles et expériences engageantes.",
+		      heroCredibility: "Fondée par Sofia Gallego, astrophysicienne passée par l'ETH Zurich, Caltech et Université Paris Cité.",
+		      heroContact: "Discuter un projet",
+		      heroVentures: "Voir les services",
+		      factStructureTitle: "Services",
+		      factStructure: "Revue scientifique, R&D, conseil, ateliers",
+		      factFounderTitle: "Fondatrice",
+		      factFounder: "Sofia Gallego, astrophysicienne et entrepreneuse",
+		      factBaseTitle: "Base",
+		      factBase: "Paris, France",
+		      factFocusTitle: "Formats",
+		      factFocus: "Rapports, roadmaps, scripts, conférences"
+		    }
+	  };
 
   function setLanguage(lang) {
     document.documentElement.lang = lang;
@@ -852,13 +970,17 @@
     document.querySelectorAll("[data-lang-button]").forEach(function(button) {
       button.classList.toggle("is-active", button.getAttribute("data-lang-button") === lang);
     });
-    Object.keys(translations[lang]).forEach(function(key) {
-      var node = document.querySelector("[data-t='" + key + "']");
-      if (node) {
-        node.textContent = translations[lang][key];
-      }
-    });
-  }
+	    Object.keys(translations[lang]).forEach(function(key) {
+	      var node = document.querySelector("[data-t='" + key + "']");
+	      if (node) {
+	        node.textContent = translations[lang][key];
+	      }
+	    });
+	    var serviceLink = document.getElementById("hero-services-link");
+	    if (serviceLink) {
+	      serviceLink.setAttribute("href", lang === "fr" ? "#services-fr" : "#services-en");
+	    }
+	  }
 
   document.addEventListener("DOMContentLoaded", function (event) {
     navActivePage();
