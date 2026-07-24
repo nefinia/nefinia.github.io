@@ -9,10 +9,13 @@
   gtag('js', new Date());
   gtag('config', 'G-20EEFX7Q6N');
 </script>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="description" content="Cast tetromino stamps in cyan, magenta, and yellow. Overlap colors with XOR logic to match the target." />
+  <meta name="theme-color" content="#060913" />
+  <meta name="color-scheme" content="dark" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%23060913%22/%3E%3Cpath d=%22M14 17l13 15-13 15h10l8-9 8 9h10L37 32l13-15H40l-8 9-8-9z%22 fill=%22%2300d2ff%22/%3E%3C/svg%3E" />
   <title>Colored XOR — CMY Stamp Puzzle</title>
-
   <link href="../main.3f6952e4.css" rel="stylesheet">
 <style>
     :root{
@@ -61,6 +64,144 @@
     @media (max-width: 980px){
       .wrap{ grid-template-columns: 1fr; }
     }
+
+    /* Mobile-only layout overrides */
+    :root{
+      --pagePad: 12px;
+    }
+    .wrap{
+      max-width: 980px;
+      grid-template-columns: 1fr !important;
+      padding: var(--pagePad) !important;
+    }
+    .wrap > .card:first-child{
+      display:none !important;
+    }
+    .rightTop,
+    .row.controlsRow{
+      display:none !important;
+    }
+    .mobileOptions{
+      display:block !important;
+      position: fixed !important;
+      top: var(--pagePad) !important;
+      left: var(--pagePad) !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      z-index: 30;
+    }
+    .mobileOptions .menuBtn{
+      width: 72px;
+      height: 72px;
+      padding: 0;
+      border: none;
+      background: transparent;
+      color: inherit;
+      font-size: 30px;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .menuPanel{
+      position: absolute;
+      top: 76px;
+      left: 0;
+      min-width: 180px;
+      padding: 6px;
+      border-radius: 12px;
+      border: 1px solid rgba(125,160,220,.25);
+      background: rgba(10,14,22,.95);
+      box-shadow: 0 12px 28px rgba(0,0,0,.45);
+      display: none;
+      flex-direction: column;
+      gap: 2px;
+      z-index: 40;
+    }
+    .menuPanel.on{ display: flex; }
+    .menuItem{
+      text-align: left;
+      font-size: 12px;
+      font-weight: 700;
+      color: rgba(234,241,251,.92);
+      background: transparent;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .menuItem:hover{ background: rgba(255,255,255,.06); }
+    .menuSep{
+      height: 1px;
+      background: rgba(255,255,255,.08);
+      margin: 4px 2px;
+    }
+    .boards{
+      grid-template-columns: 1fr !important;
+      grid-template-rows: auto auto auto !important;
+      gap: 6px !important;
+      padding: var(--pagePad) !important;
+      margin-top: 48px !important;
+      justify-items: start !important;
+      align-items: start !important;
+    }
+    .targetRow{
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      justify-content: flex-start !important;
+      flex-wrap: nowrap !important;
+      gap: 4px !important;
+    }
+    .targetStack{
+      align-items: flex-start !important;
+      gap: 4px !important;
+    }
+    .targetLabel{
+      text-align: center !important;
+      width: 100% !important;
+    }
+    .targetLabelRow{
+      width: 100% !important;
+      justify-content: center !important;
+    }
+    .paletteWrap.nearBoard{
+      max-width: none !important;
+      width: 100% !important;
+      order: 2 !important;
+    }
+    .mobilePreview{
+      width: 100% !important;
+      flex-wrap: nowrap !important;
+      justify-content: center !important;
+      gap: 2px !important;
+    }
+    .mobilePreview .colorPicker{
+      width: auto !important;
+      justify-content: center !important;
+      order: 0 !important;
+    }
+    .board{
+      border: none !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      width: 100% !important;
+    }
+    .paletteWrap,
+    .paletteWrap.nearBoard{
+      border: none !important;
+      background: transparent !important;
+      padding: 0 !important;
+    }
+    .gridWrap{
+      width: 100% !important;
+      display:flex !important;
+      justify-content:flex-start !important;
+      overflow: hidden !important;
+    }
+    .board .gridWrap{
+      justify-content: center !important;
+    }
+      #playGrid{
+        --cell: clamp(15px, calc((100vw - 8px - (var(--n) - 1) * var(--gap)) / var(--n)), 28px) !important;
+      }
 
     .card{
       border: 1px solid var(--line);
@@ -233,10 +374,10 @@
       display:flex;
       flex-wrap: wrap;
       justify-content:center;
-      align-content:center;
-      gap: 4px 6px;
-      --thumb: 54px;
-      --frame: 66px;
+      align-content:flex-start;
+      gap: 0;
+      --thumb: 42px;
+      --frame: 42px;
     }
     .piece{
       border: none;
@@ -250,6 +391,7 @@
       justify-content:center;
       transition: border-color .15s ease, background .15s ease, transform .06s ease;
       min-width: 0;
+      touch-action: none;
     }
     .piece:hover{ background: transparent; }
     .piece:active{ transform: translateY(1px); }
@@ -285,14 +427,15 @@
       border: none;
       background: transparent;
       box-shadow: none;
+      margin: -10px -6px;
     }
     .palette.compact .piece:hover{ background: transparent; }
     .palette.compact .piece.selected canvas.thumb{
       filter:
         drop-shadow(0 0 0 rgba(122,162,255,1))
-        drop-shadow(0 0 8px rgba(122,162,255,.75))
-        drop-shadow(0 0 16px rgba(122,162,255,.45))
-        drop-shadow(0 0 24px rgba(122,162,255,.25));
+        drop-shadow(0 0 8px rgba(122,162,255,.85))
+        drop-shadow(0 0 18px rgba(122,162,255,.55))
+        drop-shadow(0 0 30px rgba(122,162,255,.35));
     }
     .palette.compact .name{
       font-size: 10px;
@@ -375,7 +518,7 @@
       display:flex;
       flex-direction: column;
       align-items:flex-start;
-      gap: 8px;
+      gap: 6px;
     }
     .targetRow{
       align-items: stretch;
@@ -386,6 +529,13 @@
       color: rgba(234,241,251,.92);
       letter-spacing: .2px;
     }
+    .targetLabelRow{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      width: 100%;
+      justify-content: center;
+    }
     .targetRow .paletteWrap{
       align-self: stretch;
     }
@@ -393,20 +543,19 @@
       padding: 8px;
     }
     .colorPicker{
-      height: 28px;
-    }
-    .colorPicker{
       display:flex;
-      gap: 5px;
+      gap: 8px;
       align-items:center;
-      padding: 2px 5px;
+      padding: 6px 10px;
       border-radius: 12px;
       border: 1px solid rgba(125,160,220,.22);
-      background: rgba(255,255,255,.03);
+      background: transparent;
+      height: 44px;
+      min-width: 96px;
     }
     .colorBtn{
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       border-radius: 6px;
       border: 1px solid rgba(255,255,255,.25);
       box-shadow: inset 0 0 0 1px rgba(0,0,0,.2);
@@ -421,15 +570,18 @@
     #rotateBtn{
       font-size: 30px;
       line-height: 1;
-      padding: 8px 14px;
-      min-width: 60px;
+      padding: 8px 12px;
+      min-width: 56px;
     }
     #undoBtn,
     #redoBtn{
       font-size: 21px;
       line-height: 1;
-      padding: 8px 12px;
-      min-width: 54px;
+      padding: 8px 10px;
+      min-width: 48px;
+    }
+    .mobilePreview .btn{
+      height: 44px;
     }
     .mobilePreview{
       display:flex;
@@ -437,8 +589,8 @@
       gap: 5px;
       padding: 4px 6px;
       border-radius: 0;
-      border: 1px solid rgba(125,160,220,.22);
-      background: rgba(255,255,255,.03);
+      border: none;
+      background: transparent;
       min-width: 0;
     }
     .mobilePreview canvas{
@@ -484,7 +636,7 @@
     .cell{
       width: var(--cell);
       height: var(--cell);
-      border-radius: 8px;
+      border-radius: 4px;
       background: rgba(244,247,251,.96);
       box-shadow: inset 0 0 0 1px rgba(0,0,0,.12);
       position: relative;
@@ -500,7 +652,7 @@
       content: "";
       position:absolute;
       inset: 0;
-      border-radius: 8px;
+      border-radius: 4px;
       background: rgba(0,0,0,.18);
       box-shadow: inset 0 0 0 2px rgba(122,162,255,.55);
       pointer-events:none;
@@ -514,7 +666,7 @@
       content: "";
       position:absolute;
       inset: 0;
-      border-radius: 8px;
+      border-radius: 4px;
       box-shadow: inset 0 0 0 2px rgba(251,113,133,.55);
       background: rgba(251,113,133,.08);
       pointer-events:none;
@@ -522,6 +674,14 @@
 
     .mini{ padding: 8px; }
     .mini .cell{ width: var(--cellMini); height: var(--cellMini); border-radius: 4px; }
+    #targetGrid{
+      --cellMini: 13.5px;
+    }
+    #targetGrid .cell,
+    #targetGrid .cell.ghost::after,
+    #targetGrid .cell.mismatch::after{
+      border-radius: 2px;
+    }
 
     #solCanvas{
       position:absolute;
@@ -554,6 +714,59 @@
       font-weight: 700;
       text-align: center;
     }
+    .howtoModal{
+      position: fixed;
+      inset: 0;
+      background: rgba(6,9,19,.65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      padding: 16px;
+    }
+    .howtoModal.on{ display:flex; }
+    .howtoCard{
+      max-width: 360px;
+      width: 100%;
+      border: 1px solid rgba(125,160,220,.25);
+      border-radius: 14px;
+      padding: 14px;
+      background: linear-gradient(180deg, rgba(20,28,48,.98), rgba(10,18,34,.98));
+      box-shadow: var(--shadow);
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .howtoHead{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .historyList{
+      display:flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 60vh;
+      overflow: auto;
+    }
+    .historyItem{
+      border: 1px solid rgba(125,160,220,.2);
+      border-radius: 10px;
+      padding: 8px;
+      background: rgba(255,255,255,.03);
+      font-size: 12px;
+      line-height: 1.35;
+      display:flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .historyItem .meta{
+      color: var(--muted);
+      font-size: 11px;
+    }
     .moveFooter.solved{
       color: rgba(45,212,191,.95);
       font-weight: 800;
@@ -561,18 +774,24 @@
     .mobileOptions{
       display:none;
     }
-    .mobileOptions select{
-      width: 100%;
-      min-height: 36px;
-      font-size: 14px;
+    .mobileOptions .menuBtn{
+      width: 72px;
+      height: 72px;
+      font-size: 30px;
+      font-weight: 800;
+      border: none;
+      background: transparent;
+      box-shadow: none;
+      outline: none;
+      padding: 0;
+      text-align: center;
+      color: inherit;
     }
-    .fixedCluster{
-      position: sticky;
-      top: 0;
-      z-index: 5;
-      background: linear-gradient(180deg, rgba(10,18,34,.96), rgba(10,18,34,.82) 70%, rgba(10,18,34,0));
-      padding-bottom: 6px;
+    .mobileOptions .menuBtn:focus{
+      outline: none;
+      box-shadow: none;
     }
+    .fixedCluster{ display:none; }
 
     @media (max-width: 820px){
       .boardControls{ justify-content: flex-start; }
@@ -581,8 +800,8 @@
       .mobileOptions{ display:block; }
       .row.controlsRow{ display:none; }
       .rightTop{ display:none; }
-      .fixedCluster{ margin: 0 -14px 6px; padding: 10px 14px 6px; }
       .wrap > .card:first-child{ display:none; }
+      .card{ border: none; background: transparent; box-shadow: none; }
       :root{
         --cellMini: 11px;
       }
@@ -590,37 +809,47 @@
       .targetRow,
       .mobilePreview{
         width: 100%;
+        align-items: flex-start;
       }
       .targetRow{
         flex-direction: column;
-        align-items: center;
+        align-items: flex-start;
       }
       .targetStack{
-        align-items: center;
+        align-items: flex-start;
+        gap: 4px;
       }
       .targetLabel{
         text-align: center;
         width: 100%;
       }
+      .targetLabelRow{
+        width: 100%;
+        justify-content: center;
+      }
       .gridWrap{
         width: 100%;
         display:flex;
+        justify-content:flex-start;
+      }
+      .board .gridWrap{
         justify-content:center;
       }
       #playGrid{
-        --cell: clamp(13px, calc((100vw - 48px - (var(--n) - 1) * var(--gap)) / var(--n)), 22px);
+        --cell: clamp(13px, calc((100vw - 20px - (var(--n) - 1) * var(--gap)) / var(--n)), 24px);
       }
-      .targetRow{ gap: 10px; }
-      .grid{ padding: 6px; }
-      .gridWrap{ max-width: 100%; overflow-x: auto; }
+      .targetRow{ gap: 6px; }
+      .grid{ padding: 2px; }
+      .gridWrap{ max-width: 100%; overflow: hidden; }
       .paletteWrap.nearBoard{
         max-width: none;
         width: 100%;
         order: 2;
       }
       .palette.compact{
-        --thumb: 48px;
-        --frame: 60px;
+        --thumb: 54px;
+        --frame: 68px;
+        gap: 0;
       }
       .palette.compact canvas.thumb{
         width: var(--thumb);
@@ -642,21 +871,19 @@
         padding: 6px 10px;
       }
       .mobilePreview{
-        padding: 3px 4px;
-        gap: 4px;
+        padding: 2px 4px;
+        gap: 2px;
+        flex-wrap: nowrap;
+        justify-content: center;
       }
       .mobilePreview canvas{
         width: 45px;
         height: 45px;
       }
-      .mobilePreview{
-        flex-wrap: wrap;
-        justify-content: center;
-      }
       .mobilePreview .colorPicker{
-        width: 100%;
+        width: auto;
         justify-content: center;
-        order: 3;
+        order: 0;
       }
     }
     @media (max-width: 600px){
@@ -664,11 +891,12 @@
         --gap: 1px;
       }
       #playGrid{
-        --cell: clamp(12px, calc((100vw - 36px - (var(--n) - 1) * var(--gap)) / var(--n)), 20px);
+        --cell: clamp(12px, calc((100vw - 16px - (var(--n) - 1) * var(--gap)) / var(--n)), 22px);
       }
       .palette.compact{
-        --thumb: 42px;
-        --frame: 54px;
+        --thumb: 48px;
+        --frame: 62px;
+        gap: 0;
       }
       .palette.compact canvas.thumb{
         width: var(--thumb);
@@ -703,30 +931,402 @@
         justify-content:center;
       }
     }
-</style>
-<style id="nefinia-game-shell">
+  /* Standalone itch.io shell */
+  html { min-height: 100%; background: #060913; }
   body {
-    padding-top: 68px !important;
-    background-color: black;
-    background-image: url('../assets/images/space.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+    overflow-x: hidden;
   }
-  .nefinia-game-menu .navbar {
-    z-index: 10000;
+  .gameCard { width: min(100%, 960px); }
+  .gameBrand {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 14px 0;
+    user-select: none;
+  }
+  .gameBrandName { font-size: clamp(20px, 4vw, 30px); font-weight: 900; letter-spacing: .02em; }
+  .gameBrandTag { color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .brandC { color: #00d2ff; }
+  .brandM { color: #ff00aa; }
+  .brandY { color: #ffd400; }
+  .credit { font-size: 11px; opacity: .7; margin-top: 6px; text-align: center; }
+  @media (max-width: 520px) {
+    body { padding: max(4px, env(safe-area-inset-top)) max(4px, env(safe-area-inset-right)) max(4px, env(safe-area-inset-bottom)) max(4px, env(safe-area-inset-left)); }
+    .wrap { padding: 4px !important; }
+    .gameBrand { padding-top: 7px; }
+    .gameBrandTag { display: none; }
   }
 
-  .nefinia-game-menu + #wrap,
-  .nefinia-game-menu + .wrap.fullscreen,
-  .nefinia-game-menu + canvas,
-  .nefinia-game-menu + .hud {
-    top: 68px !important;
+  /* Release UX: clear steps, balanced desktop, thumb-friendly mobile */
+  .gameCard { position: relative; }
+  .gameBrand {
+    min-height: 52px;
+    padding: 10px 56px 8px;
+    border-bottom: 1px solid rgba(125,160,220,.12);
   }
-  .nefinia-game-menu + #wrap {
-    bottom: 0 !important;
-    height: auto !important;
+  .brandHelpBtn {
+    position: absolute;
+    top: 9px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 17px;
   }
+  .sectionLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 820;
+    letter-spacing: .02em;
+    margin-bottom: 10px;
+  }
+  .stepNumber {
+    display: inline-grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    border-radius: 8px;
+    color: #07101b;
+    background: linear-gradient(135deg, #00d2ff, #ffd400);
+    font-size: 12px;
+    font-weight: 950;
+  }
+  .sectionHint {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 650;
+    margin-left: auto;
+  }
+  .targetPanel,
+  .playPanel {
+    border-color: rgba(125,160,220,.16) !important;
+  }
+  .targetPanel .targetRow,
+  .targetPanel .targetStack,
+  .targetPanel .targetLabelRow {
+    width: 100% !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  #targetGrid,
+  .palette.compact {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  .palette.compact {
+    justify-content: center !important;
+  }
+  .playPanel .gridWrap {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  .targetPanel .targetLabelRow { margin-bottom: 8px; }
+  .stampLabel { margin: 12px 0 2px; }
+  .dragCue {
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: .02em;
+  }
+  .dragStampProxy {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 72px;
+    height: 72px;
+    z-index: 100;
+    pointer-events: none;
+    transform: translate(-50%, -115%);
+    border-radius: 14px;
+    background: rgba(10,18,34,.88);
+    border: 1px solid rgba(122,162,255,.7);
+    box-shadow: 0 12px 30px rgba(0,0,0,.55), 0 0 22px rgba(122,162,255,.32);
+    image-rendering: pixelated;
+  }
+  body.pieceDragging {
+    cursor: grabbing;
+    user-select: none;
+  }
+  body.pieceDragging .playPanel {
+    border-color: rgba(122,162,255,.65) !important;
+    box-shadow: inset 0 0 0 1px rgba(122,162,255,.18);
+  }
+  .mobilePreview {
+    justify-content: center !important;
+    margin-bottom: 8px;
+  }
+  .controlCluster {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .colorBtn {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    color: #06101c;
+    font-size: 11px;
+    font-weight: 950;
+    text-shadow: 0 1px 0 rgba(255,255,255,.35);
+  }
+  .colorBtn[data-bit="2"] { color: white; text-shadow: 0 1px 2px rgba(0,0,0,.5); }
+  .colorBtn.sel { transform: scale(1.06); }
+  .howtoCard.tutorialCard {
+    max-width: 760px;
+    max-height: min(90vh, 760px);
+    max-height: min(90dvh, 760px);
+    overflow: auto;
+    padding: 18px;
+  }
+  .tutorialLead {
+    margin: 0 0 14px;
+    color: var(--muted);
+  }
+  .tutorialSteps {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .tutorialStep {
+    display: grid;
+    grid-template-columns: 116px minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+    min-height: 118px;
+    padding: 12px;
+    border: 1px solid rgba(125,160,220,.18);
+    border-radius: 14px;
+    background: rgba(255,255,255,.025);
+  }
+  .tutorialStep h3 {
+    margin: 0 0 5px;
+    font-size: 13px;
+  }
+  .tutorialStep p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  .tutorialArt {
+    display: block;
+    width: 116px;
+    height: 88px;
+    border-radius: 12px;
+    background: rgba(0,0,0,.14);
+  }
+  .tutorialTips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .tutorialTip {
+    padding: 5px 8px;
+    border: 1px solid rgba(125,160,220,.16);
+    border-radius: 999px;
+    background: rgba(255,255,255,.025);
+  }
+  @media (min-width: 880px) {
+    .tutorialStep:last-child { grid-column: 1 / -1; }
+  }
+
+  @media (min-width: 880px) {
+    .wrap { max-width: 1120px !important; padding: 18px !important; }
+    .gameCard { width: min(100%, 1080px); }
+    .rightTop { display: flex !important; }
+    .mobileOptions { display: none !important; }
+    .boards {
+      grid-template-columns: 270px minmax(0, 1fr) !important;
+      grid-template-rows: auto !important;
+      gap: 18px !important;
+      align-items: stretch !important;
+      justify-items: stretch !important;
+      margin-top: 0 !important;
+      padding: 18px !important;
+    }
+    .board {
+      width: 100% !important;
+      padding: 16px !important;
+      border: 1px solid rgba(125,160,220,.18) !important;
+      border-radius: 16px !important;
+      background: rgba(255,255,255,.018) !important;
+    }
+    .targetRow {
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    .targetStack { align-items: center !important; }
+    .paletteWrap.nearBoard { width: 100% !important; }
+    .palette.compact {
+      --thumb: 54px;
+      --frame: 62px;
+      max-width: 226px;
+      margin: 0 auto;
+    }
+    .palette.compact .piece {
+      margin: -6px -3px;
+    }
+    .gridWrap,
+    .board .gridWrap {
+      width: 100% !important;
+      justify-content: center !important;
+    }
+    #playGrid {
+      --cell: clamp(30px, 3.4vw, 42px) !important;
+    }
+    .credit { margin-bottom: 12px; }
+  }
+
+  @media (max-width: 879px) {
+    html,
+    body {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+    .wrap,
+    .gameCard,
+    .boards,
+    .board {
+      min-width: 0 !important;
+      max-width: 100% !important;
+    }
+    .wrap,
+    .boards {
+      grid-template-columns: minmax(0, 1fr) !important;
+    }
+    .gameCard { width: 100% !important; }
+    .gameBrand {
+      min-height: 44px;
+      padding: 7px 48px 5px;
+    }
+    .brandHelpBtn {
+      top: 5px;
+      right: 8px;
+      width: 34px;
+      height: 34px;
+    }
+    .rightTop { display: none !important; }
+    .mobileOptions {
+      display: block !important;
+      top: max(4px, env(safe-area-inset-top)) !important;
+      left: max(4px, env(safe-area-inset-left)) !important;
+    }
+    .mobileOptions .menuBtn {
+      width: 42px !important;
+      height: 42px !important;
+      font-size: 22px !important;
+    }
+    .menuPanel {
+      top: 44px;
+      max-height: calc(100dvh - 58px);
+      overflow-y: auto;
+    }
+    .boards {
+      margin-top: 6px !important;
+      padding: 8px !important;
+      gap: 8px !important;
+      justify-items: center !important;
+    }
+    .targetRow,
+    .targetStack {
+      align-items: center !important;
+    }
+    .targetPanel,
+    .playPanel {
+      padding: 8px !important;
+    }
+    .sectionLabel {
+      justify-content: center;
+      margin-bottom: 6px;
+    }
+    .stampLabel { margin-top: 8px; }
+    .dragCue { margin: 2px 0 6px; }
+    .sectionHint { display: none; }
+    .paletteWrap.nearBoard { width: 100% !important; }
+    .palette.compact {
+      --thumb: 48px;
+      --frame: 52px;
+      max-width: 360px;
+      margin: 0 auto;
+    }
+    .palette.compact .piece { margin: -8px -4px; }
+    .mobilePreview {
+      margin-bottom: 4px;
+      gap: 6px !important;
+    }
+    .colorPicker {
+      min-width: 0;
+      height: 44px;
+      gap: 9px;
+      padding: 6px 9px;
+    }
+    #playGrid {
+      --cell: clamp(18px, calc((100vw - 34px - (var(--n) - 1) * var(--gap)) / var(--n)), 36px) !important;
+    }
+    .tutorialSteps { grid-template-columns: 1fr; }
+    .tutorialStep { min-height: 108px; }
+  }
+
+  @media (max-width: 480px) {
+    .gameBrandName { font-size: 20px; }
+    .targetPanel .sectionLabel:first-child { margin-top: 0; }
+    .palette.compact {
+      max-width: 208px;
+      --thumb: 48px;
+      --frame: 52px;
+    }
+    .palette.compact .piece {
+      width: var(--frame);
+      height: var(--frame);
+      margin: -5px 0;
+    }
+    .tutorialCard .howtoHead { position: sticky; top: -18px; z-index: 2; padding: 10px 0; background: rgba(20,28,48,.98); }
+    .tutorialStep {
+      grid-template-columns: 96px minmax(0, 1fr);
+      gap: 10px;
+      padding: 9px;
+    }
+    .tutorialArt { width: 96px; height: 76px; }
+    .tutorialTips { gap: 5px; }
+  }
+
+  @media (max-width: 350px) {
+    .palette.compact {
+      max-width: 192px;
+      --thumb: 44px;
+      --frame: 48px;
+    }
+  }
+
+  /* Nefinia website shell */
+  body {
+    padding-top: 68px !important;
+    background-color: #060913;
+    background-image:
+      linear-gradient(rgba(6,9,19,.82), rgba(6,9,19,.9)),
+      url('../assets/images/space.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+  }
+  .nefinia-game-menu .navbar { z-index: 10000; }
   #site-border-left,
   #site-border-right,
   #site-border-top,
@@ -734,60 +1334,11 @@
     pointer-events: none;
     z-index: 9990;
   }
-  @media (max-width: 768px) {
+  @media (max-width: 879px) {
     body { padding-top: 58px !important; }
-
-    .nefinia-game-menu + #wrap,
-    .nefinia-game-menu + .wrap.fullscreen,
-    .nefinia-game-menu + canvas,
-    .nefinia-game-menu + .hud {
-      top: 58px !important;
+    .mobileOptions {
+      top: calc(58px + max(4px, env(safe-area-inset-top))) !important;
     }
-  }
-
-  .nefinia-game-menu + .app h1,
-  .nefinia-game-menu + .wrap h1,
-  .nefinia-game-menu + main h1,
-  .nefinia-game-menu + .app .title,
-  .nefinia-game-menu + .wrap .title {
-    color: #fff !important;
-  }
-
-  body > h1,
-  body > h2,
-  body > h3,
-  .nefinia-game-menu ~ #hud,
-  .nefinia-game-menu ~ #hud .hudLabel,
-  .nefinia-game-menu ~ #hud .hudValue,
-  .nefinia-game-menu ~ .hud,
-  .nefinia-game-menu ~ .hud span,
-  .nefinia-game-menu ~ .stats,
-  .nefinia-game-menu ~ .stats span {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-
-  .nefinia-game-menu ~ #hud .label,
-  .nefinia-game-menu ~ #hud .value {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-  .nefinia-game-menu ~ #hud .p1 {
-    color: #8fc2ff !important;
-  }
-  .nefinia-game-menu ~ #hud .p2 {
-    color: #ff9aa8 !important;
-  }
-
-  .nefinia-game-menu ~ #hud select,
-  .nefinia-game-menu ~ .hud select {
-    color: #111 !important;
-    background: #fff !important;
-    text-shadow: none !important;
-  }
-  body > .muted {
-    color: rgba(255,255,255,0.82) !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
   }
 </style>
 </head>
@@ -808,7 +1359,7 @@
         <span class="icon-bar"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbar-collapse">
-        <ul class="nav navbar-nav ">
+        <ul class="nav navbar-nav">
           <li><a href="../index.html">01 : Home</a></li>
           <li><a href="../science.html">02 : Research</a></li>
           <li><a href="../outreach.html">03 : Outreach</a></li>
@@ -822,11 +1373,11 @@
     </div>
   </nav>
 </header>
-<div class="wrap">
+  <main class="wrap" aria-label="Colored XOR game">
     <!-- LEFT -->
     <div class="card">
       <div class="head">
-        <h1 class="title">Colored XOR <span class="badge">CMY XOR stamps</span></h1>
+        <h1 class="title">Colored XOR <span class="badge">CMY XOR spells</span></h1>
         <p class="sub">
           Goal: make <b>Your board</b> match the <b>Target</b> exactly (shape <i>and</i> color). You place tetromino stamps.
           Stamping uses <b>XOR</b> (toggle): stamping the same CMY color on a cell twice cancels it back.
@@ -850,8 +1401,6 @@
               <option value="medium" selected>Medium</option>
               <option value="hard">Hard</option>
               <option value="cruel">Cruel</option>
-              <option value="brutal">Brutal</option>
-              <option value="nightmare">Nightmare</option>
             </select>
           </span>
 
@@ -897,29 +1446,15 @@
       </div>
     </div>
 
-    <!-- RIGHT -->
-    <div class="card">
-      <div class="mobileOptions" aria-label="Mobile options">
-        <select id="mobileMenu">
-          <option selected>Menu…</option>
-          <option data-action="new">New</option>
-          <option data-action="reset">Reset</option>
-          <option data-action="hints">Hints</option>
-          <option data-action="solution">Solution</option>
-          <option data-action="easy">Difficulty: Easy</option>
-          <option data-action="medium">Difficulty: Medium</option>
-          <option data-action="hard">Difficulty: Hard</option>
-          <option data-action="cruel">Difficulty: Cruel</option>
-          <option data-action="brutal">Difficulty: Brutal</option>
-          <option data-action="nightmare">Difficulty: Nightmare</option>
-          <option data-action="size8">Grid: 8×8</option>
-          <option data-action="size10">Grid: 10×10</option>
-          <option data-action="size12">Grid: 12×12</option>
-          <option data-action="apply">Apply</option>
-        </select>
+    <!-- GAME -->
+    <section class="card gameCard">
+      <div class="gameBrand" aria-label="Colored XOR, a CMY color puzzle">
+        <span class="gameBrandName">Colored <span class="brandC">X</span><span class="brandM">O</span><span class="brandY">R</span></span>
+        <span class="gameBrandTag">CMY color puzzle</span>
+        <button class="btn brandHelpBtn" id="brandHelpBtn" aria-label="How to play" title="How to play">?</button>
       </div>
       <div class="rightTop">
-        <div class="status" id="status">Pick a piece (I/O/T/S/Z/J/L), pick a color (1/2/3), hover, click to stamp.</div>
+        <div class="status" id="status" aria-live="polite">Pick a piece (I/O/T/S/Z/J/L), pick a color (1/2/3), hover, click to stamp.</div>
 
         <div class="pillLine">
           <span class="pill2" id="mismatchOut">Mismatch: —</span>
@@ -937,42 +1472,185 @@
       </div>
 
       <div class="boards">
-        <div class="board">
+        <div class="board targetPanel">
+          <div class="sectionLabel">
+            <span class="stepNumber">1</span>
+            <span>Study the target</span>
+          </div>
           <div class="targetRow">
             <div class="targetStack">
               <div id="targetGrid" class="grid mini"></div>
-              <div class="targetLabel">Target</div>
+              <div class="targetLabelRow">
+                <div class="targetLabel">Target</div>
+                <div class="mobileOptions" aria-label="Mobile options">
+                  <button class="menuBtn" id="menuBtn" aria-haspopup="true" aria-expanded="false" aria-controls="menuPanel">☰</button>
+                  <div class="menuPanel" id="menuPanel" role="menu" aria-hidden="true">
+                    <button class="menuItem" data-action="new">New</button>
+                    <button class="menuItem" data-action="reset">Reset</button>
+                    <button class="menuItem" data-action="hints">Hints</button>
+                    <button class="menuItem" data-action="solution">Solution</button>
+                    <div class="menuSep"></div>
+                    <button class="menuItem" data-action="easy">Difficulty: Easy</button>
+                    <button class="menuItem" data-action="medium">Difficulty: Medium</button>
+                    <button class="menuItem" data-action="hard">Difficulty: Hard</button>
+                    <button class="menuItem" data-action="cruel">Difficulty: Cruel</button>
+                    <div class="menuSep"></div>
+                    <button class="menuItem" data-action="cb-on">Color-blind: On</button>
+                    <button class="menuItem" data-action="cb-off">Color-blind: Off</button>
+                    <div class="menuSep"></div>
+                    <button class="menuItem" data-action="howto">How to play</button>
+                    <button class="menuItem" data-action="history">History</button>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="paletteWrap nearBoard" aria-label="Pieces">
+              <div class="sectionLabel stampLabel">
+                <span class="stepNumber">2</span>
+                <span>Choose a stamp</span>
+              </div>
               <div class="palette compact" id="palette"></div>
+              <div class="dragCue">Drag to the board · or tap to select</div>
             </div>
           </div>
         </div>
 
-        <div class="board">
-          <div class="mobilePreview" aria-label="Current piece preview">
-            <canvas id="piecePreview" width="64" height="64"></canvas>
-            <button class="btn small" id="rotateBtn" aria-label="Rotate" title="Rotate">⟳</button>
-            <button class="btn small" id="undoBtn" aria-label="Undo" title="Undo">←</button>
-            <button class="btn small" id="redoBtn" aria-label="Redo" title="Redo">→</button>
+        <div class="board playPanel">
+          <div class="sectionLabel">
+            <span class="stepNumber">3</span>
+            <span>Choose a color and stamp</span>
+            <span class="sectionHint">Same color twice cancels</span>
+          </div>
+          <div class="mobilePreview" aria-label="Controls">
+            <div class="controlCluster" aria-label="Edit controls">
+              <button class="btn small" id="rotateBtn" aria-label="Rotate" title="Rotate">⟳</button>
+              <button class="btn small" id="undoBtn" aria-label="Undo" title="Undo">←</button>
+              <button class="btn small" id="redoBtn" aria-label="Redo" title="Redo">→</button>
+            </div>
             <div class="colorPicker" role="group" aria-label="Stamp color">
-              <button class="colorBtn" data-bit="1" aria-label="Cyan"></button>
-              <button class="colorBtn" data-bit="2" aria-label="Magenta"></button>
-              <button class="colorBtn" data-bit="4" aria-label="Yellow"></button>
+              <button class="colorBtn" data-bit="1" aria-label="Cyan" title="Cyan">C</button>
+              <button class="colorBtn" data-bit="2" aria-label="Magenta" title="Magenta">M</button>
+              <button class="colorBtn" data-bit="4" aria-label="Yellow" title="Yellow">Y</button>
             </div>
           </div>
           <div class="gridWrap">
             <canvas id="solCanvas"></canvas>
             <div id="playGrid" class="grid"></div>
           </div>
-          <div class="moveFooter" id="moveFooter">Moves: 0 / —</div>
+          <div class="moveFooter" id="moveFooter" aria-live="polite">Moves: 0 / —</div>
+        </div>
+      </div>
+      <div class="moveFooter credit">Colored XOR · Designed by nefinia</div>
+
+      <div class="howtoModal" id="howtoModal" role="dialog" aria-modal="true" aria-label="How to play">
+        <div class="howtoCard tutorialCard">
+          <div class="howtoHead">
+            <div>How to play Colored XOR</div>
+            <button class="btn small" id="howtoClose" aria-label="Close">Close</button>
+          </div>
+          <p class="tutorialLead">Recreate the target exactly—every filled cell and every color. You can overlap stamps because XOR lets colors combine and cancel.</p>
+          <div class="tutorialSteps">
+            <article class="tutorialStep">
+              <svg class="tutorialArt" viewBox="0 0 116 88" aria-label="Choose a tetromino stamp" role="img">
+                <g fill="#00d2ff">
+                  <rect x="7" y="43" width="13" height="13" rx="3"/><rect x="21" y="43" width="13" height="13" rx="3"/>
+                  <rect x="35" y="43" width="13" height="13" rx="3"/><rect x="21" y="29" width="13" height="13" rx="3"/>
+                  <rect x="88" y="23" width="13" height="13" rx="3"/><rect x="88" y="37" width="13" height="13" rx="3"/>
+                  <rect x="88" y="51" width="13" height="13" rx="3"/><rect x="74" y="37" width="13" height="13" rx="3"/>
+                </g>
+                <path d="M54 50c0-9 6-16 15-17" fill="none" stroke="#7aa2ff" stroke-width="3" stroke-linecap="round"/>
+                <path d="M64 28l7 5-6 7" fill="none" stroke="#7aa2ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div><h3>1. Pick a shape</h3><p>Tap a tetromino to select it, use ⟳ to rotate it, or drag it directly toward the board.</p></div>
+            </article>
+            <article class="tutorialStep">
+              <svg class="tutorialArt" viewBox="0 0 116 88" aria-label="Choose cyan, magenta, or yellow" role="img">
+                <circle cx="26" cy="44" r="16" fill="#00d2ff"/><circle cx="58" cy="44" r="16" fill="#ff00aa"/><circle cx="90" cy="44" r="16" fill="#ffd400"/>
+                <text x="26" y="49" text-anchor="middle" fill="#06101c" font-size="13" font-weight="900">C</text>
+                <text x="58" y="49" text-anchor="middle" fill="white" font-size="13" font-weight="900">M</text>
+                <text x="90" y="49" text-anchor="middle" fill="#06101c" font-size="13" font-weight="900">Y</text>
+              </svg>
+              <div><h3>2. Choose a color</h3><p>Every stamp flips one color channel: Cyan, Magenta, or Yellow.</p></div>
+            </article>
+            <article class="tutorialStep">
+              <svg class="tutorialArt" viewBox="0 0 116 88" aria-label="Stamping cyan twice cancels it" role="img">
+                <rect x="3" y="32" width="24" height="24" rx="5" fill="#00d2ff"/>
+                <text x="15" y="48" text-anchor="middle" fill="#06101c" font-size="11" font-weight="900">C</text>
+                <text x="35" y="49" text-anchor="middle" fill="#9fb1c9" font-size="15" font-weight="800">⊕</text>
+                <rect x="43" y="32" width="24" height="24" rx="5" fill="#00d2ff"/>
+                <text x="55" y="48" text-anchor="middle" fill="#06101c" font-size="11" font-weight="900">C</text>
+                <text x="76" y="49" text-anchor="middle" fill="#9fb1c9" font-size="15" font-weight="800">=</text>
+                <rect x="87" y="32" width="24" height="24" rx="5" fill="#f4f7fb" stroke="#7d98ba"/>
+              </svg>
+              <div><h3>3. The XOR toggle rule</h3><p>Stamping the same channel twice turns it back off: C ⊕ C = empty. This works the same way for M and Y.</p></div>
+            </article>
+            <article class="tutorialStep">
+              <svg class="tutorialArt" viewBox="0 0 116 88" aria-label="Two or three CMY channels combine into mixed colors" role="img">
+                <g font-size="10" font-weight="900" text-anchor="middle">
+                  <rect x="6" y="4" width="15" height="15" rx="3" fill="#00d2ff"/><text x="13.5" y="15" fill="#06101c">C</text>
+                  <text x="27" y="15" fill="#9fb1c9">⊕</text>
+                  <rect x="33" y="4" width="15" height="15" rx="3" fill="#ff00aa"/><text x="40.5" y="15" fill="white">M</text>
+                  <text x="55" y="15" fill="#9fb1c9">=</text><rect x="63" y="4" width="45" height="15" rx="3" fill="#7964ca"/>
+
+                  <rect x="6" y="25" width="15" height="15" rx="3" fill="#00d2ff"/><text x="13.5" y="36" fill="#06101c">C</text>
+                  <text x="27" y="36" fill="#9fb1c9">⊕</text>
+                  <rect x="33" y="25" width="15" height="15" rx="3" fill="#ffd400"/><text x="40.5" y="36" fill="#06101c">Y</text>
+                  <text x="55" y="36" fill="#9fb1c9">=</text><rect x="63" y="25" width="45" height="15" rx="3" fill="#00dc50"/>
+
+                  <rect x="6" y="46" width="15" height="15" rx="3" fill="#ff00aa"/><text x="13.5" y="57" fill="white">M</text>
+                  <text x="27" y="57" fill="#9fb1c9">⊕</text>
+                  <rect x="33" y="46" width="15" height="15" rx="3" fill="#ffd400"/><text x="40.5" y="57" fill="#06101c">Y</text>
+                  <text x="55" y="57" fill="#9fb1c9">=</text><rect x="63" y="46" width="45" height="15" rx="3" fill="#ff8c00"/>
+
+                  <rect x="2" y="67" width="13" height="15" rx="3" fill="#00d2ff"/><text x="8.5" y="78" fill="#06101c">C</text>
+                  <text x="19" y="78" fill="#9fb1c9">+</text>
+                  <rect x="24" y="67" width="13" height="15" rx="3" fill="#ff00aa"/><text x="30.5" y="78" fill="white">M</text>
+                  <text x="41" y="78" fill="#9fb1c9">+</text>
+                  <rect x="46" y="67" width="13" height="15" rx="3" fill="#ffd400"/><text x="52.5" y="78" fill="#06101c">Y</text>
+                  <text x="64" y="78" fill="#9fb1c9">=</text><rect x="72" y="67" width="36" height="15" rx="3" fill="#48321e"/>
+                </g>
+              </svg>
+              <div><h3>4. Combine different channels</h3><p>Different channels stay on together: C+M is purple, C+Y green, M+Y orange, and all three produce brown.</p></div>
+            </article>
+            <article class="tutorialStep">
+              <svg class="tutorialArt" viewBox="0 0 116 88" aria-label="Match the target to solve the puzzle" role="img">
+                <g transform="translate(11 16)">
+                  <rect width="16" height="16" rx="3" fill="#00d2ff"/><rect x="18" width="16" height="16" rx="3" fill="#ff00aa"/>
+                  <rect y="18" width="16" height="16" rx="3" fill="#ffd400"/><rect x="18" y="18" width="16" height="16" rx="3" fill="#0b0f17"/>
+                </g>
+                <path d="M54 43h17" stroke="#7aa2ff" stroke-width="3" stroke-linecap="round"/>
+                <path d="M66 37l7 6-7 6" fill="none" stroke="#7aa2ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="92" cy="43" r="17" fill="rgba(45,212,191,.15)" stroke="#2dd4bf" stroke-width="2"/>
+                <path d="M83 43l6 6 12-14" fill="none" stroke="#2dd4bf" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div><h3>5. Match exactly</h3><p>Solve when your board matches the target in both shape and color. Undo is always available.</p></div>
+            </article>
+          </div>
+          <div class="tutorialTips">
+            <span class="tutorialTip">Phone: drag a stamp to the grid, or tap then place</span>
+            <span class="tutorialTip">Laptop: hover and click</span>
+            <span class="tutorialTip">Keys: I O T S Z J L · 1 2 3 · R · U · Y</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="howtoModal" id="historyModal" role="dialog" aria-modal="true" aria-label="History">
+        <div class="howtoCard">
+          <div class="howtoHead">
+            <div>History</div>
+            <button class="btn small" id="historyClose" aria-label="Close">Close</button>
+          </div>
+          <div class="historyList" id="historyList"></div>
+          <div style="margin-top:10px; text-align:right;">
+            <button class="btn small" id="historyClear">Clear</button>
+          </div>
         </div>
       </div>
 
       <div class="footerHint">
       </div>
     </div>
-  </div>
+  </main>
 
 <script>
 (() => {
@@ -993,8 +1671,6 @@
     medium: { targetStamps: 9,  moveLimit: 999 },
     hard:   { targetStamps: 14, moveLimit: 999 },
     cruel:  { targetStamps: 20, moveLimit: 999 },
-    brutal: { targetStamps: 26, moveLimit: 999 },
-    nightmare: { targetStamps: 34, moveLimit: 999 },
   };
 
   // 3-bit CMY XOR
@@ -1005,7 +1681,7 @@
   // Display colors (readable visualization, not strict physical CMY optics)
   const COL = {
     paper: [244,247,251], // 000
-    black: [11,15,23],    // 111
+    black: [72,50,30],    // 111 (dark brown for visibility)
     C: [0,210,255],
     M: [255,0,170],
     Y: [255,230,0]
@@ -1014,6 +1690,9 @@
   function mix(bits){
     if(bits === 0) return COL.paper;
     if(bits === 7) return COL.black;
+    if (bits === (BIT_C | BIT_Y)) return [0, 220, 80];   // vibrant green
+    if (bits === (BIT_M | BIT_Y)) return [255, 140, 0];  // vibrant orange
+
     const picks = [];
     if(bits & BIT_C) picks.push(COL.C);
     if(bits & BIT_M) picks.push(COL.M);
@@ -1034,6 +1713,19 @@
     return [r,g,b];
   }
   function rgb([r,g,b]){ return `rgb(${r},${g},${b})`; }
+  function patternLayers(bits){
+    const layers = [];
+    if (bits & BIT_C) {
+      layers.push("repeating-linear-gradient(90deg, rgba(0,0,0,.28) 0 2px, rgba(0,0,0,0) 2px 6px)");
+    }
+    if (bits & BIT_Y) {
+      layers.push("repeating-linear-gradient(0deg, rgba(0,0,0,.28) 0 2px, rgba(0,0,0,0) 2px 6px)");
+    }
+    if (bits & BIT_M) {
+      layers.push("radial-gradient(circle at center, rgba(0,0,0,.35) 0 1.6px, rgba(0,0,0,0) 1.6px 100%)");
+    }
+    return layers.join(", ");
+  }
 
   // DOM
   const elPalette   = document.getElementById("palette");
@@ -1047,7 +1739,16 @@
   const elRecipeOut = document.getElementById("recipeOut");
   const elMoveBar   = document.getElementById("moveBar");
   const elLimitExplain = document.getElementById("limitExplain");
-  const elMobileMenu = document.getElementById("mobileMenu");
+  const elMenuBtn = document.getElementById("menuBtn");
+  const elMenuPanel = document.getElementById("menuPanel");
+  const elMenuItems = Array.from(document.querySelectorAll(".menuItem"));
+  const elBrandHelp = document.getElementById("brandHelpBtn");
+  const elHowto = document.getElementById("howtoModal");
+  const elHowtoClose = document.getElementById("howtoClose");
+  const elHistory = document.getElementById("historyModal");
+  const elHistoryList = document.getElementById("historyList");
+  const elHistoryClose = document.getElementById("historyClose");
+  const elHistoryClear = document.getElementById("historyClear");
   const elMoveFooter = document.getElementById("moveFooter");
 
   const elDiff      = document.getElementById("diffSel");
@@ -1060,7 +1761,6 @@
 
   const solCanvas = document.getElementById("solCanvas");
   const solCtx = solCanvas.getContext("2d");
-  const previewCanvas = document.getElementById("piecePreview");
   const colorButtons = Array.from(document.querySelectorAll(".colorBtn"));
 
   // State
@@ -1085,10 +1785,15 @@
 
   let hintsOn = false;
   let solutionOn = false;
+  let gameStart = null;
+  let gameSolved = false;
   let solutionAnimStep = 0;
   let solutionAnimTimer = null;
   let suppressClickUntil = 0;
+  let suppressPaletteClickUntil = 0;
+  let paletteDrag = null;
   let touchMoved = false;
+  let colorBlind = false;
 
   // Target recipe includes bit
   let targetRecipe = [];
@@ -1131,6 +1836,99 @@
     return m;
   }
 
+  function syncPaletteSelection(){
+    if (!elPalette) return;
+    elPalette.querySelectorAll(".piece").forEach((item) => {
+      const selected = item.dataset.pieceId === selectedPieceId;
+      item.classList.toggle("selected", selected);
+      item.setAttribute("aria-pressed", selected ? "true" : "false");
+    });
+  }
+
+  function beginPaletteDrag(e, piece){
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    if (paletteDrag) return;
+
+    if (selectedPieceId !== piece.id) {
+      selectedPieceId = piece.id;
+      rotation = 0;
+    }
+    syncPaletteSelection();
+    updateHUD(`Piece: ${piece.id} · Drag to the board and release to stamp.`);
+
+    const drag = {
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      dragging: false,
+      proxy: null,
+      move: null,
+      end: null,
+      cancel: null
+    };
+    paletteDrag = drag;
+
+    drag.move = (ev) => {
+      if (!paletteDrag || ev.pointerId !== drag.pointerId) return;
+      const distance = Math.hypot(ev.clientX - drag.startX, ev.clientY - drag.startY);
+      if (!drag.dragging && distance < 7) return;
+
+      if (!drag.dragging) {
+        drag.dragging = true;
+        drag.proxy = document.createElement("canvas");
+        drag.proxy.width = 64;
+        drag.proxy.height = 64;
+        drag.proxy.className = "dragStampProxy";
+        drag.proxy.setAttribute("aria-hidden", "true");
+        drawThumb(drag.proxy, piece.cells, rotation);
+        document.body.appendChild(drag.proxy);
+        document.body.classList.add("pieceDragging");
+      }
+
+      ev.preventDefault();
+      drag.proxy.style.left = `${ev.clientX}px`;
+      drag.proxy.style.top = `${ev.clientY}px`;
+      if (!updateHoverFromPoint(ev.clientX, ev.clientY)) {
+        hover = null;
+        clearGhost();
+      }
+    };
+
+    const finish = (ev, canceled = false) => {
+      if (!paletteDrag || ev.pointerId !== drag.pointerId) return;
+      window.removeEventListener("pointermove", drag.move);
+      window.removeEventListener("pointerup", drag.end);
+      window.removeEventListener("pointercancel", drag.cancel);
+
+      const drop = !canceled && drag.dragging && hover
+        ? { x: hover.x, y: hover.y, valid: canPlace(hover.x, hover.y, currentCells()) }
+        : null;
+
+      drag.proxy?.remove();
+      document.body.classList.remove("pieceDragging");
+      paletteDrag = null;
+
+      if (drag.dragging) {
+        suppressPaletteClickUntil = Date.now() + 450;
+        suppressClickUntil = Date.now() + 450;
+        if (drop?.valid) {
+          stampAt(drop.x, drop.y);
+        } else {
+          hover = null;
+          clearGhost();
+          updateHUD(canceled ? "Drag canceled." : "Release the whole stamp inside the grid.");
+          setTimeout(() => updateHUD(), 850);
+        }
+      }
+    };
+
+    drag.end = (ev) => finish(ev, false);
+    drag.cancel = (ev) => finish(ev, true);
+    window.addEventListener("pointermove", drag.move, { passive: false });
+    window.addEventListener("pointerup", drag.end);
+    window.addEventListener("pointercancel", drag.cancel);
+  }
+
   // Palette render
   function renderPalette(){
     if (!elPalette) return;
@@ -1139,6 +1937,11 @@
       const item = document.createElement("div");
       item.className = "piece" + (p.id === selectedPieceId ? " selected" : "");
       item.tabIndex = 0;
+      item.setAttribute("role", "button");
+      item.setAttribute("aria-label", `${p.id} tetromino`);
+      item.setAttribute("aria-pressed", p.id === selectedPieceId ? "true" : "false");
+      item.title = `${p.id} tetromino`;
+      item.dataset.pieceId = p.id;
 
       const c = document.createElement("canvas");
       c.width = 64; c.height = 64;
@@ -1152,12 +1955,15 @@
       item.appendChild(name);
 
       item.addEventListener("click", () => {
+        if (Date.now() < suppressPaletteClickUntil) return;
+        if (selectedPieceId !== p.id) rotation = 0;
         selectedPieceId = p.id;
-        rotation = 0;
         renderPalette();
         updateHUD();
         renderGhost();
       });
+
+      item.addEventListener("pointerdown", (e) => beginPaletteDrag(e, p));
 
       item.addEventListener("keydown", (e) => {
         if(e.key === "Enter" || e.key === " "){
@@ -1171,18 +1977,19 @@
       });
 
       elPalette.appendChild(item);
-      drawThumb(c, p.cells);
+      const rot = (p.id === selectedPieceId) ? rotation : 0;
+      drawThumb(c, p.cells, rot);
     }
     renderPreview();
   }
 
-  function drawThumb(canvas, baseCells){
+  function drawThumb(canvas, baseCells, rot=0){
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0,0,canvas.width,canvas.height);
     ctx.fillStyle = "transparent";
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    const cells = rotateCells(baseCells,0);
+    const cells = rotateCells(baseCells,rot);
 
     // Draw inside a consistent 4x4 grid with margin, centered within the frame
     const grid = 4;
@@ -1201,37 +2008,68 @@
     for(const [x,y] of cells){
       ctx.fillRect(ox + (x + offX)*cellSize, oy + (y + offY)*cellSize, cellSize-1, cellSize-1);
     }
-  }
 
-  function renderPreview(){
-    if(!previewCanvas) return;
-    const ctx = previewCanvas.getContext("2d");
-    ctx.clearRect(0,0,previewCanvas.width,previewCanvas.height);
-    ctx.fillStyle = "transparent";
-    ctx.fillRect(0,0,previewCanvas.width,previewCanvas.height);
-
-    if(!selectedPieceId) return;
-
-    const p = getPiece(selectedPieceId);
-    const cells = rotateCells(p.cells, rotation);
-    const grid = 4;
-    const cellSize = Math.floor(Math.min(previewCanvas.width, previewCanvas.height) / 5);
-    const gridPx = cellSize * grid;
-    const ox = Math.floor((previewCanvas.width - gridPx) / 2);
-    const oy = Math.floor((previewCanvas.height - gridPx) / 2);
-    const maxX = Math.max(...cells.map(c => c[0]));
-    const maxY = Math.max(...cells.map(c => c[1]));
-    const w = maxX + 1;
-    const h = maxY + 1;
-    const offX = Math.floor((grid - w) / 2);
-    const offY = Math.floor((grid - h) / 2);
-
-    ctx.fillStyle = rgb(mix(selectedBit));
-    for(const [x,y] of cells){
-      ctx.fillRect(ox + (x + offX)*cellSize, oy + (y + offY)*cellSize, cellSize-1, cellSize-1);
+    if (colorBlind && selectedBit) {
+      ctx.save();
+      ctx.globalCompositeOperation = "source-atop";
+      ctx.fillStyle = "rgba(0,0,0,0)";
+      ctx.restore();
+      ctx.save();
+      const patternCanvas = document.createElement("canvas");
+      patternCanvas.width = Math.max(6, Math.round(cellSize * 1.0));
+      patternCanvas.height = patternCanvas.width;
+      const pctx = patternCanvas.getContext("2d");
+      pctx.clearRect(0,0,patternCanvas.width,patternCanvas.height);
+      pctx.fillStyle = "transparent";
+      const patternSize = patternCanvas.width;
+      const drawPattern = (bits) => {
+        pctx.clearRect(0,0,patternSize,patternSize);
+        if (bits & BIT_C) {
+          pctx.strokeStyle = "rgba(0,0,0,.28)";
+          pctx.lineWidth = 2;
+          for (let x = 0; x <= patternSize; x += 6) {
+            pctx.beginPath();
+            pctx.moveTo(x, 0);
+            pctx.lineTo(x, patternSize);
+            pctx.stroke();
+          }
+        }
+        if (bits & BIT_Y) {
+          pctx.strokeStyle = "rgba(0,0,0,.28)";
+          pctx.lineWidth = 2;
+          for (let y = 0; y <= patternSize; y += 6) {
+            pctx.beginPath();
+            pctx.moveTo(0, y);
+            pctx.lineTo(patternSize, y);
+            pctx.stroke();
+          }
+        }
+      };
+      const patternBits = selectedBit & ~BIT_M;
+      drawPattern(patternBits);
+      const pattern = ctx.createPattern(patternCanvas, "repeat");
+      ctx.fillStyle = pattern;
+      for(const [x,y] of cells){
+        ctx.fillRect(ox + (x + offX)*cellSize, oy + (y + offY)*cellSize, cellSize-1, cellSize-1);
+      }
+      ctx.restore();
     }
-
+    if (colorBlind && (selectedBit & BIT_M)) {
+      ctx.save();
+      ctx.fillStyle = "rgba(0,0,0,.35)";
+      const dotR = Math.max(1.2, Math.round(cellSize * 0.12));
+      for (const [x,y] of cells) {
+        const cx = ox + (x + offX) * cellSize + Math.floor(cellSize / 2);
+        const cy = oy + (y + offY) * cellSize + Math.floor(cellSize / 2);
+        ctx.beginPath();
+        ctx.arc(cx, cy, dotR, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
   }
+
+  function renderPreview(){}
 
   function renderColorButtons(){
     if (!colorButtons.length) return;
@@ -1258,6 +2096,14 @@
 
         const bits = board[y][x];
         d.style.background = rgb(mix(bits));
+        if (colorBlind && bits) {
+          const pat = patternLayers(bits);
+          d.style.backgroundImage = pat;
+          d.style.backgroundSize = mini ? "6px 6px" : "8px 8px";
+          d.style.backgroundPosition = "center";
+        } else {
+          d.style.backgroundImage = "none";
+        }
         if(bits !== 0){
           d.style.boxShadow = "inset 0 0 0 1px rgba(255,255,255,.14)";
         }
@@ -1295,10 +2141,15 @@
   // Solution overlay
   function resizeSolCanvasToGrid(){
     const rect = elPlayGrid.getBoundingClientRect();
+    const wrapRect = elPlayGrid.parentElement.getBoundingClientRect();
     solCanvas.width = Math.round(rect.width * devicePixelRatio);
     solCanvas.height = Math.round(rect.height * devicePixelRatio);
     solCanvas.style.width = rect.width + "px";
     solCanvas.style.height = rect.height + "px";
+    solCanvas.style.left = Math.round(rect.left - wrapRect.left) + "px";
+    solCanvas.style.top = Math.round(rect.top - wrapRect.top) + "px";
+    solCanvas.style.right = "auto";
+    solCanvas.style.bottom = "auto";
     solCtx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
   }
 
@@ -1341,30 +2192,120 @@
     solCtx.save();
     solCtx.globalCompositeOperation = "multiply";
 
-    const maxSteps = (solutionAnimStep > 0) ? solutionAnimStep : targetRecipe.length;
-    targetRecipe.slice(0, maxSteps).forEach((step, i) => {
+    const maxSteps = targetRecipe.length;
+    const darken = (col, f=0.2) => {
+      const m = col.match(/\d+/g).map(Number);
+      const r = Math.max(0, Math.round(m[0] * f));
+      const g = Math.max(0, Math.round(m[1] * f));
+      const b = Math.max(0, Math.round(m[2] * f));
+      return `rgb(${r},${g},${b})`;
+    };
+    const lighten = (col, f=0.2) => {
+      const m = col.match(/\d+/g).map(Number);
+      const r = Math.min(255, Math.round(m[0] + (255 - m[0]) * f));
+      const g = Math.min(255, Math.round(m[1] + (255 - m[1]) * f));
+      const b = Math.min(255, Math.round(m[2] + (255 - m[2]) * f));
+      return `rgb(${r},${g},${b})`;
+    };
+
+    function labelPosForCell(cellRect, cornerIdx){
+      const pad = 1;
+      const left = Math.round(cellRect.left - gridRect.left);
+      const top = Math.round(cellRect.top - gridRect.top);
+      const right = left + Math.round(cellRect.width);
+      const bottom = top + Math.round(cellRect.height);
+      if (cornerIdx === 4) return { x: Math.round((left + right) / 2), y: Math.round((top + bottom) / 2), align: "center", baseline: "middle" }; // center
+      if (cornerIdx === 0) return { x: left + pad, y: top + pad, align: "left", baseline: "top" }; // top-left
+      if (cornerIdx === 1) return { x: right - pad, y: top + pad, align: "right", baseline: "top" }; // top-right
+      if (cornerIdx === 2) return { x: right - pad, y: bottom - pad, align: "right", baseline: "bottom" }; // bottom-right
+      return { x: left + pad, y: bottom - pad, align: "left", baseline: "bottom" }; // bottom-left
+    }
+
+    const steps = targetRecipe.slice(0, maxSteps);
+    const usedLabelSlots = new Set();
+
+    solCtx.globalCompositeOperation = "multiply";
+    solCtx.globalAlpha = 0.35;
+    for (let i = 0; i < steps.length; i++) {
+      const step = steps[i];
       const p = getPiece(step.pieceId);
       const cells = rotateCells(p.cells, step.rot);
       const col = rgb(mix(step.bit));
-
-      solCtx.globalAlpha = 0.95;
-      solCtx.strokeStyle = col;
-      solCtx.lineWidth = 3;
-      solCtx.lineJoin = "round";
-      solCtx.lineCap = "round";
-      drawPolyominoOutline(solCtx, step, cells, cellElAt, gridRect, cellW, cellH);
-
-      const anchorEl = cellElAt(step.x, step.y);
-      if (anchorEl) {
-        const ar = anchorEl.getBoundingClientRect();
-        const ax = ar.left - gridRect.left + 5;
-        const ay = ar.top  - gridRect.top + 13;
-        solCtx.globalAlpha = 0.95;
-        solCtx.font = "800 11px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-        solCtx.fillStyle = col;
-        solCtx.fillText(String(i+1), ax, ay);
+      solCtx.fillStyle = col;
+      for (const [dx, dy] of cells) {
+        const x = step.x + dx;
+        const y = step.y + dy;
+        if (!inBounds(x,y)) continue;
+        const el = cellElAt(x,y);
+        if (!el) continue;
+        const r = el.getBoundingClientRect();
+        const px = Math.round(r.left - gridRect.left);
+        const py = Math.round(r.top  - gridRect.top);
+        const cw = Math.round(r.width);
+        const ch = Math.round(r.height);
+        solCtx.fillRect(px, py, cw, ch);
       }
-    });
+    }
+
+    solCtx.globalAlpha = 1;
+    solCtx.globalCompositeOperation = "source-over";
+    for (let i = 0; i < steps.length; i++) {
+      const step = steps[i];
+      const p = getPiece(step.pieceId);
+      const cells = rotateCells(p.cells, step.rot);
+      const col = rgb(mix(step.bit));
+      const labelColor = (() => {
+        const m = col.match(/\d+/g).map(Number);
+        const r = m[0], g = m[1], b = m[2];
+        if (r > 170 && b > 170 && g < 120) return lighten(col, 0.6); // magenta
+        return col;
+      })();
+
+      let cornerIdx = 4;
+      let bestConflicts = Infinity;
+      const cornerOrder = [4, 0, 1, 2, 3];
+      for (const c of cornerOrder) {
+        let conflicts = 0;
+        for (const [dx, dy] of cells) {
+          const gx = step.x + dx;
+          const gy = step.y + dy;
+          const key = `${gx},${gy},${c}`;
+          if (usedLabelSlots.has(key)) conflicts++;
+        }
+        if (conflicts < bestConflicts) {
+          bestConflicts = conflicts;
+          cornerIdx = c;
+        }
+      }
+
+      for (const [dx, dy] of cells) {
+        const gx = step.x + dx;
+        const gy = step.y + dy;
+        usedLabelSlots.add(`${gx},${gy},${cornerIdx}`);
+      }
+      for (const [dx, dy] of cells) {
+        const gx = step.x + dx;
+        const gy = step.y + dy;
+        const el = cellElAt(gx, gy);
+        if (!el) continue;
+        const r = el.getBoundingClientRect();
+        const pos = labelPosForCell(r, cornerIdx);
+        const label = String(i+1);
+        solCtx.shadowColor = "transparent";
+        solCtx.shadowBlur = 0;
+        solCtx.shadowOffsetX = 0;
+        solCtx.shadowOffsetY = 0;
+        solCtx.textAlign = pos.align;
+        solCtx.textBaseline = pos.baseline;
+        solCtx.font = "900 9px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+        solCtx.lineWidth = 1;
+        solCtx.lineJoin = "round";
+        solCtx.strokeStyle = "#000000";
+        solCtx.strokeText(label, pos.x, pos.y);
+        solCtx.fillStyle = labelColor;
+        solCtx.fillText(label, pos.x, pos.y);
+      }
+    }
 
     solCtx.restore();
   }
@@ -1399,6 +2340,7 @@
       elMoveFooter.classList.toggle("solved", mm === 0);
       if (mm === 0) {
         elMoveFooter.textContent = `Solved! Perfect match in ${moves} moves.`;
+        if (!gameSolved) gameSolved = true;
       }
     }
 
@@ -1461,11 +2403,13 @@
     document.getElementById("redoBtn").disabled = future.length === 0;
 
     updateHUD();
+    renderPalette();
     renderColorButtons();
   }
 
   // Game flow
   function startLevel(newLevel = false) {
+    finalizeGame();
     if (newLevel) level++;
 
     const d = elDiff.value;
@@ -1477,6 +2421,8 @@
 
     play = makeGrid(N, 0);
     moves = 0;
+    gameStart = Date.now();
+    gameSolved = false;
     history = [];
     future = [];
     hover = null;
@@ -1543,6 +2489,7 @@
   function reset() {
     play = makeGrid(N, 0);
     moves = 0;
+    gameSolved = false;
     history = [];
     future = [];
     hover = null;
@@ -1554,11 +2501,12 @@
     rotation = (rotation + 3) % 4;
     updateHUD();
     renderGhost();
-    renderPreview();
+    renderPalette();
   }
 
   function applySettings() {
-    N = Number(elSize.value);
+    N = 8;
+    if (elSize) elSize.value = "8";
     play = makeGrid(N, 0);
     target = makeGrid(N, 0);
     moves = 0;
@@ -1566,6 +2514,7 @@
     future = [];
     hover = null;
     level = 1;
+    gameSolved = false;
 
     solutionOn = false;
     hintsOn = false;
@@ -1641,9 +2590,15 @@
   });
   elPlayGrid.addEventListener("click", (e) => {
     if (Date.now() < suppressClickUntil) return;
+    if (hover) {
+      stampAt(hover.x, hover.y);
+      return;
+    }
     const cell = e.target.closest(".cell");
     if (!cell) return;
-    stampAt(Number(cell.dataset.x), Number(cell.dataset.y));
+    hover = { x: Number(cell.dataset.x), y: Number(cell.dataset.y) };
+    renderGhost();
+    stampAt(hover.x, hover.y);
   });
 
   function updateHoverFromPoint(clientX, clientY){
@@ -1660,6 +2615,8 @@
   elPlayGrid.addEventListener("touchstart", (e) => {
     if (e.touches.length !== 1) return;
     touchMoved = false;
+    const touch = e.touches[0];
+    updateHoverFromPoint(touch.clientX, touch.clientY);
   }, { passive: true });
 
   elPlayGrid.addEventListener("touchmove", (e) => {
@@ -1671,7 +2628,7 @@
 
   elPlayGrid.addEventListener("touchend", (e) => {
     if (e.changedTouches.length !== 1) return;
-    if (!touchMoved && hover) {
+    if (hover) {
       stampAt(hover.x, hover.y);
       suppressClickUntil = Date.now() + 350;
     }
@@ -1684,25 +2641,83 @@
   document.getElementById("redoBtn").addEventListener("click", redo);
   document.getElementById("rotateBtn").addEventListener("click", rotateSelected);
   document.getElementById("applyBtn").addEventListener("click", applySettings);
-  if (elMobileMenu) {
-    elMobileMenu.addEventListener("change", () => {
-      const opt = elMobileMenu.options[elMobileMenu.selectedIndex];
-      const action = opt && opt.dataset && opt.dataset.action;
-      if (!action) return;
-      if (action === "new") startLevel(true);
-      if (action === "reset") reset();
-      if (action === "hints") toggleHints();
-      if (action === "solution") toggleSolution();
-      if (action === "apply") applySettings();
-      if (["easy","medium","hard","cruel","brutal","nightmare"].includes(action)) {
-        elDiff.value = action;
-      }
-      if (action === "size8") elSize.value = "8";
-      if (action === "size10") elSize.value = "10";
-      if (action === "size12") elSize.value = "12";
-      elMobileMenu.selectedIndex = 0;
+  function runMenuAction(action){
+    if (!action) return;
+    if (action === "new") startLevel(true);
+    if (action === "reset") reset();
+    if (action === "hints") toggleHints();
+    if (action === "solution") toggleSolution();
+    if (action === "cb-on") { colorBlind = true; rerenderAll(); }
+    if (action === "cb-off") { colorBlind = false; rerenderAll(); }
+    if (action === "howto" && elHowto) elHowto.classList.add("on");
+    if (action === "history" && elHistory) { renderHistory(); elHistory.classList.add("on"); }
+    if (["easy","medium","hard","cruel"].includes(action)) {
+      elDiff.value = action;
+      applySettings();
+    }
+  }
+
+  function closeMenu(){
+    if (!elMenuPanel || !elMenuBtn) return;
+    elMenuPanel.classList.remove("on");
+    elMenuPanel.setAttribute("aria-hidden", "true");
+    elMenuBtn.setAttribute("aria-expanded", "false");
+  }
+
+  function toggleMenu(){
+    if (!elMenuPanel || !elMenuBtn) return;
+    const open = elMenuPanel.classList.toggle("on");
+    elMenuPanel.setAttribute("aria-hidden", open ? "false" : "true");
+    elMenuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+
+  if (elMenuBtn && elMenuPanel) {
+    elMenuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleMenu();
+    });
+    elMenuItems.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        runMenuAction(btn.dataset.action);
+        closeMenu();
+      });
+    });
+    document.addEventListener("click", (e) => {
+      if (!elMenuPanel.classList.contains("on")) return;
+      if (elMenuPanel.contains(e.target) || elMenuBtn.contains(e.target)) return;
+      closeMenu();
     });
   }
+  if (elHowtoClose && elHowto) {
+    elHowtoClose.addEventListener("click", () => elHowto.classList.remove("on"));
+    elHowto.addEventListener("click", (e) => {
+      if (e.target === elHowto) elHowto.classList.remove("on");
+    });
+  }
+  if (elBrandHelp && elHowto) {
+    elBrandHelp.addEventListener("click", () => {
+      elHowto.classList.add("on");
+      elHowtoClose?.focus();
+    });
+  }
+  if (elHistoryClose && elHistory) {
+    elHistoryClose.addEventListener("click", () => elHistory.classList.remove("on"));
+    elHistory.addEventListener("click", (e) => {
+      if (e.target === elHistory) elHistory.classList.remove("on");
+    });
+  }
+  if (elHistoryClear) {
+    elHistoryClear.addEventListener("click", () => {
+      localStorage.removeItem("colored_xor_history");
+      renderHistory();
+    });
+  }
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    closeMenu();
+    elHowto?.classList.remove("on");
+    elHistory?.classList.remove("on");
+  });
 
   if (elHintBtn) elHintBtn.addEventListener("click", toggleHints);
   if (elSolutionBtn) elSolutionBtn.addEventListener("click", toggleSolution);
@@ -1782,30 +2797,66 @@
     const wrapStyle = getComputedStyle(wrap);
     const wrapPad = (parseFloat(wrapStyle.paddingLeft) || 0) + (parseFloat(wrapStyle.paddingRight) || 0);
     const viewport = Math.min(window.innerWidth, document.documentElement.clientWidth || window.innerWidth);
-    const width = Math.min(wrap.clientWidth, viewport) - wrapPad - (pad * 2);
+    const width = Math.min(wrap.clientWidth, viewport);
     const n = N || 10;
     if (width <= 0 || n <= 0) return;
     const cell = Math.floor((width - (n - 1) * gap) / n);
-    const isNarrow = viewport <= 520;
-    const minCell = isNarrow ? 10 : 12;
-    const maxCell = isNarrow ? 22 : 28;
-    const clamped = Math.max(minCell, Math.min(maxCell, cell));
+    const isNarrow = true;
+    const minCell = 10;
+    const clamped = Math.max(minCell, cell);
     elPlayGrid.style.setProperty("--cell", clamped + "px");
-
-    // Final safety: scale grid to fit available width
-    const gridWidth = (clamped * n) + ((n - 1) * gap) + (pad * 2);
-    const scale = Math.min(1, width / gridWidth);
-    elPlayGrid.style.transformOrigin = "top center";
-    elPlayGrid.style.transform = `scale(${scale})`;
-    wrap.style.height = Math.ceil(gridWidth * scale) + "px";
+    elPlayGrid.style.transform = "none";
+    wrap.style.height = "auto";
   }
 
   // Init
   function init() {
+    elSize.value = "8";
+    N = 8;
     renderPalette();
     startLevel(false);
   }
   init();
+
+  function finalizeGame(){
+    if (!gameStart) return;
+    if (moves === 0) return;
+    const entry = {
+      time: new Date().toISOString(),
+      difficulty: elDiff.value,
+      size: N,
+      moves,
+      solved: gameSolved,
+      durationSec: Math.round((Date.now() - gameStart) / 1000)
+    };
+    const list = JSON.parse(localStorage.getItem("colored_xor_history") || "[]");
+    list.unshift(entry);
+    while (list.length > 30) list.pop();
+    localStorage.setItem("colored_xor_history", JSON.stringify(list));
+  }
+
+  function renderHistory(){
+    if (!elHistoryList) return;
+    const list = JSON.parse(localStorage.getItem("colored_xor_history") || "[]");
+    if (!list.length) {
+      elHistoryList.innerHTML = "<div class=\"meta\">No games yet.</div>";
+      return;
+    }
+    elHistoryList.innerHTML = "";
+    list.forEach((g) => {
+      const item = document.createElement("div");
+      item.className = "historyItem";
+      const left = document.createElement("div");
+      left.innerHTML = `<div><b>${g.solved ? "Solved" : "Unsolved"}</b> · ${g.moves} moves</div><div class="meta">${g.difficulty} · ${g.size}x${g.size} · ${g.durationSec}s</div>`;
+      const right = document.createElement("div");
+      right.className = "meta";
+      const d = new Date(g.time);
+      right.textContent = d.toLocaleDateString();
+      item.appendChild(left);
+      item.appendChild(right);
+      elHistoryList.appendChild(item);
+    });
+  }
 })();
 </script>
 </body>
