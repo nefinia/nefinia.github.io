@@ -1088,67 +1088,6 @@
   }
   .colorBtn[data-bit="2"] { color: white; text-shadow: 0 1px 2px rgba(61,53,82,.7); }
   .colorBtn.sel { transform: scale(1.06); }
-  .howtoCard.tutorialCard {
-    max-width: 760px;
-    max-height: min(90vh, 760px);
-    max-height: min(90dvh, 760px);
-    overflow: auto;
-    padding: 18px;
-  }
-  .tutorialLead {
-    margin: 0 0 14px;
-    color: var(--muted);
-  }
-  .tutorialSteps {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-  }
-  .tutorialStep {
-    display: grid;
-    grid-template-columns: 116px minmax(0, 1fr);
-    gap: 12px;
-    align-items: center;
-    min-height: 118px;
-    padding: 12px;
-    border: 2px solid var(--cz-line);
-    border-radius: 14px;
-    background: #fff;
-  }
-  .tutorialStep h3 {
-    margin: 0 0 5px;
-    font-size: 13px;
-  }
-  .tutorialStep p {
-    margin: 0;
-    color: var(--muted);
-    font-size: 12px;
-    line-height: 1.4;
-  }
-  .tutorialArt {
-    display: block;
-    width: 116px;
-    height: 88px;
-    border-radius: 12px;
-    background: var(--cz-paper-2);
-  }
-  .tutorialTips {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-top: 12px;
-    color: var(--muted);
-    font-size: 11px;
-  }
-  .tutorialTip {
-    padding: 5px 8px;
-    border: 1px solid var(--cz-line);
-    border-radius: 999px;
-    background: var(--cz-paper-2);
-  }
-  @media (min-width: 880px) {
-    .tutorialStep:last-child { grid-column: 1 / -1; }
-  }
 
   @media (min-width: 880px) {
     .wrap { max-width: 1120px !important; padding: 18px !important; }
@@ -1284,8 +1223,6 @@
     #playGrid {
       --cell: clamp(18px, calc((100vw - 34px - (var(--n) - 1) * var(--gap)) / var(--n)), 36px) !important;
     }
-    .tutorialSteps { grid-template-columns: 1fr; }
-    .tutorialStep { min-height: 108px; }
   }
 
   @media (max-width: 480px) {
@@ -1301,14 +1238,6 @@
       height: var(--frame);
       margin: -5px 0;
     }
-    .tutorialCard .howtoHead { position: sticky; top: -18px; z-index: 2; padding: 10px 0; background: var(--cz-card); }
-    .tutorialStep {
-      grid-template-columns: 96px minmax(0, 1fr);
-      gap: 10px;
-      padding: 9px;
-    }
-    .tutorialArt { width: 96px; height: 76px; }
-    .tutorialTips { gap: 5px; }
   }
 
   @media (max-width: 350px) {
@@ -1343,7 +1272,6 @@
   .title { font-family: var(--cz-display); font-weight: 600; font-size: 19px; line-height: 1.2; color: var(--text); }
   .badge { display:inline-block; line-height:1; white-space:nowrap; vertical-align:middle; font-family: var(--cz-body); font-weight:800; border:none; padding:4px 9px; }
   .howtoHead { font-family: var(--cz-display); font-weight: 600; font-size: 16px; }
-  .tutorialStep h3 { font-family: var(--cz-display); font-weight: 600; font-size: 14px; color: var(--text); }
   .btn{
     display:inline-block; text-align:center; vertical-align:middle; line-height:1.42857;
     font-family: var(--cz-body); font-weight: 800; color: var(--text);
@@ -1368,6 +1296,86 @@
 
 <body>
 <header class="cz-bar"><a class="cz-back" href="index.html">← All games</a><span class="cz-name">CMY XOR Stamps</span><a class="cz-home" href="../index.html">sofiagallego.com</a></header>
+<template id="cz-howto" data-title="How to play Colored XOR">
+  <p class="lead">Recreate the target exactly—every filled cell and every color. You can overlap stamps because XOR lets colors combine and cancel.</p>
+  <article>
+              <svg viewBox="0 0 116 88" aria-label="Choose a tetromino stamp" role="img">
+                <g fill="#48bee2">
+                  <rect x="7" y="43" width="13" height="13" rx="3"/><rect x="21" y="43" width="13" height="13" rx="3"/>
+                  <rect x="35" y="43" width="13" height="13" rx="3"/><rect x="21" y="29" width="13" height="13" rx="3"/>
+                  <rect x="88" y="23" width="13" height="13" rx="3"/><rect x="88" y="37" width="13" height="13" rx="3"/>
+                  <rect x="88" y="51" width="13" height="13" rx="3"/><rect x="74" y="37" width="13" height="13" rx="3"/>
+                </g>
+                <path d="M54 50c0-9 6-16 15-17" fill="none" stroke="#e9806e" stroke-width="3" stroke-linecap="round"/>
+                <path d="M64 28l7 5-6 7" fill="none" stroke="#e9806e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div><h3>1. Pick a shape</h3><p>Tap a tetromino to select it, use ⟳ to rotate it, or drag it directly toward the board.</p></div>
+            </article>
+  <article>
+              <svg viewBox="0 0 116 88" aria-label="Choose cyan, magenta, or yellow" role="img">
+                <circle cx="26" cy="44" r="16" fill="#48bee2"/><circle cx="58" cy="44" r="16" fill="#e254a0"/><circle cx="90" cy="44" r="16" fill="#f7d038"/>
+                <text x="26" y="49" text-anchor="middle" fill="#2a2440" font-size="13" font-weight="900">C</text>
+                <text x="58" y="49" text-anchor="middle" fill="white" font-size="13" font-weight="900">M</text>
+                <text x="90" y="49" text-anchor="middle" fill="#2a2440" font-size="13" font-weight="900">Y</text>
+              </svg>
+              <div><h3>2. Choose a color</h3><p>Every stamp flips one color channel: Cyan, Magenta, or Yellow.</p></div>
+            </article>
+  <article>
+              <svg viewBox="0 0 116 88" aria-label="Stamping cyan twice cancels it" role="img">
+                <rect x="3" y="32" width="24" height="24" rx="5" fill="#48bee2"/>
+                <text x="15" y="48" text-anchor="middle" fill="#2a2440" font-size="11" font-weight="900">C</text>
+                <text x="35" y="49" text-anchor="middle" fill="#6d6480" font-size="15" font-weight="800">⊕</text>
+                <rect x="43" y="32" width="24" height="24" rx="5" fill="#48bee2"/>
+                <text x="55" y="48" text-anchor="middle" fill="#2a2440" font-size="11" font-weight="900">C</text>
+                <text x="76" y="49" text-anchor="middle" fill="#6d6480" font-size="15" font-weight="800">=</text>
+                <rect x="87" y="32" width="24" height="24" rx="5" fill="#fffaf1" stroke="#d9c29c"/>
+              </svg>
+              <div><h3>3. The XOR toggle rule</h3><p>Stamping the same channel twice turns it back off: C ⊕ C = empty. This works the same way for M and Y.</p></div>
+            </article>
+  <article>
+              <svg viewBox="0 0 116 88" aria-label="Two or three CMY channels combine into mixed colors" role="img">
+                <g font-size="10" font-weight="900" text-anchor="middle">
+                  <rect x="6" y="4" width="15" height="15" rx="3" fill="#48bee2"/><text x="13.5" y="15" fill="#2a2440">C</text>
+                  <text x="27" y="15" fill="#6d6480">⊕</text>
+                  <rect x="33" y="4" width="15" height="15" rx="3" fill="#e254a0"/><text x="40.5" y="15" fill="white">M</text>
+                  <text x="55" y="15" fill="#6d6480">=</text><rect x="63" y="4" width="45" height="15" rx="3" fill="#8a6ece"/>
+
+                  <rect x="6" y="25" width="15" height="15" rx="3" fill="#48bee2"/><text x="13.5" y="36" fill="#2a2440">C</text>
+                  <text x="27" y="36" fill="#6d6480">⊕</text>
+                  <rect x="33" y="25" width="15" height="15" rx="3" fill="#f7d038"/><text x="40.5" y="36" fill="#2a2440">Y</text>
+                  <text x="55" y="36" fill="#6d6480">=</text><rect x="63" y="25" width="45" height="15" rx="3" fill="#58b870"/>
+
+                  <rect x="6" y="46" width="15" height="15" rx="3" fill="#e254a0"/><text x="13.5" y="57" fill="white">M</text>
+                  <text x="27" y="57" fill="#6d6480">⊕</text>
+                  <rect x="33" y="46" width="15" height="15" rx="3" fill="#f7d038"/><text x="40.5" y="57" fill="#2a2440">Y</text>
+                  <text x="55" y="57" fill="#6d6480">=</text><rect x="63" y="46" width="45" height="15" rx="3" fill="#ee7c34"/>
+
+                  <rect x="2" y="67" width="13" height="15" rx="3" fill="#48bee2"/><text x="8.5" y="78" fill="#2a2440">C</text>
+                  <text x="19" y="78" fill="#6d6480">+</text>
+                  <rect x="24" y="67" width="13" height="15" rx="3" fill="#e254a0"/><text x="30.5" y="78" fill="white">M</text>
+                  <text x="41" y="78" fill="#6d6480">+</text>
+                  <rect x="46" y="67" width="13" height="15" rx="3" fill="#f7d038"/><text x="52.5" y="78" fill="#2a2440">Y</text>
+                  <text x="64" y="78" fill="#6d6480">=</text><rect x="72" y="67" width="36" height="15" rx="3" fill="#5c402c"/>
+                </g>
+              </svg>
+              <div><h3>4. Combine different channels</h3><p>Different channels stay on together: C+M is purple, C+Y green, M+Y orange, and all three produce brown.</p></div>
+            </article>
+  <article>
+              <svg viewBox="0 0 116 88" aria-label="Match the target to solve the puzzle" role="img">
+                <g transform="translate(11 16)">
+                  <rect width="16" height="16" rx="3" fill="#48bee2"/><rect x="18" width="16" height="16" rx="3" fill="#e254a0"/>
+                  <rect y="18" width="16" height="16" rx="3" fill="#f7d038"/><rect x="18" y="18" width="16" height="16" rx="3" fill="#5c402c"/>
+                </g>
+                <path d="M54 43h17" stroke="#e9806e" stroke-width="3" stroke-linecap="round"/>
+                <path d="M66 37l7 6-7 6" fill="none" stroke="#e9806e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="92" cy="43" r="17" fill="rgba(95,158,120,.18)" stroke="#5f9e78" stroke-width="2"/>
+                <path d="M83 43l6 6 12-14" fill="none" stroke="#5f9e78" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div><h3>5. Match exactly</h3><p>Solve when your board matches the target in both shape and color. Undo is always available.</p></div>
+            </article>
+  <div class="tips"><span>Phone: drag a stamp to the grid, or tap then place</span><span>Laptop: hover and click</span><span>Keys: I O T S Z J L · 1 2 3 · R · U · Y · H hints · C check</span></div>
+</template>
+<script src="cozy/howto.js" defer></script>
   <main class="wrap" aria-label="Colored XOR game">
     <!-- LEFT -->
     <div class="card">
@@ -1537,98 +1545,6 @@
       </div>
       <div class="moveFooter credit">Colored XOR · Designed by nefinia</div>
 
-      <div class="howtoModal" id="howtoModal" role="dialog" aria-modal="true" aria-label="How to play">
-        <div class="howtoCard tutorialCard">
-          <div class="howtoHead">
-            <div>How to play Colored XOR</div>
-            <button class="btn small" id="howtoClose" aria-label="Close">Close</button>
-          </div>
-          <p class="tutorialLead">Recreate the target exactly—every filled cell and every color. You can overlap stamps because XOR lets colors combine and cancel.</p>
-          <div class="tutorialSteps">
-            <article class="tutorialStep">
-              <svg class="tutorialArt" viewBox="0 0 116 88" aria-label="Choose a tetromino stamp" role="img">
-                <g fill="#48bee2">
-                  <rect x="7" y="43" width="13" height="13" rx="3"/><rect x="21" y="43" width="13" height="13" rx="3"/>
-                  <rect x="35" y="43" width="13" height="13" rx="3"/><rect x="21" y="29" width="13" height="13" rx="3"/>
-                  <rect x="88" y="23" width="13" height="13" rx="3"/><rect x="88" y="37" width="13" height="13" rx="3"/>
-                  <rect x="88" y="51" width="13" height="13" rx="3"/><rect x="74" y="37" width="13" height="13" rx="3"/>
-                </g>
-                <path d="M54 50c0-9 6-16 15-17" fill="none" stroke="#e9806e" stroke-width="3" stroke-linecap="round"/>
-                <path d="M64 28l7 5-6 7" fill="none" stroke="#e9806e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <div><h3>1. Pick a shape</h3><p>Tap a tetromino to select it, use ⟳ to rotate it, or drag it directly toward the board.</p></div>
-            </article>
-            <article class="tutorialStep">
-              <svg class="tutorialArt" viewBox="0 0 116 88" aria-label="Choose cyan, magenta, or yellow" role="img">
-                <circle cx="26" cy="44" r="16" fill="#48bee2"/><circle cx="58" cy="44" r="16" fill="#e254a0"/><circle cx="90" cy="44" r="16" fill="#f7d038"/>
-                <text x="26" y="49" text-anchor="middle" fill="#2a2440" font-size="13" font-weight="900">C</text>
-                <text x="58" y="49" text-anchor="middle" fill="white" font-size="13" font-weight="900">M</text>
-                <text x="90" y="49" text-anchor="middle" fill="#2a2440" font-size="13" font-weight="900">Y</text>
-              </svg>
-              <div><h3>2. Choose a color</h3><p>Every stamp flips one color channel: Cyan, Magenta, or Yellow.</p></div>
-            </article>
-            <article class="tutorialStep">
-              <svg class="tutorialArt" viewBox="0 0 116 88" aria-label="Stamping cyan twice cancels it" role="img">
-                <rect x="3" y="32" width="24" height="24" rx="5" fill="#48bee2"/>
-                <text x="15" y="48" text-anchor="middle" fill="#2a2440" font-size="11" font-weight="900">C</text>
-                <text x="35" y="49" text-anchor="middle" fill="#6d6480" font-size="15" font-weight="800">⊕</text>
-                <rect x="43" y="32" width="24" height="24" rx="5" fill="#48bee2"/>
-                <text x="55" y="48" text-anchor="middle" fill="#2a2440" font-size="11" font-weight="900">C</text>
-                <text x="76" y="49" text-anchor="middle" fill="#6d6480" font-size="15" font-weight="800">=</text>
-                <rect x="87" y="32" width="24" height="24" rx="5" fill="#fffaf1" stroke="#d9c29c"/>
-              </svg>
-              <div><h3>3. The XOR toggle rule</h3><p>Stamping the same channel twice turns it back off: C ⊕ C = empty. This works the same way for M and Y.</p></div>
-            </article>
-            <article class="tutorialStep">
-              <svg class="tutorialArt" viewBox="0 0 116 88" aria-label="Two or three CMY channels combine into mixed colors" role="img">
-                <g font-size="10" font-weight="900" text-anchor="middle">
-                  <rect x="6" y="4" width="15" height="15" rx="3" fill="#48bee2"/><text x="13.5" y="15" fill="#2a2440">C</text>
-                  <text x="27" y="15" fill="#6d6480">⊕</text>
-                  <rect x="33" y="4" width="15" height="15" rx="3" fill="#e254a0"/><text x="40.5" y="15" fill="white">M</text>
-                  <text x="55" y="15" fill="#6d6480">=</text><rect x="63" y="4" width="45" height="15" rx="3" fill="#8a6ece"/>
-
-                  <rect x="6" y="25" width="15" height="15" rx="3" fill="#48bee2"/><text x="13.5" y="36" fill="#2a2440">C</text>
-                  <text x="27" y="36" fill="#6d6480">⊕</text>
-                  <rect x="33" y="25" width="15" height="15" rx="3" fill="#f7d038"/><text x="40.5" y="36" fill="#2a2440">Y</text>
-                  <text x="55" y="36" fill="#6d6480">=</text><rect x="63" y="25" width="45" height="15" rx="3" fill="#58b870"/>
-
-                  <rect x="6" y="46" width="15" height="15" rx="3" fill="#e254a0"/><text x="13.5" y="57" fill="white">M</text>
-                  <text x="27" y="57" fill="#6d6480">⊕</text>
-                  <rect x="33" y="46" width="15" height="15" rx="3" fill="#f7d038"/><text x="40.5" y="57" fill="#2a2440">Y</text>
-                  <text x="55" y="57" fill="#6d6480">=</text><rect x="63" y="46" width="45" height="15" rx="3" fill="#ee7c34"/>
-
-                  <rect x="2" y="67" width="13" height="15" rx="3" fill="#48bee2"/><text x="8.5" y="78" fill="#2a2440">C</text>
-                  <text x="19" y="78" fill="#6d6480">+</text>
-                  <rect x="24" y="67" width="13" height="15" rx="3" fill="#e254a0"/><text x="30.5" y="78" fill="white">M</text>
-                  <text x="41" y="78" fill="#6d6480">+</text>
-                  <rect x="46" y="67" width="13" height="15" rx="3" fill="#f7d038"/><text x="52.5" y="78" fill="#2a2440">Y</text>
-                  <text x="64" y="78" fill="#6d6480">=</text><rect x="72" y="67" width="36" height="15" rx="3" fill="#5c402c"/>
-                </g>
-              </svg>
-              <div><h3>4. Combine different channels</h3><p>Different channels stay on together: C+M is purple, C+Y green, M+Y orange, and all three produce brown.</p></div>
-            </article>
-            <article class="tutorialStep">
-              <svg class="tutorialArt" viewBox="0 0 116 88" aria-label="Match the target to solve the puzzle" role="img">
-                <g transform="translate(11 16)">
-                  <rect width="16" height="16" rx="3" fill="#48bee2"/><rect x="18" width="16" height="16" rx="3" fill="#e254a0"/>
-                  <rect y="18" width="16" height="16" rx="3" fill="#f7d038"/><rect x="18" y="18" width="16" height="16" rx="3" fill="#5c402c"/>
-                </g>
-                <path d="M54 43h17" stroke="#e9806e" stroke-width="3" stroke-linecap="round"/>
-                <path d="M66 37l7 6-7 6" fill="none" stroke="#e9806e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                <circle cx="92" cy="43" r="17" fill="rgba(95,158,120,.18)" stroke="#5f9e78" stroke-width="2"/>
-                <path d="M83 43l6 6 12-14" fill="none" stroke="#5f9e78" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <div><h3>5. Match exactly</h3><p>Solve when your board matches the target in both shape and color. Undo is always available.</p></div>
-            </article>
-          </div>
-          <div class="tutorialTips">
-            <span class="tutorialTip">Phone: drag a stamp to the grid, or tap then place</span>
-            <span class="tutorialTip">Laptop: hover and click</span>
-            <span class="tutorialTip">Keys: I O T S Z J L · 1 2 3 · R · U · Y</span>
-          </div>
-        </div>
-      </div>
-
       <div class="howtoModal" id="historyModal" role="dialog" aria-modal="true" aria-label="History">
         <div class="howtoCard">
           <div class="howtoHead">
@@ -1739,8 +1655,6 @@
   const elMenuPanel = document.getElementById("menuPanel");
   const elMenuItems = Array.from(document.querySelectorAll(".menuItem"));
   const elBrandHelp = document.getElementById("brandHelpBtn");
-  const elHowto = document.getElementById("howtoModal");
-  const elHowtoClose = document.getElementById("howtoClose");
   const elHistory = document.getElementById("historyModal");
   const elHistoryList = document.getElementById("historyList");
   const elHistoryClose = document.getElementById("historyClose");
@@ -2645,7 +2559,7 @@
     if (action === "solution") toggleSolution();
     if (action === "cb-on") { colorBlind = true; rerenderAll(); }
     if (action === "cb-off") { colorBlind = false; rerenderAll(); }
-    if (action === "howto" && elHowto) elHowto.classList.add("on");
+    if (action === "howto" && window.czHowto) window.czHowto.open();
     if (action === "history" && elHistory) { renderHistory(); elHistory.classList.add("on"); }
     if (["easy","medium","hard","cruel"].includes(action)) {
       elDiff.value = action;
@@ -2684,16 +2598,9 @@
       closeMenu();
     });
   }
-  if (elHowtoClose && elHowto) {
-    elHowtoClose.addEventListener("click", () => elHowto.classList.remove("on"));
-    elHowto.addEventListener("click", (e) => {
-      if (e.target === elHowto) elHowto.classList.remove("on");
-    });
-  }
-  if (elBrandHelp && elHowto) {
+  if (elBrandHelp) {
     elBrandHelp.addEventListener("click", () => {
-      elHowto.classList.add("on");
-      elHowtoClose?.focus();
+      if (window.czHowto) window.czHowto.open();
     });
   }
   if (elHistoryClose && elHistory) {
@@ -2711,7 +2618,6 @@
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     closeMenu();
-    elHowto?.classList.remove("on");
     elHistory?.classList.remove("on");
   });
 

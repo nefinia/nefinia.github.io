@@ -74,6 +74,77 @@
 </head>
 <body class="cz-scope">
 <header class="cz-bar"><a class="cz-back" href="index.html">← All games</a><span class="cz-name">Maxwell's Demon</span><a class="cz-home" href="../index.html">sofiagallego.com</a></header>
+<template id="cz-howto" data-title="How to play Maxwell’s Demon">
+  <p class="lead">Sort a jiggling gas: get the red balls to the left side and the blue balls to the right side — only by opening tiny windows in the middle wall.</p>
+  <article><svg viewBox="0 0 116 88" role="img" aria-label="Tap next to the middle wall to open a small green window">
+    <rect x="6" y="6" width="104" height="76" rx="8" fill="#fffaf1" stroke="#ead9bf" stroke-width="2"/>
+    <rect x="7" y="7" width="51" height="74" fill="rgba(233,128,110,.10)"/><rect x="58" y="7" width="51" height="74" fill="rgba(120,180,230,.16)"/>
+    <path d="M58 8v24M58 56v24" stroke="#e2b56a" stroke-width="7" opacity=".22"/>
+    <path d="M58 8v24M58 56v24" stroke="#3d3552" stroke-width="2"/>
+    <path d="M58 35v18" stroke="#5f9e78" stroke-width="9" opacity=".6" stroke-linecap="round"/>
+    <circle cx="70" cy="44" r="9" fill="none" stroke="#e9806e" stroke-width="2" opacity=".5"/>
+    <circle cx="70" cy="44" r="4" fill="#e9806e"/>
+    <path d="M84 60l-9-11" stroke="#e9806e" stroke-width="2.5" stroke-linecap="round"/>
+  </svg><div><h3>1. Open a window</h3><p>Click or tap close to the middle wall. That part opens (it glows green) for about half a second. Drag along the wall to open more.</p></div></article>
+  <article><svg viewBox="0 0 116 88" role="img" aria-label="A red ball goes left and a blue ball goes right through open windows">
+    <rect x="6" y="6" width="104" height="76" rx="8" fill="#fffaf1" stroke="#ead9bf" stroke-width="2"/>
+    <rect x="7" y="7" width="51" height="74" fill="rgba(233,128,110,.10)"/><rect x="58" y="7" width="51" height="74" fill="rgba(120,180,230,.16)"/>
+    <path d="M58 8v12M58 36v18M58 70v10" stroke="#3d3552" stroke-width="2"/>
+    <path d="M58 22v12M58 56v12" stroke="#5f9e78" stroke-width="8" opacity=".6" stroke-linecap="round"/>
+    <circle cx="44" cy="28" r="6" fill="#e05a55" stroke="rgba(61,53,82,.35)"/>
+    <path d="M86 28H54" stroke="#e05a55" stroke-width="2" stroke-dasharray="3 3" opacity=".6"/>
+    <path d="M40 28h-12M32 24l-4 4 4 4" fill="none" stroke="#e9806e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="72" cy="62" r="6" fill="#3f86d0" stroke="rgba(61,53,82,.35)"/>
+    <path d="M30 62h32" stroke="#3f86d0" stroke-width="2" stroke-dasharray="3 3" opacity=".6"/>
+    <path d="M76 62h12M84 58l4 4-4 4" fill="none" stroke="#e9806e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg><div><h3>2. Let the right ones through</h3><p>Open a window just as a red ball is about to go left, or a blue ball is about to go right. Keep it shut for the others.</p></div></article>
+  <article><svg viewBox="0 0 116 88" role="img" aria-label="Separation goes from 50 percent when mixed to 90 percent when sorted">
+    <g transform="translate(6 10)">
+      <rect width="40" height="40" rx="5" fill="#fffaf1" stroke="#ead9bf" stroke-width="2"/><path d="M20 2v36" stroke="#3d3552" stroke-width="1.5"/>
+      <g stroke="rgba(61,53,82,.35)"><circle cx="9" cy="10" r="4" fill="#3f86d0"/><circle cx="12" cy="28" r="4" fill="#e05a55"/><circle cx="29" cy="12" r="4" fill="#e05a55"/><circle cx="31" cy="29" r="4" fill="#3f86d0"/></g>
+      <text x="20" y="56" text-anchor="middle" font-size="11" font-weight="800" fill="#6d6480">50%</text>
+    </g>
+    <path d="M52 30h10M58 25l5 5-5 5" fill="none" stroke="#e9806e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <g transform="translate(70 10)">
+      <rect width="40" height="40" rx="5" fill="#fffaf1" stroke="#ead9bf" stroke-width="2"/><path d="M20 2v36" stroke="#3d3552" stroke-width="1.5"/>
+      <g stroke="rgba(61,53,82,.35)"><circle cx="9" cy="10" r="4" fill="#e05a55"/><circle cx="11" cy="28" r="4" fill="#e05a55"/><circle cx="29" cy="12" r="4" fill="#3f86d0"/><circle cx="31" cy="29" r="4" fill="#3f86d0"/></g>
+      <text x="20" y="56" text-anchor="middle" font-size="11" font-weight="900" fill="#5f9e78">90%</text>
+    </g>
+    <text x="58" y="82" text-anchor="middle" font-size="9" font-weight="800" fill="#3d3552">Separation</text>
+  </svg><div><h3>3. Watch Separation</h3><p>It shows how many balls are on their correct side. 50% means fully mixed; 100% means perfectly sorted.</p></div></article>
+  <article><svg viewBox="0 0 116 88" role="img" aria-label="Two modes: Reach a target percent as fast as possible, or get your best percent in 60 seconds">
+    <rect x="6" y="8" width="104" height="32" rx="12" fill="#fff" stroke="#ead9bf" stroke-width="2"/>
+    <circle cx="24" cy="25" r="9" fill="none" stroke="#3d3552" stroke-width="2"/><path d="M24 25v-5M22 14h4" stroke="#e9806e" stroke-width="2" stroke-linecap="round"/>
+    <text x="38" y="29" font-size="10" font-weight="800" fill="#3d3552">Reach 60%</text>
+    <rect x="6" y="48" width="104" height="32" rx="12" fill="#fff" stroke="#ead9bf" stroke-width="2"/>
+    <circle cx="24" cy="64" r="9" fill="none" stroke="#ead9bf" stroke-width="3"/>
+    <path d="M24 55a9 9 0 1 1-8.5 6" fill="none" stroke="#e9806e" stroke-width="3" stroke-linecap="round"/>
+    <text x="38" y="68" font-size="10" font-weight="800" fill="#3d3552">60s Best %</text>
+  </svg><div><h3>4. Pick a mode</h3><p>Reach %: a stopwatch runs until you stay above the Target for 1 second. 60s Best %: you have 60 seconds, and your highest score counts.</p></div></article>
+  <article><svg viewBox="0 0 116 88" role="img" aria-label="Sliders for speed, window size and latch time">
+    <g font-size="9" font-weight="800" fill="#6d6480">
+      <text x="6" y="21">Speed</text><text x="6" y="47">Window</text><text x="6" y="73">Latch</text>
+    </g>
+    <g stroke-linecap="round">
+      <path d="M52 18h56M52 44h56M52 70h56" stroke="#ead9bf" stroke-width="4"/>
+      <path d="M52 18h20M52 44h32M52 70h14" stroke="#e9806e" stroke-width="4"/>
+    </g>
+    <g fill="#fff" stroke="#3d3552" stroke-width="2"><circle cx="72" cy="18" r="6"/><circle cx="84" cy="44" r="6"/><circle cx="66" cy="70" r="6"/></g>
+  </svg><div><h3>5. Change the box</h3><p>Sliders set speed, number and size of balls, noise, wall slices, window size and Latch (how long a window stays open). Reset mixes a new gas.</p></div></article>
+  <article><svg viewBox="0 0 116 88" role="img" aria-label="A little demon guards the door in the wall">
+    <rect x="6" y="6" width="104" height="76" rx="8" fill="#fffaf1" stroke="#ead9bf" stroke-width="2"/>
+    <path d="M58 8v26M58 56v24" stroke="#3d3552" stroke-width="2"/>
+    <path d="M58 36v18" stroke="#5f9e78" stroke-width="8" opacity=".6" stroke-linecap="round"/>
+    <path d="M70 33l-3-8 7 5M86 33l3-8-7 5" fill="#c85a48"/>
+    <circle cx="78" cy="42" r="11" fill="#e9806e"/>
+    <circle cx="74" cy="40" r="2" fill="#3d3552"/><circle cx="82" cy="40" r="2" fill="#3d3552"/>
+    <path d="M73 46q5 4 10 0" fill="none" stroke="#3d3552" stroke-width="1.8" stroke-linecap="round"/>
+    <circle cx="30" cy="30" r="5" fill="#e05a55" stroke="rgba(61,53,82,.35)"/><circle cx="22" cy="58" r="5" fill="#e05a55" stroke="rgba(61,53,82,.35)"/>
+    <circle cx="96" cy="68" r="5" fill="#3f86d0" stroke="rgba(61,53,82,.35)"/>
+  </svg><div><h3>6. The big idea</h3><p>In the 1860s Maxwell imagined a tiny “demon” that sorts a gas just by opening a door — you are the demon! It seems to make order for free, but watching and deciding has a hidden cost.</p></div></article>
+  <div class="tips"><span>Phone: tap near the wall</span><span>Laptop: click near the wall</span><span>Pause / Reset in the panel</span><span>When a round ends, press Reset</span></div>
+</template>
+<script src="cozy/howto.js" defer></script>
 <div class="wrap">
 
 <div class="intro">
@@ -658,6 +729,27 @@
     requestAnimationFrame(frame);
     setStatus("Running", 700);
   }
+
+  // Pause while the "How to play" guide (cozy/howto.js) is open; resume on close.
+  (function hookHowto(){
+    let pausedByGuide = false;
+    function watch(modal){
+      const sync = () => {
+        const on = modal.classList.contains('on');
+        if (on && !paused) { paused = true; pausedByGuide = true; pauseBtn.textContent = "Resume"; }
+        else if (!on && pausedByGuide) { pausedByGuide = false; paused = false; pauseBtn.textContent = "Pause"; }
+      };
+      new MutationObserver(sync).observe(modal, { attributes: true, attributeFilter: ['class'] });
+      sync();
+    }
+    const found = document.querySelector('.cz-howto');
+    if (found) { watch(found); return; }
+    const mo = new MutationObserver(() => {
+      const m = document.querySelector('.cz-howto');
+      if (m) { mo.disconnect(); watch(m); }
+    });
+    mo.observe(document.body, { childList: true });
+  })();
 
   window.addEventListener('resize', () => {
     resizeCanvasToBox();

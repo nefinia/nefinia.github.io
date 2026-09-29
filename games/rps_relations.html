@@ -159,6 +159,71 @@
 </head>
 <body class="cz-scope">
 <header class="cz-bar"><a class="cz-back" href="index.html">← All games</a><span class="cz-name">RPS Relations</span><a class="cz-home" href="../index.html">sofiagallego.com</a></header>
+<template id="cz-howto" data-title="How to play RPS Relations">
+  <p class="lead">Fill every empty square with Rock, Paper, Scissors, Lizard or Spock. The arrows between squares tell you who wins each pair. When every arrow is true and the counts match, the puzzle is solved.</p>
+  <article><svg viewBox="0 0 116 88" role="img" aria-label="Pick a symbol from the palette, then tap an empty square">
+    <rect x="6" y="8" width="104" height="24" rx="12" fill="#fffaf1" stroke="#d9c29c" stroke-width="2"/>
+    <g font-size="11" text-anchor="middle" dominant-baseline="central">
+      <rect x="11" y="11" width="18" height="18" rx="5" fill="#fff" stroke="#d9c29c" stroke-width="1.5"/><text x="20" y="20.5">🪨</text>
+      <rect x="31" y="11" width="18" height="18" rx="5" fill="#fdeae4" stroke="#e9806e" stroke-width="2"/><text x="40" y="20.5">📄</text>
+      <rect x="51" y="11" width="18" height="18" rx="5" fill="#fff" stroke="#d9c29c" stroke-width="1.5"/><text x="60" y="20.5">✂️</text>
+      <rect x="71" y="11" width="18" height="18" rx="5" fill="#fff" stroke="#d9c29c" stroke-width="1.5"/><text x="80" y="20.5">🦎</text>
+      <rect x="91" y="11" width="18" height="18" rx="5" fill="#fff" stroke="#d9c29c" stroke-width="1.5"/><text x="100" y="20.5">🖖</text>
+    </g>
+    <g stroke="#dcc6a0" stroke-width="1.5" fill="#fffaf1"><rect x="56" y="48" width="24" height="24"/><rect x="80" y="48" width="24" height="24"/></g>
+    <text x="68" y="61" font-size="13" text-anchor="middle" dominant-baseline="central">📄</text>
+    <path d="M40 34c-4 12 0 22 12 26" fill="none" stroke="#e9806e" stroke-width="3" stroke-linecap="round"/>
+    <path d="M45 62l8-1-3-7" fill="none" stroke="#e9806e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg><div><h3>1. Pick, then tap</h3><p>Tap a symbol in the palette at the top. Then tap an empty square to put it there. Tap again with another symbol to change it.</p></div></article>
+  <article><svg viewBox="0 0 116 88" role="img" aria-label="Shaded squares are given and cannot change">
+    <g stroke="#dcc6a0" stroke-width="1.5" fill="#fffaf1">
+      <rect x="22" y="20" width="24" height="24"/><rect x="46" y="20" width="24" height="24"/><rect x="70" y="20" width="24" height="24"/>
+      <rect x="22" y="44" width="24" height="24"/><rect x="46" y="44" width="24" height="24"/><rect x="70" y="44" width="24" height="24"/>
+    </g>
+    <g fill="#f6e7cf" stroke="#6d6480" stroke-opacity=".75" stroke-width="1.5"><rect x="26" y="24" width="16" height="16"/><rect x="74" y="48" width="16" height="16"/></g>
+    <g font-size="11" text-anchor="middle" dominant-baseline="central"><text x="34" y="32.5">🦎</text><text x="82" y="56.5">🖖</text><text x="58" y="56.5">✂️</text></g>
+    <text x="58" y="80" font-size="9" font-weight="800" fill="#6d6480" text-anchor="middle">given = fixed</text>
+  </svg><div><h3>2. Boxed squares are given</h3><p>Symbols with a shaded box are part of the puzzle. You cannot change them. Use them as your starting clues.</p></div></article>
+  <article><svg viewBox="0 0 116 88" role="img" aria-label="An arrow between two squares points at the winner; an equals sign means the same symbol">
+    <g stroke="#dcc6a0" stroke-width="1.5" fill="#fffaf1"><rect x="10" y="10" width="28" height="28"/><rect x="38" y="10" width="28" height="28"/>
+      <rect x="82" y="6" width="28" height="28"/><rect x="82" y="34" width="28" height="28"/>
+      <rect x="10" y="52" width="28" height="28"/><rect x="38" y="52" width="28" height="28"/></g>
+    <g font-size="14" text-anchor="middle" dominant-baseline="central">
+      <text x="24" y="25">🪨</text><text x="52" y="25">✂️</text>
+      <text x="96" y="21">📄</text><text x="96" y="49">🖖</text>
+      <text x="24" y="67">🦎</text><text x="52" y="67">🦎</text></g>
+    <g fill="#4a4163" font-weight="800" text-anchor="middle" dominant-baseline="central">
+      <text x="38" y="24.5" font-size="13">←</text><text x="96" y="34" font-size="13">↑</text><text x="38" y="66" font-size="13">=</text></g>
+    <circle cx="38" cy="24.5" r="8" fill="none" stroke="#e9806e" stroke-width="2"/>
+  </svg><div><h3>3. Arrows point to the winner</h3><p>A clue sits on the line between two squares. ← → ↑ ↓ point at the square that wins: Rock ← Scissors means Rock beats Scissors. <b>=</b> means both squares hold the same symbol.</p></div></article>
+  <article><svg viewBox="0 0 116 88" role="img" aria-label="Win circle: each symbol beats two others">
+    <defs>
+      <marker id="rpsC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="3.5" markerHeight="3.5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#e9806e"/></marker>
+      <marker id="rpsP" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#3d3552"/></marker>
+    </defs>
+    <g fill="#fffaf1" stroke="#d9c29c" stroke-width="1.5"><circle cx="58" cy="13" r="9.5"/><circle cx="89.4" cy="35.8" r="9.5"/><circle cx="77.4" cy="72.7" r="9.5"/><circle cx="38.6" cy="72.7" r="9.5"/><circle cx="26.6" cy="35.8" r="9.5"/></g>
+    <g stroke="#e9806e" stroke-width="2" fill="none" marker-end="url(#rpsC)"><path d="M66.9 19.5L78.9 28.2"/><path d="M86.0 46.3L81.4 60.3"/><path d="M66.4 72.7L51.6 72.7"/><path d="M35.2 62.2L30.6 48.2"/><path d="M35.5 29.3L47.5 20.6"/></g>
+    <g stroke="#3d3552" stroke-width="1.4" fill="none" stroke-opacity=".75" marker-end="url(#rpsP)"><path d="M54.6 23.5L42.6 60.3"/><path d="M78.4 35.8L39.6 35.8"/><path d="M74.0 62.2L62.0 25.4"/><path d="M47.5 66.2L78.9 43.4"/><path d="M35.5 42.3L66.9 65.1"/></g>
+    <g font-size="11" text-anchor="middle" dominant-baseline="central"><text x="58" y="13.5">🪨</text><text x="89.4" y="36.3">🦎</text><text x="77.4" y="73.2">🖖</text><text x="38.6" y="73.2">✂️</text><text x="26.6" y="36.3">📄</text></g>
+  </svg><div><h3>4. Who beats whom</h3><p>Each symbol beats two others. Follow the arrows:<br>🪨 Rock beats ✂️ 🦎<br>📄 Paper beats 🪨 🖖<br>✂️ Scissors beats 📄 🦎<br>🦎 Lizard beats 📄 🖖<br>🖖 Spock beats 🪨 ✂️</p></div></article>
+  <article><svg viewBox="0 0 116 88" role="img" aria-label="Use each symbol exactly as many times as the Counts show">
+    <rect x="6" y="14" width="104" height="24" rx="12" fill="#fffaf1" stroke="#d9c29c" stroke-width="2"/>
+    <text x="58" y="26.5" font-size="9.5" font-weight="800" fill="#3d3552" text-anchor="middle" dominant-baseline="central">🪨5 📄5 ✂️5 🦎5 🖖5</text>
+    <text x="58" y="7" font-size="9" font-weight="800" fill="#6d6480" text-anchor="middle" dominant-baseline="central">Counts</text>
+    <rect x="18" y="52" width="80" height="26" rx="13" fill="#5f9e78" stroke="#3f7a57" stroke-width="2"/>
+    <path d="M31 65l5 5 9-10" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="70" y="65.5" font-size="11" font-weight="800" fill="#fff" text-anchor="middle" dominant-baseline="central">Solved</text>
+  </svg><div><h3>5. Match the counts</h3><p>The “Counts” pill says how many of each symbol the full grid must use. Fill every square, follow every arrow and use the exact counts to win.</p></div></article>
+  <article><svg viewBox="0 0 116 88" role="img" aria-label="Undo, Clear and Reveal buttons">
+    <g font-size="10" font-weight="800" fill="#3d3552" text-anchor="middle" dominant-baseline="central">
+      <rect x="8" y="12" width="46" height="22" rx="8" fill="#fffaf1" stroke="#d9c29c" stroke-width="2"/><text x="31" y="23.5">Undo</text>
+      <rect x="62" y="12" width="46" height="22" rx="8" fill="#fffaf1" stroke="#d9c29c" stroke-width="2"/><text x="85" y="23.5">Clear</text>
+      <rect x="8" y="46" width="46" height="22" rx="8" fill="#fffaf1" stroke="#d9c29c" stroke-width="2"/><text x="31" y="57.5">Reveal</text>
+      <rect x="62" y="46" width="46" height="22" rx="8" fill="#fffaf1" stroke="#d9c29c" stroke-width="2"/><text x="85" y="57.5">Debug</text></g>
+  </svg><div><h3>6. Helpers</h3><p>Undo takes back your last move, Clear empties your squares. Reveal shows the answer (tap again to hide). Debug marks W/L on each clue, and red lines on broken clues once the grid is full.</p></div></article>
+  <div class="tips"><span>Phone: tap symbol, then tap square</span><span>Laptop: click symbol, then click square</span><span>New puzzle: pick grid size and difficulty</span></div>
+</template>
+<script src="cozy/howto.js" defer></script>
 <div id="wrap">
     <div id="top">
       <select id="sizeSel">
