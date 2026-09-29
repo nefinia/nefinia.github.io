@@ -696,7 +696,7 @@ input:focus{box-shadow:0 1px 0 var(--accent)}
 
         <div id="success" class="success" hidden tabindex="-1" aria-live="polite">
           <div class="tick" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9" fill="none" stroke="#C8321E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <h3>Thank you. Your interest has been recorded.</h3>
+          <h3 id="success-title">Thank you. Your interest has been recorded.</h3>
           <p>We’ll be in touch as the founding network takes shape. If you know colleagues who might want to help shape this, feel free to share the page with them.</p>
           <p class="notice" id="preview-notice" hidden>Preview mode: this form is not yet connected to a database, so this response was not stored.</p>
           <div><button class="btn btn-ghost btn-sm" type="button" id="again">Submit another response</button></div>
@@ -944,6 +944,7 @@ form.addEventListener("submit", async e=>{
     const res = await send(collect());
     form.hidden = true;
     document.getElementById("preview-notice").hidden = res.stored;
+    document.getElementById("success-title").textContent = res.stored ? "Thank you. Your interest has been recorded." : "Thank you. Everything was filled in correctly.";
     success.hidden = false; success.focus();
   }catch(err){
     summary.innerHTML = "<strong>Your response couldn’t be sent.</strong> Check your connection and try again. Your answers are still in the form.";
