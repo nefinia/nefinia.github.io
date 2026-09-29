@@ -1,0 +1,1097 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Peer Review Cooperative</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="An early-stage initiative exploring a scientist-owned cooperative for independent, compensated peer review.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Referee's report: white paper, black ink, one red pencil. Single deliberate light theme. */
+:root{
+  color-scheme:light;
+  --paper:#FFFFFF;
+  --paper-2:#F6F5F3;
+  --card:#FFFFFF;
+  --ink:#111111;
+  --ink-2:#2E2E2E;
+  --muted:#6A6865;
+  --rule:#E4E2DF;
+  --rule-strong:#111111;
+  --accent:#C8321E;          /* red pencil */
+  --accent-ink:#FFFFFF;
+  --accent-soft:#FBE9E5;
+  --mark:#C8321E;
+  --error:#C8321E;
+  --error-soft:#FBE9E5;
+  --focus:#C8321E;
+  --serif:"Newsreader", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --sans:"Newsreader", "Iowan Old Style", Georgia, serif;
+  --mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --gutter:clamp(16px, 4vw, 48px);
+  --max:1100px;
+}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--serif);font-size:19px;line-height:1.6;font-optical-sizing:auto;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+a{color:inherit;text-decoration-thickness:1px;text-underline-offset:3px}
+a:hover{text-decoration-color:var(--accent)}
+:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.wrap{max-width:var(--max);margin:0 auto;padding-inline:var(--gutter)}
+.skip{position:absolute;left:-9999px;top:0}
+.skip:focus{left:16px;top:16px;z-index:100;background:var(--paper);padding:8px 12px;border:1px solid var(--ink)}
+sup.fn{font-family:var(--mono);font-size:.5em;color:var(--accent);vertical-align:super;margin-left:.1em;font-weight:500;letter-spacing:0}
+
+/* ---------- header ---------- */
+.site-head{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:var(--paper);
+  border-bottom:1px solid transparent;transition:border-color .3s;
+}
+.site-head.scrolled{border-bottom-color:var(--ink)}
+.head-row{display:flex;align-items:center;gap:24px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-size:17px;white-space:nowrap;font-style:italic}
+.brand svg{flex:none}
+.brand small{font-family:var(--mono);font-style:normal;font-size:10.5px;color:var(--accent);letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--accent);padding:1px 5px}
+@media (max-width: 480px){.brand small{display:none}}
+.nav{margin-left:auto;display:flex;align-items:center;gap:2px}
+.nav a{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;color:var(--ink-2);padding:8px 10px}
+.nav a:hover{color:var(--accent)}
+.nav a.active{color:var(--ink);text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:1.5px;text-underline-offset:6px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  font:500 13px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;cursor:pointer;
+  padding:15px 20px;border-radius:0;border:1px solid var(--ink);
+  transition:background .2s, color .2s, border-color .2s;
+}
+.btn-primary{background:var(--ink);color:#fff}
+.btn-primary:hover{background:var(--accent);border-color:var(--accent)}
+.nav a.btn-primary{color:#fff;margin-left:8px}
+.nav a.btn-primary:hover{color:#fff}
+.btn-ghost{color:var(--ink);background:transparent}
+.btn-ghost:hover{color:var(--accent);border-color:var(--accent)}
+.btn-sm{padding:10px 14px;font-size:11.5px}
+.btn .arr{transition:transform .2s;font-family:var(--serif);text-transform:none;font-size:1.3em;line-height:0}
+.btn:hover .arr{transform:translateX(3px)}
+.menu-btn{display:none;margin-left:auto;background:none;border:1px solid var(--ink);color:var(--ink);padding:8px 12px;font:500 11.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+@media (max-width: 860px){
+  .head-row{gap:12px}
+  .menu-btn{display:inline-flex;flex:none}
+  .nav{
+    position:absolute;left:0;right:0;top:60px;flex-direction:column;align-items:stretch;gap:0;
+    background:var(--paper);border-bottom:1px solid var(--ink);padding:8px var(--gutter) 16px;
+  }
+  .nav[data-open="false"]{display:none}
+  .nav a{padding:14px 0;border-bottom:1px solid var(--rule);font-size:13px}
+  .nav a.btn-primary{margin:14px 0 0;padding:14px}
+}
+
+/* ---------- type ---------- */
+h1,h2,h3{font-family:var(--serif);font-weight:400;text-wrap:balance;margin:0}
+h1{font-size:clamp(46px, 7.2vw, 96px);line-height:.98;letter-spacing:-.028em;font-weight:350}
+h2{font-size:clamp(32px, 4vw, 48px);line-height:1.08;letter-spacing:-.018em;font-weight:350}
+h3{font-size:22px;line-height:1.25;font-weight:500;letter-spacing:-.005em}
+p{margin:0}
+.lede{font-size:clamp(20px, 1.8vw, 23px);line-height:1.5;color:var(--ink-2);max-width:32em}
+.prose{display:grid;gap:18px;max-width:34em;color:var(--ink-2)}
+.prose strong{color:var(--ink);font-weight:600}
+.label{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+em.hl{font-style:italic;text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:1.5px;text-underline-offset:4px}
+.pen{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 12' preserveAspectRatio='none'%3E%3Cpath d='M2 8 C 60 3, 120 10, 180 5 S 270 4, 298 7' fill='none' stroke='%23C8321E' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:0 94%;background-size:100% .16em;padding-bottom:.06em;
+}
+
+/* ---------- hero ---------- */
+.hero{position:relative;padding-block:clamp(40px, 7vw, 96px) clamp(48px, 7vw, 88px);overflow:hidden;border-bottom:1px solid var(--ink)}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.9fr);gap:clamp(24px,5vw,64px);align-items:end}
+.hero-copy{display:grid;gap:26px;position:relative;z-index:2}
+.stage{display:flex;align-items:flex-start;gap:10px;font-size:16px;font-style:italic;color:var(--muted);max-width:30em;line-height:1.5}
+.stage .dot{flex:none;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-top:9px}
+.cta-row{display:flex;flex-wrap:wrap;gap:12px}
+.field-wrap{position:relative;aspect-ratio:1/1;max-width:100%;width:100%;border:1px solid var(--ink)}
+.field-wrap::after{content:"Fig. 1 — Reviewers as a network of peers, not a hierarchy.";position:absolute;left:0;top:calc(100% + 8px);font-style:italic;font-size:14px;color:var(--muted)}
+#field{position:absolute;inset:0;width:100%;height:100%;display:block}
+@media (max-width: 860px){
+  .hero-grid{grid-template-columns:1fr}
+  .field-wrap{aspect-ratio:16/10;margin-top:12px;margin-bottom:28px}
+}
+.rise{animation:rise .9s cubic-bezier(.2,.7,.2,1) both}
+.rise.d1{animation-delay:.08s}.rise.d2{animation-delay:.18s}.rise.d3{animation-delay:.28s}.rise.d4{animation-delay:.38s}
+@keyframes rise{from{opacity:.35;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.rise{animation:none}}
+
+/* ---------- sections: text column + margin ---------- */
+section.block{padding-block:clamp(56px, 8vw, 104px);border-top:1px solid var(--rule)}
+section.block:first-of-type{border-top:0}
+.sec{display:grid;grid-template-columns:190px minmax(0,1fr);gap:clamp(20px,5vw,72px)}
+.margin{display:grid;align-content:start;gap:16px;padding-top:12px}
+.margin .sect{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+.note{font-family:var(--serif);font-style:italic;font-size:15.5px;line-height:1.45;color:var(--accent)}
+.note .num{font-style:normal;font-family:var(--mono);font-size:11px;margin-right:4px}
+.sec-body{display:grid;gap:30px;min-width:0}
+@media (max-width: 860px){
+  .sec{grid-template-columns:1fr;gap:14px}
+  .margin{padding-top:0;grid-template-columns:1fr}
+}
+.reveal{transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+.js .reveal.pre{transform:translateY(12px)}
+@media (prefers-reduced-motion: reduce){.js .reveal.pre{transform:none}}
+
+/* problem */
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+.fact{padding:18px 20px 18px 0;display:grid;gap:6px;align-content:start}
+.fact + .fact{padding-left:20px;border-left:1px solid var(--rule)}
+.fact h3{font-size:20px;font-style:italic;font-weight:400}
+.fact p{font-size:16px;color:var(--ink-2);line-height:1.5}
+@media (max-width: 760px){
+  .facts{grid-template-columns:1fr}
+  .fact + .fact{padding-left:0;border-left:0;border-top:1px solid var(--rule)}
+}
+
+/* idea flow */
+.flow{
+  display:grid;grid-template-columns:minmax(0,1fr) 150px minmax(0,1fr);
+  grid-template-rows:repeat(5, auto);row-gap:34px;
+  border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding-block:28px;
+}
+.flow-head{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:-20px}
+.node{position:relative;background:var(--paper);border:1px solid var(--ink);padding:12px 15px;font-size:17px;display:grid;gap:2px;line-height:1.3}
+.node small{color:var(--muted);font-size:14.5px;font-style:italic}
+.node.down::after{content:"";position:absolute;left:24px;top:100%;width:1px;height:34px;background:var(--ink)}
+.node.down::before{content:"";position:absolute;left:21px;top:calc(100% + 27px);width:7px;height:7px;border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);transform:rotate(45deg)}
+.node.key{border:1.5px solid var(--accent);color:var(--ink)}
+.node.key small{color:var(--accent)}
+.node.record{background:var(--ink);color:#fff;border-color:var(--ink)}
+.node.record small{color:#cfcac4}
+.chips{display:flex;flex-wrap:wrap;gap:4px 12px;font-style:italic}
+.chip{font-size:15.5px}
+.chip + .chip::before{content:"/";margin-right:12px;color:var(--muted);font-style:normal}
+.money{position:relative;display:flex;align-items:center;justify-content:center;padding-inline:10px}
+.money .line{position:absolute;left:0;right:0;top:50%;border-top:1.5px dashed var(--accent)}
+.money .line::before{content:"";position:absolute;left:-1px;top:-5.5px;width:9px;height:9px;border-left:1.5px solid var(--accent);border-bottom:1.5px solid var(--accent);transform:rotate(45deg)}
+.money span{position:relative;background:var(--paper);font-style:italic;font-size:14.5px;line-height:1.3;color:var(--accent);text-align:center;padding:4px 6px}
+.m-mob{display:none}
+.legend{display:flex;flex-wrap:wrap;gap:8px 24px;font-size:15px;font-style:italic;color:var(--muted)}
+.legend i{display:inline-block;width:22px;vertical-align:middle;margin-right:8px}
+.legend .l1{border-top:1px solid var(--ink)}
+.legend .l2{border-top:1.5px dashed var(--accent)}
+@media (max-width: 760px){
+  .m-desk{display:none}.m-mob{display:inline}
+  .flow{grid-template-columns:1fr;row-gap:28px}
+  .flow > *{grid-column:1 !important;grid-row:auto !important}
+  .node.down::after{height:28px}
+  .node.down::before{top:calc(100% + 21px)}
+  .money{justify-content:flex-start;padding:0}
+  .money .line{display:none}
+  .money span{text-align:left;padding:0}
+  .flow-head.second{margin-top:12px}
+}
+
+/* how it works */
+.steps{list-style:none;margin:0;padding:0;display:grid;border-top:1px solid var(--ink)}
+.steps li{display:grid;grid-template-columns:52px minmax(0,1fr);gap:14px;padding:20px 0;border-bottom:1px solid var(--rule)}
+.steps .n{font-family:var(--mono);font-size:13px;line-height:2;color:var(--accent);font-variant-numeric:tabular-nums}
+.steps .n::before{content:"§ "}
+.steps h3{font-size:21px;margin-bottom:4px}
+.steps p{color:var(--ink-2);font-size:17px;max-width:34em}
+.steps .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);padding:1px 6px;margin-left:8px;vertical-align:3px}
+.how-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:clamp(24px,4vw,48px);align-items:start}
+@media (max-width: 980px){.how-grid{grid-template-columns:1fr}}
+.record-card{position:sticky;top:90px;background:var(--paper);border:1px solid var(--ink);font-size:15px;overflow:hidden;box-shadow:6px 6px 0 var(--paper-2)}
+.record-card header{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:12px 16px;border-bottom:1px solid var(--ink)}
+.record-card header b{font-family:var(--mono);font-weight:500;font-size:11.5px;letter-spacing:.08em}
+.record-card .ex{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);border:1px solid var(--accent);padding:1px 6px;white-space:nowrap;transform:rotate(-2deg)}
+.record-card .title{padding:16px 16px 4px;font-size:19px;line-height:1.3;font-style:italic}
+.record-card dl{margin:0;padding:8px 16px 4px;display:grid;grid-template-columns:auto 1fr;gap:6px 16px}
+.record-card dt{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;padding-top:4px}
+.record-card dd{margin:0}
+.timeline{list-style:none;margin:12px 16px 0;padding:0 0 4px;border-left:1px solid var(--ink)}
+.timeline li{position:relative;padding:0 0 12px 18px;display:grid;gap:0}
+.timeline li::before{content:"";position:absolute;left:-4.5px;top:7px;width:8px;height:8px;border-radius:50%;background:var(--paper);border:1px solid var(--ink)}
+.timeline li.done::before{background:var(--ink)}
+.timeline li:last-child::before{border-color:var(--accent);background:var(--accent)}
+.timeline .v{font-family:var(--mono);font-size:11px;color:var(--accent)}
+.timeline span{color:var(--ink-2);font-size:15px;line-height:1.4}
+.record-card footer{margin-top:8px;padding:12px 16px;border-top:1px solid var(--rule);font-size:14px;font-style:italic;color:var(--muted);line-height:1.45}
+@media (max-width: 980px){.record-card{position:static}}
+.caveat{font-style:italic;color:var(--accent)}
+
+/* cooperative */
+.pull{font-weight:350;font-style:italic;font-size:clamp(28px,3.5vw,42px);line-height:1.2;letter-spacing:-.012em;max-width:22em;text-wrap:balance}
+.pull::before{content:"“";color:var(--accent);margin-left:-.42em;padding-right:.04em}
+@media (max-width:600px){.pull::before{margin-left:0}}
+.gov{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+.gov div{padding:16px 16px 18px 0;display:grid;gap:6px;align-content:start}
+.gov div + div{padding-left:16px;border-left:1px solid var(--rule)}
+.gov b{font-weight:500;font-size:17px}
+.gov span{font-size:15px;color:var(--muted);line-height:1.45}
+@media (max-width: 1100px){
+  .gov{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .gov div{padding:14px 16px 16px 0;border-top:1px solid var(--rule)}
+  .gov div + div{border-left:0;padding-left:0}
+  .gov div:nth-child(even){padding-left:16px;border-left:1px solid var(--rule)}
+  .gov div:nth-child(-n+2){border-top:0}
+  .gov div:last-child{grid-column:1/-1}
+}
+@media (max-width: 520px){
+  .gov{grid-template-columns:1fr}
+  .gov div:nth-child(even){padding-left:0;border-left:0}
+  .gov div:nth-child(2){border-top:1px solid var(--rule)}
+}
+.principle{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start;max-width:40em;border-left:2px solid var(--accent);padding:4px 0 4px 18px}
+.principle .label{padding-top:5px;color:var(--accent)}
+.principle p{color:var(--ink)}
+@media (max-width:520px){.principle{grid-template-columns:1fr;gap:6px}}
+
+/* vision */
+.models{display:grid}
+.model{display:grid;grid-template-columns:160px minmax(0,1fr);gap:20px;align-items:center;padding:20px 0;border-top:1px solid var(--rule)}
+.model:first-child{border-top:1px solid var(--ink)}
+.model:last-child{border-bottom:1px solid var(--ink)}
+.model.new .label{color:var(--accent)}
+.seq{display:flex;flex-wrap:wrap;align-items:center;gap:8px 6px;list-style:none;margin:0;padding:0}
+.seq li{display:flex;align-items:center;gap:6px}
+.seq li + li::before{content:"→";color:var(--muted);margin-right:2px}
+.seq .s{border:1px solid var(--ink);padding:6px 11px;font-size:16px;white-space:nowrap}
+.model.old .s.joined{border-style:dashed;color:var(--ink-2)}
+.model.new .s.eval{border:1.5px solid var(--accent);color:var(--accent)}
+.model.new .s.rec{background:var(--ink);color:#fff}
+.bracket{font-size:14.5px;font-style:italic;color:var(--muted);margin-top:8px}
+@media (max-width: 700px){.model{grid-template-columns:1fr;gap:10px}}
+
+/* ---------- form: a referee's form ---------- */
+.join{background:var(--paper-2);border-top:1px solid var(--ink)}
+.join .note{color:var(--accent)}
+.form-card{background:var(--paper);border:1px solid var(--ink);padding:clamp(20px,4vw,48px);display:grid;gap:32px;box-shadow:8px 8px 0 #E7E4DF}
+form{display:grid;gap:36px}
+fieldset{border:0;margin:0;padding:0;min-width:0;display:grid;gap:12px}
+legend{padding:0;margin-bottom:12px;font-size:19px;line-height:1.35;font-weight:500;max-width:34em}
+legend .opt, .lbl .opt{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:400;margin-left:8px;font-style:normal}
+.req{color:var(--accent);margin-left:2px}
+.part{display:grid;gap:26px;padding-top:28px;border-top:1px solid var(--ink)}
+.part:first-of-type{border-top:0;padding-top:0}
+.part-head .label{color:var(--ink)}
+.part-head .label::before{content:"Part ";color:var(--accent)}
+.row-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 28px}
+@media (max-width: 640px){.row-2{grid-template-columns:1fr}}
+.f{display:grid;gap:6px;min-width:0}
+.lbl{font-size:17px;font-weight:500}
+.hint{font-size:15px;font-style:italic;color:var(--muted)}
+input[type=text],input[type=email],input[type=url],textarea{
+  width:100%;font:400 18px/1.45 var(--serif);color:var(--ink);background:transparent;
+  border:0;border-bottom:1px solid var(--ink);border-radius:0;padding:8px 2px;transition:border-color .2s, background .2s;
+}
+input::placeholder{color:#A09C97;font-style:italic}
+textarea{min-height:130px;resize:vertical;border:1px solid var(--ink);padding:10px 12px;background:
+  repeating-linear-gradient(transparent 0 30px, #EEECE9 30px 31px);background-position:0 10px;line-height:31px}
+input:focus,textarea:focus{outline:none;border-color:var(--accent);background-color:#FFFBFA}
+input:focus{box-shadow:0 1px 0 var(--accent)}
+.invalid input,.invalid textarea{border-color:var(--error)}
+.err{font-size:15px;font-style:italic;color:var(--error)}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 28px}
+.opts:has(> :nth-child(3):last-child){grid-template-columns:repeat(3,max-content)}
+@media (max-width: 600px){.opts{grid-template-columns:1fr}}
+.opt-pill{position:relative}
+.opt-pill input{position:absolute;opacity:0;width:1px;height:1px}
+.opt-pill label{display:flex;align-items:flex-start;gap:12px;cursor:pointer;user-select:none;font-size:17px;padding:6px 0;line-height:1.35}
+.opt-pill label::before{content:"";width:15px;height:15px;border:1px solid var(--ink);flex:none;margin-top:3px;background:var(--paper);transition:background .15s}
+.opt-pill input[type=radio] + label::before{border-radius:50%}
+.opt-pill label:hover::before{border-color:var(--accent)}
+.opt-pill input:checked + label::before{
+  background:var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 8.5 L6.5 13 L15 2' fill='none' stroke='%23C8321E' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/13px no-repeat;
+  border-color:var(--ink)
+}
+.opt-pill input[type=radio]:checked + label::before{background:var(--accent);box-shadow:inset 0 0 0 3px var(--paper)}
+.opt-pill input:focus-visible + label{outline:2px solid var(--focus);outline-offset:2px}
+.invalid .opt-pill label::before{border-color:var(--error)}
+.scale{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border:1px solid var(--ink)}
+.scale .opt-pill label{height:100%;padding:12px 12px;font-size:15.5px;line-height:1.3;border-left:1px solid var(--ink);gap:8px}
+.scale .opt-pill:first-child label{border-left:0}
+.scale .opt-pill input:checked + label{background:var(--ink);color:#fff}
+.scale .opt-pill input:checked + label::before{background:var(--accent);border-color:#fff;box-shadow:inset 0 0 0 3px var(--ink)}
+.scale .opt-pill input:focus-visible + label{outline-offset:-3px}
+@media (max-width: 700px){
+  .scale{grid-template-columns:1fr}
+  .scale .opt-pill label{border-left:0;border-top:1px solid var(--ink)}
+  .scale .opt-pill:first-child label{border-top:0}
+}
+.consent{display:flex;gap:12px;align-items:flex-start;font-size:17px;cursor:pointer}
+.consent input{width:18px;height:18px;margin:4px 0 0;accent-color:var(--accent);flex:none}
+.form-foot{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;border-top:1px solid var(--ink);padding-top:24px}
+.form-foot p{font-size:15px;font-style:italic;color:var(--muted);max-width:32em}
+.btn[disabled]{opacity:.6;cursor:progress}
+.summary{border:1px solid var(--error);border-left-width:4px;background:var(--error-soft);padding:14px 16px;font-size:16px}
+.summary ul{margin:6px 0 0;padding-left:20px}
+.summary a{color:var(--error)}
+.success{display:grid;gap:16px;padding:8px 0}
+.success h3{font-size:30px;font-weight:350;font-style:italic}
+.success p{color:var(--ink-2);max-width:34em}
+.success .tick{width:44px;height:44px;border:1.5px solid var(--accent);border-radius:50%;display:grid;place-items:center;transform:rotate(-4deg)}
+.notice{font-size:15px;font-style:italic;color:var(--accent);border:1px dashed var(--accent);padding:10px 12px;max-width:40em}
+.char{font-family:var(--mono);font-size:10.5px;color:var(--muted);justify-self:end}
+
+/* footer */
+.site-foot{padding-block:40px 64px;border-top:1px solid var(--ink);font-size:15.5px;color:var(--muted)}
+.foot-grid{display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px}
+.foot-grid p{max-width:36em}
+.foot-grid p:first-child{font-style:italic}
+.foot-grid a{color:var(--ink)}
+
+.float-join{
+  position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:30;
+  transform:translateY(160%);transition:transform .35s cubic-bezier(.2,.7,.2,1);
+}
+.float-join.show{transform:none}
+@media (min-width: 861px){.float-join{display:none}}
+</style>
+</head>
+<body>
+
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-head" id="top">
+  <div class="wrap head-row">
+    <a class="brand" href="#top" aria-label="Peer Review Cooperative, back to top">
+      <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true">
+        <g fill="none" stroke="currentColor" stroke-width="1.2">
+          <path d="M5 8 L13 4 L21 8 L21 18 L13 22 L5 18 Z" opacity=".35"/>
+          <path d="M5 8 L21 18 M21 8 L5 18 M13 4 L13 22" opacity=".35"/>
+        </g>
+        <g fill="currentColor"><circle cx="5" cy="8" r="2"/><circle cx="21" cy="8" r="2"/><circle cx="21" cy="18" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="13" cy="4" r="2"/><circle cx="13" cy="22" r="2"/></g>
+        <circle cx="13" cy="13" r="2.6" fill="var(--accent)"/>
+      </svg>
+      Peer Review Cooperative <small>in formation</small>
+    </a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
+    <nav class="nav" id="nav" aria-label="Sections" data-open="false">
+      <a href="#idea">Idea</a>
+      <a href="#how">How it works</a>
+      <a href="#cooperative">Why a cooperative</a>
+      <a href="#vision">Vision</a>
+      <a href="#join" class="btn btn-primary btn-sm">Join the network</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- HERO -->
+<section class="hero" aria-labelledby="hero-title">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="label rise">An initiative in formation</p>
+      <h1 id="hero-title" class="rise d1">Peer review should work <span class="pen">for scientists.</span></h1>
+      <p class="lede rise d2">We’re exploring a scientist-owned cooperative for independent peer review, where researchers are compensated for their expertise and have a voice in how the system is run.</p>
+      <div class="cta-row rise d3">
+        <a class="btn btn-primary" href="#join">Join the founding network <span class="arr" aria-hidden="true">→</span></a>
+        <a class="btn btn-ghost" href="#how">See how it could work</a>
+      </div>
+      <p class="stage rise d4"><span class="dot" aria-hidden="true"></span>An early-stage initiative currently bringing together interested researchers, editors, and institutions.</p>
+    </div>
+    <div class="field-wrap" aria-hidden="true">
+      <canvas id="field"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="block" id="problem" aria-labelledby="problem-title">
+  <div class="wrap sec">
+    <aside class="margin">
+      <span class="sect">§ The problem</span>
+      <p class="note"><span class="num">1</span>A structural description, not a verdict on anyone who reviews today.</p>
+    </aside>
+    <div class="sec-body reveal">
+      <h2 id="problem-title">Essential scientific work, done on goodwill and spare time.<sup class="fn">1</sup></h2>
+      <div class="prose">
+        <p>Peer review is how the scientific community checks its own work. It relies on researchers reading manuscripts closely, testing claims, and writing careful reports. In most cases they are expected to do this without compensation, alongside their research, teaching and administrative duties.</p>
+        <p>As submission volumes grow, finding available reviewers takes longer, and manuscripts can wait months for an assessment. Meanwhile, the scientists who provide the intellectual labour have little ownership of the infrastructure through which peer review happens.</p>
+      </div>
+      <div class="facts">
+        <div class="fact"><h3>Uncompensated</h3><p>Reviewing is generally treated as a professional duty rather than paid expert work.</p></div>
+        <div class="fact"><h3>Stretched</h3><p>More submissions and limited reviewer time can lead to long delays for authors.</p></div>
+        <div class="fact"><h3>Not owned</h3><p>Reviewers rarely have a say in how the systems that depend on them are governed.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IDEA -->
+<section class="block" id="idea" aria-labelledby="idea-title">
+  <div class="wrap sec">
+    <aside class="margin">
+      <span class="sect">§ The idea</span>
+      <p class="note"><span class="num">2</span>Two flows, one meeting point: the reviewer.</p>
+    </aside>
+    <div class="sec-body reveal">
+      <h2 id="idea-title">Evaluation as its own layer, funded as shared infrastructure.<sup class="fn">2</sup></h2>
+      <p class="lede" style="font-size:19px">Research can already be shared through preprints and repositories. Independent peer review could then provide a trusted, portable layer of evaluation, supported by the institutions that rely on it, with the funding flowing to the researchers doing the reviewing.</p>
+
+      <div class="flow" role="group" aria-label="Diagram: the evaluation path of a manuscript and the funding path that compensates reviewers">
+        <p class="flow-head" style="grid-column:1;grid-row:1">Evaluation path</p>
+
+        <div class="node down" style="grid-column:1;grid-row:2">Research</div>
+        <div class="node down" style="grid-column:1;grid-row:3">Preprint / manuscript<small>Already public, or submitted directly</small></div>
+        <div class="node key down" style="grid-column:1;grid-row:4">Independent peer review<small>By qualified, conflict-checked researchers</small></div>
+        <div class="node down" style="grid-column:1;grid-row:5">Revision</div>
+        <div class="node record" style="grid-column:1;grid-row:6">Verifiable review record<small>Versions, reports, responses</small></div>
+
+        <p class="flow-head second" style="grid-column:3;grid-row:1">Funding path</p>
+        <div class="node down" style="grid-column:3;grid-row:2">
+          <div class="chips"><span class="chip">Universities</span><span class="chip">Funders</span><span class="chip">Research institutions</span><span class="chip">Learned societies</span><span class="chip">Journals</span></div>
+        </div>
+        <div class="node down" style="grid-column:3;grid-row:3">Support the review infrastructure<small>Pooled, transparent, governed by members</small></div>
+        <div class="node key" style="grid-column:3;grid-row:4">Reviewer compensation<small>For time and expertise, whatever the verdict</small></div>
+        <div class="money" style="grid-column:2;grid-row:4"><i class="line"></i><span class="m-desk">pays for<br>the review</span><span class="m-mob">↳ This pays the researchers in the independent peer review step.</span></div>
+      </div>
+      <div class="legend"><span><i class="l1"></i>manuscript moves through review</span><span><i class="l2"></i>money reaches the reviewers doing the work</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section class="block" id="how" aria-labelledby="how-title">
+  <div class="wrap sec">
+    <aside class="margin">
+      <span class="sect">§ How it could work</span>
+      <p class="note keep"><span class="num">3</span>A proposed model. The specific mechanisms will be developed with the scientific community.</p>
+    </aside>
+    <div class="sec-body reveal">
+      <h2 id="how-title">From manuscript to a review record that travels with the work.<sup class="fn">3</sup></h2>
+      <div class="how-grid">
+        <ol class="steps">
+          <li><span class="n">1</span><div><h3>Submission</h3><p>A researcher submits a manuscript or an existing preprint for review.</p></div></li>
+          <li><span class="n">2</span><div><h3>Matching</h3><p>Qualified researchers are identified based on relevant expertise, and conflicts of interest are checked before anyone is invited.</p></div></li>
+          <li><span class="n">3</span><div><h3>Independent review</h3><p>Reviewers evaluate the work and are compensated for their time, whether their assessment is positive or negative.</p></div></li>
+          <li><span class="n">4</span><div><h3>Response and revision</h3><p>Authors respond to the reports and revise the manuscript.</p></div></li>
+          <li><span class="n">5</span><div><h3>Persistent review record</h3><p>The manuscript receives a record containing the review history, versions, author responses, and relevant verification information.</p></div></li>
+          <li><span class="n">6</span><div><h3>Portable reviews <span class="tag">with consent</span></h3><p>With the agreement of authors and reviewers, reviews could be public and portable, rather than disappearing when a manuscript moves somewhere else.</p></div></li>
+        </ol>
+
+        <aside class="record-card" aria-label="Illustrative example of a review record">
+          <header><b>REVIEW RECORD</b><span class="ex">Illustrative example</span></header>
+          <p class="title">Title of the manuscript under review</p>
+          <dl>
+            <dt>Source</dt><dd>Preprint server, version-linked</dd>
+            <dt>Field</dt><dd>As declared by authors</dd>
+            <dt>Reviewers</dt><dd>3 independent · conflicts checked</dd>
+            <dt>Identity</dt><dd>Named or anonymous, per reviewer choice</dd>
+          </dl>
+          <ol class="timeline" aria-label="Review history">
+            <li class="done"><span class="v">v1</span><span>Manuscript submitted</span></li>
+            <li class="done"><span class="v">R1</span><span>Three reports received · reviewers compensated</span></li>
+            <li class="done"><span class="v">v2</span><span>Author response and revised version</span></li>
+            <li class="done"><span class="v">R2</span><span>Follow-up assessment</span></li>
+            <li><span class="v">Record</span><span>Persistent identifier issued · reports public with consent</span></li>
+          </ol>
+          <footer>A sketch of what a record might contain. Its format and verification standards are open questions for the network.</footer>
+        </aside>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COOPERATIVE -->
+<section class="block" id="cooperative" aria-labelledby="coop-title">
+  <div class="wrap sec">
+    <aside class="margin">
+      <span class="sect">§ Why a cooperative</span>
+      <p class="note"><span class="num">4</span>Owned by the people whose expertise makes it work.</p>
+    </aside>
+    <div class="sec-body reveal">
+      <h2 id="coop-title" class="pull">Scientists already provide the expertise that makes peer review possible. We think they should also have a voice in how its infrastructure is governed.<sup class="fn">4</sup></h2>
+      <p class="prose">In a cooperative, participating researchers are members, not just contributors. Members could help decide:</p>
+      <div class="gov">
+        <div><b>Governance</b><span>Who decides what, how members vote, and how leadership is accountable.</span></div>
+        <div><b>Standards</b><span>What a rigorous, fair review should include across different fields.</span></div>
+        <div><b>Compensation principles</b><span>How reviewers are paid, and how rates are set openly.</span></div>
+        <div><b>Transparency rules</b><span>What is published, what stays confidential, and who chooses.</span></div>
+        <div><b>Future development</b><span>Which tools, services and partnerships the network builds next.</span></div>
+      </div>
+      <div class="principle">
+        <span class="label">Principle</span>
+        <p>Scientific judgment must remain independent from financial incentives. Reviewers are paid for their time and expertise, never for the outcome of their assessment, and funders do not influence individual reviews.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VISION -->
+<section class="block" id="vision" aria-labelledby="vision-title">
+  <div class="wrap sec">
+    <aside class="margin">
+      <span class="sect">§ Longer-term vision</span>
+      <p class="note"><span class="num">5</span>A complement to existing publishing, not a replacement for it.</p>
+    </aside>
+    <div class="sec-body reveal">
+      <h2 id="vision-title">Dissemination and evaluation no longer need to be the same event.<sup class="fn">5</sup></h2>
+      <div class="prose">
+        <p>Preprints make research available immediately. Independent peer review could then operate as a separate layer of evaluation, with its results attached to the work wherever it goes.</p>
+      </div>
+      <div class="models">
+        <div class="model old">
+          <span class="label">Traditional model</span>
+          <div>
+            <ol class="seq">
+              <li><span class="s">Research</span></li>
+              <li><span class="s joined">Journal</span></li>
+              <li><span class="s joined">Peer review</span></li>
+              <li><span class="s joined">Publication</span></li>
+            </ol>
+            <p class="bracket">Sharing and evaluation happen inside one venue</p>
+          </div>
+        </div>
+        <div class="model new">
+          <span class="label">Possible model</span>
+          <div>
+            <ol class="seq">
+              <li><span class="s">Research</span></li>
+              <li><span class="s">Preprint</span></li>
+              <li><span class="s eval">Independent review</span></li>
+              <li><span class="s">Revision</span></li>
+              <li><span class="s rec">Verified scientific record</span></li>
+            </ol>
+            <p class="bracket">Sharing happens first · evaluation is a portable layer</p>
+          </div>
+        </div>
+      </div>
+      <p class="prose">We are exploring whether independent, portable and researcher-governed peer review could <em class="hl">complement existing publishing systems</em> and potentially support new models of scientific communication. Journals could draw on these reviews, just as authors and readers could.</p>
+    </div>
+  </div>
+</section>
+
+<!-- JOIN -->
+<section class="block join" id="join" aria-labelledby="join-title">
+  <div class="wrap sec">
+    <aside class="margin">
+      <span class="sect">§ Expression of interest</span>
+      <p class="note keep"><span class="num">6</span>About 5 minutes. Required fields are marked <span class="req" aria-hidden="true">*</span>. Expressing interest does not create any commitment.</p>
+    </aside>
+    <div class="sec-body">
+      <div class="prose" style="gap:14px">
+        <h2 id="join-title">Join the founding network.<sup class="fn">6</sup></h2>
+        <p>We’re currently looking for researchers and others involved in scholarly communication who would like to help explore and shape this model. Expressing interest does not create any commitment.</p>
+      </div>
+
+      <div class="form-card">
+        <div id="form-summary" class="summary" role="alert" tabindex="-1" hidden></div>
+
+        <form id="eoi" novalidate>
+          <!-- About you -->
+          <div class="part">
+            <div class="part-head"><span class="label">Part A · About you</span></div>
+            <div class="row-2">
+              <div class="f" data-field="name">
+                <label class="lbl" for="name">Name<span class="req" aria-hidden="true">*</span></label>
+                <input type="text" id="name" name="name" autocomplete="name" required aria-describedby="name-err">
+                <p class="err" id="name-err" hidden></p>
+              </div>
+              <div class="f" data-field="email">
+                <label class="lbl" for="email">Email<span class="req" aria-hidden="true">*</span></label>
+                <input type="email" id="email" name="email" autocomplete="email" required aria-describedby="email-err">
+                <p class="err" id="email-err" hidden></p>
+              </div>
+            </div>
+            <div class="row-2">
+              <div class="f" data-field="affiliation">
+                <label class="lbl" for="affiliation">Institution / affiliation<span class="req" aria-hidden="true">*</span></label>
+                <input type="text" id="affiliation" name="affiliation" autocomplete="organization" required aria-describedby="affiliation-hint affiliation-err">
+                <p class="hint" id="affiliation-hint">“Independent” is fine.</p>
+                <p class="err" id="affiliation-err" hidden></p>
+              </div>
+              <div class="f" data-field="field">
+                <label class="lbl" for="field">Research field / expertise<span class="req" aria-hidden="true">*</span></label>
+                <input type="text" id="field" name="field" required aria-describedby="field-hint field-err">
+                <p class="hint" id="field-hint">For example: condensed matter physics, epidemiology, science policy.</p>
+                <p class="err" id="field-err" hidden></p>
+              </div>
+            </div>
+            <div class="f" data-field="profile">
+              <label class="lbl" for="profile">ORCID or professional profile <span class="opt">optional</span></label>
+              <input type="text" id="profile" name="profile" inputmode="url" placeholder="0000-0000-0000-0000 or a link" aria-describedby="profile-err">
+              <p class="err" id="profile-err" hidden></p>
+            </div>
+          </div>
+
+          <!-- Participation -->
+          <div class="part">
+            <div class="part-head"><span class="label">Part B · Participation</span></div>
+            <fieldset class="f" data-field="participation" aria-describedby="participation-err">
+              <legend>How would you potentially like to participate?<span class="req" aria-hidden="true">*</span> <span class="opt">choose any</span></legend>
+              <div class="opts" id="participation-opts"></div>
+              <div class="f" id="participation-other-wrap" hidden>
+                <label class="lbl" for="participation_other">Other: please describe</label>
+                <input type="text" id="participation_other" name="participation_other">
+              </div>
+              <p class="err" id="participation-err" hidden></p>
+            </fieldset>
+
+            <fieldset class="f" data-field="involvement" aria-describedby="involvement-err">
+              <legend>How involved could you realistically be?<span class="req" aria-hidden="true">*</span></legend>
+              <div class="scale" id="involvement-opts"></div>
+              <p class="err" id="involvement-err" hidden></p>
+            </fieldset>
+
+            <div class="row-2">
+              <fieldset class="f" data-field="would_review" aria-describedby="would_review-err">
+                <legend>Would you consider reviewing papers through the network if reviewers were compensated?<span class="req" aria-hidden="true">*</span></legend>
+                <div class="opts" id="would_review-opts"></div>
+                <p class="err" id="would_review-err" hidden></p>
+              </fieldset>
+              <fieldset class="f" data-field="can_introduce">
+                <legend>Could you introduce this initiative to other researchers who might be interested? <span class="opt">optional</span></legend>
+                <div class="opts" id="can_introduce-opts"></div>
+              </fieldset>
+            </div>
+
+            <div class="f" data-field="compensation">
+              <label class="lbl" for="compensation">What would you consider reasonable compensation for a typical scientific peer review? <span class="opt">optional</span></label>
+              <input type="text" id="compensation" name="compensation" aria-describedby="compensation-hint">
+              <p class="hint" id="compensation-hint">Any form is useful: an amount and currency, an hourly rate, or a non-monetary alternative.</p>
+            </div>
+
+            <fieldset class="f" data-field="connections">
+              <legend>Do you have connections with any of the following? <span class="opt">optional, choose any</span></legend>
+              <div class="opts" id="connections-opts"></div>
+              <div class="f" id="connections-other-wrap" hidden>
+                <label class="lbl" for="connections_other">Other: please describe</label>
+                <input type="text" id="connections_other" name="connections_other">
+              </div>
+            </fieldset>
+          </div>
+
+          <!-- Views -->
+          <div class="part">
+            <div class="part-head"><span class="label">Part C · Your perspective</span></div>
+            <div class="f" data-field="trust">
+              <label class="lbl" for="trust" style="font-size:20px;line-height:1.35">What would need to be true for you to trust an independent peer review as much as peer review organized by an established journal? <span class="opt">optional, but especially valuable</span></label>
+              <textarea id="trust" name="trust" maxlength="3000" aria-describedby="trust-count"></textarea>
+              <span class="char" id="trust-count" aria-live="polite">0 / 3000</span>
+            </div>
+            <div class="f" data-field="risks">
+              <label class="lbl" for="risks">What problems, risks, or opportunities do you see in this idea? <span class="opt">optional</span></label>
+              <textarea id="risks" name="risks" maxlength="3000" aria-describedby="risks-count"></textarea>
+              <span class="char" id="risks-count" aria-live="polite">0 / 3000</span>
+            </div>
+          </div>
+
+          <div class="part" data-field="consent">
+            <label class="consent" for="consent">
+              <input type="checkbox" id="consent" name="consent" required aria-describedby="consent-err">
+              <span>I’m happy to be contacted about the development of this initiative.<span class="req" aria-hidden="true">*</span></span>
+            </label>
+            <p class="err" id="consent-err" hidden></p>
+            <input type="text" name="website" id="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px">
+          </div>
+
+          <div class="form-foot">
+            <p>Your answers are used only to develop this initiative and to contact you about it. They are not shared with third parties.</p>
+            <button class="btn btn-primary" type="submit" id="submit">Send expression of interest <span class="arr" aria-hidden="true">→</span></button>
+          </div>
+        </form>
+
+        <div id="success" class="success" hidden tabindex="-1" aria-live="polite">
+          <div class="tick" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9" fill="none" stroke="#C8321E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>Thank you. Your interest has been recorded.</h3>
+          <p>We’ll be in touch as the founding network takes shape. If you know colleagues who might want to help shape this, feel free to share the page with them.</p>
+          <p class="notice" id="preview-notice" hidden>Preview mode: this form is not yet connected to a database, so this response was not stored.</p>
+          <div><button class="btn btn-ghost btn-sm" type="button" id="again">Submit another response</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap foot-grid">
+    <p>An early-stage initiative. There are no institutional partners, endorsements or members to announce yet. Details about the founding group, governance and funding will be published here as they are established.</p>
+    <p><a href="#join">Join the founding network</a> · <a href="#top">Back to top</a></p>
+  </div>
+</footer>
+
+<a class="btn btn-primary btn-sm float-join" href="#join" id="float-join" tabindex="-1">Join the network</a>
+
+<script>
+document.documentElement.classList.add('js');
+
+/* =========================================================
+   FORM CONFIGURATION
+   Connect a backend by setting SUBMIT.mode and its options.
+   - "gas":      Google Apps Script web app bound to the responses sheet
+   - "preview":  no storage
+   - "endpoint": POST JSON to any URL (Formspree, a Supabase Edge
+                 Function, a Google Apps Script web app, Make/Zapier…)
+   - "supabase": insert into a table via the REST API
+   - "airtable": create a record via the Airtable API (use a proxy;
+                 never ship a personal token in public HTML)
+   ========================================================= */
+const SUBMIT = {
+  mode: "gas",
+  gas: { url: "" },   // Google Apps Script web app URL (…/exec). Empty = preview mode.
+  endpoint: { url: "", headers: {} },
+  supabase: { url: "", anonKey: "", table: "expressions_of_interest" },
+  airtable: { proxyUrl: "" }
+};
+
+/* Options are defined once here so labels and stored values stay in sync. */
+const OPTIONS = {
+  participation: [
+    ["member","Join as a scientist/member"],
+    ["compensated_reviews","Conduct compensated peer reviews"],
+    ["model_design","Help design the peer-review model"],
+    ["founding_group","Join an initial working/founding group"],
+    ["governance","Governance/cooperative design"],
+    ["technology","Technology/platform development"],
+    ["funding","Funding and grants"],
+    ["institutional_outreach","Institutional outreach"],
+    ["publisher_outreach","Journal/publisher outreach"],
+    ["updates_only","Just keep me updated"],
+    ["other","Other"]
+  ],
+  involvement: [
+    ["informed","Keep me informed"],
+    ["occasional","Occasional feedback"],
+    ["hours_month","A few hours per month"],
+    ["hours_week","A few hours per week"],
+    ["building","Interested in actively building this"]
+  ],
+  would_review: [["yes","Yes"],["maybe","Maybe"],["no","No"]],
+  can_introduce: [["yes","Yes"],["maybe","Maybe"],["no","No"]],
+  connections: [
+    ["journal_editors","Journal editors"],
+    ["universities","Universities/research institutions"],
+    ["libraries","Libraries/open-science teams"],
+    ["funders","Research funders"],
+    ["learned_societies","Learned societies"],
+    ["publishers","Publishers"],
+    ["other","Other"]
+  ]
+};
+
+function renderOptions(name, type){
+  const host = document.getElementById(name + "-opts");
+  OPTIONS[name].forEach(([value,label],i)=>{
+    const id = `${name}_${value}`;
+    const w = document.createElement("div");
+    w.className = "opt-pill";
+    w.innerHTML = `<input type="${type}" id="${id}" name="${name}" value="${value}"><label for="${id}"></label>`;
+    w.querySelector("label").textContent = label;
+    host.appendChild(w);
+  });
+}
+renderOptions("participation","checkbox");
+renderOptions("involvement","radio");
+renderOptions("would_review","radio");
+renderOptions("can_introduce","radio");
+renderOptions("connections","checkbox");
+
+const form = document.getElementById("eoi");
+const $ = (s,r=document)=>r.querySelector(s);
+
+function toggleOther(group){
+  const cb = document.getElementById(group+"_other");
+  const wrap = document.getElementById(group+"-other-wrap");
+  const sync = ()=>{ wrap.hidden = !cb.checked; };
+  cb.addEventListener("change", sync); sync();
+}
+toggleOther("participation"); toggleOther("connections");
+
+["trust","risks"].forEach(id=>{
+  const t = document.getElementById(id), c = document.getElementById(id+"-count");
+  const u = ()=> c.textContent = `${t.value.length} / ${t.maxLength}`;
+  t.addEventListener("input", u); u();
+});
+
+/* ---------- validation ---------- */
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const ORCID_RE = /^(https?:\/\/orcid\.org\/)?\d{4}-\d{4}-\d{4}-\d{3}[\dX]$/i;
+const URL_RE = /^(https?:\/\/)?[\w-]+(\.[\w-]+)+(\/\S*)?$/i;
+
+const RULES = [
+  ["name", ()=> form.name.value.trim() ? "" : "Enter your name."],
+  ["email", ()=>{
+    const v = form.email.value.trim();
+    if(!v) return "Enter your email address.";
+    return EMAIL_RE.test(v) ? "" : "Enter a valid email address, like name@university.edu.";
+  }],
+  ["affiliation", ()=> form.affiliation.value.trim() ? "" : "Enter your institution or affiliation, or “Independent”."],
+  ["field", ()=> form.field.value.trim() ? "" : "Enter your research field or area of expertise."],
+  ["profile", ()=>{
+    const v = form.profile.value.trim();
+    if(!v) return "";
+    return (ORCID_RE.test(v) || URL_RE.test(v)) ? "" : "Enter an ORCID iD (0000-0000-0000-0000) or a web link.";
+  }],
+  ["participation", ()=> form.querySelectorAll('input[name="participation"]:checked').length ? "" : "Choose at least one way you might participate."],
+  ["involvement", ()=> form.querySelector('input[name="involvement"]:checked') ? "" : "Choose how involved you could be."],
+  ["would_review", ()=> form.querySelector('input[name="would_review"]:checked') ? "" : "Choose Yes, Maybe or No."],
+  ["consent", ()=> form.consent.checked ? "" : "Tick this box so we can contact you about the initiative."]
+];
+const LABELS = {name:"Name",email:"Email",affiliation:"Institution / affiliation",field:"Research field",profile:"ORCID or profile",participation:"How you’d like to participate",involvement:"Level of involvement",would_review:"Compensated reviewing",consent:"Permission to contact you"};
+const FOCUS_TARGET = {participation:"participation_member",involvement:"involvement_informed",would_review:"would_review_yes"};
+
+function setError(key,msg){
+  const wrap = form.querySelector(`[data-field="${key}"]`);
+  const err = document.getElementById(key+"-err");
+  if(!wrap || !err) return;
+  wrap.classList.toggle("invalid", !!msg);
+  err.hidden = !msg;
+  err.textContent = msg;
+  const input = form.querySelector(`#${key}`);
+  if(input) input.setAttribute("aria-invalid", msg ? "true" : "false");
+}
+function validate(){
+  const errors = [];
+  RULES.forEach(([k,fn])=>{ const m = fn(); setError(k,m); if(m) errors.push([k,m]); });
+  return errors;
+}
+/* re-validate a field once the person has interacted with it */
+RULES.forEach(([k,fn])=>{
+  const wrap = form.querySelector(`[data-field="${k}"]`);
+  if(!wrap) return;
+  wrap.addEventListener("change", ()=>{ if(wrap.classList.contains("invalid")) setError(k, fn()); });
+  wrap.addEventListener("focusout", e=>{
+    if(e.target.matches('input[type=text],input[type=email]') && e.target.value.trim()) setError(k, fn());
+  });
+  wrap.addEventListener("input", ()=>{ if(wrap.classList.contains("invalid") && !fn()) setError(k,""); });
+});
+
+/* ---------- payload: stable, flat, backend-friendly ---------- */
+function collect(){
+  const checked = n => [...form.querySelectorAll(`input[name="${n}"]:checked`)].map(i=>i.value);
+  const one = n => (form.querySelector(`input[name="${n}"]:checked`)||{}).value || null;
+  const txt = n => (form[n].value || "").trim() || null;
+  return {
+    schema_version: 1,
+    submitted_at: new Date().toISOString(),
+    name: txt("name"),
+    email: txt("email"),
+    affiliation: txt("affiliation"),
+    field: txt("field"),
+    profile: txt("profile"),
+    participation: checked("participation"),
+    participation_other: checked("participation").includes("other") ? txt("participation_other") : null,
+    involvement: one("involvement"),
+    would_review: one("would_review"),
+    compensation: txt("compensation"),
+    can_introduce: one("can_introduce"),
+    connections: checked("connections"),
+    connections_other: checked("connections").includes("other") ? txt("connections_other") : null,
+    trust: txt("trust"),
+    risks: txt("risks"),
+    consent_contact: form.consent.checked,
+    source: "website"
+  };
+}
+
+async function send(payload){
+  if(SUBMIT.mode === "gas" && SUBMIT.gas.url){
+    const r = await fetch(SUBMIT.gas.url, {method:"POST", body:JSON.stringify(payload)}); // text/plain avoids a CORS preflight
+    const j = await r.json().catch(()=>({}));
+    if(!r.ok || j.ok === false) throw new Error(j.error || ("HTTP "+r.status));
+    return {stored:true};
+  }
+  if(SUBMIT.mode === "endpoint"){
+    const r = await fetch(SUBMIT.endpoint.url, {method:"POST", headers:{"Content-Type":"application/json", ...SUBMIT.endpoint.headers}, body:JSON.stringify(payload)});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    return {stored:true};
+  }
+  if(SUBMIT.mode === "supabase"){
+    const {url, anonKey, table} = SUBMIT.supabase;
+    const r = await fetch(`${url}/rest/v1/${table}`, {method:"POST", headers:{"Content-Type":"application/json", apikey:anonKey, Authorization:`Bearer ${anonKey}`, Prefer:"return=minimal"}, body:JSON.stringify(payload)});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    return {stored:true};
+  }
+  if(SUBMIT.mode === "airtable"){
+    const r = await fetch(SUBMIT.airtable.proxyUrl, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({fields:{...payload, participation:payload.participation.join(", "), connections:payload.connections.join(", ")}})});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    return {stored:true};
+  }
+  await new Promise(r=>setTimeout(r,500));
+  console.info("[EOI preview] payload", payload);
+  return {stored:false};
+}
+
+const summary = document.getElementById("form-summary");
+const submitBtn = document.getElementById("submit");
+const success = document.getElementById("success");
+
+form.addEventListener("submit", async e=>{
+  e.preventDefault();
+  if(form.website.value) return; // honeypot
+  const errors = validate();
+  if(errors.length){
+    summary.innerHTML = `<strong>${errors.length === 1 ? "One field needs" : errors.length + " fields need"} attention before you can send this.</strong><ul></ul>`;
+    const ul = summary.querySelector("ul");
+    errors.forEach(([k,m])=>{
+      const li = document.createElement("li"); const a = document.createElement("a");
+      a.href = "#"+(FOCUS_TARGET[k]||k); a.textContent = `${LABELS[k]}: ${m}`;
+      a.addEventListener("click", ev=>{ ev.preventDefault(); const t = document.getElementById(FOCUS_TARGET[k]||k); t.focus(); t.scrollIntoView({block:"center"}); });
+      li.appendChild(a); ul.appendChild(li);
+    });
+    summary.hidden = false; summary.focus();
+    return;
+  }
+  summary.hidden = true;
+  submitBtn.disabled = true;
+  const original = submitBtn.innerHTML;
+  submitBtn.textContent = "Sending…";
+  try{
+    const res = await send(collect());
+    form.hidden = true;
+    document.getElementById("preview-notice").hidden = res.stored;
+    success.hidden = false; success.focus();
+  }catch(err){
+    summary.innerHTML = "<strong>Your response couldn’t be sent.</strong> Check your connection and try again. Your answers are still in the form.";
+    summary.hidden = false; summary.focus();
+  }finally{
+    submitBtn.disabled = false; submitBtn.innerHTML = original;
+  }
+});
+document.getElementById("again").addEventListener("click", ()=>{
+  form.reset();
+  ["participation","connections"].forEach(g=>document.getElementById(g+"-other-wrap").hidden = true);
+  ["trust","risks"].forEach(id=>document.getElementById(id).dispatchEvent(new Event("input")));
+  success.hidden = true; form.hidden = false; form.name.focus();
+});
+
+/* ---------- header, nav, reveal ---------- */
+const head = $(".site-head");
+const menuBtn = $(".menu-btn"), nav = $("#nav");
+menuBtn.addEventListener("click", ()=>{
+  const open = nav.dataset.open !== "true";
+  nav.dataset.open = open; menuBtn.setAttribute("aria-expanded", open);
+  menuBtn.textContent = open ? "Close" : "Menu";
+});
+nav.addEventListener("click", e=>{
+  if(e.target.closest("a") && innerWidth <= 860){ nav.dataset.open = "false"; menuBtn.setAttribute("aria-expanded","false"); menuBtn.textContent = "Menu"; }
+});
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && nav.dataset.open==="true"){ menuBtn.click(); menuBtn.focus(); }});
+
+const floatJoin = $("#float-join");
+const hero = $(".hero"), joinSec = $("#join");
+let heroVisible = true, joinVisible = false;
+const updFloat = ()=> floatJoin.classList.toggle("show", !heroVisible && !joinVisible);
+
+if("IntersectionObserver" in window){
+  new IntersectionObserver(([en])=>{ heroVisible = en.isIntersecting; head.classList.toggle("scrolled", !en.isIntersecting || scrollY > 10); updFloat(); }, {threshold:0.05}).observe(hero);
+  new IntersectionObserver(([en])=>{ joinVisible = en.isIntersecting; updFloat(); }).observe(joinSec);
+
+  const links = [...nav.querySelectorAll('a[href^="#"]')];
+  const map = new Map(links.map(a=>[a.getAttribute("href").slice(1), a]));
+  const io = new IntersectionObserver(entries=>{
+    entries.forEach(en=>{
+      if(en.isIntersecting){ links.forEach(l=>l.classList.remove("active")); const a = map.get(en.target.id); if(a && !a.classList.contains("btn")) a.classList.add("active"); }
+    });
+  }, {rootMargin:"-45% 0px -50% 0px"});
+  ["problem","idea","how","cooperative","vision","join"].forEach(id=>io.observe(document.getElementById(id)));
+
+  if(!matchMedia("(prefers-reduced-motion: reduce)").matches){
+    const rv = new IntersectionObserver(entries=>{
+      entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.remove("pre"); rv.unobserve(en.target); } });
+    }, {rootMargin:"0px 0px -8% 0px"});
+    document.querySelectorAll(".reveal").forEach(el=>{
+      const r = el.getBoundingClientRect();
+      if(r.top > innerHeight){ el.classList.add("pre"); rv.observe(el); }
+    });
+  }
+}
+
+/* ---------- hero field: distributed researchers, reciprocal review ---------- */
+(function(){
+  const canvas = document.getElementById("field");
+  const ctx = canvas.getContext("2d");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let W=0,H=0,dpr=1,nodes=[],edges=[],packets=[],colors={},running=true,t0=performance.now();
+
+  function readColors(){
+    const cs = getComputedStyle(document.documentElement);
+    colors = {ink:cs.getPropertyValue("--ink").trim(), rule:cs.getPropertyValue("--rule-strong").trim(), accent:cs.getPropertyValue("--accent").trim(), paper:cs.getPropertyValue("--paper").trim(), card:cs.getPropertyValue("--card").trim()};
+  }
+  let seed = 7; const rnd = ()=>{ seed = (seed*16807)%2147483647; return (seed-1)/2147483646; };
+
+  function build(){
+    const r = canvas.getBoundingClientRect();
+    W = r.width; H = r.height; dpr = Math.min(devicePixelRatio||1, 2);
+    canvas.width = W*dpr; canvas.height = H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+    seed = 7; nodes = []; edges = []; packets = [];
+    const n = W < 500 ? 22 : 30, pad = 18;
+    let tries = 0;
+    while(nodes.length < n && tries < 4000){
+      tries++;
+      const x = pad + rnd()*(W-2*pad), y = pad + rnd()*(H-2*pad);
+      const minD = Math.min(W,H) * (W<500 ? .15 : .13);
+      if(nodes.every(p=>Math.hypot(p.x-x,p.y-y) > minD)) nodes.push({x,y,bx:x,by:y,ph:rnd()*6.28,r:2.4+rnd()*1.6,glow:0});
+    }
+    nodes.forEach((a,i)=>{
+      const near = nodes.map((b,j)=>[j,Math.hypot(a.x-b.x,a.y-b.y)]).filter(([j])=>j!==i).sort((p,q)=>p[1]-q[1]).slice(0,3);
+      near.forEach(([j])=>{ const k = i<j ? i+"-"+j : j+"-"+i; if(!edges.some(e=>e.k===k)) edges.push({k,a:Math.min(i,j),b:Math.max(i,j)}); });
+    });
+    for(let i=0;i<(W<500?4:6);i++) spawn(rnd()*1);
+  }
+  function spawn(progress=0){
+    const e = edges[Math.floor(rnd()*edges.length)];
+    const dir = rnd() < .5;
+    packets.push({e, from: dir? e.a : e.b, to: dir? e.b : e.a, p:progress, speed:.0022+rnd()*.0022, back:false});
+  }
+  function drawDoc(x,y,s,fill){
+    ctx.save(); ctx.translate(x,y);
+    ctx.fillStyle = colors.card; ctx.strokeStyle = fill; ctx.lineWidth = 1;
+    const w = s*1.5, h = s*2;
+    ctx.beginPath(); ctx.rect(-w/2,-h/2,w,h); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-w/2+2.5,-h/2+4); ctx.lineTo(w/2-2.5,-h/2+4); ctx.moveTo(-w/2+2.5,-h/2+7); ctx.lineTo(w/2-3.5,-h/2+7); ctx.moveTo(-w/2+2.5,-h/2+10); ctx.lineTo(w/2-2.5,-h/2+10);
+    ctx.globalAlpha = .6; ctx.stroke(); ctx.restore();
+  }
+  function frame(now){
+    const t = (now - t0)/1000;
+    ctx.clearRect(0,0,W,H);
+    if(!reduce) nodes.forEach(n=>{ n.x = n.bx + Math.sin(t*.35+n.ph)*3; n.y = n.by + Math.cos(t*.3+n.ph)*3; n.glow *= .985; });
+    ctx.lineWidth = 1; ctx.strokeStyle = colors.rule; ctx.globalAlpha = .9;
+    edges.forEach(e=>{ const a=nodes[e.a], b=nodes[e.b]; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); });
+    ctx.globalAlpha = 1;
+    packets.forEach(pk=>{
+      const a = nodes[pk.from], b = nodes[pk.to];
+      if(!reduce) pk.p += pk.speed;
+      const x = a.x + (b.x-a.x)*pk.p, y = a.y + (b.y-a.y)*pk.p;
+      ctx.strokeStyle = colors.accent; ctx.lineWidth = 1.5; ctx.globalAlpha = .55;
+      ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(x,y); ctx.stroke(); ctx.globalAlpha = 1;
+      if(pk.back){ ctx.fillStyle = colors.accent; ctx.beginPath(); ctx.arc(x,y,2.6,0,6.283); ctx.fill(); }
+      else drawDoc(x,y,5.5,colors.ink);
+      if(pk.p >= 1){
+        nodes[pk.to].glow = 1;
+        if(!pk.back){ const f = pk.from; pk.from = pk.to; pk.to = f; pk.p = 0; pk.back = true; }
+        else { pk.dead = true; }
+      }
+    });
+    packets = packets.filter(p=>!p.dead);
+    while(packets.length < (W<500?4:6)) spawn(0);
+    nodes.forEach(n=>{
+      if(n.glow > .02){ ctx.fillStyle = colors.accent; ctx.globalAlpha = n.glow*.22; ctx.beginPath(); ctx.arc(n.x,n.y,n.r+9*n.glow,0,6.283); ctx.fill(); ctx.globalAlpha = 1; }
+      ctx.fillStyle = colors.paper; ctx.beginPath(); ctx.arc(n.x,n.y,n.r+2.5,0,6.283); ctx.fill();
+      ctx.fillStyle = n.glow > .3 ? colors.accent : colors.ink; ctx.beginPath(); ctx.arc(n.x,n.y,n.r,0,6.283); ctx.fill();
+    });
+    if(running && !reduce) requestAnimationFrame(frame);
+  }
+  readColors(); build(); requestAnimationFrame(frame);
+  let rt; addEventListener("resize", ()=>{ clearTimeout(rt); rt = setTimeout(()=>{ build(); if(reduce) requestAnimationFrame(frame); }, 150); });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", ()=>{ readColors(); if(reduce) requestAnimationFrame(frame); });
+  new MutationObserver(()=>{ readColors(); if(reduce) requestAnimationFrame(frame); }).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+  if("IntersectionObserver" in window){
+    new IntersectionObserver(([en])=>{ const was = running; running = en.isIntersecting; if(running && !was && !reduce) requestAnimationFrame(frame); }).observe(canvas);
+  }
+})();
+</script>
+
+</body>
+</html>
