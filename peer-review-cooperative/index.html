@@ -113,7 +113,7 @@ em.hl{font-style:italic;text-decoration:underline;text-decoration-color:var(--ac
 
 /* ---------- hero ---------- */
 .hero{position:relative;padding-block:clamp(40px, 7vw, 96px) clamp(48px, 7vw, 88px);overflow:hidden;border-bottom:1px solid var(--ink)}
-.hero-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.9fr);gap:clamp(24px,5vw,64px);align-items:end}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr);max-width:900px;gap:clamp(24px,5vw,64px);align-items:end}
 .hero-copy{display:grid;gap:26px;position:relative;z-index:2}
 .stage{display:flex;align-items:flex-start;gap:10px;font-size:16px;font-style:italic;color:var(--muted);max-width:30em;line-height:1.5}
 .stage .dot{flex:none;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-top:9px}
@@ -398,9 +398,6 @@ input:focus{box-shadow:0 1px 0 var(--accent)}
         <a class="btn btn-ghost" href="#how">See how it could work</a>
       </div>
       <p class="stage rise d4"><span class="dot" aria-hidden="true"></span>An early-stage initiative currently bringing together interested researchers, editors, and institutions.</p>
-    </div>
-    <div class="field-wrap" aria-hidden="true">
-      <canvas id="field"></canvas>
     </div>
   </div>
 </section>
@@ -1008,89 +1005,7 @@ if("IntersectionObserver" in window){
   }
 }
 
-/* ---------- hero field: distributed researchers, reciprocal review ---------- */
-(function(){
-  const canvas = document.getElementById("field");
-  const ctx = canvas.getContext("2d");
-  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let W=0,H=0,dpr=1,nodes=[],edges=[],packets=[],colors={},running=true,t0=performance.now();
 
-  function readColors(){
-    const cs = getComputedStyle(document.documentElement);
-    colors = {ink:cs.getPropertyValue("--ink").trim(), rule:cs.getPropertyValue("--rule-strong").trim(), accent:cs.getPropertyValue("--accent").trim(), paper:cs.getPropertyValue("--paper").trim(), card:cs.getPropertyValue("--card").trim()};
-  }
-  let seed = 7; const rnd = ()=>{ seed = (seed*16807)%2147483647; return (seed-1)/2147483646; };
-
-  function build(){
-    const r = canvas.getBoundingClientRect();
-    W = r.width; H = r.height; dpr = Math.min(devicePixelRatio||1, 2);
-    canvas.width = W*dpr; canvas.height = H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
-    seed = 7; nodes = []; edges = []; packets = [];
-    const n = W < 500 ? 22 : 30, pad = 18;
-    let tries = 0;
-    while(nodes.length < n && tries < 4000){
-      tries++;
-      const x = pad + rnd()*(W-2*pad), y = pad + rnd()*(H-2*pad);
-      const minD = Math.min(W,H) * (W<500 ? .15 : .13);
-      if(nodes.every(p=>Math.hypot(p.x-x,p.y-y) > minD)) nodes.push({x,y,bx:x,by:y,ph:rnd()*6.28,r:2.4+rnd()*1.6,glow:0});
-    }
-    nodes.forEach((a,i)=>{
-      const near = nodes.map((b,j)=>[j,Math.hypot(a.x-b.x,a.y-b.y)]).filter(([j])=>j!==i).sort((p,q)=>p[1]-q[1]).slice(0,3);
-      near.forEach(([j])=>{ const k = i<j ? i+"-"+j : j+"-"+i; if(!edges.some(e=>e.k===k)) edges.push({k,a:Math.min(i,j),b:Math.max(i,j)}); });
-    });
-    for(let i=0;i<(W<500?4:6);i++) spawn(rnd()*1);
-  }
-  function spawn(progress=0){
-    const e = edges[Math.floor(rnd()*edges.length)];
-    const dir = rnd() < .5;
-    packets.push({e, from: dir? e.a : e.b, to: dir? e.b : e.a, p:progress, speed:.0022+rnd()*.0022, back:false});
-  }
-  function drawDoc(x,y,s,fill){
-    ctx.save(); ctx.translate(x,y);
-    ctx.fillStyle = colors.card; ctx.strokeStyle = fill; ctx.lineWidth = 1;
-    const w = s*1.5, h = s*2;
-    ctx.beginPath(); ctx.rect(-w/2,-h/2,w,h); ctx.fill(); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(-w/2+2.5,-h/2+4); ctx.lineTo(w/2-2.5,-h/2+4); ctx.moveTo(-w/2+2.5,-h/2+7); ctx.lineTo(w/2-3.5,-h/2+7); ctx.moveTo(-w/2+2.5,-h/2+10); ctx.lineTo(w/2-2.5,-h/2+10);
-    ctx.globalAlpha = .6; ctx.stroke(); ctx.restore();
-  }
-  function frame(now){
-    const t = (now - t0)/1000;
-    ctx.clearRect(0,0,W,H);
-    if(!reduce) nodes.forEach(n=>{ n.x = n.bx + Math.sin(t*.35+n.ph)*3; n.y = n.by + Math.cos(t*.3+n.ph)*3; n.glow *= .985; });
-    ctx.lineWidth = 1; ctx.strokeStyle = colors.rule; ctx.globalAlpha = .9;
-    edges.forEach(e=>{ const a=nodes[e.a], b=nodes[e.b]; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); });
-    ctx.globalAlpha = 1;
-    packets.forEach(pk=>{
-      const a = nodes[pk.from], b = nodes[pk.to];
-      if(!reduce) pk.p += pk.speed;
-      const x = a.x + (b.x-a.x)*pk.p, y = a.y + (b.y-a.y)*pk.p;
-      ctx.strokeStyle = colors.accent; ctx.lineWidth = 1.5; ctx.globalAlpha = .55;
-      ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(x,y); ctx.stroke(); ctx.globalAlpha = 1;
-      if(pk.back){ ctx.fillStyle = colors.accent; ctx.beginPath(); ctx.arc(x,y,2.6,0,6.283); ctx.fill(); }
-      else drawDoc(x,y,5.5,colors.ink);
-      if(pk.p >= 1){
-        nodes[pk.to].glow = 1;
-        if(!pk.back){ const f = pk.from; pk.from = pk.to; pk.to = f; pk.p = 0; pk.back = true; }
-        else { pk.dead = true; }
-      }
-    });
-    packets = packets.filter(p=>!p.dead);
-    while(packets.length < (W<500?4:6)) spawn(0);
-    nodes.forEach(n=>{
-      if(n.glow > .02){ ctx.fillStyle = colors.accent; ctx.globalAlpha = n.glow*.22; ctx.beginPath(); ctx.arc(n.x,n.y,n.r+9*n.glow,0,6.283); ctx.fill(); ctx.globalAlpha = 1; }
-      ctx.fillStyle = colors.paper; ctx.beginPath(); ctx.arc(n.x,n.y,n.r+2.5,0,6.283); ctx.fill();
-      ctx.fillStyle = n.glow > .3 ? colors.accent : colors.ink; ctx.beginPath(); ctx.arc(n.x,n.y,n.r,0,6.283); ctx.fill();
-    });
-    if(running && !reduce) requestAnimationFrame(frame);
-  }
-  readColors(); build(); requestAnimationFrame(frame);
-  let rt; addEventListener("resize", ()=>{ clearTimeout(rt); rt = setTimeout(()=>{ build(); if(reduce) requestAnimationFrame(frame); }, 150); });
-  matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", ()=>{ readColors(); if(reduce) requestAnimationFrame(frame); });
-  new MutationObserver(()=>{ readColors(); if(reduce) requestAnimationFrame(frame); }).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
-  if("IntersectionObserver" in window){
-    new IntersectionObserver(([en])=>{ const was = running; running = en.isIntersecting; if(running && !was && !reduce) requestAnimationFrame(frame); }).observe(canvas);
-  }
-})();
 </script>
 
 </body>
