@@ -15,137 +15,34 @@
   <meta charset="UTF-8" />
   <title>PLOT ARMOR – Beta User</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link href="../../main.3f6952e4.css" rel="stylesheet">
+  <link rel="stylesheet" href="../cozy/cozy.css">
 <style>
-    body { font-family: system-ui, sans-serif; background:#0f0f0f; color:#eee; padding:16px; }
-    h1 { margin:0 0 10px; }
-    .top { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px; }
-    button { background:#222; color:#eee; border:1px solid #333; border-radius:8px; padding:6px 10px; cursor:pointer; }
-    button:hover { border-color:#666; }
-    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap:14px; }
-    .deck { background:#1b1b1b; border:1px solid #333; border-radius:10px; padding:12px; }
-    .deck h2 { margin:0 0 10px; font-size:16px; display:flex; justify-content:space-between; align-items:center; }
-    .card { background:#141414; border:1px solid #2a2a2a; border-radius:10px; padding:10px; margin-bottom:10px; }
-    .btns { margin-top:8px; display:flex; gap:6px; flex-wrap:wrap; }
-    .status { opacity:.75; font-size:12px; }
-</style>
-<style id="nefinia-game-shell">
-  body {
-    padding-top: 68px !important;
-    background-color: black;
-    background-image: url('../../assets/images/space.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-  .nefinia-game-menu .navbar {
-    z-index: 10000;
-  }
-
-  .nefinia-game-menu + #wrap,
-  .nefinia-game-menu + .wrap.fullscreen,
-  .nefinia-game-menu + canvas,
-  .nefinia-game-menu + .hud {
-    top: 68px !important;
-  }
-  .nefinia-game-menu + #wrap {
-    bottom: 0 !important;
-    height: auto !important;
-  }
-  #site-border-left,
-  #site-border-right,
-  #site-border-top,
-  #site-border-bottom {
-    pointer-events: none;
-    z-index: 9990;
-  }
-  @media (max-width: 768px) {
-    body { padding-top: 58px !important; }
-
-    .nefinia-game-menu + #wrap,
-    .nefinia-game-menu + .wrap.fullscreen,
-    .nefinia-game-menu + canvas,
-    .nefinia-game-menu + .hud {
-      top: 58px !important;
-    }
-  }
-
-  .nefinia-game-menu + .app h1,
-  .nefinia-game-menu + .wrap h1,
-  .nefinia-game-menu + main h1,
-  .nefinia-game-menu + .app .title,
-  .nefinia-game-menu + .wrap .title {
-    color: #fff !important;
-  }
-
-  body > h1,
-  body > h2,
-  body > h3,
-  .nefinia-game-menu ~ #hud,
-  .nefinia-game-menu ~ #hud .hudLabel,
-  .nefinia-game-menu ~ #hud .hudValue,
-  .nefinia-game-menu ~ .hud,
-  .nefinia-game-menu ~ .hud span,
-  .nefinia-game-menu ~ .stats,
-  .nefinia-game-menu ~ .stats span {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-
-  .nefinia-game-menu ~ #hud .label,
-  .nefinia-game-menu ~ #hud .value {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-  .nefinia-game-menu ~ #hud .p1 {
-    color: #8fc2ff !important;
-  }
-  .nefinia-game-menu ~ #hud .p2 {
-    color: #ff9aa8 !important;
-  }
-
-  .nefinia-game-menu ~ #hud select,
-  .nefinia-game-menu ~ .hud select {
-    color: #111 !important;
-    background: #fff !important;
-    text-shadow: none !important;
-  }
-  body > .muted {
-    color: rgba(255,255,255,0.82) !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
+    *, *::before, *::after { box-sizing: border-box; }
+    main.play { max-width: 1400px; margin: 0 auto; padding: 18px 16px 48px; line-height: 1.45; }
+    h1 { margin: 6px 0 12px; font-size: clamp(28px, 5vw, 40px); font-weight: 700; }
+    .top { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:16px; }
+    #rerollAll { background: var(--cz-accent); border-color: var(--cz-accent); color:#fff; box-shadow: 0 3px 0 #9a3f30; padding: 9px 18px; font-size: 15px; }
+    #rerollAll:hover { box-shadow: 0 4px 0 #9a3f30; }
+    #rerollAll:active { box-shadow: 0 1px 0 #9a3f30; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap:18px; }
+    .deck { background: var(--cz-card); border:2px solid var(--cz-line); border-top: 6px solid var(--deck, var(--cz-coral)); border-radius: var(--cz-radius); box-shadow: 0 5px 0 var(--cz-shadow); padding:14px; }
+    .deck:nth-child(5n+1) { --deck: var(--cz-honey); }
+    .deck:nth-child(5n+2) { --deck: var(--cz-sky); }
+    .deck:nth-child(5n+3) { --deck: var(--cz-coral); }
+    .deck:nth-child(5n+4) { --deck: var(--cz-sage); }
+    .deck:nth-child(5n+5) { --deck: var(--cz-lilac); }
+    .deck h2 { margin:0 0 12px; font-size:17px; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+    .deck h2 button { font-size: 13px; padding: 5px 12px; }
+    .card { background: var(--cz-paper); border:2px solid var(--cz-line); border-radius:14px; padding:12px; margin-bottom:10px; font-size: 15px; font-weight: 600; }
+    .card:last-child { margin-bottom: 0; }
+    .btns { margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; }
+    .btns button { font-size: 12px; padding: 5px 11px; border-radius: 999px; }
+    .status { color: var(--cz-sage-dk); font-weight: 800; font-size:13px; }
 </style>
 </head>
-<body>
-<div id="site-border-left"></div>
-<div id="site-border-right"></div>
-<div id="site-border-top"></div>
-<div id="site-border-bottom"></div>
-
-<header class="nefinia-game-menu">
-  <nav class="navbar navbar-fixed-top navbar-inverse">
-    <div class="container">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbar-collapse">
-        <ul class="nav navbar-nav ">
-          <li><a href="../../index.html">01 : Home</a></li>
-          <li><a href="../../science.html">02 : Research</a></li>
-          <li><a href="../../outreach.html">03 : Outreach</a></li>
-          <li><a href="../../ventures.html">04 : Ventures</a></li>
-          <li><a href="../../games/index.html">05 : Games</a></li>
-          <li><a href="../../art.html">06 : Art</a></li>
-          <li><a href="../../about.html">07 : About</a></li>
-          <li><a href="../../contact.html">08 : Contact</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-</header>
+<body class="cz-scope">
+<header class="cz-bar"><a class="cz-back" href="../index.html">← All games</a><span class="cz-name">Plot Armor</span><a class="cz-home" href="../../index.html">sofiagallego.com</a></header>
+<main class="play">
 <h1>PLOT ARMOR (beta)</h1>
 
   <div class="top">
@@ -276,5 +173,6 @@
     rerollAll();
   </script>
 
+</main>
 </body>
 </html>

@@ -12,44 +12,43 @@
 <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="description" content="Cast tetromino stamps in cyan, magenta, and yellow. Overlap colors with XOR logic to match the target." />
-  <meta name="theme-color" content="#060913" />
-  <meta name="color-scheme" content="dark" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%23060913%22/%3E%3Cpath d=%22M14 17l13 15-13 15h10l8-9 8 9h10L37 32l13-15H40l-8 9-8-9z%22 fill=%22%2300d2ff%22/%3E%3C/svg%3E" />
+  <meta name="theme-color" content="#fbf3e4" />
+  <meta name="color-scheme" content="light" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%23fbf3e4%22/%3E%3Cpath d=%22M14 17l13 15-13 15h10l8-9 8 9h10L37 32l13-15H40l-8 9-8-9z%22 fill=%22%2348bee2%22/%3E%3C/svg%3E" />
   <title>Colored XOR — CMY Stamp Puzzle</title>
-  <link href="../main.3f6952e4.css" rel="stylesheet">
+  <link rel="stylesheet" href="cozy/cozy.css">
 <style>
     :root{
       --cell: 28px;
       --cellMini: 14px;
       --gap: 2px;
 
-      --bg0:#060913;
-      --bg1:#0a1222;
+      --bg0: var(--cz-paper);
+      --bg1: var(--cz-paper);
 
-      --panelA: rgba(255,255,255,.045);
-      --panelB: rgba(255,255,255,.020);
+      --panelA: var(--cz-card);
+      --panelB: var(--cz-card);
 
-      --line: rgba(125,160,220,.18);
-      --text:#eaf1fb;
-      --muted:#9fb1c9;
+      --line: var(--cz-line);
+      --text: var(--cz-ink);
+      --muted: var(--cz-soft);
 
-      --accent:#7aa2ff;
-      --ok:#2dd4bf;
-      --bad:#fb7185;
+      --accent: var(--cz-coral);
+      --ok: #3f8a5e;
+      --bad: #c85a48;
 
       --r: 18px;
-      --shadow: 0 18px 48px rgba(0,0,0,.45);
+      --shadow: 0 5px 0 var(--cz-shadow);
     }
 
     *{ box-sizing:border-box; }
     body{
       margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      font-family: var(--cz-body);
+      font-size: 14px;
+      line-height: 1.42857;
       color: var(--text);
-      background:
-        radial-gradient(1100px 650px at 18% 0%, rgba(122,162,255,.18), transparent 58%),
-        radial-gradient(900px 520px at 85% 5%, rgba(45,212,191,.10), transparent 55%),
-        linear-gradient(180deg, var(--bg0), var(--bg1) 55%, var(--bg0));
+      background: var(--cz-paper);
     }
 
     .wrap{
@@ -108,9 +107,10 @@
       min-width: 180px;
       padding: 6px;
       border-radius: 12px;
-      border: 1px solid rgba(125,160,220,.25);
-      background: rgba(10,14,22,.95);
-      box-shadow: 0 12px 28px rgba(0,0,0,.45);
+      border: 1px solid var(--cz-line);
+      border-width: 2px;
+      background: var(--cz-card);
+      box-shadow: 0 5px 0 var(--cz-shadow), 0 10px 24px rgba(61,53,82,.12);
       display: none;
       flex-direction: column;
       gap: 2px;
@@ -121,17 +121,18 @@
       text-align: left;
       font-size: 12px;
       font-weight: 700;
-      color: rgba(234,241,251,.92);
+      font-family: var(--cz-body);
+      color: var(--cz-ink);
       background: transparent;
       border: none;
       padding: 6px 10px;
       border-radius: 8px;
       cursor: pointer;
     }
-    .menuItem:hover{ background: rgba(255,255,255,.06); }
+    .menuItem:hover{ background: var(--cz-paper-2); }
     .menuSep{
-      height: 1px;
-      background: rgba(255,255,255,.08);
+      height: 2px;
+      background: var(--cz-line);
       margin: 4px 2px;
     }
     .boards{
@@ -204,18 +205,18 @@
       }
 
     .card{
-      border: 1px solid var(--line);
+      border: 2px solid var(--line);
       border-radius: var(--r);
       box-shadow: var(--shadow);
-      background: linear-gradient(180deg, var(--panelA), var(--panelB));
+      background: var(--cz-card);
       backdrop-filter: blur(10px);
       overflow: hidden;
     }
 
     .head{
       padding: 14px 14px 12px;
-      border-bottom: 1px solid var(--line);
-      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
+      border-bottom: 2px solid var(--line);
+      background: var(--cz-paper-2);
     }
     .title{
       margin:0;
@@ -232,9 +233,9 @@
       font-weight: 750;
       padding: 3px 8px;
       border-radius: 999px;
-      border: 1px solid rgba(122,162,255,.35);
-      background: rgba(122,162,255,.10);
-      color: rgba(234,241,251,.92);
+      border: 1px solid rgba(61,53,82,.35);
+      background: var(--cz-honey);
+      color: #5a4417;
     }
     .sub{
       margin: 8px 0 0;
@@ -248,7 +249,7 @@
 
     .btn{
       appearance:none;
-      border: 1px solid rgba(125,160,220,.22);
+      border: 1px solid var(--cz-line);
       background: rgba(255,255,255,.03);
       color: var(--text);
       padding: 8px 10px;
@@ -260,24 +261,24 @@
       user-select:none;
       white-space: nowrap;
     }
-    .btn:hover{ border-color: rgba(125,160,220,.42); background: rgba(255,255,255,.05); }
+    .btn:hover{ border-color: var(--cz-line); background: rgba(255,255,255,.05); }
     .btn:active{ transform: translateY(1px); }
 
     .btn.primary{
-      border-color: rgba(122,162,255,.55);
-      background: rgba(122,162,255,.10);
+      border-color: rgba(61,53,82,.55);
+      background: rgba(61,53,82,.10);
     }
-    .btn.primary:hover{ border-color: rgba(122,162,255,1); background: rgba(122,162,255,.14); }
+    .btn.primary:hover{ border-color: rgba(61,53,82,1); background: rgba(61,53,82,.14); }
 
     .btn.good{
-      border-color: rgba(45,212,191,.50);
-      background: rgba(45,212,191,.10);
+      border-color: rgba(79,140,103,.50);
+      background: rgba(79,140,103,.10);
     }
-    .btn.good:hover{ border-color: rgba(45,212,191,1); background: rgba(45,212,191,.14); }
+    .btn.good:hover{ border-color: rgba(79,140,103,1); background: rgba(79,140,103,.14); }
 
     .btn.toggled{
-      border-color: rgba(122,162,255,.95);
-      background: rgba(122,162,255,.16);
+      border-color: rgba(61,53,82,.95);
+      background: rgba(61,53,82,.16);
     }
 
     .btn.small{ padding: 6px 9px; font-size: 12px; border-radius: 11px; }
@@ -286,21 +287,21 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       font-size: 12px;
       padding: 2px 6px;
-      border: 1px solid rgba(125,160,220,.22);
+      border: 1px solid var(--cz-line);
       border-radius: 9px;
-      color: var(--muted);
-      background: rgba(255,255,255,.03);
+      color: var(--text);
+      background: #fff;
       display:inline-block;
     }
 
     .chip{
       padding: 4px 8px;
       border-radius: 999px;
-      border: 1px solid rgba(125,160,220,.22);
-      background: rgba(255,255,255,.03);
-      color: var(--muted);
+      border: 2px solid var(--cz-line);
+      background: var(--cz-paper-2);
+      color: #6b5a3e;
       font-size: 12px;
-      font-weight: 740;
+      font-weight: 800;
       display:flex;
       align-items:center;
       gap:8px;
@@ -310,16 +311,17 @@
       appearance:none;
       padding: 5px 9px;
       border-radius: 12px;
-      border: 1px solid rgba(125,160,220,.22);
-      background: rgba(255,255,255,.03);
+      border: 2px solid var(--cz-line);
+      background: #fff;
       color: var(--text);
-      font-weight: 760;
+      font-family: var(--cz-body);
+      font-weight: 800;
       font-size: 12px;
       cursor:pointer;
     }
     option{
-      color: #0b1220;
-      background: #f7f9ff;
+      color: #3d3552;
+      background: #fffaf1;
       font-weight: 700;
     }
 
@@ -330,34 +332,34 @@
       margin-top: 12px;
     }
     .stat{
-      border: 1px solid rgba(125,160,220,.22);
+      border: 1px solid var(--cz-line);
       border-radius: 14px;
       padding: 10px;
-      background: rgba(255,255,255,.02);
+      background: #fff;
     }
     .stat .k{ color: var(--muted); font-size: 12px; }
     .stat .v{ margin-top: 2px; font-size: 16px; font-weight: 860; }
 
     .meter{
       margin-top: 10px;
-      border: 1px solid rgba(125,160,220,.18);
+      border: 1px solid var(--cz-line);
       border-radius: 999px;
-      background: rgba(0,0,0,.12);
+      background: var(--cz-paper-2);
       overflow:hidden;
       height: 10px;
     }
     .bar{
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, rgba(45,212,191,.65), rgba(122,162,255,.65));
+      background: linear-gradient(90deg, var(--cz-sage), var(--cz-honey));
       transition: width .15s ease;
     }
 
     .paletteWrap{
       margin-top: 14px;
-      border: 1px solid rgba(125,160,220,.18);
+      border: 1px solid var(--cz-line);
       border-radius: 16px;
-      background: rgba(0,0,0,.10);
+      background: var(--cz-paper-2);
       padding: 10px;
     }
     .paletteWrap.nearBoard{
@@ -432,10 +434,10 @@
     .palette.compact .piece:hover{ background: transparent; }
     .palette.compact .piece.selected canvas.thumb{
       filter:
-        drop-shadow(0 0 0 rgba(122,162,255,1))
-        drop-shadow(0 0 8px rgba(122,162,255,.85))
-        drop-shadow(0 0 18px rgba(122,162,255,.55))
-        drop-shadow(0 0 30px rgba(122,162,255,.35));
+        drop-shadow(0 0 1px rgba(61,53,82,1))
+        drop-shadow(0 0 1px rgba(61,53,82,1))
+        drop-shadow(0 0 6px rgba(233,128,110,.95))
+        drop-shadow(0 0 14px rgba(233,128,110,.6));
     }
     .palette.compact .name{
       font-size: 10px;
@@ -444,25 +446,25 @@
     .sw{
       width: 14px; height: 14px;
       border-radius: 6px;
-      border: 1px solid rgba(255,255,255,.14);
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,.18);
+      border: 1px solid rgba(61,53,82,.25);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.3);
       cursor:pointer;
       opacity:.85;
       transition: transform .06s ease, opacity .12s ease, box-shadow .12s ease;
     }
     .sw:hover{ opacity:1; transform: translateY(-1px); }
-    .sw.sel{ opacity:1; box-shadow: 0 0 0 2px rgba(122,162,255,.35); }
+    .sw.sel{ opacity:1; box-shadow: 0 0 0 2px rgba(61,53,82,.35); }
 
     /* RIGHT */
     .rightTop{
       padding: 12px 14px;
-      border-bottom: 1px solid var(--line);
+      border-bottom: 2px solid var(--line);
       display:flex;
       justify-content: space-between;
       align-items:center;
       gap: 10px;
       flex-wrap: wrap;
-      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
+      background: var(--cz-paper-2);
     }
     .status{
       font-size: 13px;
@@ -481,14 +483,14 @@
     .pill2{
       padding: 4px 8px;
       border-radius: 999px;
-      border: 1px solid rgba(125,160,220,.22);
-      background: rgba(255,255,255,.03);
-      color: rgba(234,241,251,.90);
+      border: 1px solid var(--cz-line);
+      background: var(--cz-card);
+      color: var(--text);
       font-size: 12px;
-      font-weight: 750;
+      font-weight: 800;
     }
-    .pill2.ok{ border-color: rgba(45,212,191,.55); color: rgba(45,212,191,.95); }
-    .pill2.bad{ border-color: rgba(251,113,133,.55); color: rgba(251,113,133,.95); }
+    .pill2.ok{ border-color: var(--cz-sage); background:#e6f2ea; color: var(--ok); }
+    .pill2.bad{ border-color: var(--cz-coral); background:#fbe4de; color: var(--bad); }
 
     .boardControls{
       display:flex;
@@ -525,8 +527,8 @@
     }
     .targetLabel{
       font-size: 12.5px;
-      font-weight: 820;
-      color: rgba(234,241,251,.92);
+      font-weight: 800;
+      color: var(--text);
       letter-spacing: .2px;
     }
     .targetLabelRow{
@@ -548,8 +550,8 @@
       align-items:center;
       padding: 6px 10px;
       border-radius: 12px;
-      border: 1px solid rgba(125,160,220,.22);
-      background: transparent;
+      border: 2px solid var(--cz-line);
+      background: var(--cz-card);
       height: 44px;
       min-width: 96px;
     }
@@ -557,13 +559,13 @@
       width: 20px;
       height: 20px;
       border-radius: 6px;
-      border: 1px solid rgba(255,255,255,.25);
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,.2);
+      border: 1px solid rgba(61,53,82,.25);
+      box-shadow: 0 2px 0 rgba(61,53,82,.25);
       cursor:pointer;
       opacity: .85;
     }
     .colorBtn.sel{
-      outline: 2px solid rgba(122,162,255,.8);
+      outline: 3px solid var(--cz-ink);
       outline-offset: 2px;
       opacity: 1;
     }
@@ -597,15 +599,15 @@
       width: 60px;
       height: 60px;
       border-radius: 0;
-      border: 1px solid rgba(125,160,220,.35);
-      background: rgba(255,255,255,.03);
+      border: 2px solid var(--cz-line);
+      background: var(--cz-card);
       image-rendering: pixelated;
     }
     .board{
-      border: 1px solid rgba(125,160,220,.22);
+      border: 2px solid var(--cz-line);
       border-radius: 16px;
       padding: 12px;
-      background: rgba(255,255,255,.02);
+      background: var(--cz-paper);
     }
     .boardTitle{
       margin: 0 0 10px;
@@ -615,7 +617,7 @@
       display:flex;
       align-items:center;
       gap: 8px;
-      color: rgba(234,241,251,.92);
+      color: var(--text);
     }
     .boardTitle span{ color: var(--muted); font-weight: 720; letter-spacing: 0; }
 
@@ -626,8 +628,8 @@
       width: fit-content;
       padding: 10px;
       border-radius: 16px;
-      background: rgba(0,0,0,.12);
-      border: 1px solid rgba(255,255,255,.06);
+      background: var(--cz-paper-2);
+      border: 2px solid var(--cz-line);
       user-select:none;
       touch-action:none;
       position: relative;
@@ -637,29 +639,29 @@
       width: var(--cell);
       height: var(--cell);
       border-radius: 4px;
-      background: rgba(244,247,251,.96);
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,.12);
+      background: #fffaf1;
+      box-shadow: inset 0 0 0 1px #e2cfae;
       position: relative;
       overflow: hidden;
     }
 
     .cell.ghost{
-      outline: 2px solid rgba(122,162,255,.78);
-      outline-offset: -2px;
+      outline: 3px solid rgba(61,53,82,.85);
+      outline-offset: -3px;
     }
-    .cell.ghost.bad{ outline-color: rgba(251,113,133,.85); }
+    .cell.ghost.bad{ outline-color: rgba(200,90,72,.95); }
     .cell.ghost::after{
       content: "";
       position:absolute;
       inset: 0;
       border-radius: 4px;
-      background: rgba(0,0,0,.18);
-      box-shadow: inset 0 0 0 2px rgba(122,162,255,.55);
+      background: rgba(61,53,82,.16);
+      box-shadow: inset 0 0 0 2px rgba(255,250,241,.6);
       pointer-events:none;
     }
     .cell.ghost.bad::after{
-      background: rgba(251,113,133,.12);
-      box-shadow: inset 0 0 0 2px rgba(251,113,133,.65);
+      background: rgba(233,128,110,.2);
+      box-shadow: inset 0 0 0 2px rgba(255,250,241,.6);
     }
 
     .cell.mismatch::after{
@@ -667,8 +669,8 @@
       position:absolute;
       inset: 0;
       border-radius: 4px;
-      box-shadow: inset 0 0 0 2px rgba(251,113,133,.55);
-      background: rgba(251,113,133,.08);
+      box-shadow: inset 0 0 0 3px rgba(200,90,72,.95);
+      background: rgba(233,128,110,.14);
       pointer-events:none;
     }
 
@@ -717,7 +719,7 @@
     .howtoModal{
       position: fixed;
       inset: 0;
-      background: rgba(6,9,19,.65);
+      background: rgba(61,53,82,.35);
       display: none;
       align-items: center;
       justify-content: center;
@@ -728,10 +730,10 @@
     .howtoCard{
       max-width: 360px;
       width: 100%;
-      border: 1px solid rgba(125,160,220,.25);
-      border-radius: 14px;
+      border: 2px solid var(--cz-line);
+      border-radius: 18px;
       padding: 14px;
-      background: linear-gradient(180deg, rgba(20,28,48,.98), rgba(10,18,34,.98));
+      background: var(--cz-card);
       box-shadow: var(--shadow);
       color: var(--text);
       font-size: 13px;
@@ -753,10 +755,10 @@
       overflow: auto;
     }
     .historyItem{
-      border: 1px solid rgba(125,160,220,.2);
+      border: 2px solid var(--cz-line);
       border-radius: 10px;
       padding: 8px;
-      background: rgba(255,255,255,.03);
+      background: #fff;
       font-size: 12px;
       line-height: 1.35;
       display:flex;
@@ -768,7 +770,7 @@
       font-size: 11px;
     }
     .moveFooter.solved{
-      color: rgba(45,212,191,.95);
+      color: var(--ok);
       font-weight: 800;
     }
     .mobileOptions{
@@ -932,7 +934,7 @@
       }
     }
   /* Standalone itch.io shell */
-  html { min-height: 100%; background: #060913; }
+  html { min-height: 100%; background: var(--cz-paper); }
   body {
     min-height: 100vh;
     min-height: 100dvh;
@@ -948,11 +950,11 @@
     padding: 10px 14px 0;
     user-select: none;
   }
-  .gameBrandName { font-size: clamp(20px, 4vw, 30px); font-weight: 900; letter-spacing: .02em; }
+  .gameBrandName { font-family: var(--cz-display); font-size: clamp(22px, 4vw, 32px); font-weight: 700; letter-spacing: .02em; color: var(--cz-ink); }
   .gameBrandTag { color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-  .brandC { color: #00d2ff; }
-  .brandM { color: #ff00aa; }
-  .brandY { color: #ffd400; }
+  .brandC { color: #2ba3cc; }
+  .brandM { color: #d8409a; }
+  .brandY { color: #e3a91c; text-shadow: 0 1px 0 rgba(61,53,82,.25); }
   .credit { font-size: 11px; opacity: .7; margin-top: 6px; text-align: center; }
   @media (max-width: 520px) {
     body { padding: max(4px, env(safe-area-inset-top)) max(4px, env(safe-area-inset-right)) max(4px, env(safe-area-inset-bottom)) max(4px, env(safe-area-inset-left)); }
@@ -966,7 +968,7 @@
   .gameBrand {
     min-height: 52px;
     padding: 10px 56px 8px;
-    border-bottom: 1px solid rgba(125,160,220,.12);
+    border-bottom: 2px solid var(--cz-line);
   }
   .brandHelpBtn {
     position: absolute;
@@ -983,8 +985,9 @@
     align-items: center;
     gap: 8px;
     color: var(--text);
-    font-size: 13px;
-    font-weight: 820;
+    font-family: var(--cz-display);
+    font-size: 14px;
+    font-weight: 600;
     letter-spacing: .02em;
     margin-bottom: 10px;
   }
@@ -995,8 +998,9 @@
     height: 24px;
     flex: 0 0 24px;
     border-radius: 8px;
-    color: #07101b;
-    background: linear-gradient(135deg, #00d2ff, #ffd400);
+    color: #3d3552;
+    background: var(--cz-honey);
+    box-shadow: 0 2px 0 #d9a93f;
     font-size: 12px;
     font-weight: 950;
   }
@@ -1008,7 +1012,7 @@
   }
   .targetPanel,
   .playPanel {
-    border-color: rgba(125,160,220,.16) !important;
+    border-color: var(--cz-line) !important;
   }
   .targetPanel .targetRow,
   .targetPanel .targetStack,
@@ -1049,9 +1053,9 @@
     pointer-events: none;
     transform: translate(-50%, -115%);
     border-radius: 14px;
-    background: rgba(10,18,34,.88);
-    border: 1px solid rgba(122,162,255,.7);
-    box-shadow: 0 12px 30px rgba(0,0,0,.55), 0 0 22px rgba(122,162,255,.32);
+    background: rgba(255,250,241,.95);
+    border: 2px solid var(--cz-line);
+    box-shadow: 0 5px 0 var(--cz-shadow), 0 12px 24px rgba(61,53,82,.18);
     image-rendering: pixelated;
   }
   body.pieceDragging {
@@ -1059,8 +1063,8 @@
     user-select: none;
   }
   body.pieceDragging .playPanel {
-    border-color: rgba(122,162,255,.65) !important;
-    box-shadow: inset 0 0 0 1px rgba(122,162,255,.18);
+    border-color: var(--cz-coral) !important;
+    box-shadow: inset 0 0 0 2px rgba(233,128,110,.25);
   }
   .mobilePreview {
     justify-content: center !important;
@@ -1076,12 +1080,13 @@
     place-items: center;
     width: 30px;
     height: 30px;
-    color: #06101c;
-    font-size: 11px;
-    font-weight: 950;
+    color: #2a2440;
+    font-family: var(--cz-body);
+    font-size: 12px;
+    font-weight: 900;
     text-shadow: 0 1px 0 rgba(255,255,255,.35);
   }
-  .colorBtn[data-bit="2"] { color: white; text-shadow: 0 1px 2px rgba(0,0,0,.5); }
+  .colorBtn[data-bit="2"] { color: white; text-shadow: 0 1px 2px rgba(61,53,82,.7); }
   .colorBtn.sel { transform: scale(1.06); }
   .howtoCard.tutorialCard {
     max-width: 760px;
@@ -1106,9 +1111,9 @@
     align-items: center;
     min-height: 118px;
     padding: 12px;
-    border: 1px solid rgba(125,160,220,.18);
+    border: 2px solid var(--cz-line);
     border-radius: 14px;
-    background: rgba(255,255,255,.025);
+    background: #fff;
   }
   .tutorialStep h3 {
     margin: 0 0 5px;
@@ -1125,7 +1130,7 @@
     width: 116px;
     height: 88px;
     border-radius: 12px;
-    background: rgba(0,0,0,.14);
+    background: var(--cz-paper-2);
   }
   .tutorialTips {
     display: flex;
@@ -1137,9 +1142,9 @@
   }
   .tutorialTip {
     padding: 5px 8px;
-    border: 1px solid rgba(125,160,220,.16);
+    border: 1px solid var(--cz-line);
     border-radius: 999px;
-    background: rgba(255,255,255,.025);
+    background: var(--cz-paper-2);
   }
   @media (min-width: 880px) {
     .tutorialStep:last-child { grid-column: 1 / -1; }
@@ -1162,9 +1167,9 @@
     .board {
       width: 100% !important;
       padding: 16px !important;
-      border: 1px solid rgba(125,160,220,.18) !important;
+      border: 2px solid var(--cz-line) !important;
       border-radius: 16px !important;
-      background: rgba(255,255,255,.018) !important;
+      background: var(--cz-paper) !important;
     }
     .targetRow {
       align-items: center !important;
@@ -1296,7 +1301,7 @@
       height: var(--frame);
       margin: -5px 0;
     }
-    .tutorialCard .howtoHead { position: sticky; top: -18px; z-index: 2; padding: 10px 0; background: rgba(20,28,48,.98); }
+    .tutorialCard .howtoHead { position: sticky; top: -18px; z-index: 2; padding: 10px 0; background: var(--cz-card); }
     .tutorialStep {
       grid-template-columns: 96px minmax(0, 1fr);
       gap: 10px;
@@ -1314,65 +1319,55 @@
     }
   }
 
-  /* Nefinia website shell */
-  body {
-    padding-top: 68px !important;
-    background-color: #060913;
-    background-image:
-      linear-gradient(rgba(6,9,19,.82), rgba(6,9,19,.9)),
-      url('../assets/images/space.jpg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-  }
-  .nefinia-game-menu .navbar { z-index: 10000; }
-  #site-border-left,
-  #site-border-right,
-  #site-border-top,
-  #site-border-bottom {
-    pointer-events: none;
-    z-index: 9990;
-  }
+  /* Cozy shell: sticky .cz-bar replaces the old fixed navbar.
+     .mobileOptions is position:fixed but its containing block is the .card
+     (backdrop-filter), so it keeps the same in-card offset as before. */
   @media (max-width: 879px) {
-    body { padding-top: 58px !important; }
     .mobileOptions {
       top: calc(58px + max(4px, env(safe-area-inset-top))) !important;
     }
   }
+  body { padding-top: 0 !important; }
+  .cz-bar {
+    margin: 0 calc(-1 * max(10px, env(safe-area-inset-right))) 10px calc(-1 * max(10px, env(safe-area-inset-left)));
+  }
+  @media (max-width: 520px) {
+    .cz-bar {
+      margin: 0 calc(-1 * max(4px, env(safe-area-inset-right))) 4px calc(-1 * max(4px, env(safe-area-inset-left)));
+    }
+  }
+
+  /* ---- Cozy overrides (buttons, fonts) ---- */
+  button, select, input { font-family: var(--cz-body); }
+  b { font-weight: 800; }
+  .title { font-family: var(--cz-display); font-weight: 600; font-size: 19px; line-height: 1.2; color: var(--text); }
+  .badge { display:inline-block; line-height:1; white-space:nowrap; vertical-align:middle; font-family: var(--cz-body); font-weight:800; border:none; padding:4px 9px; }
+  .howtoHead { font-family: var(--cz-display); font-weight: 600; font-size: 16px; }
+  .tutorialStep h3 { font-family: var(--cz-display); font-weight: 600; font-size: 14px; color: var(--text); }
+  .btn{
+    display:inline-block; text-align:center; vertical-align:middle; line-height:1.42857;
+    font-family: var(--cz-body); font-weight: 800; color: var(--text);
+    background: var(--cz-card); border: 2px solid var(--cz-line); border-radius: 999px;
+    box-shadow: 0 3px 0 var(--cz-shadow);
+    transition: transform .08s ease, box-shadow .08s ease, background .15s ease;
+  }
+  .btn:hover{ transform: translateY(-1px); box-shadow: 0 4px 0 var(--cz-shadow); background:#fff; border-color: var(--cz-line); }
+  .btn:active{ transform: translateY(2px); box-shadow: 0 1px 0 var(--cz-shadow); }
+  .btn:disabled{ opacity:.45; cursor:default; transform:none; }
+  .btn.primary{ background: var(--cz-coral); border-color: var(--cz-coral); color:#fff; box-shadow: 0 3px 0 var(--cz-coral-dk); }
+  .btn.primary:hover{ background:#ec8b7a; border-color: var(--cz-coral); box-shadow: 0 4px 0 var(--cz-coral-dk); }
+  .btn.good{ background: var(--cz-sage-dk); border-color: var(--cz-sage-dk); color:#fff; box-shadow: 0 3px 0 #467a5b; }
+  .btn.good:hover{ background:#6aa983; border-color: var(--cz-sage-dk); box-shadow: 0 4px 0 #467a5b; }
+  .btn.toggled{ background:#ece4f8; border-color: var(--cz-lilac); box-shadow: 0 3px 0 #a18bca; }
+  #rotateBtn, #undoBtn, #redoBtn{ border-radius: 14px; }
+  .brandHelpBtn{ border-radius: 50% !important; font-family: var(--cz-display); }
+  .mobileOptions .menuBtn{ color: var(--cz-ink); }
+  .menuPanel{ border: 2px solid var(--cz-line); }
 </style>
 </head>
 
 <body>
-<div id="site-border-left"></div>
-<div id="site-border-right"></div>
-<div id="site-border-top"></div>
-<div id="site-border-bottom"></div>
-
-<header class="nefinia-game-menu">
-  <nav class="navbar navbar-fixed-top navbar-inverse">
-    <div class="container">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbar-collapse">
-        <ul class="nav navbar-nav">
-          <li><a href="../index.html">01 : Home</a></li>
-          <li><a href="../science.html">02 : Research</a></li>
-          <li><a href="../outreach.html">03 : Outreach</a></li>
-          <li><a href="../ventures.html">04 : Ventures</a></li>
-          <li><a href="../games/index.html">05 : Games</a></li>
-          <li><a href="../art.html">06 : Art</a></li>
-          <li><a href="../about.html">07 : About</a></li>
-          <li><a href="../contact.html">08 : Contact</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-</header>
+<header class="cz-bar"><a class="cz-back" href="index.html">← All games</a><span class="cz-name">CMY XOR Stamps</span><a class="cz-home" href="../index.html">sofiagallego.com</a></header>
   <main class="wrap" aria-label="Colored XOR game">
     <!-- LEFT -->
     <div class="card">
@@ -1552,62 +1547,62 @@
           <div class="tutorialSteps">
             <article class="tutorialStep">
               <svg class="tutorialArt" viewBox="0 0 116 88" aria-label="Choose a tetromino stamp" role="img">
-                <g fill="#00d2ff">
+                <g fill="#48bee2">
                   <rect x="7" y="43" width="13" height="13" rx="3"/><rect x="21" y="43" width="13" height="13" rx="3"/>
                   <rect x="35" y="43" width="13" height="13" rx="3"/><rect x="21" y="29" width="13" height="13" rx="3"/>
                   <rect x="88" y="23" width="13" height="13" rx="3"/><rect x="88" y="37" width="13" height="13" rx="3"/>
                   <rect x="88" y="51" width="13" height="13" rx="3"/><rect x="74" y="37" width="13" height="13" rx="3"/>
                 </g>
-                <path d="M54 50c0-9 6-16 15-17" fill="none" stroke="#7aa2ff" stroke-width="3" stroke-linecap="round"/>
-                <path d="M64 28l7 5-6 7" fill="none" stroke="#7aa2ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M54 50c0-9 6-16 15-17" fill="none" stroke="#e9806e" stroke-width="3" stroke-linecap="round"/>
+                <path d="M64 28l7 5-6 7" fill="none" stroke="#e9806e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
               <div><h3>1. Pick a shape</h3><p>Tap a tetromino to select it, use ⟳ to rotate it, or drag it directly toward the board.</p></div>
             </article>
             <article class="tutorialStep">
               <svg class="tutorialArt" viewBox="0 0 116 88" aria-label="Choose cyan, magenta, or yellow" role="img">
-                <circle cx="26" cy="44" r="16" fill="#00d2ff"/><circle cx="58" cy="44" r="16" fill="#ff00aa"/><circle cx="90" cy="44" r="16" fill="#ffd400"/>
-                <text x="26" y="49" text-anchor="middle" fill="#06101c" font-size="13" font-weight="900">C</text>
+                <circle cx="26" cy="44" r="16" fill="#48bee2"/><circle cx="58" cy="44" r="16" fill="#e254a0"/><circle cx="90" cy="44" r="16" fill="#f7d038"/>
+                <text x="26" y="49" text-anchor="middle" fill="#2a2440" font-size="13" font-weight="900">C</text>
                 <text x="58" y="49" text-anchor="middle" fill="white" font-size="13" font-weight="900">M</text>
-                <text x="90" y="49" text-anchor="middle" fill="#06101c" font-size="13" font-weight="900">Y</text>
+                <text x="90" y="49" text-anchor="middle" fill="#2a2440" font-size="13" font-weight="900">Y</text>
               </svg>
               <div><h3>2. Choose a color</h3><p>Every stamp flips one color channel: Cyan, Magenta, or Yellow.</p></div>
             </article>
             <article class="tutorialStep">
               <svg class="tutorialArt" viewBox="0 0 116 88" aria-label="Stamping cyan twice cancels it" role="img">
-                <rect x="3" y="32" width="24" height="24" rx="5" fill="#00d2ff"/>
-                <text x="15" y="48" text-anchor="middle" fill="#06101c" font-size="11" font-weight="900">C</text>
-                <text x="35" y="49" text-anchor="middle" fill="#9fb1c9" font-size="15" font-weight="800">⊕</text>
-                <rect x="43" y="32" width="24" height="24" rx="5" fill="#00d2ff"/>
-                <text x="55" y="48" text-anchor="middle" fill="#06101c" font-size="11" font-weight="900">C</text>
-                <text x="76" y="49" text-anchor="middle" fill="#9fb1c9" font-size="15" font-weight="800">=</text>
-                <rect x="87" y="32" width="24" height="24" rx="5" fill="#f4f7fb" stroke="#7d98ba"/>
+                <rect x="3" y="32" width="24" height="24" rx="5" fill="#48bee2"/>
+                <text x="15" y="48" text-anchor="middle" fill="#2a2440" font-size="11" font-weight="900">C</text>
+                <text x="35" y="49" text-anchor="middle" fill="#6d6480" font-size="15" font-weight="800">⊕</text>
+                <rect x="43" y="32" width="24" height="24" rx="5" fill="#48bee2"/>
+                <text x="55" y="48" text-anchor="middle" fill="#2a2440" font-size="11" font-weight="900">C</text>
+                <text x="76" y="49" text-anchor="middle" fill="#6d6480" font-size="15" font-weight="800">=</text>
+                <rect x="87" y="32" width="24" height="24" rx="5" fill="#fffaf1" stroke="#d9c29c"/>
               </svg>
               <div><h3>3. The XOR toggle rule</h3><p>Stamping the same channel twice turns it back off: C ⊕ C = empty. This works the same way for M and Y.</p></div>
             </article>
             <article class="tutorialStep">
               <svg class="tutorialArt" viewBox="0 0 116 88" aria-label="Two or three CMY channels combine into mixed colors" role="img">
                 <g font-size="10" font-weight="900" text-anchor="middle">
-                  <rect x="6" y="4" width="15" height="15" rx="3" fill="#00d2ff"/><text x="13.5" y="15" fill="#06101c">C</text>
-                  <text x="27" y="15" fill="#9fb1c9">⊕</text>
-                  <rect x="33" y="4" width="15" height="15" rx="3" fill="#ff00aa"/><text x="40.5" y="15" fill="white">M</text>
-                  <text x="55" y="15" fill="#9fb1c9">=</text><rect x="63" y="4" width="45" height="15" rx="3" fill="#7964ca"/>
+                  <rect x="6" y="4" width="15" height="15" rx="3" fill="#48bee2"/><text x="13.5" y="15" fill="#2a2440">C</text>
+                  <text x="27" y="15" fill="#6d6480">⊕</text>
+                  <rect x="33" y="4" width="15" height="15" rx="3" fill="#e254a0"/><text x="40.5" y="15" fill="white">M</text>
+                  <text x="55" y="15" fill="#6d6480">=</text><rect x="63" y="4" width="45" height="15" rx="3" fill="#8a6ece"/>
 
-                  <rect x="6" y="25" width="15" height="15" rx="3" fill="#00d2ff"/><text x="13.5" y="36" fill="#06101c">C</text>
-                  <text x="27" y="36" fill="#9fb1c9">⊕</text>
-                  <rect x="33" y="25" width="15" height="15" rx="3" fill="#ffd400"/><text x="40.5" y="36" fill="#06101c">Y</text>
-                  <text x="55" y="36" fill="#9fb1c9">=</text><rect x="63" y="25" width="45" height="15" rx="3" fill="#00dc50"/>
+                  <rect x="6" y="25" width="15" height="15" rx="3" fill="#48bee2"/><text x="13.5" y="36" fill="#2a2440">C</text>
+                  <text x="27" y="36" fill="#6d6480">⊕</text>
+                  <rect x="33" y="25" width="15" height="15" rx="3" fill="#f7d038"/><text x="40.5" y="36" fill="#2a2440">Y</text>
+                  <text x="55" y="36" fill="#6d6480">=</text><rect x="63" y="25" width="45" height="15" rx="3" fill="#58b870"/>
 
-                  <rect x="6" y="46" width="15" height="15" rx="3" fill="#ff00aa"/><text x="13.5" y="57" fill="white">M</text>
-                  <text x="27" y="57" fill="#9fb1c9">⊕</text>
-                  <rect x="33" y="46" width="15" height="15" rx="3" fill="#ffd400"/><text x="40.5" y="57" fill="#06101c">Y</text>
-                  <text x="55" y="57" fill="#9fb1c9">=</text><rect x="63" y="46" width="45" height="15" rx="3" fill="#ff8c00"/>
+                  <rect x="6" y="46" width="15" height="15" rx="3" fill="#e254a0"/><text x="13.5" y="57" fill="white">M</text>
+                  <text x="27" y="57" fill="#6d6480">⊕</text>
+                  <rect x="33" y="46" width="15" height="15" rx="3" fill="#f7d038"/><text x="40.5" y="57" fill="#2a2440">Y</text>
+                  <text x="55" y="57" fill="#6d6480">=</text><rect x="63" y="46" width="45" height="15" rx="3" fill="#ee7c34"/>
 
-                  <rect x="2" y="67" width="13" height="15" rx="3" fill="#00d2ff"/><text x="8.5" y="78" fill="#06101c">C</text>
-                  <text x="19" y="78" fill="#9fb1c9">+</text>
-                  <rect x="24" y="67" width="13" height="15" rx="3" fill="#ff00aa"/><text x="30.5" y="78" fill="white">M</text>
-                  <text x="41" y="78" fill="#9fb1c9">+</text>
-                  <rect x="46" y="67" width="13" height="15" rx="3" fill="#ffd400"/><text x="52.5" y="78" fill="#06101c">Y</text>
-                  <text x="64" y="78" fill="#9fb1c9">=</text><rect x="72" y="67" width="36" height="15" rx="3" fill="#48321e"/>
+                  <rect x="2" y="67" width="13" height="15" rx="3" fill="#48bee2"/><text x="8.5" y="78" fill="#2a2440">C</text>
+                  <text x="19" y="78" fill="#6d6480">+</text>
+                  <rect x="24" y="67" width="13" height="15" rx="3" fill="#e254a0"/><text x="30.5" y="78" fill="white">M</text>
+                  <text x="41" y="78" fill="#6d6480">+</text>
+                  <rect x="46" y="67" width="13" height="15" rx="3" fill="#f7d038"/><text x="52.5" y="78" fill="#2a2440">Y</text>
+                  <text x="64" y="78" fill="#6d6480">=</text><rect x="72" y="67" width="36" height="15" rx="3" fill="#5c402c"/>
                 </g>
               </svg>
               <div><h3>4. Combine different channels</h3><p>Different channels stay on together: C+M is purple, C+Y green, M+Y orange, and all three produce brown.</p></div>
@@ -1615,13 +1610,13 @@
             <article class="tutorialStep">
               <svg class="tutorialArt" viewBox="0 0 116 88" aria-label="Match the target to solve the puzzle" role="img">
                 <g transform="translate(11 16)">
-                  <rect width="16" height="16" rx="3" fill="#00d2ff"/><rect x="18" width="16" height="16" rx="3" fill="#ff00aa"/>
-                  <rect y="18" width="16" height="16" rx="3" fill="#ffd400"/><rect x="18" y="18" width="16" height="16" rx="3" fill="#0b0f17"/>
+                  <rect width="16" height="16" rx="3" fill="#48bee2"/><rect x="18" width="16" height="16" rx="3" fill="#e254a0"/>
+                  <rect y="18" width="16" height="16" rx="3" fill="#f7d038"/><rect x="18" y="18" width="16" height="16" rx="3" fill="#5c402c"/>
                 </g>
-                <path d="M54 43h17" stroke="#7aa2ff" stroke-width="3" stroke-linecap="round"/>
-                <path d="M66 37l7 6-7 6" fill="none" stroke="#7aa2ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                <circle cx="92" cy="43" r="17" fill="rgba(45,212,191,.15)" stroke="#2dd4bf" stroke-width="2"/>
-                <path d="M83 43l6 6 12-14" fill="none" stroke="#2dd4bf" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M54 43h17" stroke="#e9806e" stroke-width="3" stroke-linecap="round"/>
+                <path d="M66 37l7 6-7 6" fill="none" stroke="#e9806e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="92" cy="43" r="17" fill="rgba(95,158,120,.18)" stroke="#5f9e78" stroke-width="2"/>
+                <path d="M83 43l6 6 12-14" fill="none" stroke="#5f9e78" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
               <div><h3>5. Match exactly</h3><p>Solve when your board matches the target in both shape and color. Undo is always available.</p></div>
             </article>
@@ -1680,18 +1675,19 @@
 
   // Display colors (readable visualization, not strict physical CMY optics)
   const COL = {
-    paper: [244,247,251], // 000
-    black: [72,50,30],    // 111 (dark brown for visibility)
-    C: [0,210,255],
-    M: [255,0,170],
-    Y: [255,230,0]
+    paper: [255,250,241], // 000 (cozy card paper)
+    black: [92,64,44],    // 111 (dark brown for visibility)
+    C: [72,190,226],      // soft cyan
+    M: [226,84,160],      // soft magenta
+    Y: [247,208,56]       // honey yellow
   };
 
   function mix(bits){
     if(bits === 0) return COL.paper;
     if(bits === 7) return COL.black;
-    if (bits === (BIT_C | BIT_Y)) return [0, 220, 80];   // vibrant green
-    if (bits === (BIT_M | BIT_Y)) return [255, 140, 0];  // vibrant orange
+    if (bits === (BIT_C | BIT_Y)) return [88, 184, 112];  // soft green
+    if (bits === (BIT_M | BIT_Y)) return [238, 124, 52];  // soft orange
+    if (bits === (BIT_C | BIT_M)) return [138, 110, 206]; // soft purple
 
     const picks = [];
     if(bits & BIT_C) picks.push(COL.C);
@@ -2297,10 +2293,10 @@
         solCtx.shadowOffsetY = 0;
         solCtx.textAlign = pos.align;
         solCtx.textBaseline = pos.baseline;
-        solCtx.font = "900 9px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+        solCtx.font = "900 9px Nunito, system-ui, -apple-system, Segoe UI, Roboto, Arial";
         solCtx.lineWidth = 1;
         solCtx.lineJoin = "round";
-        solCtx.strokeStyle = "#000000";
+        solCtx.strokeStyle = "#3d3552";
         solCtx.strokeText(label, pos.x, pos.y);
         solCtx.fillStyle = labelColor;
         solCtx.fillText(label, pos.x, pos.y);

@@ -14,44 +14,61 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Queen Survival</title>
 
-<link href="../main.3f6952e4.css" rel="stylesheet">
+<link rel="stylesheet" href="cozy/cozy.css">
 <style>
   :root { --cell: 44px; --anim: 140ms; }
+  *,*::before,*::after{ box-sizing:border-box; }
 
   body{
-    font-family: system-ui, sans-serif;
+    font-family: var(--cz-body);
+    font-size:14px;
+    line-height:1.5;
     text-align:center;
-    background:#fafafa;
+    background:var(--cz-paper);
+    color:var(--cz-ink);
     margin:0;
-    padding:14px 10px 24px;
+    padding:0 0 28px;
     overflow-x:hidden;
   }
-  h2{ margin:8px 0 6px; }
+  h2{ margin:16px 0 8px; font-family:var(--cz-display); font-size:30px; font-weight:600; color:var(--cz-ink); }
 
   #hud{
     display:flex;
     justify-content:center;
     flex-wrap:wrap;
-    gap:10px 14px;
+    gap:8px 12px;
     align-items:center;
-    margin:8px 0 10px;
+    margin:8px auto 14px;
+    padding:10px 14px;
+    width:fit-content;
+    max-width:calc(100vw - 20px);
+    background:var(--cz-card);
+    border:2px solid var(--cz-line);
+    border-radius:var(--cz-radius);
+    box-shadow:0 5px 0 var(--cz-shadow);
   }
-  .hudItem{ font-size:16px; }
-  .hudLabel{ color:#333; }
-  .hudValue{ font-weight:700; }
+  .hudItem{ font-size:15px; }
+  .hudLabel{ color:var(--cz-soft); font-weight:700; }
+  .hudValue{ font-weight:800; color:var(--cz-ink); font-family:var(--cz-display); }
 
   select, button{
     font-size:14px;
     padding:6px 10px;
   }
+  #startBtn{ background:var(--cz-coral); border-color:var(--cz-coral); color:#fff; box-shadow:0 3px 0 var(--cz-coral-dk); }
+  .cz-scope button:disabled{ opacity:.45; cursor:default; transform:none; }
+  .cz-scope select:disabled{ opacity:.6; }
 
-  #boardWrap{ width:min(100vw - 20px, 520px); margin:0 auto; }
+  #boardWrap{ width:min(100vw - 20px, 520px); margin:18px auto 0; }
   #board{
     position:relative;
     width:calc(var(--cell)*8 + 4px);
     height:calc(var(--cell)*8 + 4px);
     margin:0 auto;
-    border:2px solid #333;
+    border:2px solid var(--cz-ink);
+    border-radius:6px;
+    overflow:hidden;
+    box-shadow:0 0 0 5px var(--cz-card), 0 0 0 7px var(--cz-line), 0 11px 0 2px var(--cz-shadow);
     box-sizing:border-box;
     touch-action:manipulation;
   }
@@ -69,8 +86,8 @@
     -webkit-tap-highlight-color:transparent;
     user-select:none;
   }
-  .light{ background:#f0d9b5; }
-  .dark{ background:#b58863; }
+  .light{ background:#fdf0da; }
+  .dark{ background:#e2b98c; }
 
   #pieces{
     position:absolute;
@@ -84,6 +101,7 @@
     height:var(--cell);
     line-height:var(--cell);
     font-size:calc(var(--cell)*0.58);
+    color:#2e2740;
     user-select:none;
     transform:translate(var(--px), var(--py));
     transition:transform var(--anim) linear;
@@ -95,15 +113,16 @@
   .float{
     position:absolute;
     transform:translate(var(--px), var(--py));
+    font-family:var(--cz-display);
     font-weight:800;
     font-size:calc(var(--cell)*0.35);
     opacity:0;
     animation:pop 850ms ease-out forwards;
     pointer-events:none;
-    text-shadow:0 1px 0 rgba(255,255,255,0.65);
+    text-shadow:0 1px 0 rgba(255,255,255,0.8);
   }
-  .float.plus{ color:#0a7a2f; }
-  .float.minus{ color:#b00020; }
+  .float.plus{ color:#3f8a5c; }
+  .float.minus{ color:#b04a3a; }
 
   @keyframes pop{
     0%{ opacity:0; transform:translate(var(--px), var(--py)) translateY(6px) scale(0.95); }
@@ -112,144 +131,32 @@
     100%{ opacity:0; transform:translate(var(--px), var(--py)) translateY(-22px) scale(1.0); }
   }
 
-  .muted{ color:#444; font-size:13px; margin-top:8px; }
-  .over{ color:#a00; font-weight:700; }
+  .muted{ color:var(--cz-soft); font-size:14px; font-weight:700; margin-top:18px; }
+  .over{ color:#b04a3a; font-weight:800; }
 
-  /* Instructions box (kept minimal, matching current aesthetic) */
+  /* Instructions box */
   #howto{
     width:min(100vw - 20px, 520px);
-    margin:10px auto 0;
+    margin:14px auto 0;
     text-align:left;
-    background:#fff;
-    border:1px solid #ddd;
-    border-radius:10px;
-    padding:10px 12px;
+    background:var(--cz-card);
+    border:2px solid var(--cz-line);
+    border-radius:var(--cz-radius);
+    box-shadow:0 5px 0 var(--cz-shadow);
+    padding:12px 16px;
     box-sizing:border-box;
-    font-size:13px;
-    color:#333;
+    font-size:14px;
+    color:var(--cz-ink);
   }
-  #howto b{ font-weight:700; }
+  #howto > b{ font-family:var(--cz-display); font-weight:600; font-size:17px; }
+  #howto b{ font-weight:800; }
   #howto ul{ margin:6px 0 0 18px; padding:0; }
   #howto li{ margin:4px 0; }
 </style>
-<style id="nefinia-game-shell">
-  body {
-    padding-top: 68px !important;
-    background-color: black;
-    background-image: url('../assets/images/space.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-  .nefinia-game-menu .navbar {
-    z-index: 10000;
-  }
-
-  .nefinia-game-menu + #wrap,
-  .nefinia-game-menu + .wrap.fullscreen,
-  .nefinia-game-menu + canvas,
-  .nefinia-game-menu + .hud {
-    top: 68px !important;
-  }
-  .nefinia-game-menu + #wrap {
-    bottom: 0 !important;
-    height: auto !important;
-  }
-  #site-border-left,
-  #site-border-right,
-  #site-border-top,
-  #site-border-bottom {
-    pointer-events: none;
-    z-index: 9990;
-  }
-  @media (max-width: 768px) {
-    body { padding-top: 58px !important; }
-
-    .nefinia-game-menu + #wrap,
-    .nefinia-game-menu + .wrap.fullscreen,
-    .nefinia-game-menu + canvas,
-    .nefinia-game-menu + .hud {
-      top: 58px !important;
-    }
-  }
-
-  .nefinia-game-menu + .app h1,
-  .nefinia-game-menu + .wrap h1,
-  .nefinia-game-menu + main h1,
-  .nefinia-game-menu + .app .title,
-  .nefinia-game-menu + .wrap .title {
-    color: #fff !important;
-  }
-
-  body > h1,
-  body > h2,
-  body > h3,
-  .nefinia-game-menu ~ #hud,
-  .nefinia-game-menu ~ #hud .hudLabel,
-  .nefinia-game-menu ~ #hud .hudValue,
-  .nefinia-game-menu ~ .hud,
-  .nefinia-game-menu ~ .hud span,
-  .nefinia-game-menu ~ .stats,
-  .nefinia-game-menu ~ .stats span {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-
-  .nefinia-game-menu ~ #hud .label,
-  .nefinia-game-menu ~ #hud .value {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-  .nefinia-game-menu ~ #hud .p1 {
-    color: #8fc2ff !important;
-  }
-  .nefinia-game-menu ~ #hud .p2 {
-    color: #ff9aa8 !important;
-  }
-
-  .nefinia-game-menu ~ #hud select,
-  .nefinia-game-menu ~ .hud select {
-    color: #111 !important;
-    background: #fff !important;
-    text-shadow: none !important;
-  }
-  body > .muted {
-    color: rgba(255,255,255,0.82) !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-</style>
 </head>
 
-<body>
-<div id="site-border-left"></div>
-<div id="site-border-right"></div>
-<div id="site-border-top"></div>
-<div id="site-border-bottom"></div>
-
-<header class="nefinia-game-menu">
-  <nav class="navbar navbar-fixed-top navbar-inverse">
-    <div class="container">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbar-collapse">
-        <ul class="nav navbar-nav ">
-          <li><a href="../index.html">01 : Home</a></li>
-          <li><a href="../science.html">02 : Research</a></li>
-          <li><a href="../outreach.html">03 : Outreach</a></li>
-          <li><a href="../ventures.html">04 : Ventures</a></li>
-          <li><a href="../games/index.html">05 : Games</a></li>
-          <li><a href="../art.html">06 : Art</a></li>
-          <li><a href="../about.html">07 : About</a></li>
-          <li><a href="../contact.html">08 : Contact</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-</header>
+<body class="cz-scope">
+<header class="cz-bar"><a class="cz-back" href="index.html">← All games</a><span class="cz-name">Queen Survival</span><a class="cz-home" href="../index.html">sofiagallego.com</a></header>
 <h2>Queen Survival</h2>
 
 <div id="hud">

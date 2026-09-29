@@ -13,86 +13,82 @@
 
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>PolyClear Duel — Pass Match + Bigger Piece Set + Bot</title>
-<link href="../main.3f6952e4.css" rel="stylesheet">
+<title>PolyPaint — Sofia Gallego</title>
+<link rel="stylesheet" href="cozy/cozy.css">
 <style>
   :root{
-    --bg:#0b1020;
-    --panel:#121a33;
-    --border:rgba(255,255,255,.10);
-    --text:#eef2ff;
-    --muted:#aab3d6;
-    --p1:#ff5a7a;
-    --p2:#4dd3ff;
-    --empty:#1a2446;
-    --grid:#20305a;
-    --gridBold:#3b4c8a;
-    --shadow: 0 12px 30px rgba(0,0,0,.35);
+    --bg:var(--cz-paper);
+    --panel:#f6e7cf;
+    --border:#ead9bf;
+    --text:#3d3552;
+    --muted:#6d6480;
+    --p1:#ec7086;
+    --p2:#5fb8e0;
+    --empty:#fffaf1;
+    --grid:#ead9bf;
+    --gridBold:#9c8468;
+    --shadow: 0 5px 0 var(--cz-shadow);
   }
   *{ box-sizing:border-box; }
   body{
     margin:0;
-    padding:16px;
-    background:radial-gradient(900px 600px at 20% 0%, #18265a 0%, var(--bg) 55%);
+    background:var(--cz-paper);
     color:var(--text);
-    font-family:system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Noto Sans", sans-serif;
-    display:flex;
-    justify-content:center;
+    font-family:var(--cz-body);
+    line-height:1.5;
   }
   .wrap{
     width:min(1100px, 100%);
+    margin:0 auto;
+    padding:16px;
     display:grid;
     grid-template-columns: 1fr 360px;
-    gap:14px;
+    gap:16px;
     align-items:start;
   }
   .card{
-    background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-    border:1px solid var(--border);
+    background:var(--cz-card);
+    border:2px solid var(--border);
     border-radius:18px;
     box-shadow:var(--shadow);
     overflow:hidden;
   }
   .hd{
     padding:14px 14px 10px;
-    border-bottom:1px solid rgba(255,255,255,.08);
+    border-bottom:2px solid var(--border);
     display:flex;
     justify-content:space-between;
     gap:10px;
     align-items:flex-start;
   }
-  .title{ font-weight:800; font-size:16px; letter-spacing:.2px; }
-  .sub{ margin-top:2px; font-size:12px; color:var(--muted); line-height:1.3; }
+  .title{ font-family:var(--cz-display); font-weight:600; font-size:18px; line-height:1.2; color:var(--text); }
+  .sub{ margin-top:4px; font-size:12.5px; color:var(--muted); line-height:1.4; }
   .body{ padding:14px; }
   canvas{ display:block; width:100%; height:auto; }
+  #board{ border-radius:12px; }
   .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-  button, select{
-    background:rgba(255,255,255,.06);
-    color:var(--text);
-    border:1px solid rgba(255,255,255,.12);
-    border-radius:12px;
-    padding:9px 10px;
-    font-weight:700;
-    cursor:pointer;
-  }
-  button:hover{ background:rgba(255,255,255,.10); }
-  button:disabled{ opacity:.5; cursor:not-allowed; }
+  .cz-scope button{ padding:8px 12px; font-size:13.5px; }
+  button:disabled, .cz-scope button:disabled{ opacity:.5; cursor:not-allowed; transform:none; }
+  .cz-scope select{ padding:6px 8px; cursor:pointer; }
   .pill{
     display:inline-flex;
     align-items:center;
     gap:8px;
-    padding:7px 10px;
+    padding:5px 11px;
     border-radius:999px;
-    border:1px solid rgba(255,255,255,.12);
-    background:rgba(0,0,0,.18);
+    border:2px solid var(--border);
+    background:var(--cz-paper-2);
     font-size:12px;
-    color:var(--muted);
+    font-weight:800;
+    color:#6b5a3e;
     white-space:nowrap;
   }
   .dot{
-    width:10px; height:10px; border-radius:50%;
+    display:inline-block;
+    vertical-align:middle;
+    width:12px; height:12px; border-radius:50%;
     background:var(--empty);
-    border:1px solid rgba(255,255,255,.15);
+    border:1.5px solid rgba(61,53,82,.35);
   }
   .dot.p1{ background:var(--p1); }
   .dot.p2{ background:var(--p2); }
@@ -100,34 +96,37 @@
     display:grid;
     grid-template-columns: 1fr auto;
     gap:8px 10px;
+    align-items:center;
     font-size:13px;
+    font-weight:700;
     color:var(--muted);
   }
   .kv b{ color:var(--text); }
   .scoreBox{
     padding:10px 12px;
     border-radius:14px;
-    border:1px solid rgba(255,255,255,.10);
-    background:rgba(0,0,0,.18);
+    border:2px solid var(--border);
+    background:var(--cz-paper);
   }
   .scoreLine{
     display:flex; justify-content:space-between; align-items:baseline;
-    font-size:13px; color:var(--muted);
+    font-size:13.5px; font-weight:700; color:var(--muted);
     margin-top:6px;
   }
   .scoreLine:first-child{ margin-top:0; }
-  .scoreLine b{ color:var(--text); font-size:18px; }
+  .scoreLine b{ color:var(--text); font-family:var(--cz-display); font-weight:600; font-size:20px; }
   .banner{
     padding:10px 12px;
     border-radius:14px;
-    border:1px solid rgba(255,255,255,.10);
-    background:rgba(255,255,255,.04);
+    border:2px solid var(--border);
+    background:var(--cz-card);
+    box-shadow:0 3px 0 var(--cz-shadow);
     font-weight:800;
-    line-height:1.25;
+    line-height:1.3;
   }
-  .banner.p1{ border-color: rgba(255,90,122,.45); }
-  .banner.p2{ border-color: rgba(77,211,255,.45); }
-  .banner.tie{ border-color: rgba(255,255,255,.18); }
+  .banner.p1{ border-color:var(--p1); background:#fde7ea; }
+  .banner.p2{ border-color:var(--p2); background:#e3f3fa; }
+  .banner.tie{ border-color:var(--border); }
 
   .pool{
     display:grid;
@@ -135,161 +134,54 @@
     gap:10px;
   }
   .poolItem{
-    border:1px solid rgba(255,255,255,.10);
+    border:2px solid var(--border);
     border-radius:14px;
-    background:rgba(0,0,0,.16);
+    background:var(--cz-card);
     padding:8px;
     cursor:pointer;
     position:relative;
+    box-shadow:0 3px 0 var(--cz-shadow);
   }
   .poolItem.selected{
-    outline:2px solid rgba(255,255,255,.30);
+    outline:3px solid var(--cz-accent);
+    outline-offset:1px;
   }
   .poolItem canvas{
     width:100%;
     height:auto;
     border-radius:10px;
-    background:rgba(0,0,0,.12);
   }
   .tag{
     position:absolute;
     top:6px; left:6px;
     font-size:11px;
-    padding:3px 7px;
+    font-weight:800;
+    padding:2px 7px;
     border-radius:999px;
-    background:rgba(0,0,0,.35);
-    border:1px solid rgba(255,255,255,.10);
+    background:var(--cz-card);
+    border:1.5px solid var(--border);
     color:var(--muted);
   }
   .hint{
-    font-size:12px;
+    font-size:12.5px;
     color:var(--muted);
-    line-height:1.35;
+    line-height:1.4;
   }
-</style>
-<style id="nefinia-game-shell">
-  body {
-    padding-top: 68px !important;
-    background-color: black;
-    background-image: url('../assets/images/space.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-  .nefinia-game-menu .navbar {
-    z-index: 10000;
-  }
-
-  .nefinia-game-menu + #wrap,
-  .nefinia-game-menu + .wrap.fullscreen,
-  .nefinia-game-menu + canvas,
-  .nefinia-game-menu + .hud {
-    top: 68px !important;
-  }
-  .nefinia-game-menu + #wrap {
-    bottom: 0 !important;
-    height: auto !important;
-  }
-  #site-border-left,
-  #site-border-right,
-  #site-border-top,
-  #site-border-bottom {
-    pointer-events: none;
-    z-index: 9990;
-  }
-  @media (max-width: 768px) {
-    body { padding-top: 58px !important; }
-
-    .nefinia-game-menu + #wrap,
-    .nefinia-game-menu + .wrap.fullscreen,
-    .nefinia-game-menu + canvas,
-    .nefinia-game-menu + .hud {
-      top: 58px !important;
-    }
-  }
-
-  .nefinia-game-menu + .app h1,
-  .nefinia-game-menu + .wrap h1,
-  .nefinia-game-menu + main h1,
-  .nefinia-game-menu + .app .title,
-  .nefinia-game-menu + .wrap .title {
-    color: #fff !important;
-  }
-
-  body > h1,
-  body > h2,
-  body > h3,
-  .nefinia-game-menu ~ #hud,
-  .nefinia-game-menu ~ #hud .hudLabel,
-  .nefinia-game-menu ~ #hud .hudValue,
-  .nefinia-game-menu ~ .hud,
-  .nefinia-game-menu ~ .hud span,
-  .nefinia-game-menu ~ .stats,
-  .nefinia-game-menu ~ .stats span {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-
-  .nefinia-game-menu ~ #hud .label,
-  .nefinia-game-menu ~ #hud .value {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-  .nefinia-game-menu ~ #hud .p1 {
-    color: #8fc2ff !important;
-  }
-  .nefinia-game-menu ~ #hud .p2 {
-    color: #ff9aa8 !important;
-  }
-
-  .nefinia-game-menu ~ #hud select,
-  .nefinia-game-menu ~ .hud select {
-    color: #111 !important;
-    background: #fff !important;
-    text-shadow: none !important;
-  }
-  body > .muted {
-    color: rgba(255,255,255,0.82) !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
+  #piece{ border-radius:10px; }
+  @media (max-width: 760px){
+    .wrap{ grid-template-columns: 1fr; padding:12px; }
+    .hd{ flex-wrap:wrap; }
   }
 </style>
 </head>
-<body>
-<div id="site-border-left"></div>
-<div id="site-border-right"></div>
-<div id="site-border-top"></div>
-<div id="site-border-bottom"></div>
-
-<header class="nefinia-game-menu">
-  <nav class="navbar navbar-fixed-top navbar-inverse">
-    <div class="container">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbar-collapse">
-        <ul class="nav navbar-nav ">
-          <li><a href="../index.html">01 : Home</a></li>
-          <li><a href="../science.html">02 : Research</a></li>
-          <li><a href="../outreach.html">03 : Outreach</a></li>
-          <li><a href="../ventures.html">04 : Ventures</a></li>
-          <li><a href="../games/index.html">05 : Games</a></li>
-          <li><a href="../art.html">06 : Art</a></li>
-          <li><a href="../about.html">07 : About</a></li>
-          <li><a href="../contact.html">08 : Contact</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-</header>
+<body class="cz-scope">
+<header class="cz-bar"><a class="cz-back" href="index.html">← All games</a><span class="cz-name">PolyPaint</span><a class="cz-home" href="../index.html">sofiagallego.com</a></header>
 <div class="wrap">
 
   <div class="card">
     <div class="hd">
       <div>
-        <div class="title">PolyClear Duel — Robust Pass End</div>
+        <div class="title">PolyPaint</div>
         <div class="sub">
           9×9 board with bold 3×3 mini-grids. Rotations allowed (R) + optional flip (F).
           You can overwrite enemy cells but cannot place on your own cells.
@@ -887,8 +779,8 @@
       const cells = currentCells();
       if (cells){
         const ok = legalPlacementForCells(hover.x, hover.y, cells, player);
-        const ghost = (player===P1) ? 'rgba(255,90,122,.35)' : 'rgba(77,211,255,.35)';
-        const bad = 'rgba(255,255,255,.10)';
+        const ghost = (player===P1) ? 'rgba(236,112,134,.45)' : 'rgba(95,184,224,.45)';
+        const bad = 'rgba(61,53,82,.14)';
         boardCtx.fillStyle = ok ? ghost : bad;
         for(const [dx,dy] of cells){
           const x = hover.x + dx, y = hover.y + dy;
@@ -899,7 +791,7 @@
     }
 
     // border
-    boardCtx.strokeStyle = 'rgba(255,255,255,.18)';
+    boardCtx.strokeStyle = '#9c8468';
     boardCtx.lineWidth = 2;
     boardCtx.strokeRect(ox + 1, oy + 1, SIZE*cell - 2, SIZE*cell - 2);
   }
@@ -932,7 +824,7 @@
       wrap.appendChild(cv);
 
       const ctx = cv.getContext('2d');
-      ctx.fillStyle = 'rgba(0,0,0,.12)';
+      ctx.fillStyle = '#f6e7cf';
       ctx.fillRect(0,0,cv.width,cv.height);
 
       const piece = PIECES[pool[i].pieceIndex];

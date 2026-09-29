@@ -22,180 +22,49 @@
   <script src="cards/feedback.js"></script>
   
 
-  <link href="../../main.3f6952e4.css" rel="stylesheet">
+  <link rel="stylesheet" href="../cozy/cozy.css">
 <style>
-    body {
-      font-family: system-ui, sans-serif;
-      background: #0f0f0f;
-      color: #eee;
-      margin: 0;
-      padding: 20px;
-    }
-
-    h1, h2 {
-      margin-top: 1.2em;
-    }
-
-    .section {
-      margin-bottom: 32px;
-    }
-
+    *, *::before, *::after { box-sizing: border-box; }
+    main.play { max-width: 1200px; margin: 0 auto; padding: 18px 20px 48px; line-height: 1.5; }
+    h1 { margin: 8px 0 4px; font-size: clamp(30px, 6vw, 44px); font-weight: 700; }
+    h2 { margin: 0 0 4px; font-size: 24px; }
+    .section { margin-bottom: 32px; background: var(--cz-card); border: 2px solid var(--cz-line); border-radius: var(--cz-radius); box-shadow: 0 5px 0 var(--cz-shadow); padding: 18px 18px 20px; }
     .card {
-      background: #1c1c1c;
-      border: 1px solid #333;
-      border-radius: 8px;
+      background: var(--cz-paper);
+      border: 2px solid var(--cz-line);
+      border-left: 6px solid var(--sec, var(--cz-sky));
+      border-radius: 14px;
       padding: 14px;
       margin: 8px 0;
+      font-size: 15px;
     }
-
-    .card strong {
-      display: block;
-      margin-bottom: 6px;
+    #situations .card { --sec: var(--cz-sky); }
+    #reactions .card { --sec: var(--cz-honey); }
+    #feedback .card { --sec: var(--cz-lilac); }
+    .card strong { display: block; margin-bottom: 6px; font-weight: 800; }
+    .card > strong:first-child { font-family: var(--cz-display); font-weight: 600; font-size: 18px; }
+    .card div + div { margin-top: 6px; }
+    .card div strong { display: inline; }
+    .section > button {
+      background: var(--cz-sky);
+      border-color: var(--cz-sky);
+      color: var(--cz-ink);
+      box-shadow: 0 3px 0 #3f86a8;
+      border-radius: 999px;
+      padding: 9px 18px;
+      font-size: 15px;
+      margin: 4px 0 8px;
     }
-
-    button {
-      background: #4cc9f0;
-      color: #000;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 16px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    button:hover {
-      opacity: 0.9;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 12px;
-    }
-
-    .muted {
-      opacity: 0.75;
-      font-size: 0.9em;
-    }
-</style>
-<style id="nefinia-game-shell">
-  body {
-    padding-top: 68px !important;
-    background-color: black;
-    background-image: url('../../assets/images/space.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-  .nefinia-game-menu .navbar {
-    z-index: 10000;
-  }
-
-  .nefinia-game-menu + #wrap,
-  .nefinia-game-menu + .wrap.fullscreen,
-  .nefinia-game-menu + canvas,
-  .nefinia-game-menu + .hud {
-    top: 68px !important;
-  }
-  .nefinia-game-menu + #wrap {
-    bottom: 0 !important;
-    height: auto !important;
-  }
-  #site-border-left,
-  #site-border-right,
-  #site-border-top,
-  #site-border-bottom {
-    pointer-events: none;
-    z-index: 9990;
-  }
-  @media (max-width: 768px) {
-    body { padding-top: 58px !important; }
-
-    .nefinia-game-menu + #wrap,
-    .nefinia-game-menu + .wrap.fullscreen,
-    .nefinia-game-menu + canvas,
-    .nefinia-game-menu + .hud {
-      top: 58px !important;
-    }
-  }
-
-  .nefinia-game-menu + .app h1,
-  .nefinia-game-menu + .wrap h1,
-  .nefinia-game-menu + main h1,
-  .nefinia-game-menu + .app .title,
-  .nefinia-game-menu + .wrap .title {
-    color: #fff !important;
-  }
-
-  body > h1,
-  body > h2,
-  body > h3,
-  .nefinia-game-menu ~ #hud,
-  .nefinia-game-menu ~ #hud .hudLabel,
-  .nefinia-game-menu ~ #hud .hudValue,
-  .nefinia-game-menu ~ .hud,
-  .nefinia-game-menu ~ .hud span,
-  .nefinia-game-menu ~ .stats,
-  .nefinia-game-menu ~ .stats span {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-
-  .nefinia-game-menu ~ #hud .label,
-  .nefinia-game-menu ~ #hud .value {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-  .nefinia-game-menu ~ #hud .p1 {
-    color: #8fc2ff !important;
-  }
-  .nefinia-game-menu ~ #hud .p2 {
-    color: #ff9aa8 !important;
-  }
-
-  .nefinia-game-menu ~ #hud select,
-  .nefinia-game-menu ~ .hud select {
-    color: #111 !important;
-    background: #fff !important;
-    text-shadow: none !important;
-  }
-  body > .muted {
-    color: rgba(255,255,255,0.82) !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
+    .section > button:hover { box-shadow: 0 4px 0 #3f86a8; }
+    .section > button:active { box-shadow: 0 1px 0 #3f86a8; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+    .muted { color: var(--cz-soft); font-size: 0.95em; margin: 0 0 10px; }
 </style>
 </head>
 
-<body>
-<div id="site-border-left"></div>
-<div id="site-border-right"></div>
-<div id="site-border-top"></div>
-<div id="site-border-bottom"></div>
-
-<header class="nefinia-game-menu">
-  <nav class="navbar navbar-fixed-top navbar-inverse">
-    <div class="container">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbar-collapse">
-        <ul class="nav navbar-nav ">
-          <li><a href="../../index.html">01 : Home</a></li>
-          <li><a href="../../science.html">02 : Research</a></li>
-          <li><a href="../../outreach.html">03 : Outreach</a></li>
-          <li><a href="../../ventures.html">04 : Ventures</a></li>
-          <li><a href="../../games/index.html">05 : Games</a></li>
-          <li><a href="../../art.html">06 : Art</a></li>
-          <li><a href="../../about.html">07 : About</a></li>
-          <li><a href="../../contact.html">08 : Contact</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-</header>
+<body class="cz-scope">
+<header class="cz-bar"><a class="cz-back" href="../index.html">← All games</a><span class="cz-name">Second Take</span><a class="cz-home" href="../../index.html">sofiagallego.com</a></header>
+<main class="play">
 <h1>Second Take</h1>
   <p class="muted">
     Pause. Try something else. See what changes.
@@ -271,5 +140,6 @@
   renderStaticDeck("feedback", window.DECKS.feedback || []);
 </script>
 
+</main>
 </body>
 </html>

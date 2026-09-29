@@ -15,168 +15,65 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Maxwell Demon – Window Gate Wall</title>
-  <link href="../main.3f6952e4.css" rel="stylesheet">
+  <link rel="stylesheet" href="cozy/cozy.css">
 <style>
-    :root { --bg:#0b0f14; --text:#e7eefc; --muted:#9bb0d1; --line:#223049; }
-    html, body { margin:0; background:var(--bg); color:var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; height:100%; }
+    :root { --bg:var(--cz-paper); --text:var(--cz-ink); --muted:var(--cz-soft); --line:var(--cz-line); }
+    *,*::before,*::after{ box-sizing:border-box; }
+    html, body { margin:0; background:var(--bg); color:var(--text); font-family: var(--cz-body); font-size:13px; line-height:1.55; height:100%; }
     .wrap { display:flex; flex-direction:column; min-height:100vh; min-height:100dvh; }
 
+    .intro{ max-width:980px; margin:0 auto; padding:18px 18px 6px; }
+    .intro h1{ font-family:var(--cz-display); font-weight:600; font-size:clamp(28px, 5vw, 44px); line-height:1.1; margin:6px 0 10px; color:var(--cz-ink); }
+    .intro p{ font-size:15px; line-height:1.6; color:var(--cz-soft); margin:0 0 10px; }
+
     .topbar{
-      display:flex; gap:10px; align-items:center; padding:10px 12px;
-      background:linear-gradient(180deg, rgba(17,24,36,.95), rgba(17,24,36,.7));
-      border-bottom:1px solid var(--line);
+      display:flex; gap:8px; align-items:center; padding:10px 12px;
+      margin:4px 12px 12px;
+      background:var(--cz-card);
+      border:2px solid var(--line);
+      border-radius:var(--cz-radius);
+      box-shadow:0 5px 0 var(--cz-shadow);
       flex-wrap: wrap;
       z-index: 2;
     }
     .btn{
-      background:#182235; color:var(--text); border:1px solid var(--line);
-      border-radius:12px; padding:10px 12px; font-weight:750;
+      background:var(--cz-card); color:var(--text); border:2px solid var(--line);
+      border-radius:12px; padding:9px 14px; font-weight:800; font-size:14px;
       touch-action: manipulation; user-select: none; cursor:pointer;
     }
+    #pauseBtn{ background:var(--cz-coral); border-color:var(--cz-coral); color:#fff; box-shadow:0 3px 0 var(--cz-coral-dk); }
     .btn:active{ transform: translateY(1px); }
     .pill{
-      padding:8px 10px; border:1px solid var(--line); border-radius:999px; color:var(--muted);
+      padding:7px 12px; border:2px solid var(--line); border-radius:999px; color:var(--cz-ink);
+      background:var(--cz-paper-2); font-weight:800;
       font-variant-numeric: tabular-nums; white-space: nowrap; user-select:none;
     }
     .spacer{ flex:1; }
 
     .sliderRow{
       display:flex; align-items:center; gap:8px;
-      padding:6px 10px; border:1px solid var(--line); border-radius:12px;
-      background:#0f1622; color: var(--muted);
+      padding:5px 10px; border:2px solid var(--line); border-radius:12px;
+      background:var(--cz-paper); color: var(--muted); font-weight:700;
       font-variant-numeric: tabular-nums;
       user-select:none;
     }
+    .sliderRow span:last-child{ color:var(--cz-ink); font-weight:800; }
     input[type="range"]{ width: 128px; }
     select{
-      background:#0f1622; color:var(--text);
-      border:1px solid var(--line);
+      background:#fff; color:var(--text);
+      border:2px solid var(--line);
       border-radius:10px;
-      padding:8px 10px;
+      padding:6px 10px;
       font-weight:750;
       user-select:none;
     }
 
-    .canvasWrap{ position:relative; flex:1; min-height:260px; }
+    .canvasWrap{ position:relative; flex:1; min-height:260px; margin:0 12px 12px; border:2px solid var(--line); border-radius:var(--cz-radius); overflow:hidden; box-shadow:0 5px 0 var(--cz-shadow); background:var(--cz-card); }
     canvas{ width:100%; height:100%; display:block; touch-action:none; }
 </style>
-<style id="nefinia-game-shell">
-  body {
-    padding-top: 68px !important;
-    background-color: black;
-    background-image: url('../assets/images/space.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-  .nefinia-game-menu .navbar {
-    z-index: 10000;
-  }
-
-  .nefinia-game-menu + #wrap,
-  .nefinia-game-menu + .wrap.fullscreen,
-  .nefinia-game-menu + canvas,
-  .nefinia-game-menu + .hud {
-    top: 68px !important;
-  }
-  .nefinia-game-menu + #wrap {
-    bottom: 0 !important;
-    height: auto !important;
-  }
-  #site-border-left,
-  #site-border-right,
-  #site-border-top,
-  #site-border-bottom {
-    pointer-events: none;
-    z-index: 9990;
-  }
-  @media (max-width: 768px) {
-    body { padding-top: 58px !important; }
-
-    .nefinia-game-menu + #wrap,
-    .nefinia-game-menu + .wrap.fullscreen,
-    .nefinia-game-menu + canvas,
-    .nefinia-game-menu + .hud {
-      top: 58px !important;
-    }
-  }
-
-  .nefinia-game-menu + .app h1,
-  .nefinia-game-menu + .wrap h1,
-  .nefinia-game-menu + main h1,
-  .nefinia-game-menu + .app .title,
-  .nefinia-game-menu + .wrap .title {
-    color: #fff !important;
-  }
-
-  body > h1,
-  body > h2,
-  body > h3,
-  .nefinia-game-menu ~ #hud,
-  .nefinia-game-menu ~ #hud .hudLabel,
-  .nefinia-game-menu ~ #hud .hudValue,
-  .nefinia-game-menu ~ .hud,
-  .nefinia-game-menu ~ .hud span,
-  .nefinia-game-menu ~ .stats,
-  .nefinia-game-menu ~ .stats span {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-
-  .nefinia-game-menu ~ #hud .label,
-  .nefinia-game-menu ~ #hud .value {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-  .nefinia-game-menu ~ #hud .p1 {
-    color: #8fc2ff !important;
-  }
-  .nefinia-game-menu ~ #hud .p2 {
-    color: #ff9aa8 !important;
-  }
-
-  .nefinia-game-menu ~ #hud select,
-  .nefinia-game-menu ~ .hud select {
-    color: #111 !important;
-    background: #fff !important;
-    text-shadow: none !important;
-  }
-  body > .muted {
-    color: rgba(255,255,255,0.82) !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-</style>
 </head>
-<body>
-<div id="site-border-left"></div>
-<div id="site-border-right"></div>
-<div id="site-border-top"></div>
-<div id="site-border-bottom"></div>
-
-<header class="nefinia-game-menu">
-  <nav class="navbar navbar-fixed-top navbar-inverse">
-    <div class="container">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbar-collapse">
-        <ul class="nav navbar-nav ">
-          <li><a href="../index.html">01 : Home</a></li>
-          <li><a href="../science.html">02 : Research</a></li>
-          <li><a href="../outreach.html">03 : Outreach</a></li>
-          <li><a href="../ventures.html">04 : Ventures</a></li>
-          <li><a href="../games/index.html">05 : Games</a></li>
-          <li><a href="../art.html">06 : Art</a></li>
-          <li><a href="../about.html">07 : About</a></li>
-          <li><a href="../contact.html">08 : Contact</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-</header>
+<body class="cz-scope">
+<header class="cz-bar"><a class="cz-back" href="index.html">← All games</a><span class="cz-name">Maxwell's Demon</span><a class="cz-home" href="../index.html">sofiagallego.com</a></header>
 <div class="wrap">
 
 <div class="intro">
@@ -366,7 +263,9 @@
   }
 
   function layoutCanvasWrap() {
-    const barH = topbar.getBoundingClientRect().height || 0;
+    const czBar = document.querySelector('.cz-bar');
+    const czH = czBar ? czBar.getBoundingClientRect().height : 0;
+    const barH = (topbar.getBoundingClientRect().height || 0) + czH + 32; // cozy bar + panel margins
     const avail = Math.max(260, Math.floor(window.innerHeight - barH));
     canvasWrap.style.height = avail + "px";
   }
@@ -651,13 +550,13 @@
 
   // ========= Render =========
   function draw(frac, nowMs) {
-    ctx.fillStyle = "#070b10";
+    ctx.fillStyle = "#fffaf1";
     ctx.fillRect(0, 0, world.w, world.h);
 
     // subtle region tint
-    ctx.fillStyle = "rgba(255, 90, 90, 0.030)";
+    ctx.fillStyle = "rgba(233, 128, 110, 0.10)";
     ctx.fillRect(0, 0, world.midX, world.h);
-    ctx.fillStyle = "rgba(90, 150, 255, 0.030)";
+    ctx.fillStyle = "rgba(120, 180, 230, 0.16)";
     ctx.fillRect(world.midX, 0, world.w - world.midX, world.h);
 
     // wall + open window highlight
@@ -668,7 +567,7 @@
       const open = sliceIsOpen(i, nowMs);
 
       // base wall
-      ctx.strokeStyle = open ? "rgba(183,255,207,0.18)" : "#223049";
+      ctx.strokeStyle = open ? "rgba(95,158,120,0.25)" : "#3d3552";
       ctx.lineWidth = world.wallThickness;
       ctx.beginPath();
       ctx.moveTo(x, y0);
@@ -677,8 +576,8 @@
 
       // halo
       ctx.save();
-      ctx.globalAlpha = open ? 0.26 : 0.10;
-      ctx.strokeStyle = open ? "#b7ffcf" : "#ffd6b7";
+      ctx.globalAlpha = open ? 0.6 : 0.22;
+      ctx.strokeStyle = open ? "#5f9e78" : "#e2b56a";
       ctx.lineWidth = open ? 12 : 8;
       ctx.beginPath();
       ctx.moveTo(x, y0 + 3);
@@ -691,9 +590,9 @@
     for (const p of particles) {
       ctx.beginPath();
       ctx.arc(p.x, p.y, cfg.radius, 0, Math.PI * 2);
-      ctx.fillStyle = (p.color === 0) ? "#ff4d6d" : "#4d9bff";
+      ctx.fillStyle = (p.color === 0) ? "#e05a55" : "#3f86d0";
       ctx.fill();
-      ctx.strokeStyle = "rgba(255,255,255,0.12)";
+      ctx.strokeStyle = "rgba(61,53,82,0.35)";
       ctx.lineWidth = 1;
       ctx.stroke();
     }
@@ -702,10 +601,10 @@
 
     if (paused) {
       ctx.save();
-      ctx.fillStyle = "rgba(7,11,16,0.35)";
+      ctx.fillStyle = "rgba(251,243,228,0.55)";
       ctx.fillRect(0, 0, world.w, world.h);
-      ctx.fillStyle = "rgba(231,238,252,0.85)";
-      ctx.font = "800 18px system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+      ctx.fillStyle = "#3d3552";
+      ctx.font = "600 20px Fredoka, Nunito, system-ui, sans-serif";
       ctx.fillText("Paused", 14, 28);
       ctx.restore();
     }

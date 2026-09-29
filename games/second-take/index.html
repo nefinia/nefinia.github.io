@@ -13,161 +13,53 @@
   <meta charset="UTF-8" />
   <title>SECOND TAKE – Rules</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link href="../../main.3f6952e4.css" rel="stylesheet">
+  <link rel="stylesheet" href="../cozy/cozy.css">
 <style>
-    body {
-      font-family: system-ui, sans-serif;
-      background: #111;
-      color: #eee;
-      max-width: 800px;
-      margin: auto;
-      padding: 40px 20px;
-      line-height: 1.5;
-    }
-    h1, h2 {
-      margin-top: 1.5em;
-    }
+    :root { --acc: var(--cz-sky); --acc-dk: #3f86a8; --acc-text: var(--cz-ink); }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { line-height: 1.55; font-size: 16px; }
+    main.rules { max-width: 800px; margin: 0 auto; padding: 28px 20px 56px; }
+    main.rules h1 { font-size: clamp(34px, 7vw, 52px); font-weight: 700; margin: 0.3em 0 0.2em; line-height: 1.1; }
+    main.rules h1 .accent { color: var(--acc-dk); }
+    main.rules > p.lead { font-size: 18px; color: var(--cz-soft); margin: 0 0 8px; }
+    h2 { font-size: 22px; margin: 0 0 0.5em; }
     .box {
-      background: #1c1c1c;
-      border: 1px solid #333;
-      border-radius: 8px;
-      padding: 20px;
-      margin: 20px 0;
+      background: var(--cz-card);
+      border: 2px solid var(--cz-line);
+      border-radius: var(--cz-radius);
+      box-shadow: 0 5px 0 var(--cz-shadow);
+      padding: 20px 22px;
+      margin: 22px 0;
     }
+    .box p { margin: 0 0 0.8em; }
+    .box p:last-child { margin-bottom: 0; }
+    ul, ol { padding-left: 22px; margin: 0; }
+    li { margin: 3px 0; }
+    li::marker { color: var(--acc-dk); font-weight: 800; }
+    strong { color: var(--cz-ink); font-weight: 800; }
     a.button {
       display: inline-block;
-      margin-top: 20px;
-      padding: 12px 20px;
-      background: #4cc9f0;
-      color: #000;
+      margin-top: 12px;
+      padding: 12px 22px;
+      background: var(--acc);
+      color: var(--acc-text);
       text-decoration: none;
-      border-radius: 6px;
-      font-weight: 600;
+      border-radius: 999px;
+      font-weight: 800;
+      font-family: var(--cz-body);
+      box-shadow: 0 4px 0 var(--acc-dk);
+      transition: transform .12s, box-shadow .12s;
     }
-    ul, ol {
-      padding-left: 20px;
-    }
-</style>
-<style id="nefinia-game-shell">
-  body {
-    padding-top: 68px !important;
-    background-color: black;
-    background-image: url('../../assets/images/space.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-  .nefinia-game-menu .navbar {
-    z-index: 10000;
-  }
-
-  .nefinia-game-menu + #wrap,
-  .nefinia-game-menu + .wrap.fullscreen,
-  .nefinia-game-menu + canvas,
-  .nefinia-game-menu + .hud {
-    top: 68px !important;
-  }
-  .nefinia-game-menu + #wrap {
-    bottom: 0 !important;
-    height: auto !important;
-  }
-  #site-border-left,
-  #site-border-right,
-  #site-border-top,
-  #site-border-bottom {
-    pointer-events: none;
-    z-index: 9990;
-  }
-  @media (max-width: 768px) {
-    body { padding-top: 58px !important; }
-
-    .nefinia-game-menu + #wrap,
-    .nefinia-game-menu + .wrap.fullscreen,
-    .nefinia-game-menu + canvas,
-    .nefinia-game-menu + .hud {
-      top: 58px !important;
-    }
-  }
-
-  .nefinia-game-menu + .app h1,
-  .nefinia-game-menu + .wrap h1,
-  .nefinia-game-menu + main h1,
-  .nefinia-game-menu + .app .title,
-  .nefinia-game-menu + .wrap .title {
-    color: #fff !important;
-  }
-
-  body > h1,
-  body > h2,
-  body > h3,
-  .nefinia-game-menu ~ #hud,
-  .nefinia-game-menu ~ #hud .hudLabel,
-  .nefinia-game-menu ~ #hud .hudValue,
-  .nefinia-game-menu ~ .hud,
-  .nefinia-game-menu ~ .hud span,
-  .nefinia-game-menu ~ .stats,
-  .nefinia-game-menu ~ .stats span {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-
-  .nefinia-game-menu ~ #hud .label,
-  .nefinia-game-menu ~ #hud .value {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-  .nefinia-game-menu ~ #hud .p1 {
-    color: #8fc2ff !important;
-  }
-  .nefinia-game-menu ~ #hud .p2 {
-    color: #ff9aa8 !important;
-  }
-
-  .nefinia-game-menu ~ #hud select,
-  .nefinia-game-menu ~ .hud select {
-    color: #111 !important;
-    background: #fff !important;
-    text-shadow: none !important;
-  }
-  body > .muted {
-    color: rgba(255,255,255,0.82) !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
+    a.button:hover { transform: translateY(-1px); box-shadow: 0 5px 0 var(--acc-dk); }
+    a.button:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--acc-dk); }
 </style>
 </head>
 
-<body>
-<div id="site-border-left"></div>
-<div id="site-border-right"></div>
-<div id="site-border-top"></div>
-<div id="site-border-bottom"></div>
-
-<header class="nefinia-game-menu">
-  <nav class="navbar navbar-fixed-top navbar-inverse">
-    <div class="container">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbar-collapse">
-        <ul class="nav navbar-nav ">
-          <li><a href="../../index.html">01 : Home</a></li>
-          <li><a href="../../science.html">02 : Research</a></li>
-          <li><a href="../../outreach.html">03 : Outreach</a></li>
-          <li><a href="../../ventures.html">04 : Ventures</a></li>
-          <li><a href="../../games/index.html">05 : Games</a></li>
-          <li><a href="../../art.html">06 : Art</a></li>
-          <li><a href="../../about.html">07 : About</a></li>
-          <li><a href="../../contact.html">08 : Contact</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-</header>
+<body class="cz-scope">
+<header class="cz-bar"><a class="cz-back" href="../index.html">← All games</a><span class="cz-name">Second Take</span><a class="cz-home" href="../../index.html">sofiagallego.com</a></header>
+<main class="rules">
 <h1>SECOND TAKE</h1>
-  <p>
+  <p class="lead">
     A game for replaying difficult moments  
     and exploring how situations might unfold differently.
   </p>
@@ -260,5 +152,6 @@
     </a>
   </div>
 
+</main>
 </body>
 </html>

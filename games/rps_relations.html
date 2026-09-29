@@ -14,253 +14,151 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>RPS Relations — Unique Grid Logic</title>
-<link href="../main.3f6952e4.css" rel="stylesheet">
+<link rel="stylesheet" href="cozy/cozy.css">
 <style>
   :root{
-    --bg:#0b0f1c;
-    --panel:rgba(12,18,36,.9);
-    --ink:#eef2ff;
-    --muted:#9aa7cf;
-    --accent:#7aa2ff;
-    --ok:#7cff9b;
-    --bad:#ff6b6b;
-    --grid:#202b54;
-    --edge:rgba(210,220,255,.72);
-    --edge-glow: rgba(122,162,255,.25);
+    --bg:var(--cz-paper);
+    --panel:var(--cz-card);
+    --ink:var(--cz-ink);
+    --muted:var(--cz-soft);
+    --accent:var(--cz-coral);
+    --ok:#3f8a5c;
+    --bad:#c0504a;
+    --grid:#dcc6a0;
+    --edge:#4a4163;
+    --edge-glow: rgba(233,128,110,.18);
   }
-  html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;overflow:hidden;}
-  #wrap{position:fixed;inset:0;display:grid;grid-template-rows:auto 1fr;}
+  *,*::before,*::after{box-sizing:border-box;}
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:var(--cz-body);overflow:hidden;}
+  body{display:flex;flex-direction:column;}
+  .cz-bar{flex:0 0 auto;}
+  #wrap{position:relative;flex:1 1 auto;min-height:0;display:grid;grid-template-rows:auto 1fr;}
   #top{
-    padding:10px 10px 8px;
+    padding:10px 12px 10px;
     display:flex;gap:10px;align-items:center;flex-wrap:wrap;
-    background: linear-gradient(180deg, rgba(14,22,46,0.98), rgba(14,22,46,0.72));
-    border-bottom:1px solid rgba(255,255,255,0.10);
-    backdrop-filter: blur(10px);
+    background: var(--cz-paper-2);
+    border-bottom:2px solid var(--cz-line);
   }
   button, select{
-    background:rgba(255,255,255,0.07);
+    font-family:var(--cz-body);
+    font-weight:800;
+    background:var(--cz-card);
     color:var(--ink);
-    border:1px solid rgba(255,255,255,0.14);
+    border:2px solid var(--cz-line);
     border-radius:12px;
-    padding:10px 12px;
+    padding:8px 12px;
     font-size:14px;
     cursor:pointer;
     user-select:none;
+    box-shadow:0 3px 0 var(--cz-shadow);
     -webkit-tap-highlight-color: transparent;
   }
   select, option{
-    background:#0f162e;
+    background:#fff;
     color:var(--ink);
   }
-  button:active{transform:translateY(1px);}
-  button.primary{border-color:rgba(122,162,255,0.65);}
+  button:active{transform:translateY(2px);box-shadow:0 1px 0 var(--cz-shadow);}
+  button.primary{background:var(--cz-coral);border-color:var(--cz-coral);color:#fff;box-shadow:0 3px 0 var(--cz-coral-dk);}
+  button.primary:active{box-shadow:0 1px 0 var(--cz-coral-dk);}
   .pill{
-    padding:8px 12px;border-radius:999px;
-    background:rgba(255,255,255,0.06);
-    border:1px solid rgba(255,255,255,0.10);
-    color:rgba(220,230,255,0.92);
+    padding:7px 12px;border-radius:999px;
+    background:var(--cz-card);
+    border:2px solid var(--cz-line);
+    color:var(--muted);
     font-size:13px;
+    font-weight:700;
     white-space:nowrap;
   }
-  .pill strong{color:var(--ink);}
-  .pill.ok{border-color:rgba(124,255,155,0.6);}
-  .pill.bad{border-color:rgba(255,107,107,0.6);}
+  .pill strong{color:var(--ink);font-weight:800;}
+  .pill.ok{border-color:var(--cz-sage);}
+  .pill.bad{border-color:var(--cz-coral);}
   .pill.ok{
-    background: rgba(19, 34, 24, 0.6);
-    color: #d9ffe6;
+    background: #e6f3ea;
+    color: #2f6b47;
   }
-  #board{position:relative;overflow:hidden;}
-  #c{width:100%;height:100%;display:block;touch-action:none;}
+  #board{position:relative;overflow:hidden;display:flex;flex-direction:column;}
+  #c{width:100%;flex:1 1 auto;min-height:0;height:auto;display:block;touch-action:none;}
   #hintBar{
     width:100%;
+    flex:0 0 auto;
     display:flex;
     justify-content:center;
-    padding:8px 10px 10px;
+    padding:10px 10px 8px;
     gap:10px;
-    background:rgba(0,0,0,0.18);
-    border-bottom:1px solid rgba(255,255,255,0.06);
   }
   #hintChip{
     display:flex;align-items:center;gap:10px;
-    background:rgba(0,0,0,0.28);
-    border:1px solid rgba(255,255,255,0.12);
-    border-radius:999px;
-    padding:8px 12px;
+    background:var(--cz-card);
+    border:2px solid var(--cz-line);
+    box-shadow:0 4px 0 var(--cz-shadow);
+    border-radius:18px;
+    padding:8px 14px;
     font-size:13px;
-    color:rgba(220,230,255,0.92);
+    line-height:1.45;
+    color:var(--ink);
     max-width:min(980px, 96vw);
   }
   #hintChip .x{
-    border:1px solid rgba(255,255,255,0.14);
-    background:rgba(255,255,255,0.06);
+    border:2px solid var(--cz-line);
+    background:var(--cz-paper-2);
     padding:2px 8px;
     border-radius:999px;
     cursor:pointer;
     user-select:none;
+    font-weight:800;
   }
   #win{
     position:absolute;
     left: 50%;
     bottom: 18px;
     transform: translateX(-50%);
-    padding:10px 16px;
+    padding:10px 18px;
     border-radius:999px;
-    background: rgba(19, 34, 24, 0.9);
-    border: 1px solid rgba(124,255,155,0.6);
-    color: #d9ffe6;
-    font-weight: 700;
-    font-size: 14px;
+    background: var(--cz-sage);
+    border: 2px solid var(--cz-sage-dk);
+    color: #fff;
+    font-family: var(--cz-display);
+    font-weight: 600;
+    font-size: 16px;
     letter-spacing: .02em;
-    box-shadow: 0 16px 40px rgba(0,0,0,.35);
+    text-shadow: 0 1px 0 rgba(47,107,71,.5);
+    box-shadow: 0 5px 0 var(--cz-sage-dk);
     display:none;
     pointer-events:none;
     z-index: 5;
   }
   #palette{
     display:flex;
-    gap:10px;
+    gap:8px;
     align-items:center;
-    padding:6px 10px;
+    padding:5px 8px;
     border-radius:999px;
-    background:rgba(8,12,24,0.75);
-    border:1px solid rgba(122,162,255,0.35);
+    background:var(--cz-card);
+    border:2px solid var(--cz-line);
   }
   .token{
-    width:32px;height:32px;
+    width:34px;height:34px;
     display:flex;align-items:center;justify-content:center;
     border-radius:10px;
-    border:1px solid rgba(255,255,255,0.22);
+    border:2px solid var(--cz-line);
     cursor:pointer;
     font-size:18px;
-    background:rgba(9,14,30,.65);
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+    background:#fff;
+    box-shadow: 0 2px 0 var(--cz-shadow);
   }
   .token.active{
-    border-color: rgba(124,255,155,0.9);
-    box-shadow: 0 0 0 2px rgba(124,255,155,0.35), 0 6px 16px rgba(0,0,0,.35);
+    border-color: var(--cz-coral);
+    background:#fdeae4;
+    box-shadow: 0 0 0 2px rgba(233,128,110,.35), 0 2px 0 var(--cz-coral-dk);
   }
 @media (max-width: 520px){
-    button, select{font-size:13px;padding:9px 10px;border-radius:11px;}
-    .pill{font-size:12px;padding:7px 10px;}
-  }
-</style>
-<style id="nefinia-game-shell">
-  body {
-    padding-top: 68px !important;
-    background-color: black;
-    background-image: url('../assets/images/space.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-  .nefinia-game-menu .navbar {
-    z-index: 10000;
-  }
-
-  .nefinia-game-menu + #wrap,
-  .nefinia-game-menu + .wrap.fullscreen,
-  .nefinia-game-menu + canvas,
-  .nefinia-game-menu + .hud {
-    top: 68px !important;
-  }
-  .nefinia-game-menu + #wrap {
-    bottom: 0 !important;
-    height: auto !important;
-  }
-  #site-border-left,
-  #site-border-right,
-  #site-border-top,
-  #site-border-bottom {
-    pointer-events: none;
-    z-index: 9990;
-  }
-  @media (max-width: 768px) {
-    body { padding-top: 58px !important; }
-
-    .nefinia-game-menu + #wrap,
-    .nefinia-game-menu + .wrap.fullscreen,
-    .nefinia-game-menu + canvas,
-    .nefinia-game-menu + .hud {
-      top: 58px !important;
-    }
-  }
-
-  .nefinia-game-menu + .app h1,
-  .nefinia-game-menu + .wrap h1,
-  .nefinia-game-menu + main h1,
-  .nefinia-game-menu + .app .title,
-  .nefinia-game-menu + .wrap .title {
-    color: #fff !important;
-  }
-
-  body > h1,
-  body > h2,
-  body > h3,
-  .nefinia-game-menu ~ #hud,
-  .nefinia-game-menu ~ #hud .hudLabel,
-  .nefinia-game-menu ~ #hud .hudValue,
-  .nefinia-game-menu ~ .hud,
-  .nefinia-game-menu ~ .hud span,
-  .nefinia-game-menu ~ .stats,
-  .nefinia-game-menu ~ .stats span {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-
-  .nefinia-game-menu ~ #hud .label,
-  .nefinia-game-menu ~ #hud .value {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-  .nefinia-game-menu ~ #hud .p1 {
-    color: #8fc2ff !important;
-  }
-  .nefinia-game-menu ~ #hud .p2 {
-    color: #ff9aa8 !important;
-  }
-
-  .nefinia-game-menu ~ #hud select,
-  .nefinia-game-menu ~ .hud select {
-    color: #111 !important;
-    background: #fff !important;
-    text-shadow: none !important;
-  }
-  body > .muted {
-    color: rgba(255,255,255,0.82) !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
+    button, select{font-size:13px;padding:8px 10px;border-radius:11px;}
+    .pill{font-size:12px;padding:6px 10px;}
   }
 </style>
 </head>
-<body>
-<div id="site-border-left"></div>
-<div id="site-border-right"></div>
-<div id="site-border-top"></div>
-<div id="site-border-bottom"></div>
-
-<header class="nefinia-game-menu">
-  <nav class="navbar navbar-fixed-top navbar-inverse">
-    <div class="container">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbar-collapse">
-        <ul class="nav navbar-nav ">
-          <li><a href="../index.html">01 : Home</a></li>
-          <li><a href="../science.html">02 : Research</a></li>
-          <li><a href="../outreach.html">03 : Outreach</a></li>
-          <li><a href="../ventures.html">04 : Ventures</a></li>
-          <li><a href="../games/index.html">05 : Games</a></li>
-          <li><a href="../art.html">06 : Art</a></li>
-          <li><a href="../about.html">07 : About</a></li>
-          <li><a href="../contact.html">08 : Contact</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-</header>
+<body class="cz-scope">
+<header class="cz-bar"><a class="cz-back" href="index.html">← All games</a><span class="cz-name">RPS Relations</span><a class="cz-home" href="../index.html">sofiagallego.com</a></header>
 <div id="wrap">
     <div id="top">
       <select id="sizeSel">
@@ -679,7 +577,7 @@ function draw(){
   const w = canvas.width / (window.devicePixelRatio||1);
   const h = canvas.height / (window.devicePixelRatio||1);
   ctx.clearRect(0,0,w,h);
-  ctx.fillStyle = "#0b1020";
+  ctx.fillStyle = "#fbf3e4";
   ctx.fillRect(0,0,w,h);
 
   const legendH = 22;
@@ -690,6 +588,8 @@ function draw(){
   const cell = gridSize / N;
 
   // grid
+  ctx.fillStyle = "#fffaf1";
+  ctx.fillRect(offsetX, offsetY, gridSize, gridSize);
   ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue("--grid").trim();
   ctx.lineWidth = 1;
   for(let i=0;i<=N;i++){
@@ -700,7 +600,7 @@ function draw(){
   }
 
   // clues
-  ctx.font = `${Math.max(10, cell*0.22)}px system-ui`;
+  ctx.font = `700 ${Math.max(10, cell*0.22)}px Nunito, system-ui`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   const edgeColor = getComputedStyle(document.documentElement).getPropertyValue("--edge").trim();
@@ -753,7 +653,7 @@ function draw(){
       const winIsA = (e.rel === ">") ? true : (e.rel === "<") ? false : null;
       const wA = winIsA === null ? null : (winIsA ? "W" : "L");
       const wB = winIsA === null ? null : (winIsA ? "L" : "W");
-      ctx.fillStyle = "rgba(255,255,255,0.7)";
+      ctx.fillStyle = "rgba(61,53,82,0.75)";
       ctx.font = `${Math.max(10, cell*0.22)}px system-ui`;
       if(wA !== null){
         ctx.fillText(wA, axc, ayc);
@@ -763,7 +663,7 @@ function draw(){
   });
 
   if(debug && allFilled() && !checkSolved()){
-    ctx.strokeStyle = "rgba(255,107,107,0.85)";
+    ctx.strokeStyle = "rgba(200,90,72,0.85)";
     ctx.lineWidth = Math.max(2, cell*0.08);
     edges.forEach((e, ei) => {
       if(!shownEdges[ei]) return;
@@ -797,10 +697,14 @@ function draw(){
       ctx.font = `${Math.max(14, cell*0.30)}px "Apple Color Emoji", "Segoe UI Emoji", system-ui`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillStyle = "#eef2ff";
+      if(!revealed && givens[i] !== -1){
+        ctx.fillStyle = "#f6e7cf";
+        ctx.fillRect(cx-r-2, cy-r-2, r*2+4, r*2+4);
+      }
+      ctx.fillStyle = "#3d3552";
       ctx.fillText(icon, cx, cy);
       if(!revealed && givens[i] !== -1){
-        ctx.strokeStyle = "rgba(255,255,255,0.65)";
+        ctx.strokeStyle = "rgba(109,100,128,0.75)";
         ctx.lineWidth = 1.5;
         ctx.strokeRect(cx-r-2, cy-r-2, r*2+4, r*2+4);
       }
@@ -808,13 +712,13 @@ function draw(){
   }
 
   // legend
-  ctx.fillStyle = "rgba(255,255,255,.5)";
-  ctx.font = `${Math.max(11, cell*0.22)}px system-ui`;
+  ctx.fillStyle = "#6d6480";
+  ctx.font = `700 ${Math.max(11, cell*0.22)}px Nunito, system-ui`;
   ctx.textAlign = "left";
   ctx.fillText("🪨 Rock  📄 Paper  ✂️ Scissors  🦎 Lizard  🖖 Spock", 12, h-10);
 
   if(checkSolved()){
-    ctx.strokeStyle = "rgba(124,255,155,0.8)";
+    ctx.strokeStyle = "#5f9e78";
     ctx.lineWidth = 3;
     ctx.strokeRect(offsetX-4, offsetY-4, gridSize+8, gridSize+8);
   }

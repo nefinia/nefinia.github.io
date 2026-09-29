@@ -13,135 +13,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Spaghettify: Drift</title>
-<link href="../main.3f6952e4.css" rel="stylesheet">
+<link rel="stylesheet" href="cozy/cozy.css">
 <style>
-  :root{--bg:#05070f;--panel:rgba(7,12,26,0.78);--border:rgba(255,255,255,0.16);--text:#eaf0ff;--muted:#aab6d8;--accent:#7fb1ff;}
-  body{margin:0;background:radial-gradient(1200px 700px at 20% 0%, #101a3a, var(--bg));color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto;overflow:hidden;}
-  canvas{display:block}
-  .hud{position:fixed;top:12px;left:12px;font-size:14px;background:var(--panel);padding:12px 16px;border-radius:14px;border:1px solid var(--border);line-height:1.5;backdrop-filter: blur(6px);}
-  .hud .help{color:var(--muted);font-size:12px;margin:6px 0 2px;}
-  .hud button{margin-top:6px;margin-right:4px;background:#182046;color:var(--text);border:1px solid #2a3a6a;border-radius:8px;padding:6px 10px;font-weight:600;cursor:pointer;}
-  .hud button:hover{border-color:var(--accent);}  
-  .hud select{margin-left:4px;background:#182046;color:var(--text);border:1px solid #2a3a6a;border-radius:8px;padding:4px 8px;font-weight:600;}
+  :root{--bg:var(--cz-night);--panel:rgba(255,250,241,0.94);--border:var(--cz-line);--text:var(--cz-ink);--muted:var(--cz-soft);--accent:var(--cz-coral);--barh:46px;}
+  *,*::before,*::after{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{margin:0;background:var(--cz-paper);color:var(--text);font-family:var(--cz-body);overflow:hidden;}
+  canvas{display:block;position:fixed;left:0;top:var(--barh);width:100vw;height:calc(100vh - var(--barh));background:var(--cz-night);}
+  .hud{position:fixed;top:calc(var(--barh) + 12px);left:12px;z-index:5;font-size:14px;background:var(--panel);padding:12px 16px;border-radius:var(--cz-radius);border:2px solid var(--border);box-shadow:0 5px 0 rgba(0,0,0,0.28);line-height:1.5;color:var(--text);max-width:calc(100vw - 24px);}
+  .hud b{font-weight:800;}
+  .hud .help{color:var(--muted);font-size:12px;font-weight:700;margin:6px 0 2px;}
+  .hud button{margin-top:6px;margin-right:4px;}
+  .hud #pause{background:var(--cz-coral);border-color:var(--cz-coral);color:#fff;box-shadow:0 3px 0 var(--cz-coral-dk);}
+  .hud select{margin-left:4px;}
   .hud .row{margin-top:4px;}
 </style>
-<style id="nefinia-game-shell">
-  body {
-    padding-top: 68px !important;
-    background-color: black;
-    background-image: url('../assets/images/space.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-  .nefinia-game-menu .navbar {
-    z-index: 10000;
-  }
-
-  .nefinia-game-menu + #wrap,
-  .nefinia-game-menu + .wrap.fullscreen,
-  .nefinia-game-menu + canvas,
-  .nefinia-game-menu + .hud {
-    top: 68px !important;
-  }
-  .nefinia-game-menu + #wrap {
-    bottom: 0 !important;
-    height: auto !important;
-  }
-  #site-border-left,
-  #site-border-right,
-  #site-border-top,
-  #site-border-bottom {
-    pointer-events: none;
-    z-index: 9990;
-  }
-  @media (max-width: 768px) {
-    body { padding-top: 58px !important; }
-
-    .nefinia-game-menu + #wrap,
-    .nefinia-game-menu + .wrap.fullscreen,
-    .nefinia-game-menu + canvas,
-    .nefinia-game-menu + .hud {
-      top: 58px !important;
-    }
-  }
-
-  .nefinia-game-menu + .app h1,
-  .nefinia-game-menu + .wrap h1,
-  .nefinia-game-menu + main h1,
-  .nefinia-game-menu + .app .title,
-  .nefinia-game-menu + .wrap .title {
-    color: #fff !important;
-  }
-
-  body > h1,
-  body > h2,
-  body > h3,
-  .nefinia-game-menu ~ #hud,
-  .nefinia-game-menu ~ #hud .hudLabel,
-  .nefinia-game-menu ~ #hud .hudValue,
-  .nefinia-game-menu ~ .hud,
-  .nefinia-game-menu ~ .hud span,
-  .nefinia-game-menu ~ .stats,
-  .nefinia-game-menu ~ .stats span {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-
-  .nefinia-game-menu ~ #hud .label,
-  .nefinia-game-menu ~ #hud .value {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-  .nefinia-game-menu ~ #hud .p1 {
-    color: #8fc2ff !important;
-  }
-  .nefinia-game-menu ~ #hud .p2 {
-    color: #ff9aa8 !important;
-  }
-
-  .nefinia-game-menu ~ #hud select,
-  .nefinia-game-menu ~ .hud select {
-    color: #111 !important;
-    background: #fff !important;
-    text-shadow: none !important;
-  }
-  body > .muted {
-    color: rgba(255,255,255,0.82) !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-</style>
 </head>
-<body>
-<div id="site-border-left"></div>
-<div id="site-border-right"></div>
-<div id="site-border-top"></div>
-<div id="site-border-bottom"></div>
-
-<header class="nefinia-game-menu">
-  <nav class="navbar navbar-fixed-top navbar-inverse">
-    <div class="container">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbar-collapse">
-        <ul class="nav navbar-nav ">
-          <li><a href="../index.html">01 : Home</a></li>
-          <li><a href="../science.html">02 : Research</a></li>
-          <li><a href="../outreach.html">03 : Outreach</a></li>
-          <li><a href="../ventures.html">04 : Ventures</a></li>
-          <li><a href="../games/index.html">05 : Games</a></li>
-          <li><a href="../art.html">06 : Art</a></li>
-          <li><a href="../about.html">07 : About</a></li>
-          <li><a href="../contact.html">08 : Contact</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-</header>
+<body class="cz-scope">
+<header class="cz-bar"><a class="cz-back" href="index.html">← All games</a><span class="cz-name">Spaghettify: Drift</span><a class="cz-home" href="../index.html">sofiagallego.com</a></header>
 <canvas id="c"></canvas>
 <div class="hud">
   Time: <b id="time">0.0</b>s<br>
@@ -169,8 +58,12 @@ const ctx = canvas.getContext("2d");
 const dpr = Math.min(2, devicePixelRatio||1);
 let W=0,H=0;
 function resize(){
+  // Playfield sits below the cozy top bar.
+  const bar = document.querySelector(".cz-bar");
+  const barH = bar ? Math.round(bar.getBoundingClientRect().height) : 0;
+  document.documentElement.style.setProperty("--barh", barH + "px");
   canvas.width = innerWidth*dpr;
-  canvas.height = innerHeight*dpr;
+  canvas.height = Math.max(1, innerHeight - barH)*dpr;
   W=canvas.width; H=canvas.height;
 }
 addEventListener("resize", resize);
@@ -1475,7 +1368,7 @@ function sampleWarpedLine(vertical, fixed, step){
 }
 
 function drawGrid(){
-  ctx.strokeStyle = "rgba(190,220,255,0.8)";
+  ctx.strokeStyle = "rgba(205,192,240,0.55)";
   ctx.lineWidth = 1.0*dpr;
   ctx.lineJoin = "round";
   ctx.lineCap = "round";
@@ -1590,7 +1483,7 @@ function drawFieldEvents(){
 
 function draw(){
   ctx.clearRect(0,0,W,H);
-  ctx.fillStyle = "#05060f";
+  ctx.fillStyle = "#2f2a4a";
   ctx.fillRect(0,0,W,H);
   const rig = player.rig;
 
@@ -1599,7 +1492,7 @@ function draw(){
 
   stars.forEach(s=>{
     ctx.globalAlpha = s.a;
-    ctx.fillStyle = "rgba(210,225,255,1)";
+    ctx.fillStyle = "rgba(255,244,214,1)";
     ctx.beginPath(); ctx.arc(s.x,s.y,s.s*dpr,0,Math.PI*2); ctx.fill();
   });
   ctx.globalAlpha = 1;
@@ -1609,23 +1502,23 @@ function draw(){
     const orbitR = h.orbit || h.r*3.0;
     const isOrbitTarget = rig && rig.orbitHole === h;
     const grad = ctx.createRadialGradient(h.x,h.y,h.r*0.1,h.x,h.y,h.r*5.0);
-    grad.addColorStop(0,"#000");
-    grad.addColorStop(0.5,"#000");
-    grad.addColorStop(0.75,"rgba(120,170,255,0.22)");
-    grad.addColorStop(1,"rgba(120,170,255,0)");
+    grad.addColorStop(0,"#15111f");
+    grad.addColorStop(0.5,"#15111f");
+    grad.addColorStop(0.75,"rgba(185,163,222,0.30)");
+    grad.addColorStop(1,"rgba(185,163,222,0)");
     ctx.fillStyle = grad;
     ctx.beginPath(); ctx.arc(h.x,h.y,h.r*5.0,0,Math.PI*2); ctx.fill();
 
-    ctx.strokeStyle = "rgba(255,198,132,0.28)";
+    ctx.strokeStyle = "rgba(244,200,106,0.40)";
     ctx.lineWidth = 1.0*dpr;
     ctx.beginPath(); ctx.arc(h.x,h.y,horizon,0,Math.PI*2); ctx.stroke();
 
-    ctx.strokeStyle = "rgba(124,255,198,0.28)";
+    ctx.strokeStyle = "rgba(143,220,170,0.38)";
     ctx.lineWidth = 1.0*dpr;
     ctx.beginPath(); ctx.arc(h.x,h.y,h.r*2.35,0,Math.PI*2); ctx.stroke();
 
     ctx.setLineDash([4*dpr, 4*dpr]);
-    ctx.strokeStyle = isOrbitTarget ? "rgba(255,130,96,0.95)" : "rgba(255,130,96,0.35)";
+    ctx.strokeStyle = isOrbitTarget ? "rgba(240,134,112,0.95)" : "rgba(240,134,112,0.45)";
     ctx.lineWidth = isOrbitTarget ? 2.1*dpr : 1.1*dpr;
     ctx.beginPath(); ctx.arc(h.x,h.y,orbitR,0,Math.PI*2); ctx.stroke();
     ctx.setLineDash([]);
@@ -1639,7 +1532,7 @@ function draw(){
       ctx.stroke();
     }
 
-    ctx.strokeStyle = "rgba(140,190,255,0.55)";
+    ctx.strokeStyle = "rgba(140,199,227,0.60)";
     ctx.lineWidth = 1.4*dpr;
     ctx.beginPath(); ctx.arc(h.x,h.y,h.r*1.1,0,Math.PI*2); ctx.stroke();
 
@@ -1647,7 +1540,7 @@ function draw(){
     ctx.lineWidth = 1.0*dpr;
     ctx.beginPath(); ctx.arc(h.x,h.y,h.core*1.35,0,Math.PI*2); ctx.stroke();
 
-    ctx.fillStyle = "#000";
+    ctx.fillStyle = "#15111f";
     ctx.beginPath(); ctx.arc(h.x,h.y,h.core,0,Math.PI*2); ctx.fill();
   });
 

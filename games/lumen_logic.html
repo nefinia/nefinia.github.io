@@ -14,211 +14,102 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Discrete Emitters — Unique Sum Mazes</title>
-<link href="../main.3f6952e4.css" rel="stylesheet">
+<link rel="stylesheet" href="cozy/cozy.css">
 <style>
   :root{
-    --bg:#0b1020;
-    --panel: rgba(14, 22, 46, 0.92);
-    --ink:#eef2ff;
-    --muted:#aab3d6;
-    --accent:#7aa2ff;
-    --ok:#7cff9b;
-    --bad:#ff6b6b;
-    --gold:#ffd27a;
+    --bg:var(--cz-paper);
+    --panel: var(--cz-card);
+    --ink:var(--cz-ink);
+    --muted:var(--cz-soft);
+    --accent:var(--cz-sky);
+    --ok:var(--cz-sage-dk);
+    --bad:var(--cz-coral);
+    --gold:var(--cz-honey);
   }
   html,body{
     height:100%;margin:0;background:var(--bg);color:var(--ink);
-    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    font-family:var(--cz-body);
     overflow:hidden;
   }
-  #wrap{position:fixed;inset:0;display:grid;grid-template-rows:auto 1fr;}
+  body{display:flex;flex-direction:column;}
+  #wrap{position:relative;flex:1 1 auto;min-height:0;display:grid;grid-template-rows:auto 1fr;}
   #top{
-    padding:10px 10px 8px;
+    padding:10px 12px 10px;
     display:flex;gap:10px;align-items:center;flex-wrap:wrap;
-    background: linear-gradient(180deg, rgba(14,22,46,0.98), rgba(14,22,46,0.72));
-    border-bottom:1px solid rgba(255,255,255,0.10);
-    backdrop-filter: blur(10px);
+    background:var(--cz-card);
+    border-bottom:2px solid var(--cz-line);
   }
-  button, select{
-    background:rgba(255,255,255,0.07);
-    color:var(--ink);
-    border:1px solid rgba(255,255,255,0.14);
+  .cz-scope #top button, .cz-scope #top select{
+    font-family:var(--cz-body);
+    font-weight:800;
+    background:var(--cz-card);
+    color:var(--cz-ink);
+    border:2px solid var(--cz-line);
     border-radius:12px;
-    padding:10px 12px;
+    padding:8px 12px;
     font-size:14px;
     cursor:pointer;
     user-select:none;
+    box-shadow:0 3px 0 var(--cz-shadow);
     -webkit-tap-highlight-color: transparent;
   }
-  button:active{transform:translateY(1px);}
-  button.primary{border-color:rgba(122,162,255,0.65);}
-  select{padding:10px 10px;}
+  .cz-scope #top select{background:#fff;padding:8px 10px;}
+  .cz-scope #top button.primary{background:var(--cz-coral);border-color:var(--cz-coral);color:#fff;box-shadow:0 3px 0 var(--cz-coral-dk);}
   .pill{
-    padding:8px 12px;border-radius:999px;
-    background:rgba(255,255,255,0.06);
-    border:1px solid rgba(255,255,255,0.10);
-    color:rgba(220,230,255,0.92);
-    font-size:14px;
+    padding:6px 12px;border-radius:999px;
+    background:var(--cz-paper-2);
+    border:2px solid transparent;
+    color:var(--cz-soft);
+    font-size:14px;font-weight:700;
     white-space:nowrap;
   }
-  .pill strong{color:var(--ink);}
-  .pill.ok{border-color:rgba(124,255,155,0.6);}
-  .pill.bad{border-color:rgba(255,107,107,0.6);}
-  .pill.gold{border-color:rgba(255,210,122,0.55); color:rgba(255,235,200,0.95);}
+  .pill strong{color:var(--ink);font-weight:800;}
+  .pill.ok{border-color:var(--cz-sage);background:#e3f1e7;}
+  .pill.bad{border-color:var(--cz-rose);}
+  .pill.gold{border-color:var(--cz-honey); background:#fbe9c0; color:#6b5a3e;}
 
-  #board{position:relative;overflow:hidden;}
+  #board{position:relative;overflow:hidden;background:var(--cz-paper);}
   #c{width:100%;height:100%;display:block;touch-action:none;}
 
   #hintBar{
     width:100%;
     display:flex;
     justify-content:center;
-    padding:8px 10px 10px;
+    padding:10px 10px 6px;
     gap:10px;
-    background:rgba(0,0,0,0.18);
-    border-bottom:1px solid rgba(255,255,255,0.06);
+    box-sizing:border-box;
   }
   #hintChip{
     display:flex;align-items:center;gap:10px;
-    background:rgba(0,0,0,0.28);
-    border:1px solid rgba(255,255,255,0.12);
-    border-radius:999px;
-    padding:8px 12px;
-    font-size:13px;
-    color:rgba(220,230,255,0.92);
+    background:var(--cz-card);
+    border:2px solid var(--cz-line);
+    box-shadow:0 4px 0 var(--cz-shadow);
+    border-radius:18px;
+    padding:8px 14px;
+    font-size:13px;line-height:1.45;
+    color:var(--cz-ink);
     max-width:min(880px, 96vw);
+    box-sizing:border-box;
   }
   #hintChip .x{
-    border:1px solid rgba(255,255,255,0.14);
-    background:rgba(255,255,255,0.06);
+    border:2px solid var(--cz-line);
+    background:var(--cz-paper-2);
     padding:2px 8px;
     border-radius:999px;
     cursor:pointer;
     user-select:none;
+    font-weight:800;
   }
 
   @media (max-width: 520px){
-    button, select{font-size:13px;padding:9px 10px;border-radius:11px;}
-    .pill{font-size:13px;padding:7px 10px;}
-  }
-</style>
-<style id="nefinia-game-shell">
-  body {
-    padding-top: 68px !important;
-    background-color: black;
-    background-image: url('../assets/images/space.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-  .nefinia-game-menu .navbar {
-    z-index: 10000;
-  }
-
-  .nefinia-game-menu + #wrap,
-  .nefinia-game-menu + .wrap.fullscreen,
-  .nefinia-game-menu + canvas,
-  .nefinia-game-menu + .hud {
-    top: 68px !important;
-  }
-  .nefinia-game-menu + #wrap {
-    bottom: 0 !important;
-    height: auto !important;
-  }
-  #site-border-left,
-  #site-border-right,
-  #site-border-top,
-  #site-border-bottom {
-    pointer-events: none;
-    z-index: 9990;
-  }
-  @media (max-width: 768px) {
-    body { padding-top: 58px !important; }
-
-    .nefinia-game-menu + #wrap,
-    .nefinia-game-menu + .wrap.fullscreen,
-    .nefinia-game-menu + canvas,
-    .nefinia-game-menu + .hud {
-      top: 58px !important;
-    }
-  }
-
-  .nefinia-game-menu + .app h1,
-  .nefinia-game-menu + .wrap h1,
-  .nefinia-game-menu + main h1,
-  .nefinia-game-menu + .app .title,
-  .nefinia-game-menu + .wrap .title {
-    color: #fff !important;
-  }
-
-  body > h1,
-  body > h2,
-  body > h3,
-  .nefinia-game-menu ~ #hud,
-  .nefinia-game-menu ~ #hud .hudLabel,
-  .nefinia-game-menu ~ #hud .hudValue,
-  .nefinia-game-menu ~ .hud,
-  .nefinia-game-menu ~ .hud span,
-  .nefinia-game-menu ~ .stats,
-  .nefinia-game-menu ~ .stats span {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-
-  .nefinia-game-menu ~ #hud .label,
-  .nefinia-game-menu ~ #hud .value {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-  .nefinia-game-menu ~ #hud .p1 {
-    color: #8fc2ff !important;
-  }
-  .nefinia-game-menu ~ #hud .p2 {
-    color: #ff9aa8 !important;
-  }
-
-  .nefinia-game-menu ~ #hud select,
-  .nefinia-game-menu ~ .hud select {
-    color: #111 !important;
-    background: #fff !important;
-    text-shadow: none !important;
-  }
-  body > .muted {
-    color: rgba(255,255,255,0.82) !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
+    .cz-scope #top button, .cz-scope #top select{font-size:13px;padding:8px 10px;border-radius:11px;}
+    .pill{font-size:13px;padding:5px 10px;}
+    #hintChip{font-size:12px;}
   }
 </style>
 </head>
-<body>
-<div id="site-border-left"></div>
-<div id="site-border-right"></div>
-<div id="site-border-top"></div>
-<div id="site-border-bottom"></div>
-
-<header class="nefinia-game-menu">
-  <nav class="navbar navbar-fixed-top navbar-inverse">
-    <div class="container">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbar-collapse">
-        <ul class="nav navbar-nav ">
-          <li><a href="../index.html">01 : Home</a></li>
-          <li><a href="../science.html">02 : Research</a></li>
-          <li><a href="../outreach.html">03 : Outreach</a></li>
-          <li><a href="../ventures.html">04 : Ventures</a></li>
-          <li><a href="../games/index.html">05 : Games</a></li>
-          <li><a href="../art.html">06 : Art</a></li>
-          <li><a href="../about.html">07 : About</a></li>
-          <li><a href="../contact.html">08 : Contact</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-</header>
+<body class="cz-scope">
+<header class="cz-bar"><a class="cz-back" href="index.html">← All games</a><span class="cz-name">Lumen Logic</span><a class="cz-home" href="../index.html">sofiagallego.com</a></header>
 <div id="wrap">
   <div id="top">
     <select id="size">
@@ -380,7 +271,7 @@ function resizeCanvasToBoard(){
 }
 
 function computeLayout(){
-  const pad = 10;
+  const pad = 16;
   const minCell = 16;
   const maxCell = 60;
 
@@ -854,24 +745,25 @@ function cellRect(i){
 }
 
 function drawBackground(){
-  ctx.fillStyle = "#0b1020";
-  ctx.fillRect(0,0,W,H);
+  // cozy paper around a soft plum "night" playfield (light glows here)
+  ctx.clearRect(0,0,W,H);
+  const m = 10;
+  const bx = ox - m, by = oy - m, bw = cols*cell + 2*m, bh = rows*cell + 2*m;
+  ctx.fillStyle = "#e2cfae";
+  roundRect(ctx, bx, by + 5, bw, bh, 18); ctx.fill();
+  ctx.fillStyle = "#2f2a4a";
+  roundRect(ctx, bx, by, bw, bh, 18); ctx.fill();
 
   ctx.save();
-  ctx.globalAlpha = 0.08;
+  roundRect(ctx, bx, by, bw, bh, 18); ctx.clip();
+  ctx.globalAlpha = 0.18;
   for(let i=0;i<90;i++){
-    const x = (Math.sin(i*999.13)+1)*0.5*W;
-    const y = (Math.sin(i*333.71)+1)*0.5*H;
-    ctx.fillStyle = "rgba(255,255,255,0.7)";
-    ctx.fillRect(x, y, 1.2, 1.2);
+    const x = bx + (Math.sin(i*999.13)+1)*0.5*bw;
+    const y = by + (Math.sin(i*333.71)+1)*0.5*bh;
+    ctx.fillStyle = "rgba(251,243,228,0.9)";
+    ctx.fillRect(x, y, 1.4, 1.4);
   }
   ctx.restore();
-
-  const g = ctx.createRadialGradient(W*0.5,H*0.55, Math.min(W,H)*0.15, W*0.5,H*0.55, Math.max(W,H)*0.85);
-  g.addColorStop(0, "rgba(0,0,0,0)");
-  g.addColorStop(1, "rgba(0,0,0,0.45)");
-  ctx.fillStyle = g;
-  ctx.fillRect(0,0,W,H);
 }
 
 function drawGridAndNumbers(){
@@ -885,18 +777,18 @@ function drawGridAndNumbers(){
     const t = maxV ? (v/maxV) : 0;
     const a = 0.10 + 0.22 * t;
 
-    ctx.fillStyle = "rgba(255,255,255,0.03)";
+    ctx.fillStyle = "rgba(251,243,228,0.04)";
     ctx.fillRect(r.x, r.y, r.w, r.h);
 
-    ctx.fillStyle = `rgba(122,162,255,${a})`;
+    ctx.fillStyle = `rgba(140,199,227,${a})`;
     ctx.fillRect(r.x, r.y, r.w, r.h);
 
-    ctx.strokeStyle = "rgba(255,255,255,0.06)";
+    ctx.strokeStyle = "rgba(251,243,228,0.08)";
     ctx.lineWidth = 1;
     ctx.strokeRect(r.x+0.5, r.y+0.5, r.w-1, r.h-1);
 
     if(v > 0){
-      ctx.fillStyle = "rgba(230,238,255,0.78)";
+      ctx.fillStyle = "rgba(251,243,228,0.85)";
       ctx.font = `${Math.max(10, Math.floor(cell*0.32))}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -946,14 +838,14 @@ function drawCluesAndEmitters(){
     ctx.lineTo(x0, y1);
     ctx.closePath();
 
-    ctx.fillStyle = ok ? "rgba(124,255,155,0.18)" : (tooHigh ? "rgba(255,107,107,0.18)" : "rgba(122,162,255,0.18)");
+    ctx.fillStyle = ok ? "rgba(143,214,164,0.30)" : (tooHigh ? "rgba(241,140,122,0.32)" : "rgba(140,199,227,0.22)");
     ctx.fill();
-    ctx.strokeStyle = ok ? "rgba(124,255,155,0.45)" : (tooHigh ? "rgba(255,107,107,0.45)" : "rgba(122,162,255,0.45)");
+    ctx.strokeStyle = ok ? "rgba(143,214,164,0.90)" : (tooHigh ? "rgba(241,140,122,0.90)" : "rgba(140,199,227,0.70)");
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    ctx.fillStyle = ok ? "rgba(210,255,225,0.98)" : (tooHigh ? "rgba(255,205,205,0.98)" : "rgba(240,245,255,0.95)");
-    ctx.font = `${Math.max(11, Math.floor(cell*0.28))}px system-ui`;
+    ctx.fillStyle = ok ? "rgba(214,245,222,1)" : (tooHigh ? "rgba(255,214,205,1)" : "rgba(251,243,228,0.98)");
+    ctx.font = `700 ${Math.max(11, Math.floor(cell*0.28))}px Nunito, system-ui, sans-serif`;
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
     ctx.fillText(String(c.target), pad + Math.floor(cell*0.06), pad + Math.floor(cell*0.05));
@@ -965,22 +857,22 @@ function drawCluesAndEmitters(){
     const r = cellRect(i);
 
     const grad = ctx.createRadialGradient(r.cx, r.cy, 0, r.cx, r.cy, cell*0.85);
-    grad.addColorStop(0, "rgba(255,235,200,0.60)");
-    grad.addColorStop(1, "rgba(255,210,122,0)");
+    grad.addColorStop(0, "rgba(255,236,190,0.62)");
+    grad.addColorStop(1, "rgba(244,200,106,0)");
     ctx.fillStyle = grad;
     ctx.beginPath();
     ctx.arc(r.cx, r.cy, cell*0.85, 0, Math.PI*2);
     ctx.fill();
 
-    ctx.fillStyle = "rgba(255,235,200,0.95)";
-    ctx.strokeStyle = "rgba(255,210,122,0.75)";
+    ctx.fillStyle = "rgba(255,240,205,0.98)";
+    ctx.strokeStyle = "rgba(244,200,106,0.95)";
     ctx.lineWidth = 2.5;
     ctx.beginPath();
     ctx.arc(r.cx, r.cy, Math.max(7, cell*0.22), 0, Math.PI*2);
     ctx.fill();
     ctx.stroke();
 
-    ctx.fillStyle = "rgba(10,16,36,0.85)";
+    ctx.fillStyle = "rgba(61,53,82,0.95)";
     ctx.font = `${Math.max(11, Math.floor(cell*0.34))}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -1001,7 +893,7 @@ function drawWalls(){
     const px = ox + x*cell;
     const py = oy + y*cell;
 
-    ctx.strokeStyle = "rgba(255,255,255,0.78)";
+    ctx.strokeStyle = "rgba(251,243,228,0.88)";
     ctx.lineWidth = wallW;
 
     if(hasWall(i, N)){
@@ -1018,8 +910,8 @@ function drawWalls(){
     }
   }
 
-  ctx.globalAlpha = 0.18;
-  ctx.strokeStyle = "rgba(122,162,255,1)";
+  ctx.globalAlpha = 0.22;
+  ctx.strokeStyle = "rgba(185,163,222,1)";
   ctx.lineWidth = Math.max(1.5, wallW*0.35);
   for(let i=0;i<cols*rows;i++){
     const x = i % cols;

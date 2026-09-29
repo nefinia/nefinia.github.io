@@ -13,38 +13,34 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Hexy Battle</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,800&display=swap" rel="stylesheet">
-  <link href="../main.3f6952e4.css" rel="stylesheet">
+  <link rel="stylesheet" href="cozy/cozy.css">
 <style>
     :root{
-      --bg1:#0c1016;
-      --bg2:#141b25;
-      --panel:#121824;
-      --panel2:#0f141d;
-      --ink:#e8f0ff;
-      --muted:#9fb1cc;
-      --edge:#283246;
-      --accent:#7ad3ff;
-      --heart:#ffd66a;
-      --neutral:#91a0b6;
-      --player:#64b5ff;
-      --bot:#ff6b6b;
-      --p3:#6fe3a8;
-      --p4:#f2c562;
-      --radius:16px;
-      --shadow: 0 12px 30px rgba(0,0,0,0.35);
+      --bg1:var(--cz-paper);
+      --bg2:var(--cz-paper);
+      --panel:var(--cz-card);
+      --panel2:var(--cz-paper-2);
+      --ink:#3d3552;
+      --muted:#6d6480;
+      --edge:#ead9bf;
+      --accent:#4f9cc4;
+      --heart:#965f00;
+      --neutral:#8a8298;
+      --player:#78b4e3;
+      --bot:#f09484;
+      --p3:#86c49b;
+      --p4:#f2c35e;
+      --radius:18px;
+      --shadow: 0 5px 0 var(--cz-shadow);
     }
     *{ box-sizing:border-box; }
     body{
       margin:0;
       color:var(--ink);
-      font-family:"Space Grotesk", system-ui, sans-serif;
-      background:
-        radial-gradient(900px 500px at 10% 10%, rgba(122,211,255,0.12), transparent 55%),
-        radial-gradient(700px 500px at 90% 20%, rgba(243,184,90,0.10), transparent 60%),
-        linear-gradient(180deg, var(--bg1), var(--bg2));
+      font-family:var(--cz-body);
+      font-size:14px;
+      line-height:1.5;
+      background:var(--cz-paper);
       min-height:100vh;
     }
     .app{
@@ -52,33 +48,35 @@
       margin:0 auto;
       padding:16px;
     }
-    header{
+    .app > header{
       display:flex;
       flex-direction:column;
       align-items:stretch;
       gap:10px;
-      margin-bottom:12px;
+      margin-bottom:14px;
     }
     .titleCard{
-      background: linear-gradient(180deg, rgba(18,24,36,0.95), rgba(14,18,26,0.95));
-      border:1px solid var(--edge);
+      background: var(--cz-card);
+      border:2px solid var(--edge);
       border-radius:var(--radius);
       padding:16px 18px;
       box-shadow:var(--shadow);
       flex:1;
     }
     .titleCard h1{
-      font-family:"Fraunces", serif;
-      font-size:24px;
-      margin:0 0 10px 0;
-      letter-spacing:0.3px;
+      font-family:var(--cz-display);
+      font-weight:600;
+      font-size:26px;
+      line-height:1.15;
+      color:var(--ink);
+      margin:0 0 8px 0;
     }
     .titleCard p{
       margin:0;
       color:var(--muted);
       font-size:14px;
       line-height:1.5;
-      max-width: 34ch;
+      max-width: 60ch;
     }
     .actions{
       display:flex;
@@ -87,38 +85,23 @@
       align-items:center;
       justify-content:flex-start;
     }
-    button{
-      background:rgba(18,24,36,0.95);
-      color:var(--ink);
-      border:1px solid var(--edge);
-      border-radius:12px;
-      padding:6px 10px;
-      font-weight:700;
-      font-size:12px;
-      cursor:pointer;
-      box-shadow:0 8px 18px rgba(0,0,0,0.22);
-    }
-    button:hover{ filter:brightness(1.1); }
-    button:active{ transform:translateY(1px); }
-    select{
-      background:rgba(18,24,36,0.95);
-      color:var(--ink);
-      border:1px solid var(--edge);
-      border-radius:10px;
-      padding:4px 6px;
-      font-weight:700;
-      font-size:12px;
-    }
+    .cz-scope .actions button,
+    .cz-scope .modalActions button{ font-size:13px; padding:6px 12px; }
+    #simBtn{ background:var(--cz-sage); border-color:var(--cz-sage); box-shadow:0 3px 0 var(--cz-sage-dk); }
+    #newGameBtn{ background:#f09484; border-color:#f09484; box-shadow:0 3px 0 var(--cz-coral-dk); }
+    #simBtn, #newGameBtn{ color:#3d3552; }
+    .cz-scope select{ font-size:12.5px; padding:3px 6px; }
+    select:disabled{ opacity:.55; }
 
     .grid{
       display:grid;
       grid-template-columns: 1.15fr 0.85fr;
-      gap:14px;
+      gap:16px;
     }
 
     .card{
-      background: linear-gradient(180deg, rgba(18,24,36,0.95), rgba(14,18,26,0.95));
-      border:1px solid var(--edge);
+      background: var(--cz-card);
+      border:2px solid var(--edge);
       border-radius:var(--radius);
       padding:12px;
       box-shadow:var(--shadow);
@@ -131,33 +114,36 @@
       margin-bottom:10px;
     }
     .cardTitle .label{
-      font-weight:800;
-      font-size:13px;
-      letter-spacing:0.2px;
+      font-family:var(--cz-display);
+      font-weight:600;
+      font-size:16px;
+      color:var(--ink);
     }
-    .hint{ color:var(--muted); font-size:12px; }
+    .hint{ color:var(--muted); font-size:12.5px; font-weight:600; }
 
     canvas{
       width:100%;
       height:auto;
       border-radius:14px;
-      background: radial-gradient(600px 400px at 20% 20%, rgba(255,255,255,0.03), transparent 60%), #0a0e15;
-      border:1px solid rgba(40,50,70,0.9);
+      background: var(--cz-paper-2);
+      border:2px solid var(--edge);
     }
 
     .panel{
-      background: rgba(12,16,22,0.75);
-      border:1px solid rgba(40,50,70,0.85);
-      border-radius:12px;
+      background: var(--cz-paper);
+      border:2px solid var(--edge);
+      border-radius:14px;
       padding:10px;
       margin-bottom:10px;
     }
     .panel h3{
       margin:0 0 8px 0;
-      font-size:12px;
+      font-family:var(--cz-display);
+      font-size:13px;
+      line-height:1.2;
       color:var(--muted);
-      letter-spacing:0.2px;
-      font-weight:800;
+      letter-spacing:0.4px;
+      font-weight:600;
       text-transform:uppercase;
     }
     .shapeIcon{
@@ -173,8 +159,8 @@
       justify-content:center;
       font-size:31px;
       line-height:1;
-      filter: grayscale(1) saturate(0.15) brightness(1.25);
-      text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+      filter: grayscale(1) saturate(0.15) brightness(1.05);
+      text-shadow: 0 1px 2px rgba(61,53,82,0.25);
     }
     .captureRow{
       display:flex;
@@ -190,7 +176,7 @@
     }
     .rpsRow{
       display:flex;
-      gap:10px;
+      gap:8px;
       align-items:center;
       flex-wrap:wrap;
       font-size:12px;
@@ -200,15 +186,16 @@
 
     .row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
     .pill{
-      padding:6px 8px;
+      padding:5px 10px;
       border-radius:999px;
-      border:1px solid rgba(40,50,70,0.85);
-      background: rgba(12,16,22,0.6);
-      font-size:11px;
-      color:var(--muted);
-      font-weight:700;
+      border:2px solid var(--edge);
+      background: var(--cz-card);
+      font-size:11.5px;
+      color:var(--ink);
+      font-weight:800;
       display:inline-flex; align-items:center; gap:6px;
     }
+    label.pill{ background:var(--cz-paper-2); color:#6b5a3e; }
 
     .scoreGrid{
       display:grid;
@@ -216,12 +203,12 @@
       gap:10px;
     }
     .scoreCard{
-      background: rgba(12,16,22,0.75);
-      border:1px solid rgba(40,50,70,0.85);
+      background: var(--cz-card);
+      border:2px solid var(--edge);
       border-radius:12px;
       padding:10px;
     }
-    .scoreCard h4{ margin:0 0 6px 0; font-size:12px; color:var(--muted); }
+    .scoreCard h4{ margin:0 0 6px 0; font-family:var(--cz-display); font-weight:600; font-size:14px; color:var(--ink); }
     .scoreCard .big{
       font-size:20px;
       font-weight:800;
@@ -238,8 +225,8 @@
       display:flex; align-items:center; justify-content:space-between;
       padding:8px 10px;
       border-radius:12px;
-      background: rgba(12,16,22,0.65);
-      border:1px solid rgba(40,50,70,0.85);
+      background: var(--cz-card);
+      border:2px solid var(--edge);
       font-size:12px;
       color:var(--muted);
       font-weight:700;
@@ -248,8 +235,8 @@
       display:inline-flex; align-items:center; gap:6px;
       padding:6px 8px;
       border-radius:999px;
-      border:1px solid rgba(40,50,70,0.85);
-      background: rgba(12,16,22,0.7);
+      border:2px solid var(--edge);
+      background: var(--cz-card);
       font-size:12px;
       font-weight:800;
       color:var(--ink);
@@ -260,41 +247,44 @@
       gap:8px;
       padding:10px 12px;
       border-radius:12px;
-      border:1px solid rgba(40,50,70,0.85);
-      background: rgba(12,16,22,0.75);
-      font-size:12.5px;
-      color:var(--muted);
-      font-weight:700;
+      border:2px solid var(--edge);
+      background: var(--cz-card);
+      font-family:var(--cz-display);
+      font-size:15px;
+      color:var(--ink);
+      font-weight:600;
+      box-shadow:0 3px 0 var(--cz-shadow);
     }
 
     .footerNote{
       color:var(--muted);
-      font-size:12px;
+      font-size:12.5px;
       margin-top:8px;
-      line-height:1.4;
+      line-height:1.45;
     }
     .modal{
       position:fixed;
       inset:0;
-      background:rgba(6,10,16,0.65);
+      background:rgba(61,53,82,0.35);
       display:flex;
       align-items:center;
       justify-content:center;
-      z-index:20;
+      z-index:60;
     }
     .modal.hidden{ display:none; }
     .modalCard{
-      background: linear-gradient(180deg, rgba(18,24,36,0.97), rgba(14,18,26,0.97));
-      border:1px solid var(--edge);
-      border-radius:14px;
+      background: var(--cz-card);
+      border:2px solid var(--edge);
+      border-radius:var(--radius);
       padding:16px;
       width:min(320px, 90vw);
       box-shadow: var(--shadow);
     }
     .modalTitle{
-      font-weight:800;
+      font-family:var(--cz-display);
+      font-weight:600;
       margin-bottom:8px;
-      font-size:14px;
+      font-size:17px;
     }
     .modalBody{
       font-size:13px;
@@ -316,123 +306,9 @@
       .grid{ grid-template-columns: 1fr; }
     }
 </style>
-<style id="nefinia-game-shell">
-  body {
-    padding-top: 68px !important;
-    background-color: black;
-    background-image: url('../assets/images/space.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-  .nefinia-game-menu .navbar {
-    z-index: 10000;
-  }
-
-  .nefinia-game-menu + #wrap,
-  .nefinia-game-menu + .wrap.fullscreen,
-  .nefinia-game-menu + canvas,
-  .nefinia-game-menu + .hud {
-    top: 68px !important;
-  }
-  .nefinia-game-menu + #wrap {
-    bottom: 0 !important;
-    height: auto !important;
-  }
-  #site-border-left,
-  #site-border-right,
-  #site-border-top,
-  #site-border-bottom {
-    pointer-events: none;
-    z-index: 9990;
-  }
-  @media (max-width: 768px) {
-    body { padding-top: 58px !important; }
-
-    .nefinia-game-menu + #wrap,
-    .nefinia-game-menu + .wrap.fullscreen,
-    .nefinia-game-menu + canvas,
-    .nefinia-game-menu + .hud {
-      top: 58px !important;
-    }
-  }
-
-  .nefinia-game-menu + .app h1,
-  .nefinia-game-menu + .wrap h1,
-  .nefinia-game-menu + main h1,
-  .nefinia-game-menu + .app .title,
-  .nefinia-game-menu + .wrap .title {
-    color: #fff !important;
-  }
-
-  body > h1,
-  body > h2,
-  body > h3,
-  .nefinia-game-menu ~ #hud,
-  .nefinia-game-menu ~ #hud .hudLabel,
-  .nefinia-game-menu ~ #hud .hudValue,
-  .nefinia-game-menu ~ .hud,
-  .nefinia-game-menu ~ .hud span,
-  .nefinia-game-menu ~ .stats,
-  .nefinia-game-menu ~ .stats span {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-
-  .nefinia-game-menu ~ #hud .label,
-  .nefinia-game-menu ~ #hud .value {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-  .nefinia-game-menu ~ #hud .p1 {
-    color: #8fc2ff !important;
-  }
-  .nefinia-game-menu ~ #hud .p2 {
-    color: #ff9aa8 !important;
-  }
-
-  .nefinia-game-menu ~ #hud select,
-  .nefinia-game-menu ~ .hud select {
-    color: #111 !important;
-    background: #fff !important;
-    text-shadow: none !important;
-  }
-  body > .muted {
-    color: rgba(255,255,255,0.82) !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-</style>
 </head>
-<body>
-<div id="site-border-left"></div>
-<div id="site-border-right"></div>
-<div id="site-border-top"></div>
-<div id="site-border-bottom"></div>
-
-<header class="nefinia-game-menu">
-  <nav class="navbar navbar-fixed-top navbar-inverse">
-    <div class="container">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbar-collapse">
-        <ul class="nav navbar-nav ">
-          <li><a href="../index.html">01 : Home</a></li>
-          <li><a href="../science.html">02 : Research</a></li>
-          <li><a href="../outreach.html">03 : Outreach</a></li>
-          <li><a href="../ventures.html">04 : Ventures</a></li>
-          <li><a href="../games/index.html">05 : Games</a></li>
-          <li><a href="../art.html">06 : Art</a></li>
-          <li><a href="../about.html">07 : About</a></li>
-          <li><a href="../contact.html">08 : Contact</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-</header>
+<body class="cz-scope">
+<header class="cz-bar"><a class="cz-back" href="index.html">← All games</a><span class="cz-name">Hexy Battle</span><a class="cz-home" href="../index.html">sofiagallego.com</a></header>
 <div class="app">
     <header>
       <div class="titleCard">
@@ -868,13 +744,13 @@
   }
 
   function shapeIcon(shape, color){
-    const stroke = "rgba(0,0,0,0.45)";
+    const stroke = "rgba(61,53,82,0.45)";
     const emoji = shapeEmoji(shape);
     return `
       <svg class="shapeIcon" viewBox="0 0 24 24" aria-hidden="true">
         <defs>
           <filter id="shadowMini" x="-40%" y="-40%" width="180%" height="180%">
-            <feDropShadow dx="0" dy="1.2" stdDeviation="1.2" flood-color="rgba(0,0,0,0.5)"/>
+            <feDropShadow dx="0" dy="1.2" stdDeviation="0.6" flood-color="rgba(61,53,82,0.3)"/>
           </filter>
         </defs>
         <path d="M12 2.2 L20.2 7 L20.2 17 L12 21.8 L3.8 17 L3.8 7 Z" fill="${color}" stroke="${stroke}" stroke-width="1.2" filter="url(#shadowMini)"/>
@@ -884,7 +760,7 @@
   }
 
   function updateLegendShapes(){
-    const color = getCss("--ink");
+    const color = getCss("--cz-card") || "#fffaf1";
     legendCircle.innerHTML = shapeIcon("rock", color);
     legendSquare.innerHTML = shapeIcon("paper", color);
     legendTriangle.innerHTML = shapeIcon("scissors", color);
@@ -947,7 +823,9 @@
     state.players.forEach((p) => {
       const pill = document.createElement("span");
       pill.className = "pill";
-      pill.style.color = `var(${p.colorVar})`;
+      pill.style.background = `var(${p.colorVar})`;
+      pill.style.borderColor = `var(${p.colorVar})`;
+      pill.style.color = "#3d3552";
       pill.textContent = `${p.name} pieces`;
       playerLegendEl.appendChild(pill);
     });
@@ -1339,11 +1217,11 @@
 
     ctx.save();
     ctx.translate(pos.x, pos.y);
-    ctx.shadowColor = "rgba(0,0,0,0.45)";
-    ctx.shadowBlur = 8;
-    ctx.shadowOffsetY = 2;
+    ctx.shadowColor = "rgba(61,53,82,0.28)";
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 3;
     ctx.fillStyle = color;
-    ctx.strokeStyle = "rgba(0,0,0,0.45)";
+    ctx.strokeStyle = "rgba(61,53,82,0.55)";
     ctx.lineWidth = 2.2;
     drawHex(0, 0, size);
     ctx.fill();
@@ -1362,8 +1240,8 @@
     // Lives badge at top center
     const lives = piece.lives ?? 0;
     ctx.font = `900 ${Math.max(10, size * 0.25)}px system-ui`;
-    ctx.fillStyle = "rgba(255,255,255,0.9)";
-    ctx.strokeStyle = "rgba(0,0,0,0.6)";
+    ctx.fillStyle = "#fffaf1";
+    ctx.strokeStyle = "rgba(61,53,82,0.85)";
     ctx.lineWidth = 2;
     ctx.strokeText(String(lives), 0, -size * 0.55);
     ctx.fillText(String(lives), 0, -size * 0.55);
@@ -1391,12 +1269,18 @@
 
   function drawBoard(time){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const cell of CELLS) {
+      const pos = axialToPixel(cell.q, cell.r);
+      drawHex(pos.x, pos.y, state.cellSize * 0.9);
+      ctx.fillStyle = "#fffaf1";
+      ctx.fill();
+    }
     drawInfluence(time);
 
     for (const cell of CELLS) {
       const pos = axialToPixel(cell.q, cell.r);
       drawHex(pos.x, pos.y, state.cellSize * 0.9);
-      ctx.strokeStyle = "rgba(80,100,130,0.55)";
+      ctx.strokeStyle = "#dcc6a2";
       ctx.lineWidth = 1.2;
       ctx.stroke();
     }
@@ -1411,8 +1295,8 @@
           const pos = axialToPixel(cell.q, cell.r);
           ctx.save();
           drawHex(pos.x, pos.y, state.cellSize * 0.85);
-          ctx.strokeStyle = "rgba(122,211,255,0.9)";
-          ctx.lineWidth = 2.4;
+          ctx.strokeStyle = "rgba(79,156,196,0.95)";
+          ctx.lineWidth = 3;
           ctx.stroke();
           ctx.restore();
         }
@@ -1428,16 +1312,16 @@
     const pos = axialToPixel(0, 0);
     ctx.save();
     ctx.globalAlpha = 0.5;
-    ctx.fillStyle = "rgba(122,211,255,0.08)";
+    ctx.fillStyle = "rgba(140,199,227,0.35)";
     drawHex(pos.x, pos.y, state.cellSize * 0.92);
     ctx.fill();
     ctx.globalAlpha = 0.9;
-    ctx.strokeStyle = "rgba(122,211,255,0.9)";
+    ctx.strokeStyle = "rgba(79,156,196,0.9)";
     ctx.lineWidth = 2;
     drawHex(pos.x, pos.y, state.cellSize * 0.92);
     ctx.stroke();
     ctx.font = `700 ${Math.max(14, state.cellSize * 0.35)}px system-ui`;
-    ctx.fillStyle = "rgba(200,220,255,0.9)";
+    ctx.fillStyle = "#3d3552";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText("★", pos.x, pos.y);
@@ -1458,7 +1342,7 @@
       ctx.save();
       ctx.globalAlpha = 1 - t;
       ctx.fillStyle = ev.color;
-      ctx.font = "700 16px Space Grotesk";
+      ctx.font = "800 16px Nunito, system-ui, sans-serif";
       ctx.textAlign = "center";
       ctx.fillText(ev.text, ev.x, y);
       ctx.restore();
@@ -1549,7 +1433,7 @@
       return `<span class="coinIcon" title="Life coin" aria-label="Life coin">${capture.emoji || "🪙"}</span>`;
     }
     const fill = getCss(capture.colorVar);
-    const stroke = "rgba(0,0,0,0.45)";
+    const stroke = "rgba(61,53,82,0.55)";
     const emoji = capture.emoji;
     return `
       <svg class="shapeIcon" viewBox="0 0 24 24" aria-hidden="true" style="vertical-align:middle;">

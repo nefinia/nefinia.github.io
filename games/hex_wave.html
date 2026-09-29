@@ -14,49 +14,49 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Hex Wave Puzzle — Levels</title>
-<link href="../main.3f6952e4.css" rel="stylesheet">
+<link rel="stylesheet" href="cozy/cozy.css">
 <style>
   :root{
-    --bg:#0b1020;
-    --panel:#121a33;
-    --panel2:#0d1530;
-    --border:#24315a;
-    --text:#eef2ff;
-    --muted:#aab3d6;
-    --accent:#7aa2ff;
-    --ok:#46e08b;
-    --warn:#ffd66a;
-    --bad:#ff5b6e;
-    --radius:16px;
-    --shadow: 0 10px 30px rgba(0,0,0,0.25);
+    --bg:var(--cz-paper);
+    --panel:var(--cz-card);
+    --panel2:var(--cz-paper-2);
+    --border:var(--cz-line);
+    --text:var(--cz-ink);
+    --muted:var(--cz-soft);
+    --accent:var(--cz-coral);
+    --ok:var(--cz-sage-dk);
+    --warn:var(--cz-honey);
+    --bad:var(--cz-coral);
+    --radius:18px;
+    --shadow: 0 5px 0 var(--cz-shadow);
   }
   *{ box-sizing:border-box; }
   body{
     margin:0;
-    background: radial-gradient(1200px 700px at 20% 10%, rgba(122,162,255,0.18), transparent 55%),
-                radial-gradient(900px 600px at 90% 20%, rgba(70,224,139,0.10), transparent 60%),
-                var(--bg);
+    background:var(--bg);
     color:var(--text);
-    font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+    font-family: var(--cz-body);
+    font-size:13px;
+    line-height:1.5;
   }
 
   /* Layout */
   .app{ max-width: 1180px; margin: 0 auto; padding: 16px; }
-  header{
+  .app > header{
     display:flex; align-items:flex-start; justify-content:space-between;
-    gap:14px; margin-bottom: 12px;
+    gap:14px; margin-bottom: 14px;
   }
   .brand{
     display:flex; flex-direction:column; gap:4px;
-    background: linear-gradient(180deg, rgba(18,26,51,0.92), rgba(13,21,48,0.92));
-    border:1px solid var(--border);
+    background: var(--cz-card);
+    border:2px solid var(--border);
     border-radius: var(--radius);
-    padding: 12px 14px;
+    padding: 12px 16px;
     box-shadow: var(--shadow);
     flex: 1;
   }
-  .brand h1{ margin:0; font-size:16px; letter-spacing:0.2px; }
-  .brand .sub{ margin:0; color:var(--muted); font-size:12.5px; line-height:1.35; max-width: 70ch; }
+  .brand h1{ margin:0; font-size:20px; font-family:var(--cz-display); font-weight:600; }
+  .brand .sub{ margin:0; color:var(--muted); font-size:13px; line-height:1.45; max-width: 70ch; }
   .brand .sub b{ color: var(--text); }
 
   .topActions{
@@ -66,13 +66,13 @@
   .grid{
     display:grid;
     grid-template-columns: 1fr 1fr;
-    gap: 14px;
+    gap: 16px;
   }
 
   /* Cards */
   .card{
-    background: linear-gradient(180deg, rgba(18,26,51,0.94), rgba(13,21,48,0.94));
-    border:1px solid var(--border);
+    background: var(--cz-card);
+    border:2px solid var(--border);
     border-radius: var(--radius);
     padding: 12px;
     box-shadow: var(--shadow);
@@ -82,12 +82,14 @@
     margin-bottom: 8px;
   }
   .cardTitleRow .title{
-    font-weight: 800; font-size: 13.5px; letter-spacing: 0.2px;
+    font-family: var(--cz-display);
+    font-weight: 600; font-size: 16px;
     color: var(--text);
   }
   .hint{
     color: var(--muted);
     font-size: 12px;
+    font-weight: 700;
     display:flex; align-items:center; gap:8px;
     white-space: nowrap;
   }
@@ -97,9 +99,8 @@
     width:100%;
     height:auto;
     border-radius: 14px;
-    border:1px solid rgba(36,49,90,0.9);
-    background: radial-gradient(600px 500px at 30% 25%, rgba(255,255,255,0.03), transparent 55%),
-                #060a16;
+    border:2px solid var(--cz-line);
+    background: var(--cz-paper);
   }
 
   /* Controls area */
@@ -112,47 +113,41 @@
 
   .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
 
-  button, select, input[type="range"]{
-    background: rgba(14,23,51,0.92);
-    color: var(--text);
-    border:1px solid rgba(36,49,90,0.95);
-    padding:8px 10px;
+  .cz-scope button, .cz-scope select{
+    padding:7px 12px;
     border-radius: 12px;
-    font-weight: 700;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+    font-weight: 800;
   }
-  button{ cursor:pointer; }
-  button:hover{ filter:brightness(1.08); }
-  button:active{ transform:translateY(1px); }
-
-  select{ cursor:pointer; }
+  .cz-scope select{ cursor:pointer; background:#fff; }
+  input[type="range"]{ accent-color: var(--cz-coral); }
 
   .pill{
-    background: rgba(14,23,51,0.75);
-    border:1px solid rgba(36,49,90,0.9);
+    background: var(--cz-paper-2);
+    border:2px solid transparent;
     border-radius: 999px;
-    padding: 8px 12px;
-    color: var(--muted);
-    font-weight: 650;
+    padding: 6px 12px;
+    color: #6b5a3e;
+    font-weight: 800;
     font-size: 12px;
   }
   .statusPill{
     display:inline-flex; align-items:center; gap:8px;
-    padding:8px 12px;
+    padding:6px 12px;
     border-radius: 999px;
-    border:1px solid rgba(36,49,90,0.9);
-    background: rgba(14,23,51,0.70);
-    color: var(--muted);
-    font-weight: 700;
+    border:2px solid var(--cz-line);
+    background: var(--cz-card);
+    box-shadow: 0 3px 0 var(--cz-shadow);
+    color: var(--text);
+    font-weight: 800;
     font-size: 12px;
   }
-  .dot{ width:9px; height:9px; border-radius: 50%; background: rgba(255,255,255,0.22); }
-  .dot.ok{ background: rgba(70,224,139,0.85); }
-  .dot.bad{ background: rgba(255,91,110,0.85); }
+  .dot{ width:10px; height:10px; border-radius: 50%; background: var(--cz-line); }
+  .dot.ok{ background: var(--cz-sage-dk); }
+  .dot.bad{ background: var(--cz-coral); }
 
   .panel{
-    background: rgba(13,21,48,0.72);
-    border: 1px solid rgba(36,49,90,0.9);
+    background: var(--cz-paper);
+    border: 2px solid var(--cz-line);
     border-radius: 14px;
     padding: 10px;
   }
@@ -160,7 +155,8 @@
     font-size: 12px;
     color: var(--muted);
     font-weight: 800;
-    letter-spacing: 0.2px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
     margin: 0 0 8px;
   }
   .panelBody{
@@ -169,8 +165,8 @@
 
   label{
     display:flex; align-items:center; gap:8px;
-    color: var(--muted);
-    font-size: 12px;
+    color: var(--text);
+    font-size: 12.5px;
     font-weight: 800;
   }
 
@@ -178,22 +174,21 @@
     display:flex; align-items:center; gap:10px; flex-wrap:wrap;
   }
   .rangeWrap .mini{
-    color: var(--muted); font-size: 12px; font-weight: 800;
-    padding: 6px 10px; border-radius: 999px;
-    border:1px solid rgba(36,49,90,0.85);
-    background: rgba(14,23,51,0.55);
+    color: #6b5a3e; font-size: 12px; font-weight: 800;
+    padding: 4px 10px; border-radius: 999px;
+    background: var(--cz-paper-2);
   }
   input[type="checkbox"]{
     width: 16px; height: 16px;
-    accent-color: var(--accent);
+    accent-color: var(--cz-coral);
   }
 
   footer{
-    margin-top: 14px;
-    background: linear-gradient(180deg, rgba(18,26,51,0.92), rgba(13,21,48,0.92));
-    border:1px solid var(--border);
+    margin-top: 16px;
+    background: var(--cz-card);
+    border:2px solid var(--border);
     border-radius: var(--radius);
-    padding: 12px 14px;
+    padding: 12px 16px;
     box-shadow: var(--shadow);
   }
   details{
@@ -202,17 +197,20 @@
   summary{
     cursor:pointer;
     list-style:none;
-    font-weight: 850;
+    font-family: var(--cz-display);
+    font-weight: 600;
+    font-size: 15px;
     color: var(--text);
     display:flex; align-items:center; justify-content:space-between;
     gap:10px;
   }
+  summary .pill{ font-family: var(--cz-body); }
   summary::-webkit-details-marker{ display:none; }
   .rules{
     margin-top: 10px;
     color: var(--muted);
-    font-size: 12.5px;
-    line-height: 1.45;
+    font-size: 13px;
+    line-height: 1.5;
     max-width: 90ch;
   }
   .rules b{ color: var(--text); }
@@ -220,127 +218,17 @@
   /* Responsive */
   @media (max-width: 980px){
     .grid{ grid-template-columns: 1fr; }
-    header{ flex-direction: column; }
+    .app > header{ flex-direction: column; }
     .topActions{ justify-content:flex-start; }
   }
-</style>
-<style id="nefinia-game-shell">
-  body {
-    padding-top: 68px !important;
-    background-color: black;
-    background-image: url('../assets/images/space.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-  .nefinia-game-menu .navbar {
-    z-index: 10000;
-  }
-
-  .nefinia-game-menu + #wrap,
-  .nefinia-game-menu + .wrap.fullscreen,
-  .nefinia-game-menu + canvas,
-  .nefinia-game-menu + .hud {
-    top: 68px !important;
-  }
-  .nefinia-game-menu + #wrap {
-    bottom: 0 !important;
-    height: auto !important;
-  }
-  #site-border-left,
-  #site-border-right,
-  #site-border-top,
-  #site-border-bottom {
-    pointer-events: none;
-    z-index: 9990;
-  }
-  @media (max-width: 768px) {
-    body { padding-top: 58px !important; }
-
-    .nefinia-game-menu + #wrap,
-    .nefinia-game-menu + .wrap.fullscreen,
-    .nefinia-game-menu + canvas,
-    .nefinia-game-menu + .hud {
-      top: 58px !important;
-    }
-  }
-
-  .nefinia-game-menu + .app h1,
-  .nefinia-game-menu + .wrap h1,
-  .nefinia-game-menu + main h1,
-  .nefinia-game-menu + .app .title,
-  .nefinia-game-menu + .wrap .title {
-    color: #fff !important;
-  }
-
-  body > h1,
-  body > h2,
-  body > h3,
-  .nefinia-game-menu ~ #hud,
-  .nefinia-game-menu ~ #hud .hudLabel,
-  .nefinia-game-menu ~ #hud .hudValue,
-  .nefinia-game-menu ~ .hud,
-  .nefinia-game-menu ~ .hud span,
-  .nefinia-game-menu ~ .stats,
-  .nefinia-game-menu ~ .stats span {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-
-  .nefinia-game-menu ~ #hud .label,
-  .nefinia-game-menu ~ #hud .value {
-    color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-  }
-  .nefinia-game-menu ~ #hud .p1 {
-    color: #8fc2ff !important;
-  }
-  .nefinia-game-menu ~ #hud .p2 {
-    color: #ff9aa8 !important;
-  }
-
-  .nefinia-game-menu ~ #hud select,
-  .nefinia-game-menu ~ .hud select {
-    color: #111 !important;
-    background: #fff !important;
-    text-shadow: none !important;
-  }
-  body > .muted {
-    color: rgba(255,255,255,0.82) !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
+  @media (max-width: 520px){
+    .app{ padding: 12px; }
+    .hint{ white-space: normal; text-align:right; }
   }
 </style>
 </head>
-<body>
-<div id="site-border-left"></div>
-<div id="site-border-right"></div>
-<div id="site-border-top"></div>
-<div id="site-border-bottom"></div>
-
-<header class="nefinia-game-menu">
-  <nav class="navbar navbar-fixed-top navbar-inverse">
-    <div class="container">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbar-collapse">
-        <ul class="nav navbar-nav ">
-          <li><a href="../index.html">01 : Home</a></li>
-          <li><a href="../science.html">02 : Research</a></li>
-          <li><a href="../outreach.html">03 : Outreach</a></li>
-          <li><a href="../ventures.html">04 : Ventures</a></li>
-          <li><a href="../games/index.html">05 : Games</a></li>
-          <li><a href="../art.html">06 : Art</a></li>
-          <li><a href="../about.html">07 : About</a></li>
-          <li><a href="../contact.html">08 : Contact</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-</header>
+<body class="cz-scope">
+<header class="cz-bar"><a class="cz-back" href="index.html">← All games</a><span class="cz-name">Hex Wave</span><a class="cz-home" href="../index.html">sofiagallego.com</a></header>
 <div class="app">
 
   <header>
@@ -637,17 +525,17 @@ function hexPath(ctx, cx, cy, size){
 
 function colorForValue(v, maxAbs){
   const a = Math.min(1, Math.abs(v) / maxAbs);
-  // single hue family: deep -> bright cyan-ish
-  const baseR = 10, baseG = 18, baseB = 42;
-  let r = baseR + Math.floor(22  * a);
-  let g = baseG + Math.floor(128 * a);
-  let b = baseB + Math.floor(210 * a);
+  // single hue family: warm paper (0) -> deep sky blue (max |v|)
+  const lo = [248,236,214], hi = [44,110,168];
+  let r = Math.round(lo[0] + (hi[0]-lo[0]) * a);
+  let g = Math.round(lo[1] + (hi[1]-lo[1]) * a);
+  let b = Math.round(lo[2] + (hi[2]-lo[2]) * a);
 
   // slight sign cue, still same family
-  if(v > 0) { g += Math.floor(10*a); r += Math.floor(6*a); }
-  if(v < 0) { b += Math.floor(12*a); }
+  if(v > 0) { g += Math.floor(14*a); r -= Math.floor(6*a); }
+  if(v < 0) { b += Math.floor(14*a); r -= Math.floor(4*a); }
 
-  return `rgb(${r},${g},${b})`;
+  return `rgb(${r},${g},${Math.min(255,b)})`;
 }
 
 function drawBoard(ctx, origin, field, emitters, revealEmitters=false){
@@ -664,15 +552,16 @@ function drawBoard(ctx, origin, field, emitters, revealEmitters=false){
     ctx.fill();
 
     // subtle border
-    ctx.strokeStyle = "rgba(255,255,255,0.07)";
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = "rgba(61,53,82,0.14)";
+    ctx.lineWidth = 1.5;
     ctx.stroke();
 
     if(showNumbers){
-      ctx.font = `${Math.max(11, HEX_SIZE*0.48)}px system-ui`;
+      ctx.font = `700 ${Math.max(11, HEX_SIZE*0.48)}px Nunito, system-ui, sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillStyle = (v===0) ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.88)";
+      const strength = Math.min(1, Math.abs(v) / maxAbs);
+      ctx.fillStyle = (v===0) ? "rgba(61,53,82,0.30)" : (strength > 0.7 ? "rgba(255,255,255,0.96)" : "rgba(61,53,82,0.92)");
       ctx.fillText(String(v), p.x, p.y);
     }
   }
@@ -680,9 +569,12 @@ function drawBoard(ctx, origin, field, emitters, revealEmitters=false){
   // emitter marker: inner hex outline inside the cell
   const drawEmitter = (e, alpha=0.85)=>{
     const p = axialToPixel(e.q,e.r,HEX_SIZE, origin.ox, origin.oy);
-    ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
-    ctx.lineWidth = 2;
     hexPath(ctx, p.x, p.y, HEX_SIZE*0.38);
+    ctx.strokeStyle = `rgba(255,250,241,${alpha})`;
+    ctx.lineWidth = 5;
+    ctx.stroke();
+    ctx.strokeStyle = `rgba(200,90,72,${alpha})`;
+    ctx.lineWidth = 2.5;
     ctx.stroke();
   };
 
