@@ -259,7 +259,9 @@ const GAMES = [
   {id:"plot", href:"plot-armor-beta/index.html", name:"Plot Armor", tags:["party"], meta:["Group","Cards","Beta"], bg:"#fde9e4",
    blurb:"Draw absurd movie-logic cards and explain how the hero survives an impossible threat. Nonsense wins."},
   {id:"second", href:"second-take/index.html", name:"Second Take", tags:["party"], meta:["Group","Workshop"], bg:"#eaf2ee",
-   blurb:"A rehearsal game: act out a tricky moment, pause, and replay it differently. About power, agency and pausing."}
+   blurb:"A rehearsal game: act out a tricky moment, pause, and replay it differently. About power, agency and pausing."},
+  {id:"cosmoneo", href:"../cosmoneo.html", name:"Cosmoneo", tags:["strategy","party"], meta:["Board game","Work in progress"], bg:"#262345",
+   blurb:"An astronomy-inspired board game about cosmic evolution, galaxies and hidden connections in the Universe. Still in beta testing."}
 ];
 
 const grid = document.getElementById("grid");
@@ -514,6 +516,21 @@ const COVERS = {
     ctx.fillStyle=P.ink;rr(ctx,cx-R*.28,cy-R*.3,R*.18,R*.6,4);ctx.fill();rr(ctx,cx+R*.1,cy-R*.3,R*.18,R*.6,4);ctx.fill();
     const b=(Math.sin(t*1.5)+1)/2;
     [[.18,.3,P.rose,"what if…"],[.8,.72,P.honey,"again!"]].forEach(([x,y,c,s],i)=>{const k=i?1-b:b;ctx.globalAlpha=.4+.6*k;ctx.fillStyle=c;rr(ctx,w*x-44,h*y-16-k*4,88,30,14);ctx.fill();ctx.fillStyle=P.ink;ctx.font=`800 13px Nunito`;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(s,w*x,h*y-1-k*4);ctx.globalAlpha=1;});
+  },
+  cosmoneo(ctx,w,h,t){
+    // a board of hex tiles where galaxies light up and get linked
+    const R=2, s=Math.min(w,h)*.13, cx=w/2, cy=h/2;
+    const cells=axial(R);
+    cells.forEach(([q,r],i)=>{const [x,y]=hexXY(q,r,s);hexPath(ctx,cx+x,cy+y,s*.93);ctx.fillStyle=i%3?"#322d5a":"#3b3668";ctx.fill();ctx.strokeStyle="rgba(255,255,255,.08)";ctx.lineWidth=1;ctx.stroke();});
+    const lit=[[0,0],[1,-1],[-1,1],[2,-1],[-2,1],[0,2],[1,-2]];
+    const k=Math.floor(t*.8)%lit.length;
+    ctx.strokeStyle="rgba(244,200,106,.7)";ctx.lineWidth=2;ctx.beginPath();
+    for(let i=0;i<=k;i++){const [x,y]=hexXY(lit[i][0],lit[i][1],s); i?ctx.lineTo(cx+x,cy+y):ctx.moveTo(cx+x,cy+y);} ctx.stroke();
+    lit.forEach(([q,r],i)=>{const [x,y]=hexXY(q,r,s),on=i<=k,pulse=on?1+.12*Math.sin(t*4+i):1;
+      ctx.save();ctx.translate(cx+x,cy+y);ctx.rotate(t*.6+i);ctx.fillStyle=on?P.honey:"rgba(255,255,255,.35)";
+      for(let a=0;a<2;a++){ctx.beginPath();ctx.ellipse(0,0,s*.36*pulse,s*.11*pulse,a*Math.PI/2,0,7);ctx.fill();}
+      ctx.beginPath();ctx.arc(0,0,s*.12,0,7);ctx.fillStyle=on?"#fff4d0":"rgba(255,255,255,.5)";ctx.fill();ctx.restore();});
+    ctx.fillStyle="rgba(255,255,255,.85)";ctx.font="800 11px Nunito";ctx.textAlign="right";ctx.fillText("WORK IN PROGRESS",w-10,h-10);
   },
   lal(ctx,w,h,t){
     // lantern workshop with little agents
