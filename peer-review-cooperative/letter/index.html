@@ -224,7 +224,7 @@ footer{max-width:760px;margin:0 auto;padding-block:0 48px;font-size:14.5px;color
 
 <section class="signatories" aria-labelledby="sig-title">
   <h2 id="sig-title">Signatories</h2>
-  <p class="note" id="sig-note">The list of signatories will be published when the letter is launched publicly.</p>
+  <p class="note" id="sig-note">Signatures appear here once they have been checked.</p>
   <ol id="sig-list" hidden></ol>
 </section>
 
@@ -234,7 +234,7 @@ footer{max-width:760px;margin:0 auto;padding-block:0 48px;font-size:14.5px;color
 /* Settings. SHOW_SIGNATORIES: false during the quiet phase (nothing listed).
    SHOW_COUNT: show "Signed by N people so far" once it looks good. */
 const ENDPOINT = "https://script.google.com/macros/s/AKfycbwMnhJFcx_U9CayjjdL9EMEc2NFGkhM2P6CbEci3jXl7fySaINUXUwMLceOCwjzd1za3Q/exec";
-const SHOW_SIGNATORIES = false;
+const SHOW_SIGNATORIES = true;
 const SHOW_COUNT = false;
 
 const form = document.getElementById("sign-form");
@@ -310,6 +310,7 @@ if (SHOW_SIGNATORIES || SHOW_COUNT){
     const note = document.getElementById("sig-note");
     if (SHOW_COUNT) note.textContent = d.count === 1 ? "Signed by 1 person so far." : `Signed by ${d.count} people so far.`;
     if (SHOW_SIGNATORIES && d.names.length){
+      document.getElementById("sig-title").textContent = `Signatories (${d.names.length})`;
       const ol = document.getElementById("sig-list");
       d.names.forEach(s => {
         const li = document.createElement("li");
