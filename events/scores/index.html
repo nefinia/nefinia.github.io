@@ -47,6 +47,13 @@
     .side{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
     .side a{font-size:14px;font-weight:500;text-decoration:none;border:1px solid var(--ink);border-radius:999px;padding:6px 14px;color:var(--ink);white-space:nowrap}
     .side a:hover{background:var(--ink);color:var(--paper)}
+    .side button.listen{font:500 14px var(--body);background:var(--rose);border:1px solid var(--rose);color:#fff;border-radius:999px;padding:6px 14px;cursor:pointer;white-space:nowrap}
+    .side button.listen:hover{filter:brightness(1.08)}
+    .player{grid-column:1/-1;background:var(--band);border-radius:14px;padding:10px 12px;margin-top:4px}
+    .player .hint{font-size:13px;color:var(--soft);margin:6px 2px 0}
+    midi-player{display:block;width:100%}
+    midi-player::part(control-panel){background:var(--card);border:1px solid var(--line);border-radius:999px}
+    midi-player::part(play-button){background:var(--ink);color:var(--paper)}
     .side a.midi{border-color:var(--rose);color:var(--rose)}
     .side a.midi:hover{background:var(--rose);color:#fff}
     .req{font-size:14px;color:var(--soft)}
@@ -67,7 +74,7 @@
   </div>
   <h1 data-t="h1">Score Library</h1>
   <p class="lead" data-t="lead">The sheet music I use for events, for the musicians I perform with. Duets for violin and cello come first; where there is a MIDI file, you can download it to listen or practise along.</p>
-  <div class="notice" data-t-html="notice"><strong>Private.</strong> Each “Score” button opens the file in Sofia's Google Drive. It only opens if Sofia has shared the scores with your Google account. No access? Ask her by email.</div>
+  <div class="notice" data-t-html="notice"><strong>For rehearsal only.</strong> “Score” opens the PDF in Google Drive and “Listen” plays the arrangement here. Please don't share these scores publicly. If a score doesn't open, ask Sofia.</div>
 
   <div class="tools">
     <div class="chips" id="chips" role="group" aria-label="Filter"></div>
@@ -79,13 +86,16 @@
 </main>
 <footer><a href="../">← <span data-t="back">Back to events</span></a></footer>
 
+<script src="lib/tone.js"></script>
+<script src="lib/magenta-core.js"></script>
+<script src="lib/midi-player.min.js"></script>
 <script>
 const CATS={duets:{en:"Violin & cello duets",fr:"Duos violon & violoncelle"},pop:{en:"Pop & film",fr:"Pop & cinéma"},classical:{en:"Classical",fr:"Classique"},voice:{en:"Opera & choral",fr:"Opéra & chœur"},latin:{en:"Tango & chanson",fr:"Tango & chanson"},jewish:{en:"Jewish & klezmer",fr:"Musique juive & klezmer"}};
 const INSTR={vc:{en:"Violin & cello",fr:"Violon & violoncelle"},vn:{en:"Solo violin",fr:"Violon seul"},vnp:{en:"Violin & piano",fr:"Violon & piano"},vp:{en:"Voice & piano",fr:"Voix & piano"},pno:{en:"Piano",fr:"Piano"},lead:{en:"Melody & chords",fr:"Mélodie & accords"},book:{en:"Songbook",fr:"Recueil"},part:{en:"Violin part",fr:"Partie de violon"},score:{en:"Full score",fr:"Conducteur"},trio:{en:"Trio (part)",fr:"Trio (partie)"},voice:{en:"Voice",fr:"Voix"}};
 const S=[
-  {t:"School",a:"Supertramp",c:"duets",i:"vc",arr:true,f:[["1WnvNRDYkmrqsiXKwQvEg4tJpDb6-fBnt"]],m:"14oHoNcxNIxfDJtaLwu9bKewjIHISJHve"},
-  {t:"The Logical Song",a:"Supertramp",c:"duets",i:"vc",arr:true,f:[["1_qXt2YKihu5DslUyszdM9ES9TZAOLP99"]],m:"1LK-9VHTzPxZoXLj0NpFErqc9lBAPOFA3"},
-  {t:"Breakfast in America",a:"Supertramp",c:"duets",i:"vc",arr:true,f:[["1XOgSMJGXTdCtDmky5NkclS3k6Ivrq9yp"]],m:"1V4BSVkDHnQQtfoeYd8RR116inyCcC6bd"},
+  {t:"School",a:"Supertramp",c:"duets",i:"vc",arr:true,f:[["1WnvNRDYkmrqsiXKwQvEg4tJpDb6-fBnt"]],m:"school"},
+  {t:"The Logical Song",a:"Supertramp",c:"duets",i:"vc",arr:true,f:[["1_qXt2YKihu5DslUyszdM9ES9TZAOLP99"]],m:"the-logical-song"},
+  {t:"Breakfast in America",a:"Supertramp",c:"duets",i:"vc",arr:true,f:[["1XOgSMJGXTdCtDmky5NkclS3k6Ivrq9yp"]],m:"breakfast-in-america"},
   {t:"Despacito",a:"Luis Fonsi",c:"duets",i:"vc",f:[["1aZBKOflCGbKG0_s8n-hT262CUAPtddhc","4 pp."],["1UQwYXxWbndlWejcaUfuUIuAfZI5NaTev","5 pp."]]},
   {t:"Wildest Dreams",a:"Taylor Swift",c:"duets",i:"vc",f:[["1VGa7tW4xPJDYAx7qKk_ZbHGyE_SkDdyE"]]},
   {t:"Toxic",a:"Britney Spears",c:"duets",i:"vc",f:[["1A0wbmSPIO0jLRaOv8juMhZxjOAquh9tT"]]},
@@ -135,11 +145,11 @@ const S=[
   {t:"Remember",a:"Klezmer (arr. Atie Bernet)",c:"jewish",i:"lead",f:[["1Hy59mTRQ36cCKpkNbN0nbqCVY1_x7EYW","1"],["1chLynsXFMhhvmGMEinTSfHEr7P_ybhgP","2"]]}
 ];
 const T={
-  en:{eyebrow:"For musicians",h1:"Score Library",title:"Score Library — Sofia Gallego",lead:"The sheet music I use for events, for the musicians I perform with. Duets for violin and cello come first; where there is a MIDI file, you can download it to listen or practise along.",midiTip:"Download the MIDI file (violin and cello on separate tracks)",
-    notice:"<strong>Private.</strong> Each “Score” button opens the file in Sofia's Google Drive. It only opens if Sofia has shared the scores with your Google account. No access? Ask her by email.",
+  en:{eyebrow:"For musicians",h1:"Score Library",title:"Score Library — Sofia Gallego",lead:"The sheet music I use for events, for the musicians I perform with. Duets for violin and cello come first; where there is a MIDI file, you can download it to listen or practise along.",midiTip:"Download the MIDI file (violin and cello on separate tracks)",listen:"Listen",hide:"Hide",hint:"Violin and cello playback of the arrangement, with the repeats played through.",
+    notice:"<strong>For rehearsal only.</strong> “Score” opens the PDF in Google Drive and “Listen” plays the arrangement here. Please don't share these scores publicly. If a score doesn't open, ask Sofia.",
     search:"Search a score",all:"All",count:(n,m)=>n===m?m+" scores":n+" of "+m+" scores",empty:"No score matches that search.",score:"Score",onreq:"Ask Sofia",arr:"arr. Sofia Gallego",back:"Back to events"},
-  fr:{eyebrow:"Pour les musiciens",h1:"Bibliothèque de partitions",title:"Partitions — Sofia Gallego",lead:"Les partitions que j'utilise pour les événements, pour les musiciens avec qui je joue. Les duos violon-violoncelle sont en premier ; quand il y a un fichier MIDI, vous pouvez le télécharger pour écouter ou travailler.",midiTip:"Télécharger le fichier MIDI (violon et violoncelle sur des pistes séparées)",
-    notice:"<strong>Privé.</strong> Chaque bouton « Partition » ouvre le fichier dans le Google Drive de Sofia. Il ne s'ouvre que si Sofia a partagé les partitions avec votre compte Google. Pas d'accès ? Demandez-lui par email.",
+  fr:{eyebrow:"Pour les musiciens",h1:"Bibliothèque de partitions",title:"Partitions — Sofia Gallego",lead:"Les partitions que j'utilise pour les événements, pour les musiciens avec qui je joue. Les duos violon-violoncelle sont en premier ; quand il y a un fichier MIDI, vous pouvez le télécharger pour écouter ou travailler.",midiTip:"Télécharger le fichier MIDI (violon et violoncelle sur des pistes séparées)",listen:"Écouter",hide:"Masquer",hint:"Lecture violon et violoncelle de l’arrangement, reprises comprises.",
+    notice:"<strong>Pour les répétitions uniquement.</strong> « Partition » ouvre le PDF dans Google Drive et « Écouter » joue l’arrangement ici. Merci de ne pas diffuser ces partitions. Si une partition ne s’ouvre pas, demandez à Sofia.",
     search:"Chercher une partition",all:"Tout",count:(n,m)=>n===m?m+" partitions":n+" sur "+m+" partitions",empty:"Aucune partition ne correspond.",score:"Partition",onreq:"Demander à Sofia",arr:"arr. Sofia Gallego",back:"Retour aux événements"}
 };
 let lang="en",cat="all";
@@ -158,8 +168,8 @@ function render(){
     return `<section class="group"><h2>${esc(CATS[k][lang])}</h2><ul>${rows.map(s=>{
       const pills=[s.i?`<span class="pill">${esc(INSTR[s.i][lang])}</span>`:"",s.arr?`<span class="pill arr">${esc(T[lang].arr)}</span>`:""].join("");
       const links=(s.f.length?s.f.map(([id,v])=>`<a href="https://drive.google.com/file/d/${id}/view" target="_blank" rel="noopener">${esc(T[lang].score)}${v?" · "+esc(v):""}</a>`).join(""):`<span class="req">${esc(T[lang].onreq)}</span>`)
-        +(s.m?`<a class="midi" href="https://drive.google.com/uc?export=download&id=${s.m}" target="_blank" rel="noopener" title="${esc(T[lang].midiTip)}">MIDI</a>`:"");
-      return `<li class="item"><div><div class="title">${esc(s.t)}</div><div class="who">${esc(s.a)}</div>${pills?`<div class="meta">${pills}</div>`:""}</div><div class="side">${links}</div></li>`;
+        +(s.m?`<button type="button" class="listen" data-m="${s.m}" aria-expanded="false">▶ ${esc(T[lang].listen)}</button><a class="midi" href="midi/${s.m}.mid" download title="${esc(T[lang].midiTip)}">MIDI</a>`:"");
+      return `<li class="item"><div><div class="title">${esc(s.t)}</div><div class="who">${esc(s.a)}</div>${pills?`<div class="meta">${pills}</div>`:""}</div><div class="side">${links}</div>${s.m?`<div class="player" id="pl-${s.m}" hidden></div>`:""}</li>`;
     }).join("")}</ul></section>`;
   }).join("")||`<p class="empty">${esc(T[lang].empty)}</p>`;
 }
@@ -173,6 +183,21 @@ function setLang(l){
 }
 $("#chips").addEventListener("click",e=>{const b=e.target.closest(".chip"); if(!b) return; cat=b.dataset.k; chips(); render();});
 $("#q").addEventListener("input",render);
+const SF="https://storage.googleapis.com/magentadata/js/soundfonts/sgm_plus";
+$("#groups").addEventListener("click",e=>{
+  const b=e.target.closest("button.listen"); if(!b) return;
+  const box=document.getElementById("pl-"+b.dataset.m); const open=box.hidden;
+  document.querySelectorAll(".player").forEach(p=>{ if(p!==box){ const mp=p.querySelector("midi-player"); if(mp&&mp.playing) mp.stop(); p.hidden=true; } });
+  document.querySelectorAll("button.listen").forEach(x=>{ if(x!==b){ x.setAttribute("aria-expanded","false"); x.textContent="▶ "+T[lang].listen; } });
+  if(open){
+    if(!box.firstChild) box.innerHTML=`<midi-player src="midi/${b.dataset.m}.mid" sound-font="${SF}"></midi-player><p class="hint">${esc(T[lang].hint)}</p>`;
+    box.hidden=false; b.setAttribute("aria-expanded","true"); b.textContent="■ "+T[lang].hide;
+    const mp=box.querySelector("midi-player"); setTimeout(()=>{try{mp.start()}catch(_){}} ,400);
+  } else {
+    const mp=box.querySelector("midi-player"); if(mp&&mp.playing) mp.stop();
+    box.hidden=true; b.setAttribute("aria-expanded","false"); b.textContent="▶ "+T[lang].listen;
+  }
+});
 $("#enBtn").addEventListener("click",()=>setLang("en"));
 $("#frBtn").addEventListener("click",()=>setLang("fr"));
 setLang(/^fr/i.test(navigator.language||"")?"fr":"en");
