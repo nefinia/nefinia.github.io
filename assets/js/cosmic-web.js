@@ -91,7 +91,7 @@
     }
   }
   function pick(x0,x1){
-    const y0 = narrow? 40 : 64, y1 = H-(narrow?40:70);
+    const y0 = Math.max(narrow? 40 : 64, H*.11), y1 = Math.min(H-(narrow?40:70), H*.8);
     const cand = verts.filter(v=>v.x>x0&&v.x<x1&&v.y>y0&&v.y<y1);
     if(cand.length<SECTIONS.length) return 0;
     let best=null,bestMin=0;
@@ -148,44 +148,111 @@
   const intro=document.querySelector('.intro');
   function build(){
     const b=web.getBoundingClientRect(); if(!b.width) return;
-    W=b.width; H=b.height; dpr=Math.min(2,window.devicePixelRatio||1); narrow=W<760;
+    W=b.width; H=b.height; dpr=Math.min(2,window.devicePixelRatio||1); narrow=getComputedStyle(intro).position!=='absolute';
     cv.width=W*dpr; cv.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
     const gut=Math.max(0,(W-1180)/2);
     const x0 = narrow? 30 : intro.getBoundingClientRect().right-b.left+60, x1 = narrow? W-30 : W-gut-60;
-    let bestSeed=1,bestD=0;
-    for(let sd=3; sd<80; sd+=2){ voronoi(rng(sd)); const d=pick(x0,x1); if(d>bestD){bestD=d;bestSeed=sd;} if(d>(narrow?105:150)) break; }
-    voronoi(rng(bestSeed)); pick(x0,x1); render(rng(bestSeed+101));
-    SECTIONS.forEach((s,i)=>{ s.v=picks[i]; s.el.classList.toggle('left', s.v.x + s.el.offsetWidth > (narrow? W-6 : x1+40)); s.paths=s.v.nb.map(([n])=>edgePath(s.v,verts[n])); });
-    // keep section labels from colliding: flip a label to the other side when two overlap
-    const lbox=s=>{ const w=s.el.offsetWidth, l=s.el.classList.contains('left'); return l? [s.v.x-w+14,s.v.y-12,w,24] : [s.v.x-14,s.v.y-12,w,24]; };
-    const hit=(p,q)=> p[0]<q[0]+q[2] && q[0]<p[0]+p[2] && p[1]<q[1]+q[3] && q[1]<p[1]+p[3];
-    for(let pass=0;pass<3;pass++) for(let i=0;i<SECTIONS.length;i++) for(let j=i+1;j<SECTIONS.length;j++){
-      const a=SECTIONS[i], b=SECTIONS[j];
-      if(!hit(lbox(a),lbox(b))) continue;
-      for(const m of [a,b]){ m.el.classList.toggle('left'); const bx=lbox(m);
-        if(bx[0]>=4 && bx[0]+bx[2]<=W-4 && !hit(lbox(a),lbox(b))) break; m.el.classList.toggle('left'); }
-    }
-    const xmin = narrow? 8 : x0-30;
     const ov=(p,q,m)=> p[0]<q[0]+q[2]+m && q[0]<p[0]+p[2]+m && p[1]<q[1]+q[3]+m && q[1]<p[1]+p[3]+m;
+    const area=(p,q)=> Math.max(0,Math.min(p[0]+p[2],q[0]+q[2])-Math.max(p[0],q[0]))*Math.max(0,Math.min(p[1]+p[3],q[1]+q[3])-Math.max(p[1],q[1]));
+    const xmin = narrow? 6 : x0-30, fTop=Math.round(H*.08), fBot=Math.round(H*.84), frame=[xmin,fTop,W-6-xmin,fBot-fTop];
+    const inFrame=bx=> bx[0]>=frame[0] && bx[1]>=frame[1] && bx[0]+bx[2]<=frame[0]+frame[2] && bx[1]+bx[3]<=frame[1]+frame[3];
+    const lbl = s=>s.el.querySelector('.lbl');
+    const lboxFor=(s,side)=>{ const lw=lbl(s).offsetWidth, lh=lbl(s).offsetHeight||18, x=s.v.x, y=s.v.y;
+      return side==='r'? [x+24,y-lh/2,lw,lh] : side==='l'? [x-24-lw,y-lh/2,lw,lh] : side==='u'? [x-lw/2,y-18-lh,lw,lh] : [x-lw/2,y+18,lw,lh]; };
+    // label placement: each label may sit right, left, above or below its point; returns how much still collides
+    function placeLabels(){
+      const pts = SECTIONS.map(s=>[s.v.x-14,s.v.y-14,28,28]);
+      const cost=(s,side,placed)=>{ const bx=lboxFor(s,side); let c=inFrame(bx)?0:1e6;
+        pts.forEach((p,i)=>{ if(SECTIONS[i]!==s) c+=area(bx,p)*50; });
+        placed.forEach(q=>{ c+=area(bx,q)*100; if(ov(bx,q,6)) c+=500; });
+        return c + ({r:0,l:1,u:3,d:4})[side]; };
+      const placed=[];
+      SECTIONS.forEach(s=>{ let best='r',bc=Infinity;
+        for(const side of ['r','l','u','d']){ const c=cost(s,side,placed); if(c<bc){bc=c;best=side;} }
+        s.side=best; placed.push(lboxFor(s,best)); });
+      let total=0;
+      for(let pass=0;pass<4;pass++){ total=0; SECTIONS.forEach(s=>{
+        const others=SECTIONS.filter(o=>o!==s).map(o=>lboxFor(o,o.side));
+        let best=s.side,bc=cost(s,s.side,others);
+        for(const side of ['r','l','u','d']){ const c=cost(s,side,others); if(c<bc){bc=c;best=side;} }
+        s.side=best; total+=bc-({r:0,l:1,u:3,d:4})[best]; }); }
+      return total;
+    }
+    // choose the web whose sections are well spread AND whose labels all fit
+    let bestSeed=3,bestScore=-Infinity;
+    for(let sd=3; sd<120; sd+=2){
+      voronoi(rng(sd)); const d=pick(x0,x1); if(!d) continue;
+      SECTIONS.forEach((s,i)=>{ s.v=picks[i]; });
+      const c=placeLabels(); const score=Math.min(d,narrow?110:170) - c;
+      if(score>bestScore){bestScore=score;bestSeed=sd;}
+      if(c===0 && d>(narrow?105:150)) break;
+    }
+    voronoi(rng(bestSeed)); pick(x0,x1); render(rng(bestSeed+101));
+    SECTIONS.forEach((s,i)=>{ s.v=picks[i]; s.paths=s.v.nb.map(([n])=>edgePath(s.v,verts[n])); });
+    placeLabels();
+    SECTIONS.forEach(s=>{ s.el.classList.toggle('left',s.side==='l'); s.el.classList.toggle('up',s.side==='u'); s.el.classList.toggle('down',s.side==='d'); s.lab=lboxFor(s,s.side); });
+
+    // ---- notes: spread around the node, inside the frame, never on each other or on the node's own label
     SECTIONS.forEach(s=>{
-      const lw=s.el.offsetWidth, lab = s.el.classList.contains('left') ? [s.v.x-lw+14,s.v.y-14,lw,28] : [s.v.x-14,s.v.y-14,lw,28];
-      const others = SECTIONS.filter(o=>o!==s).map(o=>[o.v.x-10,o.v.y-10,20,20]);
-      const used=[lab]; s.spots=[];
-      s.mEls.forEach((e,k)=>{
-        const w=e.offsetWidth||150, hgt=e.offsetHeight||36; let best=null,bs=-Infinity;
-        for(const R of (narrow?[70,100,130]:[90,125,160])) for(let j=0;j<24;j++){
-          const ang=j*Math.PI/12, cx=s.v.x+Math.cos(ang)*R, cy=s.v.y+Math.sin(ang)*R*.8, left=cx<s.v.x;
+      s.mEls.forEach(e=>e.classList.remove('compact')); s.crowded=false;
+      const used=[s.lab,[s.v.x-14,s.v.y-14,28,28]]; s.spots=[];
+      const otherPts = SECTIONS.filter(o=>o!==s).map(o=>[o.v.x-12,o.v.y-12,24,24]);
+      s.mEls.forEach(e=>{
+        const w=e.offsetWidth||150, hgt=e.offsetHeight||36; let best=null,bs=-Infinity,fb=null,fbc=Infinity;
+        const radii = narrow? [64,88,112,136,160,190,220,250] : [90,115,140,165,195,225,260];
+        for(const R of radii) for(let j=0;j<24;j++){
+          const ang=j*Math.PI/12, cx=s.v.x+Math.cos(ang)*R, cy=s.v.y+Math.sin(ang)*R*.85, left=cx<s.v.x;
           const box= left? [cx-w+2,cy-9,w,hgt] : [cx-3,cy-9,w,hgt];
-          if(box[0]<xmin||box[0]+box[2]>W-6||box[1]<6||box[1]+box[3]>H-24) continue;
-          if(used.some(u=>ov(u,box,8))) continue;
-          const hitsNode = others.some(o=>ov(o,box,4));
+          let pen=0; used.forEach(u=>pen+=area(u,box)); if(!inFrame(box)) pen+=1e5;
+          if(pen<fbc){fbc=pen;fb={x:cx,y:cy,left,box};}
+          if(pen>0 || used.some(u=>ov(u,box,6))) continue;
+          const hitsNode = otherPts.some(o=>ov(o,box,2));
           let d=Infinity; for(const u of used) d=Math.min(d,Math.hypot(u[0]+u[2]/2-box[0]-w/2,u[1]+u[3]/2-box[1]-hgt/2));
-          const sc = Math.min(d,160) - R*.6 - (hitsNode?120:0);
+          const sc = Math.min(d,140) - R*.5 - (hitsNode?80:0);
           if(sc>bs){bs=sc;best={x:cx,y:cy,left,box};}
         }
-        if(!best){ const cy=s.v.y+40+k*40; best={x:s.v.x,y:cy,left:false,box:[s.v.x,cy-9,w,hgt]}; }
-        used.push(best.box); s.spots.push(best); e.classList.toggle('left',best.left);
+        if(!best) s.crowded=true;
+        best = best||fb; used.push(best.box); s.spots.push(best); e.classList.toggle('left',best.left);
       });
+      // not enough room around the node: stack the notes in a tidy column beside it
+      if(s.crowded){
+        s.mEls.forEach(e=>e.classList.add('compact'));
+        const ws=s.mEls.map(e=>e.offsetWidth||150), hs=s.mEls.map(e=>e.offsetHeight||26), gap=6;
+        const total=hs.reduce((a,b)=>a+b,0)+gap*(hs.length-1), maxw=Math.max(...ws);
+        const clampY=v=>Math.max(fTop,Math.min(fBot-total,v));
+        const colFor = sd => sd==='r' ? Math.min(s.v.x+26, W-6-maxw) : Math.max(xmin, s.v.x-26-maxw);
+        const ptBox=[s.v.x-14,s.v.y-14,28,28];
+        const freeFor = sd => { const bx=lboxFor(s,sd); return inFrame(bx) &&
+          !SECTIONS.some(o=>o!==s && (ov(bx,o.lab,4) || ov(bx,[o.v.x-14,o.v.y-14,28,28],2))); };
+        // search: label side (current first, then any free side) × column side × vertical position
+        let found=null;
+        const labelSides=[s.side,'l','r','u','d'].filter((v,i,a)=>a.indexOf(v)===i && (v===s.side || freeFor(v)));
+        outer: for(const ls of labelSides){
+          const lab=lboxFor(s,ls);
+          const colSides = (s.v.x < W/2) ? ['r','l'] : ['l','r'];
+          for(const cs of colSides){
+            const cx=colFor(cs);
+            const ys=[s.v.y-total/2, lab[1]+lab[3]+8, lab[1]-8-total, s.v.y+18, s.v.y-18-total].map(clampY);
+            for(const yy of ys){
+              const col=[cx,yy,maxw,total];
+              if(!ov(col,lab,4) && !ov(col,ptBox,0)){ found={ls,cs,cx,y:yy}; break outer; }
+            }
+          }
+        }
+        if(!found) found={ls:s.side,cs:(s.v.x<W/2?'r':'l'),cx:colFor(s.v.x<W/2?'r':'l'),y:clampY(s.v.y-total/2)};
+        s.side=found.ls; s.lab=lboxFor(s,s.side);
+        s.el.classList.toggle('left',s.side==='l'); s.el.classList.toggle('up',s.side==='u'); s.el.classList.toggle('down',s.side==='d');
+        let side=found.cs, y=found.y;
+        s.spots=[]; s.crowded=false;
+        s.mEls.forEach((e,k)=>{
+          const w=ws[k];
+          const bx = side==='r' ? Math.min(s.v.x+26, W-6-w) : Math.max(xmin, s.v.x-26-w);
+          const left = side==='l';
+          const px = left ? bx+w-2 : bx+3;
+          s.spots.push({x:px,y:y+9,left,box:[bx,y,w,hs[k]]}); e.classList.toggle('left',left);
+          y+=hs[k]+gap;
+        });
+      }
     });
     if(reduce) draw(0); else if(!running){ running=true; requestAnimationFrame(draw); }
   }
@@ -220,8 +287,10 @@
       ctx.fillStyle=g; ctx.fillRect(0,0,r,H);
     }
     SECTIONS.forEach(s=>{
-      const x=s.v.x+ox, y=s.v.y+oy, left=s.el.classList.contains('left'), w=s.el.offsetWidth;
-      s.el.style.transform='translate('+(left? x-w+14 : x-14)+'px,'+(y-14)+'px)';
+      const x=s.v.x+ox, y=s.v.y+oy, w=s.el.offsetWidth, h=s.el.offsetHeight;
+      const tx = s.side==='l'? x-w+14 : (s.side==='u'||s.side==='d')? x-w/2 : x-14;
+      const ty = s.side==='u'? y-h+14 : y-14;
+      s.el.style.transform='translate('+tx+'px,'+ty+'px)';
       if(s===active) s.mEls.forEach((e,k)=>{ const p=s.spots[k], l=e.classList.contains('left');
         e.style.transform='translate('+(l? p.x+ox-e.offsetWidth+2.5 : p.x+ox-2.5)+'px,'+(p.y+oy-8.5)+'px)'; });
     });

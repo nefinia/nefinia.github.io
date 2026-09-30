@@ -7,7 +7,9 @@ import nenufarUrl from "../nancay_doc_assets/nenufar.jpg";
 import nrtUrl from "../nancay_doc_assets/nrt.jpg";
 import radioheliographUrl from "../nancay_doc_assets/radioheliograph.jpg";
 
-type Language = "en" | "fr";
+type Language = "en" | "fr" | "es";
+
+const supportedLanguages: Language[] = ["en", "fr", "es"];
 
 type Localized = Record<Language, string>;
 
@@ -59,18 +61,22 @@ const copy = {
   eyebrow: {
     en: "Nançay Radio Observatory",
     fr: "Observatoire radioastronomique de Nançay",
+    es: "Observatorio de radioastronomía de Nançay",
   },
   title: {
     en: "The Universe is not only seen. It is timed, filtered, and listened to.",
     fr: "L’Univers ne se regarde pas seulement. Il se chronomètre, se filtre et s’écoute.",
+    es: "El Universo no solo se mira. También se cronometra, se filtra y se escucha.",
   },
   intro: {
     en: "Radio astronomy at Nançay connects long-wavelength light to gas, magnetic fields, plasma, pulsars, planetary magnetospheres, and the early Universe.",
     fr: "À Nançay, la radioastronomie relie la lumière de grande longueur d’onde au gaz, aux champs magnétiques, aux plasmas, aux pulsars, aux magnétosphères planétaires et à l’Univers jeune.",
+    es: "En Nançay, la radioastronomía conecta la luz de gran longitud de onda con el gas, los campos magnéticos, el plasma, los púlsares, las magnetosferas planetarias y el Universo temprano.",
   },
   coreLine: {
     en: "If optical astronomy shows what the Universe looks like, radio astronomy often reveals how it works.",
     fr: "Si l’astronomie optique montre à quoi ressemble l’Univers, la radioastronomie révèle souvent comment il fonctionne.",
+    es: "Si la astronomía óptica muestra cómo se ve el Universo, la radioastronomía suele revelar cómo funciona.",
   },
 };
 
@@ -82,32 +88,37 @@ const instruments: Instrument[] = [
     bandLabel: "1.06-3.5 GHz",
     wavelengths: "8.6-28 cm",
     facts: [
-      { en: "Large single-dish radio telescope with a fixed spherical mirror and moving flat reflector.", fr: "Grand radiotélescope avec miroir sphérique fixe et miroir plan mobile." },
-      { en: "Key band: 1.06-3.5 GHz, including H I at 1420 MHz.", fr: "Bande clé : 1,06-3,5 GHz, incluant H I à 1420 MHz." },
-      { en: "Strength: deep spectra and precise timing rather than panoramic imaging.", fr: "Force : spectres profonds et chronométrage précis plutôt qu’imagerie panoramique." },
+      { en: "Large single-dish radio telescope with a fixed spherical mirror and moving flat reflector.", fr: "Grand radiotélescope avec miroir sphérique fixe et miroir plan mobile.", es: "Gran radiotelescopio de plato único, con un espejo esférico fijo y un reflector plano móvil." },
+      { en: "Key band: 1.06-3.5 GHz, including H I at 1420 MHz.", fr: "Bande clé : 1,06-3,5 GHz, incluant H I à 1420 MHz.", es: "Banda clave: 1,06-3,5 GHz, que incluye H I a 1420 MHz." },
+      { en: "Strength: deep spectra and precise timing rather than panoramic imaging.", fr: "Force : spectres profonds et chronométrage précis plutôt qu’imagerie panoramique.", es: "Su fuerte: espectros profundos y cronometraje preciso, más que imágenes panorámicas." },
     ],
     image: nrtUrl,
     alt: "Large fixed spherical reflector of the Nançay decimetric radio telescope",
     tagline: {
       en: "The galaxy gas and pulsar timing instrument.",
       fr: "L’instrument du gaz galactique et du chronométrage des pulsars.",
+      es: "El instrumento del gas galáctico y del cronometraje de púlsares.",
     },
     works: {
       en: "The NRT is not a steerable dish in the usual sense. A movable flat reflector redirects radiation from the sky onto a large fixed spherical mirror; the focused signal reaches a receiver carriage. Cooled receivers and spectrometers then separate the signal by frequency, while pulsar backends record precise arrival times. Its decimetric band includes the 21 cm hyperfine line of neutral hydrogen, where Doppler shifts directly encode gas velocity.",
       fr: "Le NRT n’est pas une parabole orientable classique. Un miroir plan mobile redirige le rayonnement du ciel vers un grand miroir sphérique fixe ; le signal focalisé arrive sur un chariot de réception. Des récepteurs refroidis et des spectromètres séparent ensuite le signal par fréquence, tandis que les chaînes pulsars enregistrent des temps d’arrivée très précis. Sa bande décimétrique inclut la raie hyperfine à 21 cm de l’hydrogène neutre, dont le décalage Doppler code directement la vitesse du gaz.",
+      es: "El NRT no es una antena parabólica orientable en el sentido habitual. Un reflector plano móvil redirige la radiación del cielo hacia un gran espejo esférico fijo, y la señal enfocada llega a un carro receptor. Luego, receptores refrigerados y espectrómetros separan la señal por frecuencia, mientras los sistemas dedicados a púlsares registran tiempos de llegada muy precisos. Su banda decimétrica incluye la línea hiperfina de 21 cm del hidrógeno neutro, cuyo corrimiento Doppler codifica directamente la velocidad del gas.",
     },
     finds: [
       {
         en: "Neutral hydrogen in galaxies: spectra measure gas mass, rotation, turbulence, and large-scale dynamics.",
         fr: "Hydrogène neutre des galaxies : les spectres mesurent la masse de gaz, la rotation, la turbulence et la dynamique globale.",
+        es: "Hidrógeno neutro en galaxias: los espectros miden la masa de gas, la rotación, la turbulencia y la dinámica a gran escala.",
       },
       {
         en: "Pulsar timing: pulse arrival times test neutron-star physics, binary dynamics, relativity, and nanohertz gravitational-wave backgrounds.",
         fr: "Chronométrage des pulsars : les temps d’arrivée testent la physique des étoiles à neutrons, la dynamique binaire, la relativité et les fonds d’ondes gravitationnelles nanohertz.",
+        es: "Cronometraje de púlsares: los tiempos de llegada de los pulsos ponen a prueba la física de las estrellas de neutrones, la dinámica de sistemas binarios, la relatividad y el fondo de ondas gravitacionales de nanohercios.",
       },
       {
         en: "Narrow spectral lines: cometary OH traces water production; OH masers around evolved stars trace mass loss and circumstellar chemistry.",
         fr: "Raies spectrales étroites : l’OH cométaire trace la production d’eau ; les masers OH autour des étoiles évoluées tracent la perte de masse et la chimie circumstellaire.",
+        es: "Líneas espectrales estrechas: el OH de los cometas traza la producción de agua; los máseres de OH alrededor de estrellas evolucionadas trazan la pérdida de masa y la química circunestelar.",
       },
     ],
     physics: ["21 cm hydrogen", "pulsars", "molecular radio lines"],
@@ -123,32 +134,37 @@ const instruments: Instrument[] = [
     bandLabel: "10-90 MHz; 110-270 MHz",
     wavelengths: "1.1-30 m, with a band gap",
     facts: [
-      { en: "French station FR606 in the European International LOFAR Telescope network.", fr: "Station française FR606 du réseau européen International LOFAR Telescope." },
-      { en: "Two separate antenna systems: LBA 10-90 MHz and HBA 110-270 MHz; the 90-110 MHz interval is not an observing band.", fr: "Deux systèmes d’antennes séparés : LBA 10-90 MHz et HBA 110-270 MHz ; l’intervalle 90-110 MHz n’est pas une bande d’observation." },
-      { en: "Signals are digitally delayed to form beams, then correlated with other LOFAR stations for imaging.", fr: "Les signaux sont retardés numériquement pour former des faisceaux, puis corrélés avec les autres stations LOFAR pour l’imagerie." },
+      { en: "French station FR606 in the European International LOFAR Telescope network.", fr: "Station française FR606 du réseau européen International LOFAR Telescope.", es: "Estación francesa FR606 de la red europea International LOFAR Telescope." },
+      { en: "Two separate antenna systems: LBA 10-90 MHz and HBA 110-270 MHz; the 90-110 MHz interval is not an observing band.", fr: "Deux systèmes d’antennes séparés : LBA 10-90 MHz et HBA 110-270 MHz ; l’intervalle 90-110 MHz n’est pas une bande d’observation.", es: "Dos sistemas de antenas separados: LBA de 10-90 MHz y HBA de 110-270 MHz; el intervalo de 90-110 MHz no es una banda de observación." },
+      { en: "Signals are digitally delayed to form beams, then correlated with other LOFAR stations for imaging.", fr: "Les signaux sont retardés numériquement pour former des faisceaux, puis corrélés avec les autres stations LOFAR pour l’imagerie.", es: "Las señales se retrasan digitalmente para formar haces y luego se correlacionan con las de otras estaciones LOFAR para producir imágenes." },
     ],
     image: lofarUrl,
     alt: "LOFAR antenna field at Nançay",
     tagline: {
       en: "A French station in a European software telescope, split into low and high bands.",
       fr: "Une station française dans un télescope logiciel européen, séparée en bandes basse et haute.",
+      es: "Una estación francesa dentro de un radiotelescopio europeo definido por software, dividida en banda baja y banda alta.",
     },
     works: {
       en: "LOFAR is a distributed interferometer, not a single dish. At Nançay, FR606 has a low-band antenna field operating around 10-90 MHz and a high-band antenna field around 110-270 MHz, so LOFAR coverage is not continuous across 10-270 MHz. The gap matters operationally and scientifically: different antennas, receivers, calibration strategies, ionospheric effects, and radio-frequency-interference environments apply in the two bands. Digital delays form station beams; correlations between stations measure phase and amplitude on many baselines, converting timing information into angular structure.",
       fr: "LOFAR est un interféromètre distribué, pas une parabole unique. À Nançay, FR606 possède un champ d’antennes basse bande autour de 10-90 MHz et un champ haute bande autour de 110-270 MHz : la couverture LOFAR n’est donc pas continue entre 10 et 270 MHz. Cette coupure compte techniquement et scientifiquement : antennes, récepteurs, calibration, effets ionosphériques et interférences radio diffèrent entre les deux bandes. Des retards numériques forment les faisceaux de station ; les corrélations entre stations mesurent phase et amplitude sur de nombreuses lignes de base, transformant le temps d’arrivée en structure angulaire.",
+      es: "LOFAR es un interferómetro distribuido, no un plato único. En Nançay, FR606 tiene un campo de antenas de banda baja que opera entre unos 10 y 90 MHz y otro de banda alta entre unos 110 y 270 MHz, así que la cobertura de LOFAR no es continua entre 10 y 270 MHz. Ese hueco importa en lo técnico y en lo científico: en cada banda cambian las antenas, los receptores, las estrategias de calibración, los efectos ionosféricos y el entorno de interferencias de radiofrecuencia. Los retardos digitales forman los haces de estación; las correlaciones entre estaciones miden fase y amplitud en muchas líneas de base y convierten la información temporal en estructura angular.",
     },
     finds: [
       {
         en: "Diffuse synchrotron emission from relativistic electrons and magnetic fields in galaxies, jets, clusters, and supernova remnants.",
         fr: "Émission synchrotron diffuse d’électrons relativistes et de champs magnétiques dans les galaxies, les jets, les amas et les restes de supernovae.",
+        es: "Emisión sincrotrón difusa de electrones relativistas y campos magnéticos en galaxias, chorros, cúmulos y remanentes de supernova.",
       },
       {
         en: "Low-frequency time-domain science: pulsars, solar bursts, cosmic-ray air showers, radio transients, and propagation through ionized plasma.",
         fr: "Science temporelle basse fréquence : pulsars, sursauts solaires, gerbes de rayons cosmiques, transitoires radio et propagation dans les plasmas ionisés.",
+        es: "Ciencia del dominio temporal a baja frecuencia: púlsares, estallidos solares, cascadas atmosféricas de rayos cósmicos, transitorios de radio y propagación a través de plasma ionizado.",
       },
       {
         en: "Cosmology targets: redshifted hydrogen from the Epoch of Reionization and large-scale cosmic magnetism.",
         fr: "Cibles cosmologiques : hydrogène décalé vers le rouge de l’époque de réionisation et magnétisme cosmique à grande échelle.",
+        es: "Objetivos cosmológicos: hidrógeno desplazado al rojo de la Época de la Reionización y magnetismo cósmico a gran escala.",
       },
     ],
     physics: ["synchrotron", "interferometry", "pulsars", "early 21 cm"],
@@ -161,32 +177,37 @@ const instruments: Instrument[] = [
     bandLabel: "10-85 MHz",
     wavelengths: "3.5-30 m",
     facts: [
-      { en: "New Extension in Nançay Upgrading LOFAR, optimized for 10-85 MHz.", fr: "New Extension in Nançay Upgrading LOFAR, optimisé pour 10-85 MHz." },
-      { en: "Not simply part of LOFAR: it is an autonomous telescope and can also act as a LOFAR super-station.", fr: "Pas simplement une partie de LOFAR : c’est un télescope autonome qui peut aussi agir comme super-station LOFAR." },
-      { en: "Dense mini-array layout gives much higher low-band sensitivity at Nançay than a standard LOFAR station.", fr: "Sa configuration dense en mini-réseaux donne à Nançay une sensibilité basse fréquence bien supérieure à celle d’une station LOFAR standard." },
+      { en: "New Extension in Nançay Upgrading LOFAR, optimized for 10-85 MHz.", fr: "New Extension in Nançay Upgrading LOFAR, optimisé pour 10-85 MHz.", es: "New Extension in Nançay Upgrading LOFAR, optimizado para 10-85 MHz." },
+      { en: "Not simply part of LOFAR: it is an autonomous telescope and can also act as a LOFAR super-station.", fr: "Pas simplement une partie de LOFAR : c’est un télescope autonome qui peut aussi agir comme super-station LOFAR.", es: "No es simplemente una parte de LOFAR: es un radiotelescopio autónomo que también puede funcionar como superestación LOFAR." },
+      { en: "Dense mini-array layout gives much higher low-band sensitivity at Nançay than a standard LOFAR station.", fr: "Sa configuration dense en mini-réseaux donne à Nançay une sensibilité basse fréquence bien supérieure à celle d’une station LOFAR standard.", es: "Su disposición densa en minirredes le da a Nançay una sensibilidad en banda baja mucho mayor que la de una estación LOFAR estándar." },
     ],
     image: nenufarUrl,
     alt: "NenuFAR low-frequency antennas at Nançay",
     tagline: {
       en: "A dense low-band array: autonomous telescope and LOFAR super-station.",
       fr: "Un réseau basse bande dense : télescope autonome et super-station LOFAR.",
+      es: "Una red densa de banda baja: radiotelescopio autónomo y superestación LOFAR.",
     },
     works: {
       en: "NenuFAR is a dense phased array built from many low-frequency antennas grouped into mini-arrays, optimized for 10-85 MHz. It overlaps LOFAR's low band, but its role is different: it can observe independently with multiple sensitive beams, produce low-frequency images on its own, and operate as a LOFAR super-station that greatly increases Nançay's collecting area in international LOFAR observations. In that super-station mode, NenuFAR is an extension/upgrading element for LOFAR; in autonomous mode, it is its own instrument.",
       fr: "NenuFAR est un réseau phasé dense, construit avec de nombreuses antennes basse fréquence regroupées en mini-réseaux, optimisé pour 10-85 MHz. Il recouvre la basse bande de LOFAR, mais son rôle est différent : il peut observer de façon autonome avec plusieurs faisceaux sensibles, produire ses propres images basse fréquence et fonctionner comme super-station LOFAR en augmentant fortement la surface collectrice de Nançay dans les observations internationales LOFAR. Dans ce mode super-station, NenuFAR est une extension/amélioration de LOFAR ; en mode autonome, c’est un instrument à part entière.",
+      es: "NenuFAR es una red en fase densa, formada por muchas antenas de baja frecuencia agrupadas en minirredes y optimizada para 10-85 MHz. Se superpone con la banda baja de LOFAR, pero cumple otro papel: puede observar de forma independiente con varios haces sensibles, producir sus propias imágenes de baja frecuencia y operar como superestación LOFAR, lo que aumenta mucho el área colectora de Nançay en las observaciones internacionales de LOFAR. En modo superestación, NenuFAR es una extensión y mejora de LOFAR; en modo autónomo, es un instrumento propio.",
     },
     finds: [
       {
         en: "Cosmic Dawn: redshifted 21 cm hydrogen from the era when the first stars and galaxies changed the thermal and ionization state of the intergalactic medium.",
         fr: "Aube cosmique : hydrogène à 21 cm décalé vers le rouge, provenant de l’époque où les premières étoiles et galaxies ont modifié l’état thermique et ionisé du milieu intergalactique.",
+        es: "Amanecer Cósmico: hidrógeno de 21 cm desplazado al rojo, de la época en que las primeras estrellas y galaxias cambiaron el estado térmico y de ionización del medio intergaláctico.",
       },
       {
         en: "Planetary magnetism: coherent cyclotron-maser bursts from Jupiter-like planets and possible exoplanet magnetospheres.",
         fr: "Magnétisme planétaire : sursauts cohérents de type maser cyclotron provenant de planètes de type Jupiter et de possibles magnétosphères d’exoplanètes.",
+        es: "Magnetismo planetario: estallidos coherentes de máser ciclotrónico en planetas como Júpiter y en posibles magnetosferas de exoplanetas.",
       },
       {
         en: "Low-frequency pulsars and transients, where dispersion and scattering reveal the plasma between the source and Earth.",
         fr: "Pulsars et transitoires basse fréquence, où la dispersion et la diffusion révèlent le plasma entre la source et la Terre.",
+        es: "Púlsares y transitorios de baja frecuencia, donde la dispersión y el esparcimiento revelan el plasma que hay entre la fuente y la Tierra.",
       },
     ],
     physics: ["early 21 cm", "cyclotron maser", "plasma emission", "beamforming"],
@@ -199,32 +220,37 @@ const instruments: Instrument[] = [
     bandLabel: "150-450 MHz",
     wavelengths: "0.67-2 m",
     facts: [
-      { en: "Dedicated solar radio interferometer.", fr: "Interféromètre radio solaire dédié." },
-      { en: "Images the corona, not the visible solar surface.", fr: "Image la couronne, pas la surface visible du Soleil." },
-      { en: "Measures where energetic electrons move during eruptions.", fr: "Mesure où se déplacent les électrons énergétiques pendant les éruptions." },
+      { en: "Dedicated solar radio interferometer.", fr: "Interféromètre radio solaire dédié.", es: "Radiointerferómetro dedicado al Sol." },
+      { en: "Images the corona, not the visible solar surface.", fr: "Image la couronne, pas la surface visible du Soleil.", es: "Obtiene imágenes de la corona, no de la superficie visible del Sol." },
+      { en: "Measures where energetic electrons move during eruptions.", fr: "Mesure où se déplacent les électrons énergétiques pendant les éruptions.", es: "Mide por dónde se mueven los electrones energéticos durante las erupciones." },
     ],
     image: radioheliographUrl,
     alt: "Nançay Radioheliograph solar radio array",
     tagline: {
       en: "A radio camera for the solar corona.",
       fr: "Une caméra radio pour la couronne solaire.",
+      es: "Una cámara de radio para la corona solar.",
     },
     works: {
       en: "The Radioheliograph is a specialized solar interferometer. Antennas distributed along a large T-shaped array observe the Sun simultaneously at several radio frequencies. Correlating the antennas produces radio images of the corona, where the emission is often generated by energetic electrons in magnetized plasma. Because the Sun changes quickly, the instrument is built for repeated, rapid imaging rather than deep static exposures.",
       fr: "Le Radiohéliographe est un interféromètre solaire spécialisé. Des antennes réparties sur un grand réseau en T observent simultanément le Soleil à plusieurs fréquences radio. La corrélation des antennes produit des images radio de la couronne, où l’émission est souvent générée par des électrons énergétiques dans un plasma magnétisé. Comme le Soleil varie rapidement, l’instrument est conçu pour une imagerie répétée et rapide plutôt que pour des poses profondes et statiques.",
+      es: "El Radioheliógrafo es un interferómetro solar especializado. Sus antenas, repartidas en una gran red con forma de T, observan el Sol simultáneamente en varias frecuencias de radio. Al correlacionar las antenas se obtienen imágenes de radio de la corona, donde la emisión suele provenir de electrones energéticos en un plasma magnetizado. Como el Sol cambia con rapidez, el instrumento está pensado para tomar imágenes rápidas y repetidas, no exposiciones largas y estáticas.",
     },
     finds: [
       {
         en: "Solar flares and coronal mass ejections: radio maps locate particle acceleration and magnetic restructuring in the corona.",
         fr: "Éruptions solaires et éjections de masse coronale : les cartes radio localisent l’accélération des particules et la restructuration magnétique dans la couronne.",
+        es: "Fulguraciones solares y eyecciones de masa coronal: los mapas de radio localizan la aceleración de partículas y la reconfiguración magnética en la corona.",
       },
       {
         en: "Space weather: radio bursts trace electron beams and shocks that can disturb satellites, GPS, communications, aviation, and power grids.",
         fr: "Météo de l’espace : les sursauts radio tracent les faisceaux d’électrons et les chocs capables de perturber les satellites, le GPS, les communications, l’aviation et les réseaux électriques.",
+        es: "Clima espacial: los estallidos de radio trazan haces de electrones y ondas de choque que pueden perturbar satélites, el GPS, las comunicaciones, la aviación y las redes eléctricas.",
       },
       {
         en: "Solar plasma physics: frequency maps correspond to different heights and plasma densities in the corona.",
         fr: "Physique du plasma solaire : les cartes en fréquence correspondent à différentes hauteurs et densités de plasma dans la couronne.",
+        es: "Física del plasma solar: los mapas a distintas frecuencias corresponden a distintas alturas y densidades del plasma en la corona.",
       },
     ],
     physics: ["plasma emission", "interferometry", "space weather"],
@@ -237,32 +263,37 @@ const instruments: Instrument[] = [
     bandLabel: "10-100 MHz",
     wavelengths: "3-30 m",
     facts: [
-      { en: "144 conical antennas observing decametric wavelengths.", fr: "144 antennes coniques observant les longueurs d’onde décamétriques." },
-      { en: "Specialized in Jupiter and solar radio bursts.", fr: "Spécialisé dans les sursauts radio de Jupiter et du Soleil." },
-      { en: "Long monitoring record since the late 1970s.", fr: "Longue série de surveillance depuis la fin des années 1970." },
+      { en: "144 conical antennas observing decametric wavelengths.", fr: "144 antennes coniques observant les longueurs d’onde décamétriques.", es: "144 antenas cónicas que observan en longitudes de onda decamétricas." },
+      { en: "Specialized in Jupiter and solar radio bursts.", fr: "Spécialisé dans les sursauts radio de Jupiter et du Soleil.", es: "Especializada en los estallidos de radio de Júpiter y del Sol." },
+      { en: "Long monitoring record since the late 1970s.", fr: "Longue série de surveillance depuis la fin des années 1970.", es: "Un largo registro de monitoreo desde fines de la década de 1970." },
     ],
     image: decametricArrayUrl,
     alt: "Nançay Decameter Array conical antennas",
     tagline: {
       en: "A long-running listener for Jupiter and the Sun.",
       fr: "Une écoute longue durée de Jupiter et du Soleil.",
+      es: "Una escucha de largo aliento para Júpiter y el Sol.",
     },
     works: {
       en: "The Decameter Array is a phased array of 144 conical antennas. At 10-100 MHz, the wavelengths are so long that simple wire-like structures can act as efficient antennas. Electronic phasing selects directions on the sky, while spectrographs record intensity as a function of time and frequency. That time-frequency structure is central: Jupiter and the Sun produce bursts, arcs, drifts, and bands rather than quiet steady emission.",
       fr: "Le Réseau décamétrique est un réseau phasé de 144 antennes coniques. À 10-100 MHz, les longueurs d’onde sont si grandes que des structures simples de type filaire peuvent servir d’antennes efficaces. Le phasage électronique sélectionne les directions du ciel, tandis que les spectrographes enregistrent l’intensité en fonction du temps et de la fréquence. Cette structure temps-fréquence est centrale : Jupiter et le Soleil produisent des sursauts, des arcs, des dérives et des bandes plutôt qu’une émission calme et constante.",
+      es: "La Red Decamétrica es una red en fase de 144 antenas cónicas. Entre 10 y 100 MHz, las longitudes de onda son tan largas que estructuras sencillas, parecidas a cables, funcionan como antenas eficientes. El control electrónico de fase selecciona direcciones en el cielo, mientras los espectrógrafos registran la intensidad en función del tiempo y la frecuencia. Esa estructura tiempo-frecuencia es central: Júpiter y el Sol producen estallidos, arcos, derivas y bandas, no una emisión tranquila y constante.",
     },
     finds: [
       {
         en: "Jupiter’s decametric bursts: coherent emission from electrons moving in the planet’s strong magnetic field, often controlled by the moon Io.",
         fr: "Sursauts décamétriques de Jupiter : émission cohérente d’électrons évoluant dans le champ magnétique intense de la planète, souvent contrôlée par la lune Io.",
+        es: "Estallidos decamétricos de Júpiter: emisión coherente de electrones que se mueven en el intenso campo magnético del planeta, a menudo controlada por su luna Ío.",
       },
       {
         en: "Solar bursts: low-frequency signatures of electron beams, shocks, and coronal plasma structures.",
         fr: "Sursauts solaires : signatures basse fréquence de faisceaux d’électrons, de chocs et de structures du plasma coronal.",
+        es: "Estallidos solares: huellas de baja frecuencia de haces de electrones, ondas de choque y estructuras del plasma coronal.",
       },
       {
         en: "Monitoring: repeated observations build a long-term record of planetary and solar activity at frequencies strongly affected by Earth’s ionosphere.",
         fr: "Surveillance : les observations répétées construisent une archive longue de l’activité planétaire et solaire à des fréquences fortement influencées par l’ionosphère terrestre.",
+        es: "Monitoreo: las observaciones repetidas construyen un registro de largo plazo de la actividad planetaria y solar, en frecuencias muy afectadas por la ionosfera terrestre.",
       },
     ],
     physics: ["cyclotron emission", "cyclotron maser", "plasma emission"],
@@ -273,19 +304,22 @@ const instruments: Instrument[] = [
 const mechanisms: Mechanism[] = [
   {
     id: "thermal",
-    name: { en: "Thermal emission", fr: "Émission thermique" },
+    name: { en: "Thermal emission", fr: "Émission thermique", es: "Emisión térmica" },
     icon: "heat",
     summary: {
       en: "Matter with a temperature radiates. In radio astronomy, this can trace warm ionized gas or hot plasma.",
       fr: "Toute matière qui a une température rayonne. En radio, cela peut tracer du gaz ionisé chaud ou du plasma.",
+      es: "Toda materia con temperatura emite radiación. En radio, esto permite trazar gas ionizado tibio o plasma caliente.",
     },
     science: {
       en: "Particles move randomly because they are hot. Charged particles that accelerate emit electromagnetic radiation. The emission tells us about temperature, density, and the state of the gas.",
       fr: "Les particules bougent aléatoirement parce qu’elles sont chaudes. Les particules chargées accélérées émettent un rayonnement électromagnétique. L’émission renseigne sur la température, la densité et l’état du gaz.",
+      es: "Las partículas se mueven al azar porque están calientes. Las partículas cargadas que se aceleran emiten radiación electromagnética. Esa emisión informa sobre la temperatura, la densidad y el estado del gas.",
     },
     where: {
       en: "Young stellar environments, ionized nebulae, solar and astrophysical plasmas.",
       fr: "Régions de formation stellaire, nébuleuses ionisées, plasmas solaires et astrophysiques.",
+      es: "Entornos de estrellas jóvenes, nebulosas ionizadas, plasmas solares y astrofísicos.",
     },
     visual: {
       src: commonsFile("Orion Nebula - Hubble 2006 mosaic 18000.jpg"),
@@ -296,19 +330,22 @@ const mechanisms: Mechanism[] = [
   },
   {
     id: "freefree",
-    name: { en: "Free-free / Bremsstrahlung", fr: "Libre-libre / Bremsstrahlung" },
+    name: { en: "Free-free / Bremsstrahlung", fr: "Libre-libre / Bremsstrahlung", es: "Libre-libre / Bremsstrahlung" },
     icon: "bend",
     summary: {
       en: "An electron passes near an ion, gets deflected, and emits radiation because its motion changes.",
       fr: "Un électron passe près d’un ion, sa trajectoire est déviée, et il émet parce que son mouvement change.",
+      es: "Un electrón pasa cerca de un ion, se desvía y emite radiación porque su movimiento cambia.",
     },
     science: {
       en: "The electron remains free before and after the encounter, hence free-free. The important physics is acceleration by an electric field.",
       fr: "L’électron reste libre avant et après la rencontre, d’où le nom libre-libre. La physique clé est l’accélération par un champ électrique.",
+      es: "El electrón sigue libre antes y después del encuentro; de ahí el nombre libre-libre. La física clave es la aceleración producida por un campo eléctrico.",
     },
     where: {
       en: "H II regions around young stars, stellar winds, the solar corona.",
       fr: "Régions H II autour des jeunes étoiles, vents stellaires, couronne solaire.",
+      es: "Regiones H II alrededor de estrellas jóvenes, vientos estelares, la corona solar.",
     },
     visual: {
       src: commonsFile("Bremsstrahlung.svg"),
@@ -319,19 +356,22 @@ const mechanisms: Mechanism[] = [
   },
   {
     id: "synchrotron",
-    name: { en: "Synchrotron emission", fr: "Rayonnement synchrotron" },
+    name: { en: "Synchrotron emission", fr: "Rayonnement synchrotron", es: "Emisión sincrotrón" },
     icon: "spiral",
     summary: {
       en: "Relativistic electrons spiral around magnetic-field lines and radiate.",
       fr: "Des électrons relativistes spiralent autour des lignes de champ magnétique et rayonnent.",
+      es: "Electrones relativistas giran en espiral alrededor de las líneas de campo magnético y emiten radiación.",
     },
     science: {
       en: "This is why radio images can reveal cosmic rays and magnetic fields across galaxies, jets, and galaxy clusters. It is one of radio astronomy’s most powerful hidden-process tracers.",
       fr: "C’est pour cela que les images radio révèlent les rayons cosmiques et les champs magnétiques des galaxies, des jets et des amas. C’est un traceur majeur des processus invisibles.",
+      es: "Por eso las imágenes de radio pueden revelar rayos cósmicos y campos magnéticos en galaxias, chorros y cúmulos de galaxias. Es uno de los trazadores más potentes de la radioastronomía para procesos que no se ven.",
     },
     where: {
       en: "LOFAR observations of galaxies, clusters, supernova remnants, radio jets.",
       fr: "Observations LOFAR de galaxies, d’amas, de restes de supernovae et de jets radio.",
+      es: "Observaciones de LOFAR de galaxias, cúmulos, remanentes de supernova y chorros de radio.",
     },
     visual: {
       src: commonsFile("Crab Nebula Supernova Remnant (Spitzer IRAC-MIPS Image).jpg"),
@@ -342,19 +382,22 @@ const mechanisms: Mechanism[] = [
   },
   {
     id: "cyclotron",
-    name: { en: "Cyclotron emission", fr: "Émission cyclotron" },
+    name: { en: "Cyclotron emission", fr: "Émission cyclotron", es: "Emisión ciclotrónica" },
     icon: "orbit",
     summary: {
       en: "Slower electrons orbit magnetic-field lines and emit at frequencies tied to magnetic-field strength.",
       fr: "Des électrons plus lents orbitent autour des lignes de champ et émettent à des fréquences liées à l’intensité du champ magnétique.",
+      es: "Electrones más lentos giran alrededor de las líneas de campo magnético y emiten en frecuencias ligadas a la intensidad del campo.",
     },
     science: {
       en: "This process is especially useful for planets because it gives a direct radio handle on magnetospheres.",
       fr: "Ce processus est particulièrement utile pour les planètes, car il donne un accès radio direct aux magnétosphères.",
+      es: "Este proceso es especialmente útil para los planetas, porque da acceso directo por radio a sus magnetosferas.",
     },
     where: {
       en: "Jupiter, planetary magnetospheres, possibly magnetized exoplanets.",
       fr: "Jupiter, magnétosphères planétaires, possiblement exoplanètes magnétisées.",
+      es: "Júpiter, magnetosferas planetarias y quizás exoplanetas magnetizados.",
     },
     visual: {
       src: commonsFile("Hubble provides complete view of Jupiter's auroras (opo9804a).jpg"),
@@ -365,19 +408,22 @@ const mechanisms: Mechanism[] = [
   },
   {
     id: "maser",
-    name: { en: "Cyclotron maser", fr: "Maser cyclotron" },
+    name: { en: "Cyclotron maser", fr: "Maser cyclotron", es: "Máser ciclotrónico" },
     icon: "burst",
     summary: {
       en: "Electrons emit coherently, making a burst far stronger than independent particle emission.",
       fr: "Les électrons émettent de façon cohérente, créant un sursaut beaucoup plus intense qu’une émission indépendante.",
+      es: "Los electrones emiten de manera coherente y producen un estallido mucho más intenso que la suma de emisiones independientes.",
     },
     science: {
       en: "It is laser-like in spirit, but at radio wavelengths. This explains why Jupiter can be such a powerful decametric radio source.",
       fr: "L’idée ressemble à un laser, mais en ondes radio. Cela explique pourquoi Jupiter peut être une source radio décamétrique si puissante.",
+      es: "La idea se parece a la de un láser, pero en longitudes de onda de radio. Así se explica que Júpiter pueda ser una fuente de radio decamétrica tan potente.",
     },
     where: {
       en: "Jupiter, auroral planets, searches for exoplanet magnetic fields with NenuFAR/LOFAR.",
       fr: "Jupiter, planètes aurorales, recherches de champs magnétiques d’exoplanètes avec NenuFAR/LOFAR.",
+      es: "Júpiter, planetas con auroras, búsquedas de campos magnéticos de exoplanetas con NenuFAR/LOFAR.",
     },
     visual: {
       src: commonsFile("Jupiter magnetosphere schematic.jpg"),
@@ -388,19 +434,22 @@ const mechanisms: Mechanism[] = [
   },
   {
     id: "hydrogen",
-    name: { en: "21 cm hydrogen", fr: "Hydrogène à 21 cm" },
+    name: { en: "21 cm hydrogen", fr: "Hydrogène à 21 cm", es: "Hidrógeno de 21 cm" },
     icon: "atom",
     summary: {
       en: "Neutral hydrogen emits a weak but fundamental spectral line at 1420 MHz.",
       fr: "L’hydrogène neutre émet une raie spectrale faible mais fondamentale à 1420 MHz.",
+      es: "El hidrógeno neutro emite una línea espectral débil pero fundamental a 1420 MHz.",
     },
     science: {
       en: "One atom emits rarely, but galaxies contain so much hydrogen that the signal becomes detectable. The Doppler shift maps gas velocity and galaxy rotation.",
       fr: "Un atome émet rarement, mais les galaxies contiennent tellement d’hydrogène que le signal devient détectable. Le décalage Doppler cartographie la vitesse du gaz et la rotation des galaxies.",
+      es: "Un solo átomo emite muy rara vez, pero las galaxias contienen tanto hidrógeno que la señal se vuelve detectable. El corrimiento Doppler permite mapear la velocidad del gas y la rotación de las galaxias.",
     },
     where: {
       en: "NRT maps neutral gas in galaxies; NenuFAR/LOFAR search for the redshifted line from the early Universe.",
       fr: "Le NRT cartographie le gaz neutre des galaxies ; NenuFAR/LOFAR cherchent la raie décalée vers le rouge de l’Univers jeune.",
+      es: "El NRT mapea el gas neutro de las galaxias; NenuFAR/LOFAR buscan la línea desplazada al rojo del Universo temprano.",
     },
     visual: {
       src: commonsFile("Hydrogen-SpinFlip.svg"),
@@ -411,19 +460,22 @@ const mechanisms: Mechanism[] = [
   },
   {
     id: "molecules",
-    name: { en: "Molecular lines", fr: "Raies moléculaires" },
+    name: { en: "Molecular lines", fr: "Raies moléculaires", es: "Líneas moleculares" },
     icon: "molecule",
     summary: {
       en: "Molecules rotate and change rotational state, emitting photons at precise radio frequencies.",
       fr: "Les molécules tournent et changent d’état rotationnel, en émettant des photons à des fréquences radio précises.",
+      es: "Las moléculas rotan y cambian de estado rotacional, emitiendo fotones a frecuencias de radio precisas.",
     },
     science: {
       en: "Radio spectroscopy lets astronomers identify molecules such as carbon monoxide, ammonia, water, and OH. It is chemistry across interstellar space.",
       fr: "La spectroscopie radio permet d’identifier des molécules comme le monoxyde de carbone, l’ammoniac, l’eau ou OH. C’est de la chimie à l’échelle interstellaire.",
+      es: "La espectroscopía de radio permite identificar moléculas como el monóxido de carbono, el amoníaco, el agua y el OH. Es química a escala interestelar.",
     },
     where: {
       en: "Molecular clouds, comets, evolved-star envelopes, star-forming regions.",
       fr: "Nuages moléculaires, comètes, enveloppes d’étoiles évoluées, régions de formation stellaire.",
+      es: "Nubes moleculares, cometas, envolturas de estrellas evolucionadas, regiones de formación estelar.",
     },
     visual: {
       src: commonsFile("Molecular energy levels en.svg"),
@@ -434,19 +486,22 @@ const mechanisms: Mechanism[] = [
   },
   {
     id: "pulsars",
-    name: { en: "Pulsars", fr: "Pulsars" },
+    name: { en: "Pulsars", fr: "Pulsars", es: "Púlsares" },
     icon: "pulse",
     summary: {
       en: "Rotating neutron stars send beams of radio waves across space like lighthouse beams.",
       fr: "Des étoiles à neutrons en rotation projettent des faisceaux radio comme des phares cosmiques.",
+      es: "Estrellas de neutrones en rotación barren el espacio con haces de ondas de radio, como los de un faro.",
     },
     science: {
       en: "Each pulse arrival can be timed with extreme precision. Some pulsars rival atomic clocks, making them probes of gravity, dense matter, and the interstellar medium.",
       fr: "Chaque impulsion peut être chronométrée avec une précision extrême. Certains pulsars rivalisent avec les horloges atomiques, ce qui en fait des sondes de la gravité, de la matière dense et du milieu interstellaire.",
+      es: "La llegada de cada pulso se puede cronometrar con una precisión extrema. Algunos púlsares rivalizan con los relojes atómicos, lo que los convierte en sondas de la gravedad, de la materia densa y del medio interestelar.",
     },
     where: {
       en: "Nançay’s decimetric telescope is a major European pulsar-timing facility.",
       fr: "Le radiotélescope décimétrique de Nançay est un grand instrument européen de chronométrage de pulsars.",
+      es: "El radiotelescopio decimétrico de Nançay es una de las principales instalaciones europeas de cronometraje de púlsares.",
     },
     visual: {
       src: commonsFile("Vela pulsar - Chandra, animation.gif"),
@@ -457,19 +512,22 @@ const mechanisms: Mechanism[] = [
   },
   {
     id: "plasma",
-    name: { en: "Solar plasma emission", fr: "Émission plasma solaire" },
+    name: { en: "Solar plasma emission", fr: "Émission plasma solaire", es: "Emisión de plasma solar" },
     icon: "sun",
     summary: {
       en: "Energetic electrons moving through plasma generate radio waves during flares and eruptions.",
       fr: "Des électrons énergétiques traversant un plasma produisent des ondes radio lors des éruptions.",
+      es: "Electrones energéticos que atraviesan un plasma generan ondas de radio durante fulguraciones y erupciones.",
     },
     science: {
       en: "Radio solar observations often show energetic particles and magnetic restructuring in the corona, not just the visible solar surface.",
       fr: "Les observations solaires radio montrent souvent les particules énergétiques et la restructuration magnétique dans la couronne, pas seulement la surface visible.",
+      es: "Las observaciones solares en radio suelen mostrar partículas energéticas y la reconfiguración magnética en la corona, no solo la superficie visible del Sol.",
     },
     where: {
       en: "Radioheliograph, Decameter Array, NenuFAR solar observations.",
       fr: "Radiohéliographe, Réseau décamétrique, observations solaires avec NenuFAR.",
+      es: "Radioheliógrafo, Red Decamétrica y observaciones solares de NenuFAR.",
     },
     visual: {
       src: commonsFile("SDO first light.png"),
@@ -594,6 +652,13 @@ const mechanismSourceVisuals: Record<string, MediaVisual> = {
   },
 };
 
+const uiText = {
+  pageTitle: { en: "Nançay Radio Observatory", fr: "Observatoire radioastronomique de Nançay", es: "Observatorio de radioastronomía de Nançay" },
+  mechanismTag: { en: "Emission mechanism", fr: "Mécanisme d’émission", es: "Mecanismo de emisión" },
+  wavefronts: { en: "incoming wavefronts", fr: "fronts d’onde entrants", es: "frentes de onda entrantes" },
+  baseline: { en: "baseline B", fr: "ligne de base B", es: "línea de base B" },
+} satisfies Record<string, Localized>;
+
 const sources = [
   ["Observatoire de Nançay", "https://www.obs-nancay.fr/"],
   ["Radiotélescope décimétrique", "https://www.obs-nancay.fr/radiotelescope-decimetrique/"],
@@ -604,7 +669,15 @@ const sources = [
   ["NASA electromagnetic spectrum", "https://science.nasa.gov/ems/05_radiowaves"],
 ] as const;
 
-let language: Language = "en";
+function languageFromUrl(): Language | null {
+  const fromQuery = (new URLSearchParams(window.location.search).get("lang") ?? "").toLowerCase() as Language;
+  if (supportedLanguages.includes(fromQuery)) return fromQuery;
+  const fromHash = window.location.hash.replace("#", "").toLowerCase() as Language;
+  if (supportedLanguages.includes(fromHash)) return fromHash;
+  return null;
+}
+
+let language: Language = languageFromUrl() ?? "en";
 let activeInstrumentId = "nenufar";
 let activeMechanismId = "synchrotron";
 
@@ -664,6 +737,7 @@ app.innerHTML = `
         <div class="nav-actions" role="group" aria-label="Language">
           <button class="lang-button is-active" type="button" data-lang="en">EN</button>
           <button class="lang-button" type="button" data-lang="fr">FR</button>
+          <button class="lang-button" type="button" data-lang="es">ES</button>
         </div>
       </nav>
       <div id="top" class="hero-content">
@@ -676,33 +750,33 @@ app.innerHTML = `
 
     <section class="section-grid quick-grid" aria-label="Core questions">
       <article class="panel answer-panel">
-        <span class="section-kicker" data-copy-en="Radio astronomy" data-copy-fr="Radioastronomie"></span>
-        <h2 data-copy-en="Long-wavelength light, hidden physics" data-copy-fr="Lumière longue, physique cachée"></h2>
+        <span class="section-kicker" data-copy-en="Radio astronomy" data-copy-fr="Radioastronomie" data-copy-es="Radioastronomía"></span>
+        <h2 data-copy-en="Long-wavelength light, hidden physics" data-copy-fr="Lumière longue, physique cachée" data-copy-es="Luz de onda larga, física oculta"></h2>
         <p data-copy-en="It is astronomy with radio waves: the same electromagnetic family as visible light, but at longer wavelengths. Because radio waves are produced by moving charges, atoms, molecules, and magnetized plasma, they reveal gas, magnetic fields, cosmic rays, pulsars, planetary magnetospheres, solar eruptions, and the early Universe."
-          data-copy-fr="C’est l’astronomie faite avec les ondes radio : la même famille électromagnétique que la lumière visible, mais à des longueurs d’onde plus grandes. Comme les ondes radio sont produites par des charges en mouvement, des atomes, des molécules et des plasmas magnétisés, elles révèlent le gaz, les champs magnétiques, les rayons cosmiques, les pulsars, les magnétosphères planétaires, les éruptions solaires et l’Univers jeune."></p>
+          data-copy-fr="C’est l’astronomie faite avec les ondes radio : la même famille électromagnétique que la lumière visible, mais à des longueurs d’onde plus grandes. Comme les ondes radio sont produites par des charges en mouvement, des atomes, des molécules et des plasmas magnétisés, elles révèlent le gaz, les champs magnétiques, les rayons cosmiques, les pulsars, les magnétosphères planétaires, les éruptions solaires et l’Univers jeune." data-copy-es="Es astronomía con ondas de radio: la misma familia electromagnética que la luz visible, pero con longitudes de onda más largas. Como las ondas de radio las producen cargas en movimiento, átomos, moléculas y plasma magnetizado, revelan gas, campos magnéticos, rayos cósmicos, púlsares, magnetosferas planetarias, erupciones solares y el Universo temprano."></p>
       </article>
       <article class="panel answer-panel">
-        <span class="section-kicker" data-copy-en="Nançay" data-copy-fr="Nançay"></span>
-        <h2 data-copy-en="A campus of complementary radio windows" data-copy-fr="Un campus de fenêtres radio complémentaires"></h2>
+        <span class="section-kicker" data-copy-en="Nançay" data-copy-fr="Nançay" data-copy-es="Nançay"></span>
+        <h2 data-copy-en="A campus of complementary radio windows" data-copy-fr="Un campus de fenêtres radio complémentaires" data-copy-es="Un campus de ventanas de radio complementarias"></h2>
         <p data-copy-en="Nançay is not one telescope. It is a set of complementary radio instruments: each frequency band isolates different physics, from Jupiter’s magnetosphere and solar plasma to pulsar timing, neutral hydrogen in galaxies, and low-frequency searches for the Cosmic Dawn."
-          data-copy-fr="Nançay n’est pas un seul télescope. C’est un ensemble d’instruments radio complémentaires : chaque bande de fréquence isole une physique différente, de la magnétosphère de Jupiter et du plasma solaire au chronométrage des pulsars, à l’hydrogène neutre des galaxies et aux recherches basse fréquence sur l’Aube cosmique."></p>
+          data-copy-fr="Nançay n’est pas un seul télescope. C’est un ensemble d’instruments radio complémentaires : chaque bande de fréquence isole une physique différente, de la magnétosphère de Jupiter et du plasma solaire au chronométrage des pulsars, à l’hydrogène neutre des galaxies et aux recherches basse fréquence sur l’Aube cosmique." data-copy-es="Nançay no es un solo telescopio. Es un conjunto de instrumentos de radio complementarios: cada banda de frecuencia aísla una física distinta, desde la magnetosfera de Júpiter y el plasma solar hasta el cronometraje de púlsares, el hidrógeno neutro de las galaxias y la búsqueda del Amanecer Cósmico a baja frecuencia."></p>
         <p data-copy-en="Important distinction: LOFAR FR606 is a station of the European LOFAR interferometer with separate low and high bands. NenuFAR overlaps the LOFAR low band but is a distinct Nançay instrument that can run autonomously or as a LOFAR super-station."
-          data-copy-fr="Distinction importante : LOFAR FR606 est une station de l’interféromètre européen LOFAR avec des bandes basse et haute séparées. NenuFAR recouvre la basse bande de LOFAR, mais c’est un instrument distinct de Nançay, capable de fonctionner seul ou comme super-station LOFAR."></p>
+          data-copy-fr="Distinction importante : LOFAR FR606 est une station de l’interféromètre européen LOFAR avec des bandes basse et haute séparées. NenuFAR recouvre la basse bande de LOFAR, mais c’est un instrument distinct de Nançay, capable de fonctionner seul ou comme super-station LOFAR." data-copy-es="Una distinción importante: LOFAR FR606 es una estación del interferómetro europeo LOFAR, con bandas baja y alta separadas. NenuFAR se superpone con la banda baja de LOFAR, pero es un instrumento distinto de Nançay que puede operar de forma autónoma o como superestación LOFAR."></p>
       </article>
     </section>
 
     <section class="section-block" id="spectrum">
       <div class="section-header">
-        <span class="section-kicker" data-copy-en="Radio bands" data-copy-fr="Bandes radio"></span>
-        <h2 data-copy-en="Nançay across frequency" data-copy-fr="Nançay à travers les fréquences"></h2>
+        <span class="section-kicker" data-copy-en="Radio bands" data-copy-fr="Bandes radio" data-copy-es="Bandas de radio"></span>
+        <h2 data-copy-en="Nançay across frequency" data-copy-fr="Nançay à travers les fréquences" data-copy-es="Nançay a lo largo de las frecuencias"></h2>
         <p data-copy-en="Frequency selects a physical regime: atomic transitions, coherent plasma bursts, synchrotron radiation, pulsar timing, or solar-coronal activity."
-          data-copy-fr="La fréquence sélectionne un régime physique : transitions atomiques, sursauts cohérents de plasma, rayonnement synchrotron, chronométrage des pulsars ou activité de la couronne solaire."></p>
+          data-copy-fr="La fréquence sélectionne un régime physique : transitions atomiques, sursauts cohérents de plasma, rayonnement synchrotron, chronométrage des pulsars ou activité de la couronne solaire." data-copy-es="La frecuencia selecciona un régimen físico: transiciones atómicas, estallidos coherentes de plasma, radiación sincrotrón, cronometraje de púlsares o actividad de la corona solar."></p>
       </div>
 
       <div class="interactive-layout">
         <article class="panel control-panel">
           <label class="slider-label" for="frequency-slider">
-            <span data-copy-en="Frequency" data-copy-fr="Fréquence"></span>
+            <span data-copy-en="Frequency" data-copy-fr="Fréquence" data-copy-es="Frecuencia"></span>
             <strong id="frequency-readout">60 MHz</strong>
           </label>
           <input id="frequency-slider" type="range" min="10" max="3500" value="60" step="1" />
@@ -712,32 +786,32 @@ app.innerHTML = `
           </div>
           <div class="readout-grid">
             <div>
-              <span data-copy-en="Wavelength" data-copy-fr="Longueur d’onde"></span>
+              <span data-copy-en="Wavelength" data-copy-fr="Longueur d’onde" data-copy-es="Longitud de onda"></span>
               <strong id="wavelength-readout"></strong>
             </div>
             <div id="instrument-readout-card">
-              <span data-copy-en="Nançay instruments" data-copy-fr="Instruments de Nançay"></span>
+              <span data-copy-en="Nançay instruments" data-copy-fr="Instruments de Nançay" data-copy-es="Instrumentos de Nançay"></span>
               <strong id="instrument-readout"></strong>
             </div>
           </div>
           <p class="fine-print" data-copy-en="λ = c / f · LOFAR is split into 10-90 and 110-270 MHz, so the slider intentionally shows a LOFAR gap."
-            data-copy-fr="λ = c / f · LOFAR est séparé en 10-90 et 110-270 MHz ; le curseur montre donc volontairement une coupure LOFAR."></p>
+            data-copy-fr="λ = c / f · LOFAR est séparé en 10-90 et 110-270 MHz ; le curseur montre donc volontairement une coupure LOFAR." data-copy-es="λ = c / f · LOFAR está dividido en 10-90 y 110-270 MHz, por eso el control deslizante muestra a propósito un hueco de LOFAR."></p>
         </article>
 
         <article class="panel spectrum-card">
           <div class="spectrum-visual" aria-label="Electromagnetic spectrum diagram with NenuFAR on the long-wavelength radio side">
             <h3 data-copy-en="Radio astronomy observes the same light, but at longer wavelengths"
-              data-copy-fr="La radioastronomie observe la même lumière, mais à de plus grandes longueurs d’onde"></h3>
+              data-copy-fr="La radioastronomie observe la même lumière, mais à de plus grandes longueurs d’onde" data-copy-es="La radioastronomía observa la misma luz, pero en longitudes de onda más largas"></h3>
             <div class="atmosphere-row" aria-label="Atmospheric transmission across the electromagnetic spectrum">
-              <span class="atmosphere-label" data-copy-en="Atmosphere" data-copy-fr="Atmosphère"></span>
+              <span class="atmosphere-label" data-copy-en="Atmosphere" data-copy-fr="Atmosphère" data-copy-es="Atmósfera"></span>
               <div class="atmosphere-band" aria-hidden="true">
-                <span class="atm-open" data-copy-en="open radio window" data-copy-fr="fenêtre radio ouverte"></span>
-                <span class="atm-partial" data-copy-en="partial" data-copy-fr="partiel"></span>
-                <span class="atm-partial" data-copy-en="partial" data-copy-fr="partiel"></span>
-                <span class="atm-open" data-copy-en="visible window" data-copy-fr="fenêtre visible"></span>
-                <span class="atm-blocked" data-copy-en="mostly blocked" data-copy-fr="surtout bloqué"></span>
-                <span class="atm-blocked" data-copy-en="blocked" data-copy-fr="bloqué"></span>
-                <span class="atm-blocked" data-copy-en="blocked" data-copy-fr="bloqué"></span>
+                <span class="atm-open" data-copy-en="open radio window" data-copy-fr="fenêtre radio ouverte" data-copy-es="ventana de radio abierta"></span>
+                <span class="atm-partial" data-copy-en="partial" data-copy-fr="partiel" data-copy-es="parcial"></span>
+                <span class="atm-partial" data-copy-en="partial" data-copy-fr="partiel" data-copy-es="parcial"></span>
+                <span class="atm-open" data-copy-en="visible window" data-copy-fr="fenêtre visible" data-copy-es="ventana visible"></span>
+                <span class="atm-blocked" data-copy-en="mostly blocked" data-copy-fr="surtout bloqué" data-copy-es="casi bloqueada"></span>
+                <span class="atm-blocked" data-copy-en="blocked" data-copy-fr="bloqué" data-copy-es="bloqueada"></span>
+                <span class="atm-blocked" data-copy-en="blocked" data-copy-fr="bloqué" data-copy-es="bloqueada"></span>
               </div>
             </div>
             <div class="spectrum-band" aria-hidden="true">
@@ -750,17 +824,17 @@ app.innerHTML = `
               <span class="band-gamma">Gamma ray</span>
             </div>
             <div class="spectrum-axis" aria-hidden="true">
-              <span data-copy-en="long wavelength / low frequency" data-copy-fr="grande longueur d’onde / basse fréquence"></span>
-              <span data-copy-en="short wavelength / high frequency" data-copy-fr="petite longueur d’onde / haute fréquence"></span>
+              <span data-copy-en="long wavelength / low frequency" data-copy-fr="grande longueur d’onde / basse fréquence" data-copy-es="longitud de onda larga / baja frecuencia"></span>
+              <span data-copy-en="short wavelength / high frequency" data-copy-fr="petite longueur d’onde / haute fréquence" data-copy-es="longitud de onda corta / alta frecuencia"></span>
             </div>
             <div class="spectrum-callouts">
               <div class="spectrum-callout nenufar-callout">
-                <strong>NenuFAR: <span data-copy-en="10-85 MHz" data-copy-fr="10-85 MHz"></span></strong>
-                <span data-copy-en="Autonomous dense array and LOFAR super-station." data-copy-fr="Réseau dense autonome et super-station LOFAR."></span>
+                <strong>NenuFAR: <span data-copy-en="10-85 MHz" data-copy-fr="10-85 MHz" data-copy-es="10-85 MHz"></span></strong>
+                <span data-copy-en="Autonomous dense array and LOFAR super-station." data-copy-fr="Réseau dense autonome et super-station LOFAR." data-copy-es="Red densa autónoma y superestación LOFAR."></span>
               </div>
               <div class="spectrum-callout visible-callout">
-                <strong data-copy-en="LOFAR FR606: 10-90 + 110-270 MHz" data-copy-fr="LOFAR FR606 : 10-90 + 110-270 MHz"></strong>
-                <span data-copy-en="Low and high antenna bands separated by a gap." data-copy-fr="Bandes d’antennes basse et haute séparées par une coupure."></span>
+                <strong data-copy-en="LOFAR FR606: 10-90 + 110-270 MHz" data-copy-fr="LOFAR FR606 : 10-90 + 110-270 MHz" data-copy-es="LOFAR FR606: 10-90 + 110-270 MHz"></strong>
+                <span data-copy-en="Low and high antenna bands separated by a gap." data-copy-fr="Bandes d’antennes basse et haute séparées par une coupure." data-copy-es="Bandas de antenas baja y alta separadas por un hueco."></span>
               </div>
             </div>
           </div>
@@ -771,29 +845,29 @@ app.innerHTML = `
 
       <div class="diagnostic-grid" aria-label="Radio diagnostics">
         <article class="panel diagnostic-card">
-          <h3 data-copy-en="Frequency is a physical clue" data-copy-fr="La fréquence est un indice physique"></h3>
+          <h3 data-copy-en="Frequency is a physical clue" data-copy-fr="La fréquence est un indice physique" data-copy-es="La frecuencia es una pista física"></h3>
           <p data-copy-en="A radio frequency is not just a color label. It can point to a transition, a plasma condition, a magnetic-field strength, or a propagation effect through the interstellar medium."
-            data-copy-fr="Une fréquence radio n’est pas seulement une couleur. Elle peut indiquer une transition, une condition de plasma, l’intensité d’un champ magnétique ou un effet de propagation dans le milieu interstellaire."></p>
+            data-copy-fr="Une fréquence radio n’est pas seulement une couleur. Elle peut indiquer une transition, une condition de plasma, l’intensité d’un champ magnétique ou un effet de propagation dans le milieu interstellaire." data-copy-es="Una frecuencia de radio no es solo una etiqueta de color. Puede señalar una transición, una condición del plasma, la intensidad de un campo magnético o un efecto de propagación en el medio interestelar."></p>
         </article>
         <article class="panel diagnostic-card">
-          <h3 data-copy-en="Time structure matters" data-copy-fr="La structure temporelle compte"></h3>
+          <h3 data-copy-en="Time structure matters" data-copy-fr="La structure temporelle compte" data-copy-es="La estructura temporal importa"></h3>
           <p data-copy-en="Radio telescopes do not only make images. They measure pulses, bursts, spectra, polarization, and delays. That is why the same observatory can study pulsar clocks, Jupiter bursts, solar eruptions, and galaxy gas."
-            data-copy-fr="Les radiotélescopes ne font pas seulement des images. Ils mesurent des impulsions, des sursauts, des spectres, la polarisation et des retards. C’est pour cela qu’un même observatoire peut étudier les horloges pulsars, les sursauts de Jupiter, les éruptions solaires et le gaz des galaxies."></p>
+            data-copy-fr="Les radiotélescopes ne font pas seulement des images. Ils mesurent des impulsions, des sursauts, des spectres, la polarisation et des retards. C’est pour cela qu’un même observatoire peut étudier les horloges pulsars, les sursauts de Jupiter, les éruptions solaires et le gaz des galaxies." data-copy-es="Los radiotelescopios no solo producen imágenes. Miden pulsos, estallidos, espectros, polarización y retardos. Por eso un mismo observatorio puede estudiar relojes de púlsares, estallidos de Júpiter, erupciones solares y el gas de las galaxias."></p>
         </article>
         <article class="panel diagnostic-card">
-          <h3 data-copy-en="The signal is fragile" data-copy-fr="Le signal est fragile"></h3>
+          <h3 data-copy-en="The signal is fragile" data-copy-fr="Le signal est fragile" data-copy-es="La señal es frágil"></h3>
           <p data-copy-en="Cosmic radio signals are usually much weaker than human radio interference. A radio observatory is therefore also a protected listening environment and a signal-processing machine."
-            data-copy-fr="Les signaux radio cosmiques sont souvent beaucoup plus faibles que les interférences humaines. Un observatoire radio est donc aussi un environnement d’écoute protégé et une machine de traitement du signal."></p>
+            data-copy-fr="Les signaux radio cosmiques sont souvent beaucoup plus faibles que les interférences humaines. Un observatoire radio est donc aussi un environnement d’écoute protégé et une machine de traitement du signal." data-copy-es="Las señales de radio cósmicas suelen ser mucho más débiles que las interferencias de origen humano. Por eso un radioobservatorio es también un entorno de escucha protegido y una máquina de procesamiento de señales."></p>
         </article>
       </div>
     </section>
 
     <section class="section-block" id="mechanisms">
       <div class="section-header">
-        <span class="section-kicker" data-copy-en="Physical processes" data-copy-fr="Processus physiques"></span>
-        <h2 data-copy-en="Radio astronomy is not just objects. It is mechanisms." data-copy-fr="La radioastronomie ne regarde pas seulement des objets. Elle révèle des mécanismes."></h2>
+        <span class="section-kicker" data-copy-en="Physical processes" data-copy-fr="Processus physiques" data-copy-es="Procesos físicos"></span>
+        <h2 data-copy-en="Radio astronomy is not just objects. It is mechanisms." data-copy-fr="La radioastronomie ne regarde pas seulement des objets. Elle révèle des mécanismes." data-copy-es="La radioastronomía no trata solo de objetos. Trata de mecanismos."></h2>
         <p data-copy-en="The same galaxy, star, planet, or plasma can emit radio waves through several mechanisms at once. The mechanism determines what the signal actually diagnoses."
-          data-copy-fr="Une même galaxie, étoile, planète ou région de plasma peut émettre en radio par plusieurs mécanismes à la fois. Le mécanisme détermine ce que le signal diagnostique réellement."></p>
+          data-copy-fr="Une même galaxie, étoile, planète ou région de plasma peut émettre en radio par plusieurs mécanismes à la fois. Le mécanisme détermine ce que le signal diagnostique réellement." data-copy-es="Una misma galaxia, estrella, planeta o plasma puede emitir ondas de radio por varios mecanismos a la vez. El mecanismo determina qué diagnostica realmente la señal."></p>
       </div>
       <div class="mechanism-shell">
         <div id="mechanism-buttons" class="mechanism-buttons" role="tablist"></div>
@@ -802,21 +876,21 @@ app.innerHTML = `
             <figure class="mechanism-source-card">
               <img id="mechanism-process-image" alt="" referrerpolicy="no-referrer" />
               <figcaption>
-                <span class="visual-role" data-copy-en="Mechanism" data-copy-fr="Mécanisme"></span>
+                <span class="visual-role" data-copy-en="Mechanism" data-copy-fr="Mécanisme" data-copy-es="Mecanismo"></span>
                 <strong id="mechanism-process-label"></strong>
                 <span id="mechanism-process-license"></span>
                 <a id="mechanism-process-link" target="_blank" rel="noreferrer"
-                  data-copy-en="Source" data-copy-fr="Source"></a>
+                  data-copy-en="Source" data-copy-fr="Source" data-copy-es="Fuente"></a>
               </figcaption>
             </figure>
             <figure class="mechanism-source-card">
               <img id="mechanism-source-image" alt="" referrerpolicy="no-referrer" />
               <figcaption>
-                <span class="visual-role" data-copy-en="Astrophysical source" data-copy-fr="Source astrophysique"></span>
+                <span class="visual-role" data-copy-en="Astrophysical source" data-copy-fr="Source astrophysique" data-copy-es="Fuente astrofísica"></span>
                 <strong id="mechanism-source-label"></strong>
                 <span id="mechanism-source-license"></span>
                 <a id="mechanism-source-link" target="_blank" rel="noreferrer"
-                  data-copy-en="Source" data-copy-fr="Source"></a>
+                  data-copy-en="Source" data-copy-fr="Source" data-copy-es="Fuente"></a>
               </figcaption>
             </figure>
           </div>
@@ -825,7 +899,7 @@ app.innerHTML = `
             <h3 id="mechanism-name"></h3>
             <p id="mechanism-summary"></p>
             <p id="mechanism-science"></p>
-            <p class="where-line"><strong data-copy-en="Where it appears:" data-copy-fr="Où on le voit :"></strong> <span id="mechanism-where"></span></p>
+            <p class="where-line"><strong data-copy-en="Where it appears:" data-copy-fr="Où on le voit :" data-copy-es="Dónde aparece:"></strong> <span id="mechanism-where"></span></p>
           </div>
         </article>
       </div>
@@ -833,8 +907,8 @@ app.innerHTML = `
 
     <section class="section-block" id="instruments">
       <div class="section-header">
-        <span class="section-kicker" data-copy-en="Instrument map" data-copy-fr="Carte des instruments"></span>
-        <h2 data-copy-en="Five instruments, five windows into hidden physics" data-copy-fr="Cinq instruments, cinq fenêtres sur une physique invisible"></h2>
+        <span class="section-kicker" data-copy-en="Instrument map" data-copy-fr="Carte des instruments" data-copy-es="Mapa de instrumentos"></span>
+        <h2 data-copy-en="Five instruments, five windows into hidden physics" data-copy-fr="Cinq instruments, cinq fenêtres sur une physique invisible" data-copy-es="Cinco instrumentos, cinco ventanas a una física oculta"></h2>
       </div>
       <div id="instrument-tabs" class="instrument-tabs" role="tablist"></div>
       <article class="instrument-detail">
@@ -844,47 +918,47 @@ app.innerHTML = `
           <h3 id="instrument-name"></h3>
           <p id="instrument-tagline"></p>
           <div id="instrument-facts" class="instrument-facts"></div>
-          <h4 data-copy-en="How it works" data-copy-fr="Comment il fonctionne"></h4>
+          <h4 data-copy-en="How it works" data-copy-fr="Comment il fonctionne" data-copy-es="Cómo funciona"></h4>
           <p id="instrument-works"></p>
-          <h4 data-copy-en="What it finds" data-copy-fr="Ce qu’il trouve"></h4>
+          <h4 data-copy-en="What it finds" data-copy-fr="Ce qu’il trouve" data-copy-es="Qué descubre"></h4>
           <ul id="instrument-finds"></ul>
           <a id="instrument-link" class="source-link" target="_blank" rel="noreferrer"
-            data-copy-en="Official instrument page" data-copy-fr="Page officielle de l’instrument"></a>
+            data-copy-en="Official instrument page" data-copy-fr="Page officielle de l’instrument" data-copy-es="Página oficial del instrumento"></a>
         </div>
       </article>
     </section>
 
     <section class="section-block" id="interferometry">
       <div class="section-header">
-        <span class="section-kicker" data-copy-en="Delay, not magic" data-copy-fr="Des retards, pas de magie"></span>
-        <h2 data-copy-en="Interferometry turns timing into direction" data-copy-fr="L’interférométrie transforme le temps en direction"></h2>
+        <span class="section-kicker" data-copy-en="Delay, not magic" data-copy-fr="Des retards, pas de magie" data-copy-es="Retardos, no magia"></span>
+        <h2 data-copy-en="Interferometry turns timing into direction" data-copy-fr="L’interférométrie transforme le temps en direction" data-copy-es="La interferometría convierte el tiempo en dirección"></h2>
         <p data-copy-en="Phase is delay inside an oscillating wave. Long baselines turn small arrival-time differences into angular structure."
-          data-copy-fr="La phase est un retard inscrit dans une onde oscillante. Les longues lignes de base transforment de petites différences de temps d’arrivée en structure angulaire."></p>
+          data-copy-fr="La phase est un retard inscrit dans une onde oscillante. Les longues lignes de base transforment de petites différences de temps d’arrivée en structure angulaire." data-copy-es="La fase es un retardo dentro de una onda que oscila. Las líneas de base largas convierten pequeñas diferencias en el tiempo de llegada en estructura angular."></p>
       </div>
       <div class="interactive-layout">
         <article class="panel control-panel">
           <label class="slider-label" for="baseline-slider">
-            <span data-copy-en="Baseline B" data-copy-fr="Ligne de base B"></span>
+            <span data-copy-en="Baseline B" data-copy-fr="Ligne de base B" data-copy-es="Línea de base B"></span>
             <strong id="baseline-readout">1000 km</strong>
           </label>
           <input id="baseline-slider" type="range" min="100" max="2000" value="1000" step="25" />
           <label class="slider-label" for="lambda-slider">
-            <span data-copy-en="Wavelength λ" data-copy-fr="Longueur d’onde λ"></span>
+            <span data-copy-en="Wavelength λ" data-copy-fr="Longueur d’onde λ" data-copy-es="Longitud de onda λ"></span>
             <strong id="lambda-readout">4.00 m</strong>
           </label>
           <input id="lambda-slider" type="range" min="0.2" max="30" value="4" step="0.1" />
           <label class="slider-label" for="angle-slider">
-            <span data-copy-en="Source angle" data-copy-fr="Angle de la source"></span>
+            <span data-copy-en="Source angle" data-copy-fr="Angle de la source" data-copy-es="Ángulo de la fuente"></span>
             <strong id="angle-readout">28°</strong>
           </label>
           <input id="angle-slider" type="range" min="-70" max="70" value="28" step="1" />
           <div class="readout-grid two-up">
             <div>
-              <span data-copy-en="Delay across array" data-copy-fr="Retard dans le réseau"></span>
+              <span data-copy-en="Delay across array" data-copy-fr="Retard dans le réseau" data-copy-es="Retardo a lo largo de la red"></span>
               <strong id="delay-readout"></strong>
             </div>
             <div>
-              <span data-copy-en="Resolution θ ≈ λ/B" data-copy-fr="Résolution θ ≈ λ/B"></span>
+              <span data-copy-en="Resolution θ ≈ λ/B" data-copy-fr="Résolution θ ≈ λ/B" data-copy-es="Resolución θ ≈ λ/B"></span>
               <strong id="resolution-readout"></strong>
             </div>
           </div>
@@ -898,23 +972,23 @@ app.innerHTML = `
 
     <section class="section-block final-section">
       <div class="section-header">
-        <span class="section-kicker" data-copy-en="Synthesis" data-copy-fr="Synthèse"></span>
-        <h2 data-copy-en="Together, what do these instruments discover?" data-copy-fr="Ensemble, que permettent-ils de découvrir ?"></h2>
+        <span class="section-kicker" data-copy-en="Synthesis" data-copy-fr="Synthèse" data-copy-es="Síntesis"></span>
+        <h2 data-copy-en="Together, what do these instruments discover?" data-copy-fr="Ensemble, que permettent-ils de découvrir ?" data-copy-es="Juntos, ¿qué descubren estos instrumentos?"></h2>
       </div>
       <div class="synthesis-grid">
         ${[
-          ["Gas reservoir", "Réservoir de gaz", "Neutral hydrogen shows the raw material of future stars.", "L’hydrogène neutre montre la matière première des futures étoiles."],
-          ["Magnetic Universe", "Univers magnétique", "Synchrotron and cyclotron emission reveal fields that optical light barely shows.", "Le synchrotron et le cyclotron révèlent des champs que l’optique montre difficilement."],
-          ["Plasma weather", "Météo des plasmas", "Solar radio emission tracks energetic particles that affect space technology.", "L’émission radio solaire suit les particules énergétiques qui affectent les technologies spatiales."],
-          ["Cosmic clocks", "Horloges cosmiques", "Pulsars test dense matter, gravity, and nanohertz gravitational-wave backgrounds.", "Les pulsars testent la matière dense, la gravité et les fonds d’ondes gravitationnelles nanohertz."],
-          ["Planetary shields", "Boucliers planétaires", "Jupiter and possible exoplanet radio bursts probe magnetospheres.", "Jupiter et les possibles sursauts d’exoplanètes sondent les magnétosphères."],
-          ["Cosmic Dawn", "Aube cosmique", "Redshifted hydrogen may reveal the first stars and galaxies switching on.", "L’hydrogène décalé vers le rouge peut révéler l’allumage des premières étoiles et galaxies."],
+          ["Gas reservoir", "Réservoir de gaz", "Neutral hydrogen shows the raw material of future stars.", "L’hydrogène neutre montre la matière première des futures étoiles.", "Reserva de gas", "El hidrógeno neutro muestra la materia prima de las futuras estrellas."],
+          ["Magnetic Universe", "Univers magnétique", "Synchrotron and cyclotron emission reveal fields that optical light barely shows.", "Le synchrotron et le cyclotron révèlent des champs que l’optique montre difficilement.", "Universo magnético", "Las emisiones sincrotrón y ciclotrónica revelan campos que la luz óptica apenas muestra."],
+          ["Plasma weather", "Météo des plasmas", "Solar radio emission tracks energetic particles that affect space technology.", "L’émission radio solaire suit les particules énergétiques qui affectent les technologies spatiales.", "Clima del plasma", "La emisión de radio del Sol sigue a las partículas energéticas que afectan a la tecnología espacial."],
+          ["Cosmic clocks", "Horloges cosmiques", "Pulsars test dense matter, gravity, and nanohertz gravitational-wave backgrounds.", "Les pulsars testent la matière dense, la gravité et les fonds d’ondes gravitationnelles nanohertz.", "Relojes cósmicos", "Los púlsares ponen a prueba la materia densa, la gravedad y el fondo de ondas gravitacionales de nanohercios."],
+          ["Planetary shields", "Boucliers planétaires", "Jupiter and possible exoplanet radio bursts probe magnetospheres.", "Jupiter et les possibles sursauts d’exoplanètes sondent les magnétosphères.", "Escudos planetarios", "Los estallidos de radio de Júpiter y de posibles exoplanetas permiten sondear sus magnetosferas."],
+          ["Cosmic Dawn", "Aube cosmique", "Redshifted hydrogen may reveal the first stars and galaxies switching on.", "L’hydrogène décalé vers le rouge peut révéler l’allumage des premières étoiles et galaxies.", "Amanecer Cósmico", "El hidrógeno desplazado al rojo podría revelar el encendido de las primeras estrellas y galaxias."],
         ]
           .map(
-            ([enTitle, frTitle, enBody, frBody]) => `
+            ([enTitle, frTitle, enBody, frBody, esTitle, esBody]) => `
               <article class="panel synthesis-card">
-                <h3 data-copy-en="${enTitle}" data-copy-fr="${frTitle}"></h3>
-                <p data-copy-en="${enBody}" data-copy-fr="${frBody}"></p>
+                <h3 data-copy-en="${enTitle}" data-copy-fr="${frTitle}" data-copy-es="${esTitle}"></h3>
+                <p data-copy-en="${enBody}" data-copy-fr="${frBody}" data-copy-es="${esBody}"></p>
               </article>
             `,
           )
@@ -924,8 +998,8 @@ app.innerHTML = `
 
     <section class="section-block sources-section">
       <div class="section-header">
-        <span class="section-kicker" data-copy-en="Links" data-copy-fr="Liens"></span>
-        <h2 data-copy-en="Sources and further reading" data-copy-fr="Sources et lectures utiles"></h2>
+        <span class="section-kicker" data-copy-en="Links" data-copy-fr="Liens" data-copy-es="Enlaces"></span>
+        <h2 data-copy-en="Sources and further reading" data-copy-fr="Sources et lectures utiles" data-copy-es="Fuentes y lecturas recomendadas"></h2>
       </div>
       <ul class="source-list">
         ${sources.map(([label, url]) => `<li><a href="${url}" target="_blank" rel="noreferrer">${label}</a></li>`).join("")}
@@ -1028,7 +1102,7 @@ if (
 
 function updateStaticCopy(): void {
   document.documentElement.lang = language;
-  document.title = language === "en" ? "Nançay Radio Observatory" : "Observatoire radioastronomique de Nançay";
+  document.title = t(uiText.pageTitle);
 
   document.querySelectorAll<HTMLElement>("[data-i18n]").forEach((node) => {
     const key = node.dataset.i18n as keyof typeof copy;
@@ -1036,7 +1110,8 @@ function updateStaticCopy(): void {
   });
 
   document.querySelectorAll<HTMLElement>("[data-copy-en]").forEach((node) => {
-    node.textContent = node.dataset[language === "en" ? "copyEn" : "copyFr"] ?? "";
+    const datasetKey = language === "en" ? "copyEn" : language === "fr" ? "copyFr" : "copyEs";
+    node.textContent = node.dataset[datasetKey] ?? node.dataset.copyEn ?? "";
   });
 
   languageButtons.forEach((button) => {
@@ -1066,7 +1141,7 @@ function renderMechanism(): void {
   const mechanism = mechanisms.find((item) => item.id === activeMechanismId) ?? mechanisms[0];
   const processVisual = mechanismProcessVisuals[mechanism.id];
   const sourceVisual = mechanismSourceVisuals[mechanism.id] ?? mechanism.visual;
-  mechanismTag.textContent = language === "en" ? "Emission mechanism" : "Mécanisme d’émission";
+  mechanismTag.textContent = t(uiText.mechanismTag);
   mechanismName.textContent = t(mechanism.name);
   mechanismSummary.textContent = t(mechanism.summary);
   mechanismScience.textContent = t(mechanism.science);
@@ -1128,10 +1203,12 @@ function updateFrequency(): void {
     const physics = [...new Set(activeInstruments.flatMap((instrument) => instrument.physics))];
     instrumentReadoutCard.hidden = false;
     instrumentReadout.textContent = activeInstruments.map((instrument) => instrument.name).join(", ");
-    frequencyExplanation.textContent =
-      language === "en"
-        ? `At this frequency, these Nançay instruments can observe: ${activeInstruments.map((instrument) => `${instrument.name} (${instrument.bandLabel})`).join(", ")}. The science shifts toward: ${physics.join(", ")}.`
-        : `À cette fréquence, ces instruments de Nançay peuvent observer : ${activeInstruments.map((instrument) => `${instrument.name} (${instrument.bandLabel})`).join(", ")}. La science se déplace vers : ${physics.join(", ")}.`;
+    const instrumentList = activeInstruments.map((instrument) => `${instrument.name} (${instrument.bandLabel})`).join(", ");
+    frequencyExplanation.textContent = t({
+      en: `At this frequency, these Nançay instruments can observe: ${instrumentList}. The science shifts toward: ${physics.join(", ")}.`,
+      fr: `À cette fréquence, ces instruments de Nançay peuvent observer : ${instrumentList}. La science se déplace vers : ${physics.join(", ")}.`,
+      es: `En esta frecuencia pueden observar estos instrumentos de Nançay: ${instrumentList}. La ciencia se orienta hacia: ${physics.join(", ")}.`,
+    });
     frequencyExplanation.hidden = false;
   } else {
     instrumentReadoutCard.hidden = true;
@@ -1234,8 +1311,8 @@ function drawInterferometry(angleRad: number): void {
 
   context.fillStyle = "#123143";
   context.font = "600 14px Inter, system-ui, sans-serif";
-  context.fillText(language === "en" ? "incoming wavefronts" : "fronts d’onde entrants", 24, 34);
-  context.fillText(language === "en" ? "baseline B" : "ligne de base B", width * 0.45, ground + 30);
+  context.fillText(t(uiText.wavefronts), 24, 34);
+  context.fillText(t(uiText.baseline), width * 0.45, ground + 30);
 }
 
 function renderAll(): void {
@@ -1250,7 +1327,8 @@ function renderAll(): void {
 
 languageButtons.forEach((button) => {
   button.addEventListener("click", () => {
-    language = button.dataset.lang === "fr" ? "fr" : "en";
+    const requested = button.dataset.lang as Language;
+    language = supportedLanguages.includes(requested) ? requested : "en";
     renderAll();
   });
 });

@@ -64,6 +64,11 @@
   .top nav{display:flex;gap:6px;flex-wrap:wrap}
   .top nav a{font-weight:700;font-size:14px;color:var(--soft);text-decoration:none;padding:6px 12px;border-radius:999px}
   .top nav a:hover{background:var(--card);color:var(--ink)}
+  .top-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+  .lang{display:flex;gap:2px;background:var(--card);border:2px solid var(--line);border-radius:999px;padding:3px;box-shadow:0 3px 0 var(--shadow)}
+  .lang button{background:none;border:0;border-radius:999px;padding:3px 9px;font-weight:800;font-size:12px;letter-spacing:.06em;color:var(--soft)}
+  .lang button:hover{color:var(--ink)}
+  .lang button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 
   /* hero */
   .hero{position:relative;padding:36px 0 26px;text-align:center;overflow:hidden;margin-inline:-22px;padding-inline:22px}
@@ -147,6 +152,10 @@
   @media (max-width:560px){
     .wrap{padding-inline:16px}
     .top nav a:not(.keep){display:none}
+    .top{gap:8px}
+    .brand{font-size:16px;gap:8px;white-space:nowrap}
+    .top-right{gap:6px}
+    .top nav a.keep{padding:6px 8px}
     .grid{grid-template-columns:1fr}
     .hero{margin-inline:-16px;padding-inline:16px}
     .eyebrow{font-size:11px;letter-spacing:.08em}
@@ -163,23 +172,30 @@
 <body>
 <div class="wrap">
   <header class="top">
-    <a class="brand" href="../index.html"><span class="dot" aria-hidden="true">✦</span>Sofia Gallego</a>
-    <nav aria-label="Site">
-      <a href="../science.html">Research</a>
-      <a href="../art.html">Art</a>
-      <a href="../events/index.html">Events</a>
-      <a class="keep" href="../index.html">← Main site</a>
+    <a class="brand" href="../index.html" data-href="home"><span class="dot" aria-hidden="true">✦</span>Sofia Gallego</a>
+    <div class="top-right">
+    <nav aria-label="Site" data-t-aria="navAria">
+      <a href="../science.html" data-href="science" data-t="navResearch">Research</a>
+      <a href="../art.html" data-href="art" data-t="navArt">Art</a>
+      <a href="../events/index.html" data-href="events" data-t="navEvents">Events</a>
+      <a class="keep" href="../index.html" data-href="home" data-t="navMain">← Main site</a>
     </nav>
+    <div class="lang" role="group" aria-label="Language" data-t-aria="langAria">
+      <button type="button" id="enBtn" aria-pressed="true" lang="en" title="English">EN</button>
+      <button type="button" id="frBtn" aria-pressed="false" lang="fr" title="Français">FR</button>
+      <button type="button" id="esBtn" aria-pressed="false" lang="es" title="Español">ES</button>
+    </div>
+    </div>
   </header>
 
   <section class="hero">
     <canvas id="confetti" aria-hidden="true"></canvas>
-    <span class="eyebrow">Free · in your browser · no sign-up</span>
+    <span class="eyebrow" data-t="eyebrow">Free · in your browser · no sign-up</span>
     <h1 aria-label="Sofi games"><span class="w c1">S</span><span class="w c2">o</span><span class="w c3">f</span><span class="w c4">i</span> <span class="w c5">g</span><span class="w c1">a</span><span class="w c2">m</span><span class="w c3">e</span><span class="w c4">s</span></h1>
-    <p class="lead">A shelf of experimental games I make between research and music. Simple rules, different ways of thinking: colours that cancel out, light that adds up, a demon sorting molecules, and tiny AI agents that can't keep a secret.</p>
+    <p class="lead" data-t="lead">A shelf of experimental games I make between research and music. Simple rules, different ways of thinking: colours that cancel out, light that adds up, a demon sorting molecules, and tiny AI agents that can't keep a secret.</p>
     <div class="hero-actions">
-      <a class="btn primary" href="#shelf">Browse the shelf</a>
-      <button class="btn" id="surprise" type="button"><span class="die" aria-hidden="true">🎲</span> Surprise me</button>
+      <a class="btn primary" href="#shelf" data-t="browse">Browse the shelf</a>
+      <button class="btn" id="surprise" type="button"><span class="die" aria-hidden="true">🎲</span> <span data-t="surprise">Surprise me</span></button>
     </div>
     <div class="progress" id="progress" aria-live="polite"></div>
   </section>
@@ -187,106 +203,254 @@
   <article class="featured" aria-labelledby="lal-title">
     <div class="art"><canvas id="cover-lal" aria-hidden="true"></canvas></div>
     <div class="txt">
-      <span class="tag-new">✦ New · AI safety</span>
+      <span class="tag-new" data-t="tagNew">✦ New · AI safety</span>
       <h2 id="lal-title">Little Agent Lab</h2>
-      <p>Build a crew of eager little AI agents, hand out keys, test your plan with a decoy, then go live and keep the secret blueprint inside. Eight levels, each based on a lesson from a real 2026 incident where AI agents escaped their sandbox.</p>
+      <p data-t="lalText">Build a crew of eager little AI agents, hand out keys, test your plan with a decoy, then go live and keep the secret blueprint inside. Eight levels, each based on a lesson from a real 2026 incident where AI agents escaped their sandbox.</p>
       <ul>
-        <li>Give each agent only the keys it needs</li>
-        <li>Test with a decoy before going live</li>
-        <li>Eight cosy workshops, plus endless random shifts</li>
+        <li data-t="lal1">Give each agent only the keys it needs</li>
+        <li data-t="lal2">Test with a decoy before going live</li>
+        <li data-t="lal3">Eight cosy workshops, plus endless random shifts</li>
       </ul>
-      <a class="btn primary" href="../little-agent-lab/" data-game="little-agent-lab">▶ Play Little Agent Lab</a>
+      <a class="btn primary" href="../little-agent-lab/" data-game="little-agent-lab" data-t="playLal">▶ Play Little Agent Lab</a>
     </div>
   </article>
 
   <section id="shelf" aria-labelledby="shelf-title">
     <div class="shelf-head">
       <div>
-        <h2 id="shelf-title">The shelf</h2>
-        <p>Pick a mood. Every preview is alive, and hovering speeds it up.</p>
+        <h2 id="shelf-title" data-t="shelfTitle">The shelf</h2>
+        <p data-t="shelfSub">Pick a mood. Every preview is alive, and hovering speeds it up.</p>
       </div>
-      <div class="chips" role="group" aria-label="Filter games" id="chips"></div>
+      <div class="chips" role="group" aria-label="Filter games" data-t-aria="chipsAria" id="chips"></div>
     </div>
     <div class="grid" id="grid"></div>
-    <p class="empty" id="empty">Nothing here yet.</p>
+    <p class="empty" id="empty" data-t="empty">Nothing here yet.</p>
   </section>
 
-  <section class="about" aria-label="About these games">
-    <div><b>Made by one person</b><span>Each game started as a question: what if stamps cancelled out? What if light had arithmetic? What if a thought experiment was a game?</span></div>
-    <div><b>Science inside</b><span>Parity, wave interference, thermodynamics and tidal forces show up in the rules, but you don't need to know any of it to play.</span></div>
-    <div><b>Say hello</b><span>Found a bug, beat a level, or want a game for a workshop or class? <a href="../contact.html">Get in touch</a>.</span></div>
+  <section class="about" aria-label="About these games" data-t-aria="aboutAria">
+    <div><b data-t="about1b">Made by one person</b><span data-t="about1">Each game started as a question: what if stamps cancelled out? What if light had arithmetic? What if a thought experiment was a game?</span></div>
+    <div><b data-t="about2b">Science inside</b><span data-t="about2">Parity, wave interference, thermodynamics and tidal forces show up in the rules, but you don't need to know any of it to play.</span></div>
+    <div><b data-t="about3b">Say hello</b><span data-t-html="about3">Found a bug, beat a level, or want a game for a workshop or class? <a href="../contact.html">Get in touch</a>.</span></div>
   </section>
 
-  <footer>
+  <footer data-t-html="footer">
     Made with curiosity in Paris by <a href="../index.html">Sofia Gallego</a> · <a href="../events/index.html">Events</a> · <a href="../contact.html">Contact</a>
   </footer>
 </div>
 
 <script>
-/* ---------- the shelf ---------- */
-const TAGS = {
-  puzzle:"Puzzles", colour:"Colour", strategy:"Strategy", duo:"Two players", arcade:"Arcade & physics", party:"Party & story"
+/* ---------- words (EN / FR / ES) ---------- */
+const dict = {
+  en:{
+    pageTitle:"Sofi Games — small experimental games by Sofia Gallego",
+    pageDescription:"A shelf of small experimental games by Sofia Gallego: colour puzzles, hex strategy, physics toys, party games and an AI-safety puzzle. Simple rules, different ways of thinking. Free to play in the browser.",
+    ogDescription:"Small experimental games: simple rules, different ways of thinking. Free to play in your browser.",
+    navAria:"Site", langAria:"Language",
+    navResearch:"Research", navArt:"Art", navEvents:"Events", navMain:"← Main site",
+    eyebrow:"Free · in your browser · no sign-up",
+    lead:"A shelf of experimental games I make between research and music. Simple rules, different ways of thinking: colours that cancel out, light that adds up, a demon sorting molecules, and tiny AI agents that can't keep a secret.",
+    browse:"Browse the shelf", surprise:"Surprise me",
+    progress:(n,t)=>`You've tried ${n} of ${t} games`,
+    tagNew:"✦ New · AI safety",
+    lalText:"Build a crew of eager little AI agents, hand out keys, test your plan with a decoy, then go live and keep the secret blueprint inside. Eight levels, each based on a lesson from a real 2026 incident where AI agents escaped their sandbox.",
+    lal1:"Give each agent only the keys it needs", lal2:"Test with a decoy before going live", lal3:"Eight cosy workshops, plus endless random shifts",
+    playLal:"▶ Play Little Agent Lab",
+    shelfTitle:"The shelf", shelfSub:"Pick a mood. Every preview is alive, and hovering speeds it up.",
+    chipsAria:"Filter games", empty:"Nothing here yet.", all:"All",
+    tags:{puzzle:"Puzzles", colour:"Colour", strategy:"Strategy", duo:"Two players", arcade:"Arcade & physics", party:"Party & story"},
+    stamp:"✓ played", badge:"Play ▶",
+    aboutAria:"About these games",
+    about1b:"Made by one person", about1:"Each game started as a question: what if stamps cancelled out? What if light had arithmetic? What if a thought experiment was a game?",
+    about2b:"Science inside", about2:"Parity, wave interference, thermodynamics and tidal forces show up in the rules, but you don't need to know any of it to play.",
+    about3b:"Say hello", about3:(L)=>`Found a bug, beat a level, or want a game for a workshop or class? <a href="${L.contact}">Get in touch</a>.`,
+    footer:(L)=>`Made with curiosity in Paris by <a href="${L.home}">Sofia Gallego</a> · <a href="${L.events}">Events</a> · <a href="${L.contact}">Contact</a>`,
+    canvas:{cards:["DINOSAUR","BANANA","UMBRELLA","DISCO"], survives:"…and somehow survives!", whatIf:"what if…", again:"again!", wip:"WORK IN PROGRESS"}
+  },
+  fr:{
+    pageTitle:"Sofi Games — petits jeux expérimentaux de Sofia Gallego",
+    pageDescription:"Une étagère de petits jeux expérimentaux de Sofia Gallego : casse-têtes de couleurs, stratégie sur hexagones, jouets physiques, jeux d'ambiance et un casse-tête sur la sécurité de l'IA. Des règles simples, d'autres façons de penser. Gratuits, dans le navigateur.",
+    ogDescription:"Petits jeux expérimentaux : des règles simples, d'autres façons de penser. Gratuits, dans ton navigateur.",
+    navAria:"Site", langAria:"Langue",
+    navResearch:"Recherche", navArt:"Art", navEvents:"Événements", navMain:"← Site principal",
+    eyebrow:"Gratuit · dans le navigateur · sans inscription",
+    lead:"Une étagère de jeux expérimentaux que je fabrique entre la recherche et la musique. Des règles simples, d'autres façons de penser : des couleurs qui s'annulent, de la lumière qui s'additionne, un démon qui trie des molécules et de minuscules agents IA incapables de garder un secret.",
+    browse:"Explorer l'étagère", surprise:"Surprends-moi",
+    progress:(n,t)=>`Tu as essayé ${n} ${n>1?"jeux":"jeu"} sur ${t}`,
+    tagNew:"✦ Nouveau · sécurité de l'IA",
+    lalText:"Monte une équipe de petits agents IA pleins de zèle, distribue les clés, teste ton plan avec un leurre, puis passe au vrai sans laisser sortir le plan secret. Huit niveaux, chacun tiré d'une leçon d'un incident bien réel de 2026, où des agents IA se sont échappés de leur bac à sable.",
+    lal1:"Ne donne à chaque agent que les clés dont il a besoin", lal2:"Teste avec un leurre avant de passer au vrai", lal3:"Huit ateliers douillets, et des journées aléatoires à l'infini",
+    playLal:"▶ Jouer à Little Agent Lab",
+    shelfTitle:"L'étagère", shelfSub:"Choisis ton humeur. Chaque aperçu est vivant, et il s'accélère quand tu le survoles.",
+    chipsAria:"Filtrer les jeux", empty:"Rien par ici pour l'instant.", all:"Tous",
+    tags:{puzzle:"Casse-têtes", colour:"Couleur", strategy:"Stratégie", duo:"À deux", arcade:"Arcade et physique", party:"Ambiance et récits"},
+    stamp:"✓ joué", badge:"Jouer ▶",
+    aboutAria:"À propos de ces jeux",
+    about1b:"Faits par une seule personne", about1:"Chaque jeu est parti d'une question : et si les tampons s'annulaient ? Et si la lumière savait compter ? Et si une expérience de pensée devenait un jeu ?",
+    about2b:"De la science dedans", about2:"Parité, interférence des ondes, thermodynamique et forces de marée se glissent dans les règles, mais nul besoin d'y connaître quoi que ce soit pour jouer.",
+    about3b:"Un petit mot ?", about3:(L)=>`Un bug trouvé, un niveau réussi, ou envie d'un jeu pour un atelier ou une classe ? <a href="${L.contact}">Écris-moi</a>.`,
+    footer:(L)=>`Fait avec curiosité à Paris par <a href="${L.home}">Sofia Gallego</a> · <a href="${L.events}">Événements</a> · <a href="${L.contact}">Contact</a>`,
+    canvas:{cards:["DINOSAURE","BANANE","PARAPLUIE","DISCO"], survives:"…et s'en sort quand même !", whatIf:"et si…", again:"encore !", wip:"EN CHANTIER"}
+  },
+  es:{
+    pageTitle:"Sofi Games — pequeños juegos experimentales de Sofia Gallego",
+    pageDescription:"Un estante de pequeños juegos experimentales de Sofia Gallego: rompecabezas de color, estrategia en hexágonos, juguetes de física, juegos de grupo y un rompecabezas sobre seguridad de la IA. Reglas simples, otras maneras de pensar. Gratis en el navegador.",
+    ogDescription:"Pequeños juegos experimentales: reglas simples, otras maneras de pensar. Gratis en tu navegador.",
+    navAria:"Sitio", langAria:"Idioma",
+    navResearch:"Investigación", navArt:"Arte", navEvents:"Eventos", navMain:"← Sitio principal",
+    eyebrow:"Gratis · en el navegador · sin registro",
+    lead:"Un estante de juegos experimentales que hago entre la investigación y la música. Reglas simples, otras maneras de pensar: colores que se anulan, luz que se suma, un demonio que ordena moléculas y pequeños agentes de IA que no saben guardar un secreto.",
+    browse:"Recorrer el estante", surprise:"Sorpréndeme",
+    progress:(n,t)=>`Has probado ${n} de ${t} juegos`,
+    tagNew:"✦ Nuevo · seguridad de la IA",
+    lalText:"Arma un equipo de pequeños agentes de IA con muchas ganas de ayudar, reparte las llaves, pon a prueba tu plan con un señuelo y luego pasa a lo real sin dejar que el plano secreto salga de la bóveda. Ocho niveles, cada uno basado en una lección de un incidente real de 2026 en el que unos agentes de IA escaparon de su sandbox.",
+    lal1:"Da a cada agente solo las llaves que necesita", lal2:"Prueba con un señuelo antes de pasar a lo real", lal3:"Ocho talleres acogedores y turnos aleatorios sin fin",
+    playLal:"▶ Jugar a Little Agent Lab",
+    shelfTitle:"El estante", shelfSub:"Elige según tu ánimo. Cada vista previa está viva y se acelera cuando pasas el cursor.",
+    chipsAria:"Filtrar juegos", empty:"Aquí todavía no hay nada.", all:"Todos",
+    tags:{puzzle:"Rompecabezas", colour:"Color", strategy:"Estrategia", duo:"Para dos", arcade:"Arcade y física", party:"Grupo e historias"},
+    stamp:"✓ jugado", badge:"Jugar ▶",
+    aboutAria:"Sobre estos juegos",
+    about1b:"Hechos por una sola persona", about1:"Cada juego empezó con una pregunta: ¿y si los sellos se anularan? ¿Y si la luz supiera sumar? ¿Y si un experimento mental fuera un juego?",
+    about2b:"Con ciencia dentro", about2:"La paridad, la interferencia de ondas, la termodinámica y las fuerzas de marea aparecen en las reglas, pero no hace falta saber nada de eso para jugar.",
+    about3b:"Escríbeme", about3:(L)=>`¿Encontraste un error, superaste un nivel o quieres un juego para un taller o una clase? <a href="${L.contact}">Hablemos</a>.`,
+    footer:(L)=>`Hecho con curiosidad en París por <a href="${L.home}">Sofia Gallego</a> · <a href="${L.events}">Eventos</a> · <a href="${L.contact}">Contacto</a>`,
+    canvas:{cards:["DINOSAURIO","PLÁTANO","PARAGUAS","DISCO"], survives:"…¡y aun así sobrevive!", whatIf:"¿y si…?", again:"¡otra vez!", wip:"EN DESARROLLO"}
+  }
 };
+function links(l){
+  const pre = l==="en" ? "../" : `../${l}/`, q = l==="en" ? "" : `?lang=${l}`;
+  return {home:pre+"index.html", science:pre+"science.html", art:pre+"art.html", contact:pre+"contact.html", events:"../events/index.html"+q};
+}
+let lang = "en";
+
+/* ---------- the shelf ---------- */
+const TAG_KEYS = ["puzzle","colour","strategy","duo","arcade","party"];
 const GAMES = [
-  {id:"lumen", href:"lumen_logic.html", name:"Lumen Logic", tags:["puzzle"], meta:["Solo","Levels"], bg:"#2f2a4a",
-   blurb:"Place light sources on a walled grid. Light fades with distance and adds up, so match every clue exactly."},
-  {id:"cmyxor", href:"cmy_xor.html", name:"CMY XOR Stamps", tags:["puzzle","colour"], meta:["Solo","Levels"], bg:"#fdf6ea",
-   blurb:"Stamp cyan, magenta and yellow shapes to paint a target. Colours mix, and the same colour twice cancels out."},
-  {id:"cmyhex", href:"cmy_xor_hex.html", name:"CM XOR Hex", tags:["puzzle","colour"], meta:["Solo","Hex board"], bg:"#f4eefb",
-   blurb:"The colour stamps go round: tetrahex pieces on a circular board, with 60° turns and mirrored pieces."},
-  {id:"xor", href:"xor.html", name:"XOR Stamps", tags:["puzzle"], meta:["Solo","Levels"], bg:"#f7ecdc",
-   blurb:"Recreate a silhouette by stamping shapes. Overlaps cancel, so order won't save you."},
-  {id:"hexwave", href:"hex_wave.html", name:"Hex Wave", tags:["puzzle"], meta:["Solo","Hex board"], bg:"#e3f1f7",
-   blurb:"Drop a few emitters on a hex board so their rings add up to a target field. A puzzle about interference."},
-  {id:"rps", href:"rps_relations.html", name:"RPS Relations", tags:["puzzle"], meta:["Solo","Logic"], bg:"#fbeee8",
-   blurb:"A logic grid where every arrow says who wins. Fill each cell with rock, paper, scissors, lizard or Spock."},
-  {id:"proximity", href:"proximity.html", name:"Proximity", tags:["puzzle"], meta:["Solo","Scoring"], bg:"#eef3e6",
-   blurb:"Some pieces want to be close, others want space. Place them all for the highest score."},
-  {id:"tint", href:"tint_tactics.html", name:"Tint Tactics", tags:["strategy","colour"], meta:["vs bot","Chess moves"], bg:"#f3ecf8",
-   blurb:"Move like chess and paint every square you land on. Win the board, not the pieces."},
-  {id:"hexy", href:"hexy_battle.html", name:"Hexy Battle", tags:["strategy","duo"], meta:["vs bot or friend"], bg:"#fdf0e6",
-   blurb:"A quick tactical brawl on hexes. Stay near what loves you, flee what hates you, and let rock-paper-scissors decide."},
-  {id:"polypaint", href:"polypaint.html", name:"PolyPaint", tags:["strategy","duo"], meta:["2 players"], bg:"#eef6f1",
-   blurb:"Two painters, one shared pool of polyominoes. Cover the board, paint over your rival."},
-  {id:"polyclear", href:"polyclear.html", name:"PolyClear", tags:["duo","puzzle"], meta:["2 players","Rounds"], bg:"#fff4dc",
-   blurb:"A duel on a 9×9 board: place pieces, clear rows, columns and blocks, and out-score your opponent."},
-  {id:"queen", href:"queen_survival.html", name:"Queen Survival", tags:["arcade","strategy"], meta:["Solo","2 min"], bg:"#f7ecdc",
-   blurb:"You're a chess queen and the board is closing in. Every move changes what's still possible."},
-  {id:"demon", href:"maxwell.html", name:"Maxwell's Demon", tags:["arcade"], meta:["Solo","Physics"], bg:"#e9eef8",
-   blurb:"Be the demon from the famous thought experiment: open tiny windows in a wall to sort hot and cold particles."},
-  {id:"drift", href:"spaguettify_drift.html", name:"Spaghettify: Drift", tags:["arcade"], meta:["Solo","Space"], bg:"#262345",
-   blurb:"Steer an astronaut through a field of black holes that bend your path and stretch you like spaghetti."},
-  {id:"plot", href:"plot-armor-beta/index.html", name:"Plot Armor", tags:["party"], meta:["Group","Cards","Beta"], bg:"#fde9e4",
-   blurb:"Draw absurd movie-logic cards and explain how the hero survives an impossible threat. Nonsense wins."},
-  {id:"second", href:"second-take/index.html", name:"Second Take", tags:["party"], meta:["Group","Workshop"], bg:"#eaf2ee",
-   blurb:"A rehearsal game: act out a tricky moment, pause, and replay it differently. About power, agency and pausing."},
-  {id:"cosmoneo", href:"../cosmoneo.html", name:"Cosmoneo", tags:["strategy","party"], meta:["Board game","Work in progress"], bg:"#262345",
-   blurb:"An astronomy-inspired board game about cosmic evolution, galaxies and hidden connections in the Universe. Still in beta testing."}
+  {id:"lumen", href:"lumen_logic.html", name:"Lumen Logic", tags:["puzzle"], bg:"#2f2a4a",
+   meta:{en:["Solo","Levels"], fr:["Solo","Niveaux"], es:["Un jugador","Niveles"]},
+   blurb:{en:"Place light sources on a walled grid. Light fades with distance and adds up, so match every clue exactly.",
+          fr:"Place des sources de lumière sur une grille cloisonnée. La lumière faiblit avec la distance et s'additionne : chaque indice doit tomber pile.",
+          es:"Coloca fuentes de luz en una cuadrícula con muros. La luz se debilita con la distancia y se suma, así que cada pista tiene que cuadrar exactamente."}},
+  {id:"cmyxor", href:"cmy_xor.html", name:"CMY XOR Stamps", tags:["puzzle","colour"], bg:"#fdf6ea",
+   meta:{en:["Solo","Levels"], fr:["Solo","Niveaux"], es:["Un jugador","Niveles"]},
+   blurb:{en:"Stamp cyan, magenta and yellow shapes to paint a target. Colours mix, and the same colour twice cancels out.",
+          fr:"Tamponne des formes cyan, magenta et jaunes pour reproduire un motif. Les couleurs se mélangent, et deux fois la même couleur, ça s'annule.",
+          es:"Estampa formas cian, magenta y amarillas para pintar un objetivo. Los colores se mezclan, y el mismo color dos veces se anula."}},
+  {id:"cmyhex", href:"cmy_xor_hex.html", name:"CM XOR Hex", tags:["puzzle","colour"], bg:"#f4eefb",
+   meta:{en:["Solo","Hex board"], fr:["Solo","Plateau hexagonal"], es:["Un jugador","Tablero hexagonal"]},
+   blurb:{en:"The colour stamps go round: tetrahex pieces on a circular board, with 60° turns and mirrored pieces.",
+          fr:"Les tampons de couleur passent au rond : des tétrahex sur un plateau circulaire, avec des rotations de 60° et des pièces en miroir.",
+          es:"Los sellos de color se vuelven redondos: piezas tetrahex en un tablero circular, con giros de 60° y piezas en espejo."}},
+  {id:"xor", href:"xor.html", name:"XOR Stamps", tags:["puzzle"], bg:"#f7ecdc",
+   meta:{en:["Solo","Levels"], fr:["Solo","Niveaux"], es:["Un jugador","Niveles"]},
+   blurb:{en:"Recreate a silhouette by stamping shapes. Overlaps cancel, so order won't save you.",
+          fr:"Recrée une silhouette à coups de tampons. Les chevauchements s'annulent, et l'ordre ne te sauvera pas.",
+          es:"Recrea una silueta estampando formas. Las superposiciones se anulan, así que el orden no te va a salvar."}},
+  {id:"hexwave", href:"hex_wave.html", name:"Hex Wave", tags:["puzzle"], bg:"#e3f1f7",
+   meta:{en:["Solo","Hex board"], fr:["Solo","Plateau hexagonal"], es:["Un jugador","Tablero hexagonal"]},
+   blurb:{en:"Drop a few emitters on a hex board so their rings add up to a target field. A puzzle about interference.",
+          fr:"Pose quelques émetteurs sur un plateau hexagonal pour que leurs anneaux s'additionnent jusqu'au champ voulu. Un casse-tête sur l'interférence.",
+          es:"Coloca unos pocos emisores en un tablero hexagonal para que sus anillos sumen el campo buscado. Un rompecabezas sobre la interferencia."}},
+  {id:"rps", href:"rps_relations.html", name:"RPS Relations", tags:["puzzle"], bg:"#fbeee8",
+   meta:{en:["Solo","Logic"], fr:["Solo","Logique"], es:["Un jugador","Lógica"]},
+   blurb:{en:"A logic grid where every arrow says who wins. Fill each cell with rock, paper, scissors, lizard or Spock.",
+          fr:"Une grille de logique où chaque flèche dit qui gagne. Remplis chaque case avec pierre, feuille, ciseaux, lézard ou Spock.",
+          es:"Una cuadrícula lógica donde cada flecha dice quién gana. Llena cada casilla con piedra, papel, tijera, lagarto o Spock."}},
+  {id:"proximity", href:"proximity.html", name:"Proximity", tags:["puzzle"], bg:"#eef3e6",
+   meta:{en:["Solo","Scoring"], fr:["Solo","Points"], es:["Un jugador","Puntuación"]},
+   blurb:{en:"Some pieces want to be close, others want space. Place them all for the highest score.",
+          fr:"Certaines pièces veulent être proches, d'autres ont besoin d'air. Place-les toutes pour décrocher le meilleur score.",
+          es:"Algunas piezas quieren estar cerca, otras necesitan espacio. Colócalas todas para lograr la puntuación más alta."}},
+  {id:"tint", href:"tint_tactics.html", name:"Tint Tactics", tags:["strategy","colour"], bg:"#f3ecf8",
+   meta:{en:["vs bot","Chess moves"], fr:["contre un bot","Coups d'échecs"], es:["contra un bot","Movimientos de ajedrez"]},
+   blurb:{en:"Move like chess and paint every square you land on. Win the board, not the pieces.",
+          fr:"Déplace-toi comme aux échecs et peins chaque case où tu t'arrêtes. Gagne le plateau, pas les pièces.",
+          es:"Muévete como en el ajedrez y pinta cada casilla donde caes. Gana el tablero, no las piezas."}},
+  {id:"hexy", href:"hexy_battle.html", name:"Hexy Battle", tags:["strategy","duo"], bg:"#fdf0e6",
+   meta:{en:["vs bot or friend"], fr:["contre un bot ou un ami"], es:["contra un bot o un amigo"]},
+   blurb:{en:"A quick tactical brawl on hexes. Stay near what loves you, flee what hates you, and let rock-paper-scissors decide.",
+          fr:"Une bagarre tactique express sur des hexagones. Reste près de ce qui t'aime, fuis ce qui te déteste, et laisse pierre-feuille-ciseaux trancher.",
+          es:"Una pelea táctica rápida sobre hexágonos. Quédate cerca de lo que te quiere, huye de lo que te odia y deja que piedra, papel o tijera decida."}},
+  {id:"polypaint", href:"polypaint.html", name:"PolyPaint", tags:["strategy","duo"], bg:"#eef6f1",
+   meta:{en:["2 players"], fr:["2 joueurs"], es:["2 jugadores"]},
+   blurb:{en:"Two painters, one shared pool of polyominoes. Cover the board, paint over your rival.",
+          fr:"Deux peintres, une seule réserve de polyominos à partager. Couvre le plateau, repeins par-dessus ton rival.",
+          es:"Dos pintores, una sola reserva de poliominós para ambos. Cubre el tablero y pinta encima de tu rival."}},
+  {id:"polyclear", href:"polyclear.html", name:"PolyClear", tags:["duo","puzzle"], bg:"#fff4dc",
+   meta:{en:["2 players","Rounds"], fr:["2 joueurs","Manches"], es:["2 jugadores","Rondas"]},
+   blurb:{en:"A duel on a 9×9 board: place pieces, clear rows, columns and blocks, and out-score your opponent.",
+          fr:"Un duel sur un plateau 9×9 : pose des pièces, vide lignes, colonnes et blocs, et marque plus de points que ton adversaire.",
+          es:"Un duelo en un tablero de 9×9: coloca piezas, despeja filas, columnas y bloques, y saca más puntos que tu rival."}},
+  {id:"queen", href:"queen_survival.html", name:"Queen Survival", tags:["arcade","strategy"], bg:"#f7ecdc",
+   meta:{en:["Solo","2 min"], fr:["Solo","2 min"], es:["Un jugador","2 min"]},
+   blurb:{en:"You're a chess queen and the board is closing in. Every move changes what's still possible.",
+          fr:"Tu es une reine d'échecs et l'étau se resserre. Chaque coup change ce qui reste possible.",
+          es:"Eres una reina de ajedrez y el tablero se te viene encima. Cada movimiento cambia lo que todavía es posible."}},
+  {id:"demon", href:"maxwell.html", name:"Maxwell's Demon", tags:["arcade"], bg:"#e9eef8",
+   meta:{en:["Solo","Physics"], fr:["Solo","Physique"], es:["Un jugador","Física"]},
+   blurb:{en:"Be the demon from the famous thought experiment: open tiny windows in a wall to sort hot and cold particles.",
+          fr:"Incarne le démon de la célèbre expérience de pensée : ouvre de minuscules fenêtres dans une paroi pour trier les particules chaudes et froides.",
+          es:"Sé el demonio del famoso experimento mental: abre ventanitas en una pared para separar las partículas calientes de las frías."}},
+  {id:"drift", href:"spaguettify_drift.html", name:"Spaghettify: Drift", tags:["arcade"], bg:"#262345",
+   meta:{en:["Solo","Space"], fr:["Solo","Espace"], es:["Un jugador","Espacio"]},
+   blurb:{en:"Steer an astronaut through a field of black holes that bend your path and stretch you like spaghetti.",
+          fr:"Pilote un astronaute à travers un champ de trous noirs qui courbent ta trajectoire et t'étirent comme un spaghetti.",
+          es:"Guía a un astronauta por un campo de agujeros negros que curvan tu trayectoria y te estiran como un espagueti."}},
+  {id:"plot", href:"plot-armor-beta/index.html", name:"Plot Armor", tags:["party"], bg:"#fde9e4",
+   meta:{en:["Group","Cards","Beta"], fr:["En groupe","Cartes","Bêta"], es:["En grupo","Cartas","Beta"]},
+   blurb:{en:"Draw absurd movie-logic cards and explain how the hero survives an impossible threat. Nonsense wins.",
+          fr:"Pioche des cartes à la logique de film absurde et explique comment le héros survit à une menace impossible. Le grand n'importe quoi l'emporte.",
+          es:"Roba cartas con lógica de película absurda y explica cómo el héroe sobrevive a una amenaza imposible. Gana el disparate."}},
+  {id:"second", href:"second-take/index.html", name:"Second Take", tags:["party"], bg:"#eaf2ee",
+   meta:{en:["Group","Workshop"], fr:["En groupe","Atelier"], es:["En grupo","Taller"]},
+   blurb:{en:"A rehearsal game: act out a tricky moment, pause, and replay it differently. About power, agency and pausing.",
+          fr:"Un jeu de répétition : joue une situation délicate, fais pause, puis rejoue-la autrement. Il y est question de pouvoir, de marge d'action et de l'art de s'arrêter.",
+          es:"Un juego de ensayo: representa un momento difícil, haz una pausa y vuelve a jugarlo de otra manera. Trata sobre el poder, la capacidad de actuar y el arte de detenerse."}},
+  {id:"cosmoneo", href:{en:"../cosmoneo.html", fr:"../fr/cosmoneo.html", es:"../es/cosmoneo.html"}, name:"Cosmoneo", tags:["strategy","party"], bg:"#262345",
+   meta:{en:["Board game","Work in progress"], fr:["Jeu de plateau","En chantier"], es:["Juego de mesa","En desarrollo"]},
+   blurb:{en:"An astronomy-inspired board game about cosmic evolution, galaxies and hidden connections in the Universe. Still in beta testing.",
+          fr:"Un jeu de plateau inspiré de l'astronomie, autour de l'évolution cosmique, des galaxies et des liens cachés de l'Univers. Encore en phase de test.",
+          es:"Un juego de mesa inspirado en la astronomía sobre la evolución cósmica, las galaxias y las conexiones ocultas del Universo. Todavía en fase de pruebas."}}
 ];
 
 const grid = document.getElementById("grid");
 const chips = document.getElementById("chips");
 const store = { get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}, set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}} };
 let played = new Set(store.get("sg-games-played") || []);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 GAMES.forEach((g,i)=>{
   const a = document.createElement("a");
-  a.className = "game"; a.href = g.href; a.dataset.game = g.id; a.dataset.tags = g.tags.join(" ");
+  a.className = "game"; a.href = typeof g.href==="string" ? g.href : g.href.en; a.dataset.game = g.id; a.dataset.tags = g.tags.join(" ");
   a.style.setProperty("--tilt", (i%3===0?-1:i%3===1?.8:-.4)+"deg");
-  a.innerHTML = `<span class="stamp">✓ played</span>
-    <div class="cover" style="--bg:${g.bg}"><canvas aria-hidden="true"></canvas><span class="play-badge">Play ▶</span></div>
-    <div class="body"><h3>${g.name}</h3><p>${g.blurb}</p>
-    <div class="meta">${g.meta.map(m=>`<span>${m}</span>`).join("")}</div></div>`;
+  a.innerHTML = `<span class="stamp"></span>
+    <div class="cover" style="--bg:${g.bg}"><canvas aria-hidden="true"></canvas><span class="play-badge"></span></div>
+    <div class="body"><h3>${esc(g.name)}</h3><p class="blurb"></p>
+    <div class="meta"></div></div>`;
   grid.appendChild(a);
 });
+function renderCards(){
+  const d=dict[lang];
+  GAMES.forEach(g=>{
+    const el=grid.querySelector(`[data-game="${g.id}"]`);
+    if(typeof g.href!=="string") el.href=g.href[lang];
+    el.querySelector(".stamp").textContent=d.stamp;
+    el.querySelector(".play-badge").textContent=d.badge;
+    el.querySelector(".blurb").textContent=g.blurb[lang];
+    el.querySelector(".meta").innerHTML=g.meta[lang].map(m=>`<span>${esc(m)}</span>`).join("");
+  });
+}
 
-function makeChip(key,label,count){
+function makeChip(key,count){
   const b=document.createElement("button"); b.type="button"; b.className="chip"; b.dataset.tag=key;
   b.setAttribute("aria-pressed", key==="all"?"true":"false");
-  b.innerHTML=`${label}<span class="n">${count}</span>`; chips.appendChild(b);
+  b.innerHTML=`<span class="lbl"></span><span class="n">${count}</span>`; chips.appendChild(b);
 }
-makeChip("all","All",GAMES.length);
-Object.entries(TAGS).forEach(([k,l])=>makeChip(k,l,GAMES.filter(g=>g.tags.includes(k)).length));
+makeChip("all",GAMES.length);
+TAG_KEYS.forEach(k=>makeChip(k,GAMES.filter(g=>g.tags.includes(k)).length));
+function renderChips(){
+  chips.querySelectorAll(".chip").forEach(b=>{b.querySelector(".lbl").textContent = b.dataset.tag==="all" ? dict[lang].all : dict[lang].tags[b.dataset.tag];});
+}
 chips.addEventListener("click",e=>{
   const b=e.target.closest(".chip"); if(!b) return;
   chips.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed", c===b?"true":"false"));
@@ -304,9 +468,8 @@ function renderProgress(){
   const total = GAMES.length+1, n=[...played].filter(id=>id==="little-agent-lab"||GAMES.some(g=>g.id===id)).length;
   grid.querySelectorAll(".game").forEach(el=>el.classList.toggle("played",played.has(el.dataset.game)));
   const p=document.getElementById("progress");
-  p.innerHTML = n ? `You've tried ${n} of ${total} games <span class="bar"><i style="width:${Math.round(100*n/total)}%"></i></span>` : "";
+  p.innerHTML = n ? `${esc(dict[lang].progress(n,total))} <span class="bar"><i style="width:${Math.round(100*n/total)}%"></i></span>` : "";
 }
-renderProgress();
 window.addEventListener("pageshow",()=>{played=new Set(store.get("sg-games-played")||[]);renderProgress();});
 
 document.getElementById("surprise").addEventListener("click",()=>{
@@ -498,7 +661,7 @@ const COVERS = {
     ctx.fillStyle="#fffaf1";rr(ctx,-10,-6,20,20,7);ctx.fill();ctx.beginPath();ctx.arc(0,-10,10,0,7);ctx.fill();ctx.fillStyle=P.sky;rr(ctx,-6,-15,12,8,4);ctx.fill();ctx.fillStyle=P.coral;ctx.fillRect(-14,-2,5,12);ctx.restore();
   },
   plot(ctx,w,h,t){
-    const cards=[["🦖","DINOSAUR"],["🍌","BANANA"],["☂️","UMBRELLA"],["🪩","DISCO"]];
+    const C=dict[lang].canvas, cards=["🦖","🍌","☂️","🪩"].map((e,i)=>[e,C.cards[i]]);
     const cols=[P.honey,P.sky,P.sage,P.lilac];
     cards.forEach(([e,l],i)=>{const a=(i-1.5)*.28+Math.sin(t*1.2+i)*.05, cw=w*.2, ch=cw*1.4;
       ctx.save();ctx.translate(w/2,h*.98);ctx.rotate(a);ctx.translate(0,-h*.5);
@@ -506,7 +669,7 @@ const COVERS = {
       ctx.fillStyle=cols[i];rr(ctx,-cw/2+6,-ch/2+6,cw-12,ch*.6,7);ctx.fill();
       ctx.font=`${cw*.42}px serif`;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(e,0,-ch*.12);
       ctx.fillStyle=P.ink;ctx.font=`800 ${cw*.11}px Nunito`;ctx.fillText(l,0,ch*.32);ctx.restore();});
-    ctx.fillStyle=P.coral;ctx.font=`700 ${h*.11}px Fredoka,sans-serif`;ctx.textAlign="center";ctx.fillText("…and somehow survives!",w/2,h*.14+Math.sin(t*2)*2);
+    ctx.fillStyle=P.coral;ctx.font=`700 ${h*.11}px Fredoka,sans-serif`;ctx.textAlign="center";ctx.fillText(dict[lang].canvas.survives,w/2,h*.14+Math.sin(t*2)*2);
   },
   second(ctx,w,h,t){
     const cx=w/2,cy=h*.52,R=h*.3;
@@ -515,7 +678,7 @@ const COVERS = {
     ctx.fillStyle=P.sage;ctx.save();ctx.translate(ex,ey);ctx.rotate(ea+Math.PI/2);ctx.beginPath();ctx.moveTo(R*.25,0);ctx.lineTo(-R*.12,-R*.2);ctx.lineTo(-R*.12,R*.2);ctx.fill();ctx.restore();
     ctx.fillStyle=P.ink;rr(ctx,cx-R*.28,cy-R*.3,R*.18,R*.6,4);ctx.fill();rr(ctx,cx+R*.1,cy-R*.3,R*.18,R*.6,4);ctx.fill();
     const b=(Math.sin(t*1.5)+1)/2;
-    [[.18,.3,P.rose,"what if…"],[.8,.72,P.honey,"again!"]].forEach(([x,y,c,s],i)=>{const k=i?1-b:b;ctx.globalAlpha=.4+.6*k;ctx.fillStyle=c;rr(ctx,w*x-44,h*y-16-k*4,88,30,14);ctx.fill();ctx.fillStyle=P.ink;ctx.font=`800 13px Nunito`;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(s,w*x,h*y-1-k*4);ctx.globalAlpha=1;});
+    [[.18,.3,P.rose,dict[lang].canvas.whatIf],[.8,.72,P.honey,dict[lang].canvas.again]].forEach(([x,y,c,s],i)=>{const k=i?1-b:b;ctx.globalAlpha=.4+.6*k;ctx.fillStyle=c;rr(ctx,w*x-44,h*y-16-k*4,88,30,14);ctx.fill();ctx.fillStyle=P.ink;ctx.font=`800 13px Nunito`;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(s,w*x,h*y-1-k*4);ctx.globalAlpha=1;});
   },
   cosmoneo(ctx,w,h,t){
     // a board of hex tiles where galaxies light up and get linked
@@ -530,7 +693,7 @@ const COVERS = {
       ctx.save();ctx.translate(cx+x,cy+y);ctx.rotate(t*.6+i);ctx.fillStyle=on?P.honey:"rgba(255,255,255,.35)";
       for(let a=0;a<2;a++){ctx.beginPath();ctx.ellipse(0,0,s*.36*pulse,s*.11*pulse,a*Math.PI/2,0,7);ctx.fill();}
       ctx.beginPath();ctx.arc(0,0,s*.12,0,7);ctx.fillStyle=on?"#fff4d0":"rgba(255,255,255,.5)";ctx.fill();ctx.restore();});
-    ctx.fillStyle="rgba(255,255,255,.85)";ctx.font="800 11px Nunito";ctx.textAlign="right";ctx.fillText("WORK IN PROGRESS",w-10,h-10);
+    ctx.fillStyle="rgba(255,255,255,.85)";ctx.font="800 11px Nunito";ctx.textAlign="right";ctx.fillText(dict[lang].canvas.wip,w-10,h-10);
   },
   lal(ctx,w,h,t){
     // lantern workshop with little agents
@@ -554,6 +717,7 @@ const COVERS = {
   }
 };
 
+const redraws=[]; // lets a language switch repaint paused covers
 function mount(canvas,key){
   const ctx=canvas.getContext("2d"), st={};
   let w=0,h=0,visible=false,hover=false,last=0,tt=Math.random()*5;
@@ -564,6 +728,7 @@ function mount(canvas,key){
     ctx.clearRect(0,0,w,h); COVERS[key](ctx,w,h,tt,st);
     if(visible && !RM) requestAnimationFrame(frame);
   }
+  redraws.push(()=>{if(w>0&&h>0&&(!visible||RM))frame(performance.now());});
   new ResizeObserver(()=>{size();if(!visible||RM)frame(performance.now());}).observe(canvas);
   new IntersectionObserver(es=>{const was=visible;visible=es[0].isIntersecting;if(visible&&!was){last=performance.now();requestAnimationFrame(frame);}}).observe(canvas);
   const host=canvas.closest(".game,.featured");
@@ -588,6 +753,26 @@ mount(document.getElementById("cover-lal"),"lal");
     if(!RM) requestAnimationFrame(draw);}
   requestAnimationFrame(draw);
 })();
+
+/* ---------- language ---------- */
+function setLang(l){
+  if(!dict[l]) l="en";
+  lang=l; const d=dict[l], L=links(l);
+  document.documentElement.lang=l; document.title=d.pageTitle;
+  const desc=document.querySelector('meta[name="description"]'); if(desc) desc.setAttribute("content",d.pageDescription);
+  const og=document.querySelector('meta[property="og:description"]'); if(og) og.setAttribute("content",d.ogDescription);
+  document.querySelectorAll("[data-t]").forEach(el=>{const v=d[el.dataset.t]; if(typeof v==="string") el.textContent=v;});
+  document.querySelectorAll("[data-t-html]").forEach(el=>{const v=d[el.dataset.tHtml]; if(v) el.innerHTML=typeof v==="function"?v(L):v;});
+  document.querySelectorAll("[data-t-aria]").forEach(el=>{const v=d[el.dataset.tAria]; if(v) el.setAttribute("aria-label",v);});
+  document.querySelectorAll("[data-href]").forEach(el=>{el.href=L[el.dataset.href];});
+  ["en","fr","es"].forEach(k=>document.getElementById(k+"Btn").setAttribute("aria-pressed",String(l===k)));
+  renderChips(); renderCards(); renderProgress(); redraws.forEach(f=>f());
+}
+["en","fr","es"].forEach(k=>document.getElementById(k+"Btn").addEventListener("click",()=>setLang(k)));
+/* Language: ?lang=es|fr|en or #es|#fr|#en forces it; otherwise browser language */
+const urlLang=(new URLSearchParams(location.search).get("lang")||location.hash.slice(1)).toLowerCase();
+const navLang=(navigator.language||"").toLowerCase();
+setLang(dict[urlLang]?urlLang:/^es/.test(navLang)?"es":/^fr/.test(navLang)?"fr":"en");
 </script>
 </body>
 </html>
