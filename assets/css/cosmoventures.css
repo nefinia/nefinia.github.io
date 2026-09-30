@@ -137,3 +137,16 @@ body.cv .flogo img{opacity:1}
   .svc{padding:22px}
   .svc-meta{grid-template-columns:1fr}
 }
+
+/* AI safety: first service, full width, with its list in two columns */
+.svc.featured{grid-column:1/-1;border-color:rgba(51,70,176,.35);background:linear-gradient(135deg,#ffffff 0%,#eef0fb 100%)}
+.svc.featured h3{font-size:28px}
+.svc.featured .svc-for{max-width:70ch}
+.svc.featured .ticks{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:40px}
+.svc.featured .svc-meta{max-width:560px}
+/* project groups */
+.cv .grp{font-family:var(--mono);font-weight:400;font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--glow);margin:40px 0 18px}
+.cv .grp:first-of-type{margin-top:8px}
+#work .proj-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:900px){#work .proj-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.svc.featured .ticks{grid-template-columns:1fr}}
+@media (max-width:560px){#work .proj-grid{grid-template-columns:1fr}}
