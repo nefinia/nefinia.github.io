@@ -120,3 +120,9 @@ footer{max-width:1180px;margin:0 auto;padding:32px 16px 48px;color:var(--faint);
 @media (max-width:1180px){.langs{margin:6px 0 0;padding:8px 0 0;border-left:0;border-top:1px solid var(--line)}}
 .skip{position:absolute;left:-9999px;top:0;z-index:50;background:var(--ink);color:var(--void);padding:8px 12px}
 .skip:focus{left:16px;top:8px}
+/* personal logo */
+.brand{display:inline-flex;align-items:center;gap:10px}
+.brand img{width:28px;height:28px;border-radius:50%}
+footer{align-items:center}
+.flogo img{display:block;width:64px;height:64px;opacity:.9;transition:opacity .2s}
+.flogo:hover img{opacity:1}
