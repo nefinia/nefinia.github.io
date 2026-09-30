@@ -51,11 +51,11 @@ h1{font-family:var(--display);font-size:clamp(40px,4.8vw,60px);line-height:1;mar
 
 
 /* section nodes: a point, a thin ring, a label */
-.node{position:absolute;left:0;top:0;z-index:2;display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--dim);will-change:transform}
+.node{position:absolute;left:0;top:0;z-index:2;display:flex;align-items:center;gap:10px;text-decoration:none;color:#dfe3f5;will-change:transform}
 .node .pt{position:relative;width:28px;height:28px;flex:none;display:grid;place-items:center}
 .node .pt::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--ink);box-shadow:0 0 10px 2px rgba(185,198,255,.55)}
 .node .pt::after{content:"";position:absolute;inset:0;border-radius:50%;border:1px solid rgba(185,198,255,.28);transition:inset .35s,border-color .35s}
-.node .lbl{font-size:11px;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap;transition:color .3s}
+.node .lbl{font-size:13px;font-weight:400;letter-spacing:.18em;text-transform:uppercase;white-space:nowrap;transition:color .3s;text-shadow:0 0 3px #04050b,0 0 10px #04050b,0 0 18px rgba(4,5,11,.9)}
 .node.left{flex-direction:row-reverse}
 .node:hover,.node.on{color:var(--ink)}
 .node:hover .pt::after,.node.on .pt::after{inset:-6px;border-color:rgba(185,198,255,.8)}
@@ -66,8 +66,8 @@ h1{font-family:var(--display);font-size:clamp(40px,4.8vw,60px);line-height:1;mar
 .mini.show{opacity:1;pointer-events:auto;transition-delay:var(--d,0s)}
 .mini i{width:5px;height:5px;margin-top:6px;border-radius:50%;background:var(--glow);box-shadow:0 0 6px rgba(185,198,255,.8);flex:none}
 .mini span{display:flex;flex-direction:column;padding:3px 7px 4px;background:rgba(4,5,11,.72);border:1px solid var(--line);border-radius:2px;min-width:0}
-.mini b{font-weight:400;font-size:11.5px;letter-spacing:.03em;white-space:nowrap}
-.mini em{font-style:normal;font-size:10px;color:var(--faint);letter-spacing:.04em;white-space:nowrap}
+.mini b{font-weight:400;font-size:12.5px;letter-spacing:.03em;white-space:nowrap}
+.mini em{font-style:normal;font-size:11px;color:var(--dim);letter-spacing:.04em;white-space:nowrap}
 .mini:hover span{border-color:rgba(185,198,255,.55)}
 .mini.left{flex-direction:row-reverse}
 .web.focus .node:not(.on){opacity:.35}
