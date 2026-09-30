@@ -3,6 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-20EEFX7Q6N"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-20EEFX7Q6N');
+</script>
 <title>Peer review should work for scientists — an open letter</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="description" content="An open letter calling for a scientist-owned cooperative for independent, compensated peer review. Read it and add your name.">
@@ -152,7 +161,7 @@ footer{max-width:760px;margin:0 auto;padding-block:0 48px;font-size:14.5px;color
     </ol>
   </div>
 
-  <div class="pdf"><a href="peer-review-open-letter.pdf">Download the letter (PDF)</a></div>
+  <div class="pdf"><a href="peer-review-open-letter.pdf" onclick="window.gtag && gtag('event','download_letter_pdf')">Download the letter (PDF)</a></div>
 </article>
 
 <section class="sign" id="sign" aria-labelledby="sign-title">
@@ -287,6 +296,7 @@ form.addEventListener("submit", async e => {
     // "no-cors": Google saves the row before replying, but its reply can be blocked
     // when the browser is signed into several Google accounts. Only a real network failure throws.
     await fetch(ENDPOINT, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+    if (window.gtag) gtag("event", "sign_letter");
     document.getElementById("sign-form-wrap").hidden = true;
     const done = document.getElementById("done"); done.hidden = false; done.focus();
   }catch(err){
