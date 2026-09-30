@@ -224,6 +224,7 @@
     <div class="lang" role="group" aria-label="Language">
       <button type="button" id="enBtn" aria-pressed="true">EN</button>
       <button type="button" id="frBtn" aria-pressed="false">FR</button>
+      <button type="button" id="esBtn" aria-pressed="false">ES</button>
     </div>
     </div>
   </div>
@@ -421,12 +422,13 @@ const VIDEOS=["BD9RXGT6QyI","tMJFzrkMxTU","yYZW344d488","Fkf3A3XVmEQ","6k6E8tYep
 
 /* ---------- Repertoire (y = YouTube id of a reference recording) ---------- */
 const CATS={
-  classical:{en:"Classical & sacred",fr:"Classique & sacré"},
-  chanson:{en:"French chanson",fr:"Chanson française"},
-  pop:{en:"Pop & love songs",fr:"Pop & chansons d'amour"},
-  latin:{en:"Latin & Italian",fr:"Latino & italien"},
-  film:{en:"Film & timeless",fr:"Cinéma & intemporels"},
-  moments:{en:"Special moments",fr:"Moments spéciaux"}
+  classical:{en:"Classical & sacred",fr:"Classique & sacré",es:"Clásica y sacra"},
+  chanson:{en:"French chanson",fr:"Chanson française",es:"Chanson francesa"},
+  pop:{en:"Pop & love songs",fr:"Pop & chansons d'amour",es:"Pop y canciones de amor"},
+  latin:{en:"Latin & Italian",fr:"Latino & italien",es:"Latina e italiana"},
+  film:{en:"Film & timeless",fr:"Cinéma & intemporels",es:"Cine y clásicos eternos"},
+  bossa:{en:"Bossa nova",fr:"Bossa nova",es:"Bossa nova"},
+  moments:{en:"Special moments",fr:"Moments spéciaux",es:"Momentos especiales"}
 };
 const SONGS=[
   {t:"Spring — The Four Seasons",a:"Antonio Vivaldi",c:"classical",y:"xZYXRfREl8M"},
@@ -441,9 +443,7 @@ const SONGS=[
   {t:"Boléro",a:"Maurice Ravel",c:"classical",y:"Sj4pE_bgRQI"},
   {t:"La Vie en Rose",a:"Édith Piaf",c:"chanson",y:"rzeLynj1GYM"},
   {t:"Hymne à l'amour",a:"Édith Piaf",c:"chanson",y:"sgBldNsK-xw"},
-  {t:"Sous le ciel de Paris",a:"Édith Piaf",c:"chanson",y:"SC06NyI6KKU"},
   {t:"La Bohème",a:"Charles Aznavour",c:"chanson",y:"1LocIXZvHdg"},
-  {t:"Ne me quitte pas",a:"Jacques Brel",c:"chanson",y:"n0ehZeWGXW0"},
   {t:"All of Me",a:"John Legend",c:"pop",y:"450p7goxZqg"},
   {t:"Perfect",a:"Ed Sheeran",c:"pop",y:"2Vv-BfVoq4g"},
   {t:"Love Story",a:"Taylor Swift",c:"pop",y:"8xg3vE8Ie_E"},
@@ -456,16 +456,22 @@ const SONGS=[
   {t:"Yellow",a:"Coldplay",c:"pop",y:"yKNxeF4KMsY"},
   {t:"Fix You",a:"Coldplay",c:"pop",y:"k4V3Mo61fJM"},
   {t:"Come as You Are",a:"Nirvana",c:"pop",y:"vabnZ9-ex7o"},
-  {t:"You & Me",a:"Dave Matthews Band",c:"pop",y:"kD9CrZODlNA"},
-  {t:"Georgia",a:"Vance Joy",c:"pop",y:"DQMbHNofCzw"},
   {t:"Die a Happy Man",a:"Thomas Rhett",c:"pop",y:"w2CELiObPeQ"},
+  {t:"Zombie",a:"The Cranberries",c:"pop",y:"6Ejga4kJUts"},
+  {t:"My Immortal",a:"Evanescence",c:"pop",y:"5anLPw0Efmo"},
   {t:"Bésame Mucho",a:"Consuelo Velázquez",c:"latin",y:"BueVGiyx_E4"},
   {t:"Por una cabeza",a:"Carlos Gardel",c:"latin",y:"UcUekXtC2wY"},
-  {t:"Calendário",a:"ANAVITÓRIA",c:"latin",y:"sjKpVihr3M8"},
+  {t:"Tu falta de querer",a:"Mon Laferte",c:"latin",y:"WT-VE9OyAJk"},
   {t:"Por ti volaré (Con te partirò)",a:"Andrea Bocelli",c:"latin",y:"J1needAV_NQ"},
+  {t:"The Girl from Ipanema",a:"Antônio Carlos Jobim",c:"bossa",y:"qX2hZGCMfFI"},
+  {t:"Mas que nada",a:"Jorge Ben Jor",c:"bossa",y:"cXelMzaCmiQ"},
+  {t:"Triste",a:"Antônio Carlos Jobim",c:"bossa",y:"llmTNGJ15dc"},
   {t:"Can't Help Falling in Love",a:"Elvis Presley",c:"film",y:"vGJTaP6anOU"},
   {t:"Over the Rainbow",a:"Israel Kamakawiwo'ole",c:"film",y:"V1bFr2SWP1I"},
   {t:"Cinema Paradiso",a:"Ennio Morricone",c:"film",y:"WSkyoyyvnAY"},
+  {t:"My Heart Will Go On (Titanic)",a:"Céline Dion",c:"film",y:"44vf1Sv6XD0"},
+  {t:"I Will Always Love You",a:"Whitney Houston",c:"film",y:"3JWTaaS7LdU"},
+  {t:"Let It Go (Frozen)",a:"Idina Menzel",c:"film",y:"YVVTZgwYwVo"},
   {t:"Happy Birthday",a:"Traditional",c:"moments",y:"dT5wIobkogE"}
 ];
 
@@ -532,7 +538,38 @@ const dict={
     techNote:"Besoin d’un micro/sonorisation ? Je peux venir autonome pour des espaces intimes, ou me coordonner avec la technique sur place. Frais de déplacement hors Paris intra-muros selon distance/horaires.",
     footer:`© <span id="y"></span> Sofia Gallego — Chanteuse & Violoniste — Paris & Île-de-France`,
     namePlaceholder:"Votre nom",emailPlaceholder:"Votre email",eventPlaceholder:"Type d’événement (mariage, cocktail, etc.)",
-    locationPlaceholder:"Lieu (Paris, Île-de-France)",messagePlaceholder:"Dites-moi quelques détails (horaires, ambiance musicale, morceaux souhaités…)"}
+    locationPlaceholder:"Lieu (Paris, Île-de-France)",messagePlaceholder:"Dites-moi quelques détails (horaires, ambiance musicale, morceaux souhaités…)"},
+  es:{pageTitle:"Sofia Gallego — Cantante y violinista en París",
+    pageDescription:"Cantante y violinista para bodas y eventos en París e Île-de-France. Repertorio clásico, chanson francesa y pop internacional. Más de 20 años de experiencia internacional.",
+    navVideos:"Videos",navServices:"Paquetes",navRep:"Repertorio",navXp:"Sobre mí",navContact:"Contacto",
+    heroEyebrow:"Bodas · Recepciones · Eventos privados",tagline:"Cantante y violinista — París e Île-de-France",
+    heroIntro:"Voz y violín en vivo para su ceremonia, cóctel y recepción — de Bach y Piaf a Coldplay y Taylor Swift, a la medida de su día.",
+    heroListen:"Escuchar el repertorio",heroQuote:"Solicitar un presupuesto",factYears:"años en escena",factCountries:"países",factLangs:"idiomas cantados",
+    vidEyebrow:"En vivo",vidTitle:"Véame en escena",moreVids:"Ver todos los videos",lessVids:"Ver menos videos",playVideo:"Reproducir video",
+    svcEyebrow:"Formatos",servicesTitle:"Servicios y paquetes",servicesNote:"Precios orientativos — se ajustan según la duración, el lugar y la configuración.",
+    soloTitle:"Solo",soloDesc:"Violín <em>o</em> voz para una ceremonia, un cóctel o música ambiental.",soloPrice:"desde 200€",
+    duoTitle:"Dúo",duoDesc:"Voz + piano, o violín + guitarra. Ideal para cócteles y recepciones.",duoPrice:"desde 400€",
+    ensTitle:"Ensemble",ensDesc:"Cuarteto de cuerdas, coro o conjunto a medida.",ensPrice:"desde 800€",
+    repEyebrow:"Escuchar",repTitle:"Repertorio",repLead:"Una selección de las canciones que interpreto. Reproduzca la versión original e imagínela en vivo en su celebración.",
+    all:"Todo",search:"Buscar una canción o un artista",searchLabel:"Buscar en el repertorio",surprise:"Sorpréndame",
+    count:(n,m)=>n===m?m+" canciones":n+" de "+m+" canciones",empty:"Ninguna canción coincide con la búsqueda — pregúnteme, es muy posible que la toque.",
+    listen:"Escuchar",now:"Sonando ahora",prev:"◂ Anterior",next:"Siguiente ▸",yt:"Abrir en YouTube",close:"Cerrar",
+    repNote:"<strong>¿No encuentra su canción?</strong> Esta lista sigue creciendo, y puedo preparar un arreglo a medida para su primer baile, su entrada o cualquier momento especial.",repAsk:"Pedir una canción",
+    xpEyebrow:"Sobre mí",xpTitle:"Experiencia",
+    xpBody:"Más de 20 años de experiencia en Chile, Suiza, Estados Unidos y Francia. Ópera, zarzuela, teatro musical, música de cámara, ceremonias y eventos corporativos. Presentaciones en escenarios de prestigio (Teatro Municipal La Serena, Semanas Musicales de Frutillar, salones y hoteles), grabaciones y apariciones en televisión. Con base en París, ofrezco presentaciones cuidadas para ceremonias, cócteles y recepciones.",
+    rootsTitle:"Raíces en Chile (selección)",
+    roots1:"Solista en óperas y zarzuelas (La Revoltosa, Mozart, Puccini, Bach).",
+    roots2:"Musicales y galas (¡Sí!, somos americanos, Una Noche de Jazz en Copacabana).",
+    roots3:"Grabaciones (Música Andalusí) y apariciones en televisión (TVN, Canal 13).",
+    roots4:"Hoteles y escenarios: Ritz-Carlton, Teatro Municipal La Serena, Frutillar.",
+    contactEyebrow:"Hablemos de su día",contactTitle:"Contacto y presupuesto",
+    soloOption:"Paquete Solo",duoOption:"Paquete Dúo",customOption:"A medida",sendButton:"Enviar solicitud",
+    formNote:"Al enviar este formulario, acepta ser contactado/a por correo electrónico.",
+    basedIn:"<strong>Con base en</strong> : París — Desplazamientos en Île-de-France",languages:"<strong>Idiomas</strong> : inglés, español, francés, italiano, alemán",
+    techNote:"¿Necesita micrófono o sonido? Puedo llegar con equipo propio para espacios íntimos, o coordinarme con el equipo técnico del lugar. Los gastos de desplazamiento fuera del centro de París dependen de la distancia y el horario.",
+    footer:`© <span id="y"></span> Sofia Gallego — Cantante y violinista — París e Île-de-France`,
+    namePlaceholder:"Su nombre",emailPlaceholder:"Su correo electrónico",eventPlaceholder:"Tipo de evento (boda, cóctel, etc.)",
+    locationPlaceholder:"Lugar (París, Île-de-France)",messagePlaceholder:"Cuénteme algunos detalles (horarios, ambiente musical, piezas deseadas…)"}
 };
 
 /* ---------- Helpers ---------- */
@@ -603,20 +640,25 @@ $("#close").addEventListener("click",stopSong);
 
 /* ---------- Language ---------- */
 function setLang(l){
+  if(!dict[l]) l="en";
   lang=l; document.documentElement.lang=l; document.title=dict[l].pageTitle;
   const desc=document.querySelector('meta[name="description"]'); if(desc) desc.setAttribute("content",dict[l].pageDescription);
   document.querySelectorAll("[data-t]").forEach(el=>{const v=dict[l][el.dataset.t]; if(typeof v==="string") el.textContent=v;});
   document.querySelectorAll("[data-t-html]").forEach(el=>{const v=dict[l][el.dataset.tHtml]; if(v) el.innerHTML=v;});
   document.querySelectorAll("[data-p]").forEach(el=>{const v=dict[l][el.dataset.p]; if(v) el.setAttribute("placeholder",v);});
-  $("#enBtn").setAttribute("aria-pressed",l==="en"); $("#frBtn").setAttribute("aria-pressed",l==="fr");
+  ["en","fr","es"].forEach(k=>$("#"+k+"Btn").setAttribute("aria-pressed",l===k));
   const y=document.getElementById("y"); if(y) y.textContent=new Date().getFullYear();
   chips(); renderSongs(); if(current<0 || true) renderThumbs();
 }
 $("#enBtn").addEventListener("click",()=>setLang("en"));
 $("#frBtn").addEventListener("click",()=>setLang("fr"));
+$("#esBtn").addEventListener("click",()=>setLang("es"));
 
 showPoster(0);
-setLang(/^fr/i.test(navigator.language||"")?"fr":"en");
+/* Language: ?lang=es|fr|en or #es|#fr|#en forces it; otherwise browser language */
+const urlLang=(new URLSearchParams(location.search).get("lang")||location.hash.slice(1)).toLowerCase();
+const navLang=(navigator.language||"").toLowerCase();
+setLang(dict[urlLang]?urlLang:/^es/.test(navLang)?"es":/^fr/.test(navLang)?"fr":"en");
 </script>
 </body>
 </html>

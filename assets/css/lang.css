@@ -1,0 +1,5 @@
+/* EN · FR · ES switch inside the site menu */
+.navbar-nav > li.nav-lang{display:flex;align-items:center;margin-left:10px;padding-left:8px;border-left:1px solid rgba(255,255,255,.18)}
+.navbar-nav > li.nav-lang > a{padding-left:5px!important;padding-right:5px!important;font-size:11px;opacity:.6}
+.navbar-nav > li.nav-lang > a[aria-current="true"],.navbar-nav > li.nav-lang > a:hover{opacity:1}
+@media (max-width:767px){.navbar-nav > li.nav-lang{margin:6px 0 0 15px;padding-left:0;border-left:0}}
