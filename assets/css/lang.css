@@ -3,3 +3,12 @@
 .navbar-nav > li.nav-lang > a{padding-left:5px!important;padding-right:5px!important;font-size:11px;opacity:.6}
 .navbar-nav > li.nav-lang > a[aria-current="true"],.navbar-nav > li.nav-lang > a:hover{opacity:1}
 @media (max-width:767px){.navbar-nav > li.nav-lang{margin:6px 0 0 15px;padding-left:0;border-left:0}}
+
+/* on phones the menu collapses, so the language links sit next to the menu button */
+.nav-lang-m{display:none}
+@media (max-width:767px){
+  .nav-lang-m{display:flex;float:right;align-items:center;height:50px;margin-right:6px;gap:2px}
+  .nav-lang-m a{color:#fff;opacity:.6;font-size:11px;letter-spacing:.1em;padding:4px 5px;text-decoration:none}
+  .nav-lang-m a[aria-current="true"]{opacity:1}
+  .navbar-nav > li.nav-lang{display:none}
+}
