@@ -47,6 +47,8 @@
     .side{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
     .side a{font-size:14px;font-weight:500;text-decoration:none;border:1px solid var(--ink);border-radius:999px;padding:6px 14px;color:var(--ink);white-space:nowrap}
     .side a:hover{background:var(--ink);color:var(--paper)}
+    .side a.midi{border-color:var(--rose);color:var(--rose)}
+    .side a.midi:hover{background:var(--rose);color:#fff}
     .req{font-size:14px;color:var(--soft)}
     .empty{color:var(--soft);padding:18px 0}
     footer{text-align:center;color:var(--soft);font-size:14px;padding:26px 22px;border-top:1px solid var(--line)}
@@ -64,7 +66,7 @@
     </div>
   </div>
   <h1 data-t="h1">Score Library</h1>
-  <p class="lead" data-t="lead">The sheet music I use for events, for the musicians I perform with.</p>
+  <p class="lead" data-t="lead">The sheet music I use for events, for the musicians I perform with. Duets for violin and cello come first; where there is a MIDI file, you can download it to listen or practise along.</p>
   <div class="notice" data-t-html="notice"><strong>Private.</strong> Each “Score” button opens the file in Sofia's Google Drive. It only opens if Sofia has shared the scores with your Google account. No access? Ask her by email.</div>
 
   <div class="tools">
@@ -78,10 +80,21 @@
 <footer><a href="../">← <span data-t="back">Back to events</span></a></footer>
 
 <script>
-const CATS={pop:{en:"Pop & film",fr:"Pop & cinéma"},classical:{en:"Classical",fr:"Classique"},voice:{en:"Opera & choral",fr:"Opéra & chœur"},latin:{en:"Tango & chanson",fr:"Tango & chanson"},jewish:{en:"Jewish & klezmer",fr:"Musique juive & klezmer"}};
+const CATS={duets:{en:"Violin & cello duets",fr:"Duos violon & violoncelle"},pop:{en:"Pop & film",fr:"Pop & cinéma"},classical:{en:"Classical",fr:"Classique"},voice:{en:"Opera & choral",fr:"Opéra & chœur"},latin:{en:"Tango & chanson",fr:"Tango & chanson"},jewish:{en:"Jewish & klezmer",fr:"Musique juive & klezmer"}};
 const INSTR={vc:{en:"Violin & cello",fr:"Violon & violoncelle"},vn:{en:"Solo violin",fr:"Violon seul"},vnp:{en:"Violin & piano",fr:"Violon & piano"},vp:{en:"Voice & piano",fr:"Voix & piano"},pno:{en:"Piano",fr:"Piano"},lead:{en:"Melody & chords",fr:"Mélodie & accords"},book:{en:"Songbook",fr:"Recueil"},part:{en:"Violin part",fr:"Partie de violon"},score:{en:"Full score",fr:"Conducteur"},trio:{en:"Trio (part)",fr:"Trio (partie)"},voice:{en:"Voice",fr:"Voix"}};
 const S=[
-  {t:"School",a:"Supertramp",c:"pop",i:"vc",arr:true,f:[]},
+  {t:"School",a:"Supertramp",c:"duets",i:"vc",arr:true,f:[["1WnvNRDYkmrqsiXKwQvEg4tJpDb6-fBnt"]],m:"14oHoNcxNIxfDJtaLwu9bKewjIHISJHve"},
+  {t:"The Logical Song",a:"Supertramp",c:"duets",i:"vc",arr:true,f:[["1_qXt2YKihu5DslUyszdM9ES9TZAOLP99"]],m:"1LK-9VHTzPxZoXLj0NpFErqc9lBAPOFA3"},
+  {t:"Breakfast in America",a:"Supertramp",c:"duets",i:"vc",arr:true,f:[["1XOgSMJGXTdCtDmky5NkclS3k6Ivrq9yp"]],m:"1V4BSVkDHnQQtfoeYd8RR116inyCcC6bd"},
+  {t:"Despacito",a:"Luis Fonsi",c:"duets",i:"vc",f:[["1aZBKOflCGbKG0_s8n-hT262CUAPtddhc","4 pp."],["1UQwYXxWbndlWejcaUfuUIuAfZI5NaTev","5 pp."]]},
+  {t:"Wildest Dreams",a:"Taylor Swift",c:"duets",i:"vc",f:[["1VGa7tW4xPJDYAx7qKk_ZbHGyE_SkDdyE"]]},
+  {t:"Toxic",a:"Britney Spears",c:"duets",i:"vc",f:[["1A0wbmSPIO0jLRaOv8juMhZxjOAquh9tT"]]},
+  {t:"Shallow",a:"Lady Gaga & Bradley Cooper",c:"duets",i:"vc",f:[["15Zr0YKcWWRU7OmX72YNw0ouPsPcOWSA8"]]},
+  {t:"Don't Stop Believin'",a:"Journey",c:"duets",i:"vc",f:[["1xtAs8pBiffsVu3xQALsFHLxJs-R7CDLY"]]},
+  {t:"Back in Black",a:"AC/DC",c:"duets",i:"vc",f:[["1SaBovkULc3o0M7_L2oqeH3_k-lffzUzj"]]},
+  {t:"Libertango",a:"Astor Piazzolla",c:"duets",i:"vc",f:[["1IJqNtEQetJlI9ElJbnAzm1yERXUjooTk"]]},
+  {t:"Eine kleine Nachtmusik",a:"W. A. Mozart",c:"duets",i:"vc",f:[["1-Qya2gUBcWPgt7Ri_ezwANO_SwDWX4Zs"]]},
+  {t:"12 Easy Duets",a:"W. A. Mozart",c:"duets",i:"vc",f:[["1kNYLfmUEIKIq1ql9wSvJiC6tincNP_M8"]]},
   {t:"Someone Like You",a:"Adele",c:"pop",i:"vn",f:[["1ktPSFBZpQqNAM_30MeDqvgjSL3nqpd4e"]]},
   {t:"Kiss from a Rose",a:"Seal",c:"pop",i:"vn",f:[["1EzMiwizpoaxJz0l2Y0dgUu9ZIegUCwT7"]]},
   {t:"Die a Happy Man",a:"Thomas Rhett",c:"pop",i:"vn",f:[["17kNW1nrwtNj2lGgf0RTnoBiAX9VNrDGD"]]},
@@ -122,10 +135,10 @@ const S=[
   {t:"Remember",a:"Klezmer (arr. Atie Bernet)",c:"jewish",i:"lead",f:[["1Hy59mTRQ36cCKpkNbN0nbqCVY1_x7EYW","1"],["1chLynsXFMhhvmGMEinTSfHEr7P_ybhgP","2"]]}
 ];
 const T={
-  en:{eyebrow:"For musicians",h1:"Score Library",title:"Score Library — Sofia Gallego",lead:"The sheet music I use for events, for the musicians I perform with.",
+  en:{eyebrow:"For musicians",h1:"Score Library",title:"Score Library — Sofia Gallego",lead:"The sheet music I use for events, for the musicians I perform with. Duets for violin and cello come first; where there is a MIDI file, you can download it to listen or practise along.",midiTip:"Download the MIDI file (violin and cello on separate tracks)",
     notice:"<strong>Private.</strong> Each “Score” button opens the file in Sofia's Google Drive. It only opens if Sofia has shared the scores with your Google account. No access? Ask her by email.",
     search:"Search a score",all:"All",count:(n,m)=>n===m?m+" scores":n+" of "+m+" scores",empty:"No score matches that search.",score:"Score",onreq:"Ask Sofia",arr:"arr. Sofia Gallego",back:"Back to events"},
-  fr:{eyebrow:"Pour les musiciens",h1:"Bibliothèque de partitions",title:"Partitions — Sofia Gallego",lead:"Les partitions que j'utilise pour les événements, pour les musiciens avec qui je joue.",
+  fr:{eyebrow:"Pour les musiciens",h1:"Bibliothèque de partitions",title:"Partitions — Sofia Gallego",lead:"Les partitions que j'utilise pour les événements, pour les musiciens avec qui je joue. Les duos violon-violoncelle sont en premier ; quand il y a un fichier MIDI, vous pouvez le télécharger pour écouter ou travailler.",midiTip:"Télécharger le fichier MIDI (violon et violoncelle sur des pistes séparées)",
     notice:"<strong>Privé.</strong> Chaque bouton « Partition » ouvre le fichier dans le Google Drive de Sofia. Il ne s'ouvre que si Sofia a partagé les partitions avec votre compte Google. Pas d'accès ? Demandez-lui par email.",
     search:"Chercher une partition",all:"Tout",count:(n,m)=>n===m?m+" partitions":n+" sur "+m+" partitions",empty:"Aucune partition ne correspond.",score:"Partition",onreq:"Demander à Sofia",arr:"arr. Sofia Gallego",back:"Retour aux événements"}
 };
@@ -144,7 +157,8 @@ function render(){
     const rows=hits.filter(s=>s.c===k); if(!rows.length) return "";
     return `<section class="group"><h2>${esc(CATS[k][lang])}</h2><ul>${rows.map(s=>{
       const pills=[s.i?`<span class="pill">${esc(INSTR[s.i][lang])}</span>`:"",s.arr?`<span class="pill arr">${esc(T[lang].arr)}</span>`:""].join("");
-      const links=s.f.length?s.f.map(([id,v])=>`<a href="https://drive.google.com/file/d/${id}/view" target="_blank" rel="noopener">${esc(T[lang].score)}${v?" · "+esc(v):""}</a>`).join(""):`<span class="req">${esc(T[lang].onreq)}</span>`;
+      const links=(s.f.length?s.f.map(([id,v])=>`<a href="https://drive.google.com/file/d/${id}/view" target="_blank" rel="noopener">${esc(T[lang].score)}${v?" · "+esc(v):""}</a>`).join(""):`<span class="req">${esc(T[lang].onreq)}</span>`)
+        +(s.m?`<a class="midi" href="https://drive.google.com/uc?export=download&id=${s.m}" target="_blank" rel="noopener" title="${esc(T[lang].midiTip)}">MIDI</a>`:"");
       return `<li class="item"><div><div class="title">${esc(s.t)}</div><div class="who">${esc(s.a)}</div>${pills?`<div class="meta">${pills}</div>`:""}</div><div class="side">${links}</div></li>`;
     }).join("")}</ul></section>`;
   }).join("")||`<p class="empty">${esc(T[lang].empty)}</p>`;
