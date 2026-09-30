@@ -891,9 +891,9 @@ function collect(){
 
 async function send(payload){
   if(SUBMIT.mode === "gas" && SUBMIT.gas.url){
-    const r = await fetch(SUBMIT.gas.url, {method:"POST", body:JSON.stringify(payload)}); // text/plain avoids a CORS preflight
-    const j = await r.json().catch(()=>({}));
-    if(!r.ok || j.ok === false) throw new Error(j.error || ("HTTP "+r.status));
+    // "no-cors": Google saves the row before replying, but its reply can be blocked when the
+    // browser is signed into several Google accounts. Only a real network failure throws here.
+    await fetch(SUBMIT.gas.url, {method:"POST", mode:"no-cors", body:JSON.stringify(payload)});
     return {stored:true};
   }
   if(SUBMIT.mode === "endpoint"){

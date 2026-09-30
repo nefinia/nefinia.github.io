@@ -284,9 +284,9 @@ form.addEventListener("submit", async e => {
     show_public: form.show_public.checked
   };
   try{
-    const r = await fetch(ENDPOINT, { method: "POST", body: JSON.stringify(payload) });
-    const j = await r.json().catch(() => ({}));
-    if (!r.ok || j.ok === false) throw new Error(j.error || r.status);
+    // "no-cors": Google saves the row before replying, but its reply can be blocked
+    // when the browser is signed into several Google accounts. Only a real network failure throws.
+    await fetch(ENDPOINT, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
     document.getElementById("sign-form-wrap").hidden = true;
     const done = document.getElementById("done"); done.hidden = false; done.focus();
   }catch(err){
