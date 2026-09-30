@@ -93,3 +93,6 @@ body.inner::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:n
 .page > .wide{max-width:860px}
 .page > .wide h3{margin-top:40px}
 .card .thumb img{background:#fff}
+.about .portrait{width:min(40%,360px);border-radius:0;margin-top:-10px}
+.go-row{display:flex;flex-wrap:wrap;gap:8px 24px}
+.about .lead-in{font-size:21px;line-height:1.55;color:var(--ink);max-width:40ch}
