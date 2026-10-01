@@ -326,6 +326,11 @@ let lang = "en";
 /* ---------- the shelf ---------- */
 const TAG_KEYS = ["puzzle","colour","strategy","duo","arcade","party"];
 const GAMES = [
+  {id:"clearstack", href:"clearstack.html", name:"Clearstack", tags:["puzzle","strategy"], bg:"#e4efe6",
+   meta:{en:["vs 2 bots","Cards"], fr:["contre 2 bots","Cartes"], es:["contra 2 bots","Cartas"]},
+   blurb:{en:"See-through cards with one shape each. Rotate, flip and stack them until they match a target card, before your rivals do.",
+          fr:"Des cartes transparentes avec une forme chacune. Tourne-les, retourne-les et empile-les jusqu'à reproduire une carte objectif, avant tes rivaux.",
+          es:"Cartas transparentes con una forma cada una. Gíralas, voltéalas y apílalas hasta reproducir una carta objetivo, antes que tus rivales."}},
   {id:"lumen", href:"lumen_logic.html", name:"Lumen Logic", tags:["puzzle"], bg:"#2f2a4a",
    meta:{en:["Solo","Levels"], fr:["Solo","Niveaux"], es:["Un jugador","Niveles"]},
    blurb:{en:"Place light sources on a walled grid. Light fades with distance and adds up, so match every clue exactly.",
@@ -604,6 +609,24 @@ const COVERS = {
     drops.slice(0,Math.min(k+1,drops.length)).forEach(([col,sh,[px,py]])=>sh.forEach(([dx,dy])=>board[[px+dx,py+dy]]=col));
     for(let y=0;y<n;y++)for(let x=0;x<n;x++){ctx.fillStyle=board[[x,y]]||"#f0f6f2";rr(ctx,ox+x*c+1.5,oy+y*c+1.5,c-3,c-3,5);ctx.fill();}
     if(k<drops.length){const [col,sh,[px,py]]=drops[k];const lift=(1-Math.min(1,(t%.9)/.35))*c;ctx.globalAlpha=.9;sh.forEach(([dx,dy])=>{ctx.fillStyle=col;rr(ctx,ox+(px+dx)*c+1.5,oy+(py+dy)*c+1.5-lift,c-3,c-3,5);ctx.fill();ctx.strokeStyle=P.ink;ctx.lineWidth=2;ctx.stroke();});ctx.globalAlpha=1;}
+  },
+  clearstack(ctx,w,h,t){
+    const ch=h*.66, cw=ch*63/88, y0=(h-ch)/2, cyc=t%4.4;
+    const tx=w*.5-cw*1.15, bx=w*.5+cw*.15;
+    const A=[0,1,4], B=[1,4,7,8], T=new Array(12).fill(0); A.forEach(i=>T[i]++); B.forEach(i=>T[i]++);
+    const cell=(x0,y0,i,pad)=>{const gw=(cw-2*pad)/3, gh=(ch-2*pad)/4; return [x0+pad+(i%3)*gw, y0+pad+Math.floor(i/3)*gh, gw, gh];};
+    // target card
+    ctx.fillStyle="#fffaf1"; rr(ctx,tx,y0,cw,ch,8); ctx.fill(); ctx.strokeStyle="#ead9bf"; ctx.lineWidth=2; ctx.stroke();
+    for(let i=0;i<12;i++){ if(!T[i]) continue; const [x,y,gw,gh]=cell(tx,y0,i,cw*.1); ctx.fillStyle=T[i]>1?"#4a4160":"#b7aec6"; ctx.fillRect(x+1,y+1,gw-2,gh-2); }
+    ctx.fillStyle=P.honey; ctx.beginPath(); ctx.arc(tx+cw*.8,y0+ch*.9,cw*.09,0,7); ctx.fill();
+    // board with two clear cards; the second slides in, flips, settles
+    const slide=Math.min(1,Math.max(0,(cyc-.4)/1.4)), e=slide*slide*(3-2*slide), off=(1-e)*cw*.9;
+    const match=cyc>2.1&&cyc<3.9;
+    ctx.fillStyle="#fffaf1"; rr(ctx,bx-4,y0-4,cw+8,ch+8,10); ctx.fill(); ctx.strokeStyle=match?P.coral:"#ead9bf"; ctx.lineWidth=match?3:2; ctx.stroke();
+    const drawClear=(x0,cells)=>{ ctx.fillStyle="rgba(140,199,227,.12)"; rr(ctx,x0,y0,cw,ch,8); ctx.fill(); ctx.strokeStyle="rgba(140,199,227,.9)"; ctx.lineWidth=2; ctx.stroke();
+      cells.forEach(i=>{const [x,y,gw,gh]=cell(x0,y0,i,cw*.1); ctx.fillStyle="rgba(61,53,82,.45)"; ctx.fillRect(x+1,y+1,gw-2,gh-2);}); };
+    drawClear(bx,A); drawClear(bx+off,B);
+    if(match){ ctx.fillStyle=P.coral; ctx.font=`700 ${Math.round(h*.09)}px Fredoka, sans-serif`; ctx.textAlign="center"; ctx.fillText("match!", bx+cw/2, y0-8>14?y0-8:h-6); }
   },
   polyclear(ctx,w,h,t){
     const n=9,c=Math.min(w,h)*.82/n,ox=(w-n*c)/2,oy=(h-n*c)/2;
