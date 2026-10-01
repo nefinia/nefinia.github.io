@@ -100,7 +100,7 @@
 <script src="lib/magenta-core.js"></script>
 <script src="lib/midi-player.min.js"></script>
 <script>
-const CATS={duets:{en:"Violin & cello duets",fr:"Duos violon & violoncelle"},pop:{en:"Pop & film",fr:"Pop & cinéma"},classical:{en:"Classical",fr:"Classique"},voice:{en:"Opera & choral",fr:"Opéra & chœur"},latin:{en:"Tango & chanson",fr:"Tango & chanson"},jewish:{en:"Jewish & klezmer",fr:"Musique juive & klezmer"}};
+const CATS={duets:{en:"Violin & cello duets",fr:"Duos violon & violoncelle"},solo:{en:"Solo violin",fr:"Violon seul"},pop:{en:"Pop & film",fr:"Pop & cinéma"},classical:{en:"Classical",fr:"Classique"},voice:{en:"Opera & choral",fr:"Opéra & chœur"},latin:{en:"Tango & chanson",fr:"Tango & chanson"},jewish:{en:"Jewish & klezmer",fr:"Musique juive & klezmer"}};
 const INSTR={vc:{en:"Violin & cello",fr:"Violon & violoncelle"},vn:{en:"Solo violin",fr:"Violon seul"},vnp:{en:"Violin & piano",fr:"Violon & piano"},vp:{en:"Voice & piano",fr:"Voix & piano"},pno:{en:"Piano",fr:"Piano"},lead:{en:"Melody & chords",fr:"Mélodie & accords"},book:{en:"Songbook",fr:"Recueil"},part:{en:"Violin part",fr:"Partie de violon"},score:{en:"Full score",fr:"Conducteur"},trio:{en:"Trio (part)",fr:"Trio (partie)"},voice:{en:"Voice",fr:"Voix"}};
 const S=[
   {t:"School",a:"Supertramp",c:"duets",i:"vc",arr:true,f:[["1WnvNRDYkmrqsiXKwQvEg4tJpDb6-fBnt"],["1_cfFrrIH9t9vmYlxoGT2Ab5s8MalQNZB","simplified cello"]],m:"school"},
@@ -119,6 +119,12 @@ const S=[
   {t:"Hallelujah",a:"Leonard Cohen (arr. Renê Victor)",c:"duets",i:"vc",f:[["1GoZUU7Nt9IKM10698jGx2DR35gSe1KEB"]]},
   {t:"Canon in D",a:"Johann Pachelbel (arr. Maurício Luz)",c:"duets",i:"vc",f:[["1SRq-WpsbNDdt4eUFT9oFQxa4p3kz5d33"],["1_vQJN1MEnTf_rwkm8_vXMvtdgxUuzx_Z","simplified cello"]]},
   {t:"12 Easy Duets",a:"W. A. Mozart",c:"duets",i:"vc",f:[["1kNYLfmUEIKIq1ql9wSvJiC6tincNP_M8"]]},
+  {t:"The Logical Song",a:"Supertramp",c:"solo",i:"vn",arr:true,f:[["187pbydFkWAOnDi70fuyk0Szp0xJR9JXw"],["1vHxOXMV1Qypzv6Ohs7m5Oo-TYaDewk7P","two violins"]],m:"the-logical-song-solo"},
+  {t:"Breakfast in America",a:"Supertramp",c:"solo",i:"vn",arr:true,f:[["1fMPOG-w0PHzy-b5vdbSXIqYXuCAjkzS8"]],m:"breakfast-in-america-solo"},
+  {t:"School",a:"Supertramp",c:"solo",i:"vn",arr:true,f:[["1vC7V_KZm1IRopCN8W6PILHTc69ftKDqV"]],m:"school-solo"},
+  {t:"Creep",a:"Radiohead",c:"solo",i:"vn",arr:true,f:[["1jqTb4rDd4TQwxWlgXHWi5JMxkgvTbAId"]],m:"creep-solo"},
+  {t:"Toxic",a:"Britney Spears",c:"solo",i:"vn",arr:true,f:[["1ommCi3wEKI7nemwz1jH44l0x9YKv3naP"]]},
+  {t:"Despacito",a:"Luis Fonsi",c:"solo",i:"vn",arr:true,f:[["1kJ4_yMcuFS7PhatkxyLO7k0nEdn2dOds"]]},
   {t:"Someone Like You",a:"Adele",c:"pop",i:"vn",f:[["1ktPSFBZpQqNAM_30MeDqvgjSL3nqpd4e"]]},
   {t:"Kiss from a Rose",a:"Seal",c:"pop",i:"vn",f:[["1EzMiwizpoaxJz0l2Y0dgUu9ZIegUCwT7"]]},
   {t:"Die a Happy Man",a:"Thomas Rhett",c:"pop",i:"vn",f:[["17kNW1nrwtNj2lGgf0RTnoBiAX9VNrDGD"]]},
@@ -130,6 +136,7 @@ const S=[
   {t:"The Godfather — Love Theme",a:"Nino Rota",c:"pop",i:"vn",f:[["19sMjRBsD7ivmdYX4iNtEneFpmmYYb4g6"]]},
   {t:"Requiem for a Dream",a:"Clint Mansell",c:"pop",i:"vnp",f:[["19p0oPCSf2B49D-2xmeIKxsGqeqgdho6_","vn+pno"],["1pu1NDBOgWN-fEXVy7fTnn_LzKkOmToD8","vn+pno+fl"]]},
   {t:"The Beatles 1962–1974",a:"The Beatles",c:"pop",i:"book",f:[["1s8M1-YXufHtiO-GQ15ddNrvRXC4qQ1vo"]]},
+  {t:"Eine kleine Nachtmusik",a:"W. A. Mozart",c:"classical",i:"vnp",f:[["1dGDxUpNnzOGUiHwU6cwlOc04klg2loo8","3 pp."],["1hdckWNQbY7SDrkwu4DvKUrXSbC2yoXCb","violin part · 3 pp."]]},
   {t:"Prelude, Cello Suite No. 1",a:"J. S. Bach",c:"classical",i:"vn",f:[["14BaQK2HJXLDNoV-W3Lr8hyKrlf4c_EPY"]]},
   {t:"Clair de Lune",a:"Claude Debussy",c:"classical",i:"vn",f:[["1jzSYeJnqc42WEEu6-E4MMc7O6OnEQUvf"]]},
   {t:"Nocturne No. 20 in C♯ minor",a:"Frédéric Chopin",c:"classical",i:"vn",f:[["1YGxw_4kcMvvYoyfy6fxfrKXxeTUc1Krq"]]},
@@ -159,10 +166,10 @@ const S=[
   {t:"Remember",a:"Klezmer (arr. Atie Bernet)",c:"jewish",i:"lead",f:[["1Hy59mTRQ36cCKpkNbN0nbqCVY1_x7EYW","1"],["1chLynsXFMhhvmGMEinTSfHEr7P_ybhgP","2"]]}
 ];
 const T={
-  en:{eyebrow:"For musicians",h1:"Score Library",title:"Score Library — Sofia Gallego",lead:"The sheet music I use for events, for the musicians I perform with. Duets for violin and cello come first; where there is a MIDI file, you can download it to listen or practise along.",midiTip:"Download the MIDI file (violin and cello on separate tracks)",listen:"Listen",hide:"Hide",hint:"Violin and cello playback of the arrangement, with the repeats played through.",
+  en:{eyebrow:"For musicians",h1:"Score Library",title:"Score Library — Sofia Gallego",lead:"The sheet music I use for events, for the musicians I perform with. Duets for violin and cello come first; where there is a MIDI file, you can download it to listen or practise along.",midiTip:"Download the MIDI file (violin and cello on separate tracks)",listen:"Listen",hide:"Hide",hint:"Violin and cello playback of the arrangement, with the repeats played through.",hintSolo:"Playback of the solo violin line, with the repeats played through.",midiTipSolo:"Download the MIDI file (solo violin line)",
     notice:"<strong>For rehearsal only.</strong> “Score” opens the PDF in Google Drive and “Listen” plays the arrangement here. Please don't share these scores publicly. If a score doesn't open, ask Sofia.",
     search:"Search a score",all:"All",count:(n,m)=>n===m?m+" scores":n+" of "+m+" scores",empty:"No score matches that search.",score:"Score",onreq:"Ask Sofia",arr:"arr. Sofia Gallego",back:"Back to events"},
-  fr:{eyebrow:"Pour les musiciens",h1:"Bibliothèque de partitions",title:"Partitions — Sofia Gallego",lead:"Les partitions que j'utilise pour les événements, pour les musiciens avec qui je joue. Les duos violon-violoncelle sont en premier ; quand il y a un fichier MIDI, vous pouvez le télécharger pour écouter ou travailler.",midiTip:"Télécharger le fichier MIDI (violon et violoncelle sur des pistes séparées)",listen:"Écouter",hide:"Masquer",hint:"Lecture violon et violoncelle de l’arrangement, reprises comprises.",
+  fr:{eyebrow:"Pour les musiciens",h1:"Bibliothèque de partitions",title:"Partitions — Sofia Gallego",lead:"Les partitions que j'utilise pour les événements, pour les musiciens avec qui je joue. Les duos violon-violoncelle sont en premier ; quand il y a un fichier MIDI, vous pouvez le télécharger pour écouter ou travailler.",midiTip:"Télécharger le fichier MIDI (violon et violoncelle sur des pistes séparées)",listen:"Écouter",hide:"Masquer",hint:"Lecture violon et violoncelle de l’arrangement, reprises comprises.",hintSolo:"Lecture de la ligne de violon seul, reprises comprises.",midiTipSolo:"Télécharger le fichier MIDI (ligne de violon seul)",
     notice:"<strong>Pour les répétitions uniquement.</strong> « Partition » ouvre le PDF dans Google Drive et « Écouter » joue l’arrangement ici. Merci de ne pas diffuser ces partitions. Si une partition ne s’ouvre pas, demandez à Sofia.",
     search:"Chercher une partition",all:"Tout",count:(n,m)=>n===m?m+" partitions":n+" sur "+m+" partitions",empty:"Aucune partition ne correspond.",score:"Partition",onreq:"Demander à Sofia",arr:"arr. Sofia Gallego",back:"Retour aux événements"}
 };
@@ -182,7 +189,7 @@ function render(){
     return `<section class="group"><h2>${esc(CATS[k][lang])}</h2><ul>${rows.map(s=>{
       const pills=[s.i?`<span class="pill">${esc(INSTR[s.i][lang])}</span>`:"",s.arr?`<span class="pill arr">${esc(T[lang].arr)}</span>`:""].join("");
       const links=(s.f.length?s.f.map(([id,v])=>`<a href="https://drive.google.com/file/d/${id}/view" target="_blank" rel="noopener">${esc(T[lang].score)}${v?" · "+esc(v):""}</a>`).join(""):`<span class="req">${esc(T[lang].onreq)}</span>`)
-        +(s.m?`<button type="button" class="listen" data-m="${s.m}" aria-expanded="false">▶ ${esc(T[lang].listen)}</button><a class="midi" href="midi/${s.m}.mid" download title="${esc(T[lang].midiTip)}">MIDI</a>`:"");
+        +(s.m?`<button type="button" class="listen" data-m="${s.m}" data-solo="${s.c==="solo"?1:""}" aria-expanded="false">▶ ${esc(T[lang].listen)}</button><a class="midi" href="midi/${s.m}.mid" download title="${esc(s.c==="solo"?T[lang].midiTipSolo:T[lang].midiTip)}">MIDI</a>`:"");
       return `<li class="item"><div><div class="title">${esc(s.t)}</div><div class="who">${esc(s.a)}</div>${pills?`<div class="meta">${pills}</div>`:""}</div><div class="side">${links}</div>${s.m?`<div class="player" id="pl-${s.m}" hidden></div>`:""}</li>`;
     }).join("")}</ul></section>`;
   }).join("")||`<p class="empty">${esc(T[lang].empty)}</p>`;
@@ -204,7 +211,7 @@ $("#groups").addEventListener("click",e=>{
   document.querySelectorAll(".player").forEach(p=>{ if(p!==box){ const mp=p.querySelector("midi-player"); if(mp&&mp.playing) mp.stop(); p.hidden=true; } });
   document.querySelectorAll("button.listen").forEach(x=>{ if(x!==b){ x.setAttribute("aria-expanded","false"); x.textContent="▶ "+T[lang].listen; } });
   if(open){
-    if(!box.firstChild) box.innerHTML=`<midi-player src="midi/${b.dataset.m}.mid" sound-font="${SF}"></midi-player><p class="hint">${esc(T[lang].hint)}</p>`;
+    if(!box.firstChild) box.innerHTML=`<midi-player src="midi/${b.dataset.m}.mid" sound-font="${SF}"></midi-player><p class="hint">${esc(b.dataset.solo?T[lang].hintSolo:T[lang].hint)}</p>`;
     box.hidden=false; b.setAttribute("aria-expanded","true"); b.textContent="■ "+T[lang].hide;
     const mp=box.querySelector("midi-player"); setTimeout(()=>{try{mp.start()}catch(_){}} ,400);
   } else {
