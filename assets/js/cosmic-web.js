@@ -41,9 +41,13 @@
       web.appendChild(e); return e;
     });
     a.addEventListener('pointerenter',e=>{ if(e.pointerType==='mouse') select(s); });
-    a.addEventListener('focus',()=>select(s));
+    // touch/pen: the first tap only opens the notes; a second tap on the open section follows the link
+    let wasOpen=false, touchTap=false;
+    a.addEventListener('pointerdown',e=>{ touchTap = e.pointerType!=='mouse'; wasOpen = (active===s); });
+    a.addEventListener('focus',()=>{ if(!touchTap) select(s); });
     a.addEventListener('click',e=>{
-      if(active!==s){ e.preventDefault(); select(s); return; }   // touch: first tap previews
+      if(touchTap){ touchTap=false; if(!wasOpen){ e.preventDefault(); select(s); a.blur(); return; } }
+      else if(active!==s){ e.preventDefault(); select(s); return; }
       
     });
   });
