@@ -64,7 +64,7 @@
   .hero .org{font-family:var(--sans); color:var(--mist); margin-top:1rem; font-size:1rem}
   .sky-note{
     position:absolute; z-index:2; right:clamp(1rem,4vw,3rem); bottom:1rem;
-    font-family:var(--sans); font-size:.8rem; color:rgba(20,22,40,.75); max-width:20rem; text-align:right; margin:0;
+    font-family:var(--sans); font-size:.8rem; color:var(--mist); max-width:20rem; text-align:right; margin:0;
   }
 
   /* ---------- Content ---------- */
@@ -176,7 +176,7 @@
     <p class="sub">Arqueoastronomía y patrimonio cultural Diaguita de la Región de Coquimbo</p>
     <p class="org">Una iniciativa de Fundación Inmersidad · Valle de Elqui, Chile</p>
   </div>
-  <p class="sky-note">El cielo gira en torno al polo sur celeste, a unos 30° sobre el horizonte, como se ve desde el Valle de Elqui.</p>
+  <p class="sky-note" id="skynote">El cielo sobre La Serena, mirando al sur.</p>
 </header>
 
 <main>
@@ -383,57 +383,103 @@
 
 <script>
 (function(){
-  const canvas = document.getElementById('sky');
-  const ctx = canvas.getContext('2d');
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let w, h, dpr, pole, stars = [], angle = 0, last = 0;
+  // Real sky over La Serena, facing south. Updated every minute.
+  const D = Math.PI/180, LAT = -29.90*D, LON = -71.25, TZ = 'America/Santiago';
+  const canvas = document.getElementById('sky'), ctx = canvas.getContext('2d');
+  const note = document.getElementById('skynote');
+  let w, h, k, when = new Date();
 
-  function seed(n){
-    stars = [];
-    const maxR = Math.hypot(w, h);
-    for (let i = 0; i < n; i++){
-      const r = Math.sqrt(Math.random()) * maxR;
-      stars.push({
-        r, a: Math.random() * Math.PI * 2,
-        s: Math.random() < .04 ? 1.6 + Math.random() : .4 + Math.random() * .9,
-        o: .35 + Math.random() * .65
-      });
-    }
+  // Bright stars [RA h, Dec deg, mag]
+  const BRIGHT = [
+    [6.752,-16.72,-1.46],[6.399,-52.70,-0.74],[14.261,19.18,-0.05],[14.660,-60.83,-0.27],[18.616,38.78,0.03],
+    [5.278,46.00,0.08],[5.242,-8.20,0.13],[7.655,5.22,0.34],[1.629,-57.24,0.46],[5.919,7.41,0.5],
+    [14.064,-60.37,0.61],[19.846,8.87,0.76],[12.443,-63.10,0.76],[4.599,16.51,0.86],[16.490,-26.43,0.96],
+    [13.420,-11.16,0.97],[7.755,28.03,1.14],[22.961,-29.62,1.16],[20.690,45.28,1.25],[12.795,-59.69,1.25],
+    [10.140,11.97,1.35],[6.977,-28.97,1.5],[7.577,31.89,1.58],[12.519,-57.11,1.63],[17.560,-37.10,1.62],
+    [5.419,6.35,1.64],[5.438,28.61,1.65],[9.220,-69.72,1.68],[5.604,-1.20,1.69],[5.679,-1.94,1.77],
+    [22.137,-46.96,1.74],[12.900,55.96,1.77],[11.062,61.75,1.79],[3.405,49.86,1.79],[7.140,-26.39,1.84],
+    [17.622,-43.00,1.86],[18.403,-34.38,1.85],[8.375,-59.51,1.86],[13.792,49.31,1.86],[5.992,44.95,1.9],
+    [16.811,-69.03,1.92],[6.628,16.40,1.93],[20.427,-56.74,1.94],[8.745,-54.71,1.96],[6.378,-17.96,1.98],
+    [9.460,-8.66,1.98],[2.120,23.46,2.0],[0.726,-17.99,2.04],[18.921,-26.30,2.05],[14.111,-36.37,2.06],
+    [5.796,-9.67,2.06],[12.252,-58.75,2.8],[16.836,-34.29,2.29],[16.006,-22.62,2.29],[5.533,-0.30,2.23],
+    [3.791,24.11,2.9],[17.708,-39.03,2.39],[16.091,-19.81,2.62],[17.793,-37.04,2.7]
+  ];
+  let seed = 7;
+  const rnd = () => (seed = (seed*16807) % 2147483647) / 2147483647;
+  const gauss = () => { let u=0,v=0; while(!u) u=rnd(); while(!v) v=rnd(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); };
+  const stars = BRIGHT.map(s => ({ra:s[0]*15*D, dec:s[1]*D, m:s[2]}));
+  for (let i=0; i<1600; i++) stars.push({ra:rnd()*2*Math.PI, dec:Math.asin(2*rnd()-1), m:3.2+rnd()*2.8});
+  const aG=192.85948*D, dG=27.12825*D, lN=122.93192*D, milky=[];
+  for (let i=0; i<7000; i++){
+    const l = (rnd()<.45 ? gauss()*35 : rnd()*360)*D, b = gauss()*(rnd()<.5 ? 3 : 7)*D;
+    const dec = Math.asin(Math.sin(b)*Math.sin(dG) + Math.cos(b)*Math.cos(dG)*Math.cos(lN-l));
+    const ra = aG + Math.atan2(Math.cos(b)*Math.sin(lN-l), Math.sin(b)*Math.cos(dG) - Math.cos(b)*Math.sin(dG)*Math.cos(lN-l));
+    const core = Math.exp(-Math.pow(((l/D+180)%360-180)/40,2));
+    milky.push({ra, dec, a:.02+.045*core*rnd()+.012*rnd(), r:.7+rnd()*1.3});
   }
-  function resize(){
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
-    w = canvas.clientWidth; h = canvas.clientHeight;
-    canvas.width = w * dpr; canvas.height = h * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    // horizon ~ 74% of height; south celestial pole ~30° above it
-    const horizon = h * .74;
-    pole = { x: w * .62, y: horizon - horizon * .33 };
-    seed(Math.round(Math.min(1400, w * h / 900)));
+  const CLOUDS = [{ra:5.39, dec:-69.75, r:4.2, a:.2},{ra:0.88, dec:-72.8, r:2.2, a:.15}];
+
+  function lst(d){ const jd = d.getTime()/86400000 + 2440587.5; return (((280.46061837 + 360.98564736629*(jd-2451545) + LON) % 360) + 360) % 360 * D; }
+  function altaz(ra, dec, L){
+    const H = L - ra;
+    const alt = Math.asin(Math.sin(dec)*Math.sin(LAT) + Math.cos(dec)*Math.cos(LAT)*Math.cos(H));
+    const az = Math.atan2(-Math.cos(dec)*Math.sin(H), Math.sin(dec)*Math.cos(LAT) - Math.cos(dec)*Math.sin(LAT)*Math.cos(H));
+    return {alt:alt/D, az:((az/D)%360+360)%360};
   }
+  const wrap = d => ((d % 360) + 540) % 360 - 180;
+  function proj(alt, az){ return {x: w/2 + wrap(az-180)*k, y: h*.74 - alt*k}; }
+
   function draw(){
     ctx.clearRect(0, 0, w, h);
-    const fade = h * .8;
-    for (const st of stars){
-      const a = st.a + angle;
-      const x = pole.x + Math.cos(a) * st.r;
-      const y = pole.y + Math.sin(a) * st.r;
-      if (x < -2 || x > w + 2 || y < -2 || y > fade) continue;
-      const k = y > h * .55 ? Math.max(0, 1 - (y - h * .55) / (fade - h * .55)) : 1;
-      ctx.globalAlpha = st.o * k;
-      ctx.fillStyle = '#f3eee4';
-      ctx.beginPath(); ctx.arc(x, y, st.s, 0, Math.PI * 2); ctx.fill();
+    const L = lst(when), fade = h*.8;
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = '#c9d2ff';
+    for (const m of milky){
+      const q = altaz(m.ra, m.dec, L); if (q.alt < 0) continue;
+      const p = proj(q.alt, q.az); if (p.x < -6 || p.x > w+6 || p.y < -6 || p.y > fade) continue;
+      ctx.globalAlpha = m.a * Math.min(1, q.alt/12 + .25);
+      ctx.beginPath(); ctx.arc(p.x, p.y, m.r, 0, 6.283); ctx.fill();
     }
-    ctx.globalAlpha = 1;
+    for (const c of CLOUDS){
+      const q = altaz(c.ra*15*D, c.dec*D, L); if (q.alt < 0) continue;
+      const p = proj(q.alt, q.az), r = c.r*k;
+      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r);
+      g.addColorStop(0, 'rgba(210,220,255,' + c.a + ')'); g.addColorStop(1, 'rgba(210,220,255,0)');
+      ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 6.283); ctx.fill();
+    }
+    ctx.fillStyle = '#f3eee4';
+    for (const st of stars){
+      const q = altaz(st.ra, st.dec, L); if (q.alt < 0) continue;
+      const p = proj(q.alt, q.az); if (p.x < -3 || p.x > w+3 || p.y < -3 || p.y > fade) continue;
+      ctx.globalAlpha = Math.min(1, (6 - st.m)/2.5) * Math.min(1, q.alt/8 + .15);
+      ctx.beginPath(); ctx.arc(p.x, p.y, Math.max(.5, 2.4 - .42*st.m), 0, 6.283); ctx.fill();
+    }
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
   }
-  function tick(t){
-    if (last) angle += (t - last) * 0.000035; // clockwise, as seen facing south
-    last = t;
+  function resize(){
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = canvas.clientWidth; h = canvas.clientHeight;
+    canvas.width = w*dpr; canvas.height = h*dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    k = w / (w < 700 ? 80 : 120);
     draw();
-    requestAnimationFrame(tick);
   }
-  resize();
-  window.addEventListener('resize', () => { resize(); draw(); });
-  if (reduce) draw(); else requestAnimationFrame(tick);
+  // Current time in La Serena; during the day, tonight at 23:00
+  const fmt = new Intl.DateTimeFormat('es-CL', {timeZone:TZ, hour:'2-digit', minute:'2-digit', hourCycle:'h23'});
+  const hourIn = d => +new Intl.DateTimeFormat('en-GB', {timeZone:TZ, hour:'2-digit', hourCycle:'h23'}).format(d);
+  function update(){
+    const now = new Date(), hr = hourIn(now);
+    if (hr >= 20 || hr < 6){
+      when = now;
+      note.textContent = 'El cielo sobre La Serena ahora, ' + fmt.format(now) + ' hora de Chile, mirando al sur.';
+    } else {
+      when = new Date(now.getTime() + (23 - hr)*3600000); when.setMinutes(0, 0, 0);
+      note.textContent = 'El cielo sobre La Serena esta noche a las 23:00, mirando al sur.';
+    }
+    draw();
+  }
+  window.addEventListener('resize', resize);
+  resize(); update(); setInterval(update, 60000);
 })();
 </script>
 </body>
