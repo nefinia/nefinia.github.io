@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cielos de Origen</title>
+<meta name="description" content="Arqueoastronomía y patrimonio cultural Diaguita de la Región de Coquimbo. Un proyecto de Fundación Inmersidad que vincula cielo, territorio, paisaje y patrimonio mediante recursos abiertos, Stellarium y una exposición itinerante.">
+<meta property="og:title" content="Cielos de Origen">
+<meta property="og:description" content="Arqueoastronomía y patrimonio cultural Diaguita de la Región de Coquimbo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#121a30;
+    --night-2:#18223e;
+    --dusk:#2a3462;
+    --ochre:#d9a54c;
+    --ochre-soft:#e9c88a;
+    --bone:#eee8dc;
+    --mist:#b9bdd0;
+    --line:rgba(238,232,220,.16);
+    --serif:"Alegreya", Georgia, serif;
+    --sans:"Alegreya Sans", system-ui, sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
+  body{
+    margin:0; background:var(--night); color:var(--bone);
+    font-family:var(--serif); font-size:1.15rem; line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--ochre-soft); text-underline-offset:3px}
+  a:hover{color:var(--ochre)}
+  :focus-visible{outline:2px solid var(--ochre); outline-offset:3px}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative; min-height:100svh; overflow:hidden;
+    background:linear-gradient(180deg,#0e1529 0%, #172042 52%, #3a3a5e 74%, #8a6a52 88%, #c98f55 100%);
+    display:flex; flex-direction:column;
+  }
+  #sky{position:absolute; inset:0; width:100%; height:100%; display:block}
+  .ridges{position:absolute; left:0; right:0; bottom:0; width:100%; height:34%; display:block}
+  .topbar{
+    position:relative; z-index:2; display:flex; justify-content:space-between; gap:1rem;
+    padding:1.25rem clamp(1rem,4vw,3rem); font-family:var(--sans); font-size:.95rem; color:var(--mist);
+  }
+  .topbar a{color:var(--mist); text-decoration:none}
+  .topbar a:hover{color:var(--bone)}
+  .hero-text{
+    position:relative; z-index:2; margin-top:auto; margin-bottom:38vh;
+    padding:0 clamp(1rem,4vw,3rem); max-width:52rem;
+  }
+  .hero h1{
+    font-weight:500; font-size:clamp(3rem,10vw,7.5rem); line-height:.95; margin:0 0 1.2rem;
+    letter-spacing:-.01em;
+  }
+  .hero .sub{
+    font-family:var(--sans); font-size:clamp(1.05rem,2.2vw,1.35rem); line-height:1.4;
+    color:var(--bone); max-width:34rem; margin:0;
+  }
+  .hero .org{font-family:var(--sans); color:var(--mist); margin-top:1rem; font-size:1rem}
+  .sky-note{
+    position:absolute; z-index:2; right:clamp(1rem,4vw,3rem); bottom:1rem;
+    font-family:var(--sans); font-size:.8rem; color:rgba(20,22,40,.75); max-width:20rem; text-align:right; margin:0;
+  }
+
+  /* ---------- Content ---------- */
+  main{position:relative}
+  section{padding:clamp(3.5rem,8vw,6rem) clamp(1rem,4vw,3rem)}
+  .wrap{max-width:68rem; margin:0 auto}
+  .prose{max-width:40rem}
+  h2{
+    font-weight:500; font-size:clamp(2rem,4.5vw,3rem); line-height:1.1; margin:0 0 1.5rem;
+  }
+  h3{font-family:var(--sans); font-weight:700; font-size:1.15rem; margin:0 0 .4rem; color:var(--bone)}
+  p{margin:0 0 1.1em}
+  .lead{font-size:1.3rem; line-height:1.55}
+  .muted{color:var(--mist)}
+  .band{background:var(--night-2)}
+
+  .split{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:clamp(2rem,5vw,4.5rem); align-items:start}
+  @media (max-width:820px){ .split{grid-template-columns:1fr} }
+
+  /* what we look for */
+  .seek{list-style:none; padding:0; margin:0; border-top:1px solid var(--line)}
+  .seek li{padding:.85rem 0; border-bottom:1px solid var(--line); display:grid; grid-template-columns:9rem 1fr; gap:1rem}
+  .seek b{font-family:var(--sans); font-weight:500; color:var(--ochre-soft)}
+  .seek span{color:var(--mist)}
+  @media (max-width:520px){ .seek li{grid-template-columns:1fr; gap:.1rem} }
+
+  /* method: a real sequence */
+  .method{list-style:none; counter-reset:step; padding:0; margin:2.5rem 0 0; display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:0}
+  .method li{counter-increment:step; position:relative; padding:3.2rem 1.2rem 0 0}
+  .method li::before{
+    content:counter(step); position:absolute; top:0; left:0;
+    width:2.1rem; height:2.1rem; border-radius:50%; border:1px solid var(--ochre);
+    display:grid; place-items:center; font-family:var(--sans); font-size:.95rem; color:var(--ochre);
+    background:var(--night-2);
+  }
+  .method li::after{content:""; position:absolute; top:1.05rem; left:2.1rem; right:0; height:1px; background:var(--line)}
+  .method li:last-child::after{display:none}
+  .method p{font-size:1rem; color:var(--mist); margin:0}
+  @media (max-width:900px){
+    .method{grid-template-columns:1fr}
+    .method li{padding:0 0 1.8rem 3.4rem}
+    .method li::after{top:2.1rem; bottom:0; left:1.05rem; right:auto; width:1px; height:auto}
+  }
+  .aside{
+    margin-top:2.5rem; padding:1.25rem 1.5rem; border-left:2px solid var(--ochre);
+    background:rgba(217,165,76,.07); max-width:46rem; font-size:1.05rem;
+  }
+  .aside p:last-child{margin:0}
+
+  /* observatory */
+  .view{
+    margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#0d1428;
+  }
+  .view svg{display:block; width:100%; height:auto}
+  .view figcaption{font-family:var(--sans); font-size:.9rem; color:var(--mist); padding:.8rem 1rem; border-top:1px solid var(--line)}
+
+  /* community */
+  .phases{list-style:none; padding:0; margin:1.5rem 0 0}
+  .phases li{padding-left:1.4rem; position:relative; margin-bottom:.7rem}
+  .phases li::before{content:""; position:absolute; left:0; top:.7em; width:.45rem; height:.45rem; border-radius:50%; background:var(--ochre)}
+
+  /* exhibition */
+  .towns{display:flex; flex-wrap:wrap; gap:.6rem 2.5rem; margin:1rem 0 2rem; font-size:clamp(1.6rem,3.5vw,2.3rem); font-weight:500}
+  .formats{display:grid; grid-template-columns:repeat(auto-fit,minmax(13rem,1fr)); gap:1.5rem 2.5rem}
+  .formats p{font-size:1rem; color:var(--mist); margin:0}
+
+  /* calendar */
+  .cal{width:100%; border-collapse:collapse; margin-top:1.5rem; font-size:1rem}
+  .cal th, .cal td{text-align:left; vertical-align:top; padding:.9rem 1rem .9rem 0; border-bottom:1px solid var(--line)}
+  .cal th{font-family:var(--sans); font-weight:500; color:var(--mist); font-size:.9rem}
+  .cal td:first-child{font-family:var(--sans); color:var(--ochre-soft); white-space:nowrap; width:7rem}
+  .cal td:last-child{color:var(--mist)}
+  @media (max-width:640px){
+    .cal thead{display:none}
+    .cal tr{display:block; padding:.8rem 0; border-bottom:1px solid var(--line)}
+    .cal td{display:block; border:0; padding:.1rem 0}
+  }
+
+  /* team */
+  .team{display:grid; grid-template-columns:repeat(auto-fit,minmax(18rem,1fr)); gap:2rem 3rem; margin-top:2rem}
+  .person h3{font-family:var(--serif); font-weight:500; font-size:1.35rem; margin:0}
+  .person .role{font-family:var(--sans); color:var(--ochre-soft); font-size:.95rem; margin:.15rem 0 .5rem}
+  .person p{font-size:1rem; color:var(--mist); margin:0}
+
+  footer{
+    padding:3rem clamp(1rem,4vw,3rem) 4rem; border-top:1px solid var(--line);
+    font-family:var(--sans); font-size:.95rem; color:var(--mist);
+  }
+  footer .wrap{display:flex; flex-wrap:wrap; justify-content:space-between; gap:1rem}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <canvas id="sky" aria-hidden="true"></canvas>
+  <svg class="ridges" viewBox="0 0 1440 300" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 150 L120 120 L210 140 L330 82 L420 110 L520 70 L640 118 L760 92 L860 128 L980 76 L1090 104 L1200 66 L1320 112 L1440 96 L1440 300 L0 300Z" fill="#4b4562" opacity=".55"/>
+    <path d="M0 200 L90 176 L200 196 L300 150 L400 182 L470 164 L580 204 L700 168 L820 196 L930 150 L1040 184 L1150 160 L1270 198 L1360 176 L1440 190 L1440 300 L0 300Z" fill="#2e2c47"/>
+    <path d="M0 252 L150 236 L290 250 L430 230 L600 258 L760 238 L900 254 L1080 232 L1240 252 L1440 240 L1440 300 L0 300Z" fill="#171a2e"/>
+  </svg>
+
+  <nav class="topbar" aria-label="Sitio">
+    <a href="/">sofiagallego.com</a>
+    <span>Fundación Inmersidad</span>
+  </nav>
+
+  <div class="hero-text">
+    <h1>Cielos de Origen</h1>
+    <p class="sub">Arqueoastronomía y patrimonio cultural Diaguita de la Región de Coquimbo</p>
+    <p class="org">Una iniciativa de Fundación Inmersidad · Valle de Elqui, Chile</p>
+  </div>
+  <p class="sky-note">El cielo gira en torno al polo sur celeste, a unos 30° sobre el horizonte, como se ve desde el Valle de Elqui.</p>
+</header>
+
+<main>
+
+  <!-- El proyecto -->
+  <section id="proyecto">
+    <div class="wrap split">
+      <div class="prose">
+        <h2>El proyecto</h2>
+        <p class="lead">Cielos de Origen investiga, documenta y divulga conocimientos vinculados a la observación del cielo y al patrimonio cultural Diaguita de la Región de Coquimbo, uniendo astronomía, patrimonio, territorio y tecnologías inmersivas.</p>
+        <p>El trabajo parte de un proceso interdisciplinario de recopilación y sistematización de antecedentes, con asesoría especializada y la participación de representantes de la comunidad Diaguita. Cada elemento incorporado será documentado, contextualizado y validado antes de traducirse a formatos visuales, sonoros e interactivos.</p>
+        <p>De ese proceso nacen recursos educativos de acceso abierto: un observatorio cultural en Stellarium, un paisaje digital 360° inspirado en el Valle de Elqui y una exposición itinerante por La Serena, Coquimbo y Vicuña.</p>
+      </div>
+      <div>
+        <h3 style="margin-bottom:1rem">Qué antecedentes se buscan</h3>
+        <ul class="seek">
+          <li><b>Astronómicos</b><span>Referencias al Sol, la Luna y las estrellas, y a los ciclos estacionales.</span></li>
+          <li><b>Territoriales</b><span>Orientación, horizontes y relación con el paisaje.</span></li>
+          <li><b>Históricos</b><span>Fuentes escritas y registros sobre el pueblo Diaguita.</span></li>
+          <li><b>Arqueológicos</b><span>Interpretaciones publicadas y revisadas por especialistas.</span></li>
+          <li><b>Culturales</b><span>Memoria, relatos y saberes compartidos por la comunidad.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Metodología -->
+  <section id="metodologia" class="band">
+    <div class="wrap">
+      <h2>Cómo se trabaja</h2>
+      <p class="prose">El proyecto sigue un recorrido en cinco etapas. Ningún contenido llega a la pantalla o a un panel sin haber pasado antes por la revisión científica y cultural.</p>
+      <ol class="method">
+        <li><h3>Investigación y documentación</h3><p>Revisión bibliográfica, recopilación de antecedentes y trabajo con especialistas y comunidad.</p></li>
+        <li><h3>Validación científica y cultural</h3><p>Cada referencia se contrasta con la astronomía actual y se discute con la comunidad Diaguita.</p></li>
+        <li><h3>Traducción a contenidos</h3><p>Textos, guiones, audios, contenidos para Stellarium, paisaje 360° y material gráfico.</p></li>
+        <li><h3>Pruebas</h3><p>Prototipo digital, ajustes, producción de paneles y preparación de la experiencia en realidad virtual.</p></li>
+        <li><h3>Exposición y mediación</h3><p>Itinerancia, charlas y talleres, con retroalimentación del público y de la comunidad.</p></li>
+      </ol>
+      <div class="aside">
+        <p><strong>Sobre la arqueoastronomía.</strong> Las interpretaciones arqueoastronómicas se basan en fuentes existentes y en la revisión de una asesoría arqueológica, histórica y patrimonial que acompaña todas las etapas. El proyecto no contempla trabajo arqueológico de campo.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Observatorio -->
+  <section id="observatorio">
+    <div class="wrap split">
+      <div class="prose">
+        <h2>Un observatorio cultural</h2>
+        <p>Llamamos observatorio cultural a una experiencia digital que permite explorar en conjunto cielo, territorio, paisaje y patrimonio cultural.</p>
+        <p>Se construirá en <a href="https://stellarium.org" rel="noopener">Stellarium</a>, una plataforma astronómica de acceso abierto que representa el cielo desde cualquier lugar y fecha, y que admite contenidos culturales personalizados. Así, cada elemento documentado queda ligado al cielo que efectivamente se observa desde la Región de Coquimbo.</p>
+        <p>Las personas podrán situarse en el Valle de Elqui, reconocer las referencias astronómicas y culturales documentadas, y abrir los textos, audios y elementos del paisaje asociados a cada una.</p>
+        <p class="muted">Todos los recursos quedarán disponibles en la plataforma digital de Fundación Inmersidad para escuelas, docentes, estudiantes y público general.</p>
+      </div>
+      <figure class="view">
+        <svg viewBox="0 0 480 320" role="img" aria-labelledby="viewTitle">
+          <title id="viewTitle">Esquema de la experiencia: cielo nocturno sobre un horizonte de cerros, con un punto seleccionado que abre una ficha con texto y audio.</title>
+          <defs>
+            <linearGradient id="vsky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#0d1428"/><stop offset=".75" stop-color="#232c55"/><stop offset="1" stop-color="#5b4a5a"/>
+            </linearGradient>
+          </defs>
+          <rect width="480" height="320" fill="url(#vsky)"/>
+          <g fill="#eee8dc">
+            <circle cx="40" cy="40" r="1"/><circle cx="92" cy="78" r="1.4"/><circle cx="150" cy="30" r=".9"/><circle cx="210" cy="96" r="1.1"/>
+            <circle cx="260" cy="52" r="1.6"/><circle cx="330" cy="24" r="1"/><circle cx="380" cy="88" r="1.2"/><circle cx="440" cy="46" r=".9"/>
+            <circle cx="60" cy="140" r="1"/><circle cx="120" cy="170" r=".8"/><circle cx="300" cy="150" r="1"/><circle cx="420" cy="160" r="1.3"/>
+            <circle cx="180" cy="140" r=".8"/><circle cx="350" cy="120" r=".9"/><circle cx="20" cy="100" r=".8"/><circle cx="460" cy="120" r=".8"/>
+          </g>
+          <circle cx="210" cy="96" r="9" fill="none" stroke="#d9a54c" stroke-width="1.2"/>
+          <line x1="219" y1="96" x2="262" y2="96" stroke="#d9a54c" stroke-width="1"/>
+          <rect x="262" y="70" width="170" height="74" rx="4" fill="#121a30" stroke="rgba(238,232,220,.25)"/>
+          <rect x="276" y="84" width="96" height="7" rx="2" fill="#e9c88a"/>
+          <rect x="276" y="100" width="140" height="4" rx="2" fill="#b9bdd0" opacity=".6"/>
+          <rect x="276" y="110" width="120" height="4" rx="2" fill="#b9bdd0" opacity=".6"/>
+          <circle cx="283" cy="128" r="6" fill="none" stroke="#d9a54c"/>
+          <path d="M281 125 L287 128 L281 131Z" fill="#d9a54c"/>
+          <rect x="295" y="126" width="80" height="4" rx="2" fill="#b9bdd0" opacity=".4"/>
+          <path d="M0 250 L60 226 L120 240 L190 204 L250 230 L320 196 L390 228 L440 214 L480 224 L480 320 L0 320Z" fill="#2e2c47"/>
+          <path d="M0 282 L100 268 L210 280 L320 262 L420 278 L480 270 L480 320 L0 320Z" fill="#171a2e"/>
+          <text x="16" y="306" font-family="Alegreya Sans, sans-serif" font-size="11" fill="#b9bdd0">Horizonte del Valle de Elqui · 360°</text>
+        </svg>
+        <figcaption>Esquema ilustrativo. Los contenidos culturales se definirán durante la investigación y la validación con la comunidad.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- Comunidad -->
+  <section id="comunidad" class="band">
+    <div class="wrap prose">
+      <h2>Con la comunidad Diaguita</h2>
+      <p>Las interpretaciones culturales no se construirán solo desde agentes externos. Representantes de la comunidad Diaguita participan durante todo el proceso, no únicamente en una revisión final:</p>
+      <ul class="phases">
+        <li>en la revisión de los antecedentes recopilados,</li>
+        <li>en la contextualización de cada contenido,</li>
+        <li>en la discusión de las interpretaciones,</li>
+        <li>y en la validación previa a su incorporación en los recursos digitales y expositivos.</li>
+      </ul>
+      <p>Tras la itinerancia, la retroalimentación de la comunidad forma parte del análisis final del proyecto.</p>
+    </div>
+  </section>
+
+  <!-- Exposición -->
+  <section id="exposicion">
+    <div class="wrap">
+      <h2>Exposición itinerante</h2>
+      <p class="prose">Una muestra gratuita recorrerá tres comunas de la región, acompañada de charlas y talleres abiertos.</p>
+      <div class="towns"><span>La Serena</span><span>Coquimbo</span><span>Vicuña</span></div>
+      <div class="formats">
+        <div><h3>Paneles interpretativos</h3><p>Quedarán donados a los espacios anfitriones como muestra permanente.</p></div>
+        <div><h3>Material gráfico</h3><p>Infografías para que el público se lleve a casa.</p></div>
+        <div><h3>Stellarium</h3><p>El observatorio cultural, explorable en sala.</p></div>
+        <div><h3>Realidad virtual</h3><p>Visores Meta Quest para recorrer el paisaje 360° del Valle de Elqui.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Calendario -->
+  <section id="calendario" class="band">
+    <div class="wrap">
+      <h2>Calendario</h2>
+      <p class="prose muted">Doce meses de ejecución.</p>
+      <table class="cal">
+        <thead><tr><th>Período</th><th>Actividad</th><th>Resultado</th></tr></thead>
+        <tbody>
+          <tr><td>Mes 1</td><td>Coordinación, revisión bibliográfica y definición metodológica</td><td>Plan de investigación y fuentes definidas</td></tr>
+          <tr><td>Mes 2</td><td>Recopilación de antecedentes y trabajo con especialistas y comunidad</td><td>Contenidos preliminares sistematizados</td></tr>
+          <tr><td>Mes 3</td><td>Validación de contenidos; textos, guiones y recursos sonoros</td><td>Contenidos culturales y astronómicos validados</td></tr>
+          <tr><td>Meses 4–5</td><td>Desarrollo en Stellarium, paisaje 360°, audios, material gráfico y micrositio</td><td>Prototipo digital funcional</td></tr>
+          <tr><td>Meses 6–7</td><td>Pruebas, ajustes, producción de paneles y experiencia de realidad virtual</td><td>Experiencia final implementada</td></tr>
+          <tr><td>Meses 8–10</td><td>Itinerancia La Serena, Coquimbo y Vicuña; evaluación y publicación</td><td>Exposición realizada y recursos publicados</td></tr>
+          <tr><td>Meses 11–12</td><td>Análisis del proceso y de la retroalimentación del público y la comunidad Diaguita</td><td>Informe final</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Equipo -->
+  <section id="equipo">
+    <div class="wrap">
+      <h2>Equipo</h2>
+      <div class="team">
+        <div class="person">
+          <h3>Yasna Órdenes</h3>
+          <p class="role">Dirección general y coordinación científica</p>
+          <p>Doctora en Astrofísica (UC / U. Heidelberg). Premio L’Oréal-UNESCO For Women in Science 2018. Directiva de SOCHIAS (2025–2026).</p>
+        </div>
+        <div class="person">
+          <h3>Sofía Gallego</h3>
+          <p class="role">Coordinación científica y astronómica</p>
+          <p>Licenciada en Astronomía (UC) y Doctora en Astrofísica (Zúrich). Investigadora interdisciplinaria entre astronomía, cosmovisiones y arte.</p>
+        </div>
+        <div class="person">
+          <h3>Ariel Tirado</h3>
+          <p class="role">Desarrollo tecnológico y multimedia</p>
+          <p>Ingeniero en computación y magíster en tecnologías de la información. Contenidos para Stellarium, paisaje 360°, audio y realidad virtual.</p>
+        </div>
+        <div class="person">
+          <h3>Yoselin Órdenes</h3>
+          <p class="role">Diseño y mediación educativa</p>
+          <p>Diseñadora gráfica y magíster en tecnologías educativas (UNIACC). Ocho años liderando proyectos de innovación educativa, cultura y medioambiente.</p>
+        </div>
+        <div class="person">
+          <h3>Felipe Contreras</h3>
+          <p class="role">Diseño y mediación educativa</p>
+          <p>Diseñador gráfico y docente de artes visuales y tecnología. Talleres de dibujo y pintura basados en la teoría del color.</p>
+        </div>
+        <div class="person">
+          <h3>Olemma Leyton</h3>
+          <p class="role">Escenografía y montaje</p>
+          <p>Astronomía y actuación (UC). Dirige el Colectivo Analemma desde 2019, con obras que cruzan ciencia y arte.</p>
+        </div>
+        <div class="person">
+          <h3>Comunidad Diaguita</h3>
+          <p class="role">Participación y validación cultural</p>
+          <p>Representantes de la comunidad acompañan la investigación, la interpretación y la validación de los contenidos.</p>
+        </div>
+        <div class="person">
+          <h3>Asesoría especializada</h3>
+          <p class="role">Arqueología, historia y patrimonio</p>
+          <p>Orienta la revisión de fuentes y resguarda el rigor en la interpretación del patrimonio regional.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Después -->
+  <section id="despues" class="band">
+    <div class="wrap prose">
+      <h2>Después del proyecto</h2>
+      <p>Los contenidos para Stellarium, los audios, el material documental y los recursos educativos seguirán disponibles gratuitamente en la plataforma de Fundación Inmersidad.</p>
+      <p>Los visores, paneles y materiales pasarán a la infraestructura educativa de la Fundación para llevar la experiencia a escuelas, bibliotecas, museos y centros culturales. La arquitectura digital permite sumar nuevos contenidos y otras localidades de la Región de Coquimbo en etapas futuras.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Cielos de Origen · Fundación Inmersidad</span>
+    <a href="/">Volver a sofiagallego.com</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const canvas = document.getElementById('sky');
+  const ctx = canvas.getContext('2d');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let w, h, dpr, pole, stars = [], angle = 0, last = 0;
+
+  function seed(n){
+    stars = [];
+    const maxR = Math.hypot(w, h);
+    for (let i = 0; i < n; i++){
+      const r = Math.sqrt(Math.random()) * maxR;
+      stars.push({
+        r, a: Math.random() * Math.PI * 2,
+        s: Math.random() < .04 ? 1.6 + Math.random() : .4 + Math.random() * .9,
+        o: .35 + Math.random() * .65
+      });
+    }
+  }
+  function resize(){
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = canvas.clientWidth; h = canvas.clientHeight;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // horizon ~ 74% of height; south celestial pole ~30° above it
+    const horizon = h * .74;
+    pole = { x: w * .62, y: horizon - horizon * .33 };
+    seed(Math.round(Math.min(1400, w * h / 900)));
+  }
+  function draw(){
+    ctx.clearRect(0, 0, w, h);
+    const fade = h * .8;
+    for (const st of stars){
+      const a = st.a + angle;
+      const x = pole.x + Math.cos(a) * st.r;
+      const y = pole.y + Math.sin(a) * st.r;
+      if (x < -2 || x > w + 2 || y < -2 || y > fade) continue;
+      const k = y > h * .55 ? Math.max(0, 1 - (y - h * .55) / (fade - h * .55)) : 1;
+      ctx.globalAlpha = st.o * k;
+      ctx.fillStyle = '#f3eee4';
+      ctx.beginPath(); ctx.arc(x, y, st.s, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+  function tick(t){
+    if (last) angle += (t - last) * 0.000035; // clockwise, as seen facing south
+    last = t;
+    draw();
+    requestAnimationFrame(tick);
+  }
+  resize();
+  window.addEventListener('resize', () => { resize(); draw(); });
+  if (reduce) draw(); else requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
