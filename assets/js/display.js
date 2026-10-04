@@ -35,6 +35,7 @@
     root.style.setProperty("--ds-lh", String(S.lh || 1.6)); root.toggleAttribute("data-ds-lh", !!S.lh);
     root.style.setProperty("--ds-ls", (S.ls || 0) + "em"); root.toggleAttribute("data-ds-ls", !!S.ls);
     root.toggleAttribute("data-ds-calm", S.motion === "calm");
+    window.dispatchEvent(new Event("resize"));   // drawings like the cosmic web re-measure their labels
   }
   load(); applyAll();
   if (darkMQ && darkMQ.addEventListener) darkMQ.addEventListener("change", function () { if (S.theme === "system") applyAll(); });
@@ -57,8 +58,10 @@
     "html[data-ds-font=mono] body,html[data-ds-font=mono] body *:not(svg *){font-family:ui-monospace,Menlo,Consolas,monospace!important}" +
     // bigger text: zoom the page, but never a canvas (interactive drawings read clicks in unzoomed pixels)
     "html[data-ds-size] body:not(:has(canvas)){zoom:var(--ds-zoom)}" +
-    "html[data-ds-size] body:has(canvas) > :not(:has(canvas)):not(canvas):not(script):not(style)," +
-    "html[data-ds-size] body:has(canvas) :has(canvas) > :not(:has(canvas)):not(canvas){zoom:var(--ds-zoom)}" +
+    "html[data-ds-size] body:has(canvas) > :not(:has(canvas)):not(canvas):not(script):not(style):not([style*=transform]):not(.node):not(.mini)," +
+    "html[data-ds-size] body:has(canvas) :has(canvas) > :not(:has(canvas)):not(canvas):not([style*=transform]):not(.node):not(.mini)," +
+    // labels that a script places over a canvas (like the cosmic web nodes) keep their spot: only their text grows
+    "html[data-ds-size] body:has(canvas) :has(canvas) > :is([style*=transform],.node,.mini):not(:has(canvas)) > *{zoom:var(--ds-zoom)}" +
     "html[data-ds-lh] body *{line-height:var(--ds-lh)!important}" +
     "html[data-ds-ls] body *{letter-spacing:var(--ds-ls)!important}" +
     "html[data-ds-calm] *,html[data-ds-calm] *::before,html[data-ds-calm] *::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}" +
