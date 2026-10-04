@@ -149,3 +149,13 @@ body.cv .flogo img{opacity:1}
 #work .proj-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
 @media (max-width:900px){#work .proj-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.svc.featured .ticks{grid-template-columns:1fr}}
 @media (max-width:560px){#work .proj-grid{grid-template-columns:1fr}}
+
+/* enquiry form */
+.cv-form{display:grid;gap:14px;max-width:720px;margin-top:24px}
+.cv-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cv-form label{display:grid;gap:6px;font-size:14px;color:var(--dim)}
+.cv-form label span{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.cv-form input,.cv-form textarea{font:inherit;font-size:16px;color:var(--ink);background:#fff;border:1px solid rgba(19,21,43,.2);border-radius:4px;padding:12px 14px;width:100%}
+.cv-form input:focus,.cv-form textarea:focus{outline:2px solid var(--glow);outline-offset:1px;border-color:var(--glow)}
+.cv-status{margin:0;color:var(--glow);font-weight:500}
+@media (max-width:560px){.cv-row{grid-template-columns:1fr}}

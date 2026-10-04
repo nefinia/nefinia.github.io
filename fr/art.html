@@ -68,6 +68,11 @@
 </div>
 <blockquote class="excerpt" lang="en"><p>Anara walked slowly through the darkness. Beneath her eight little feet stretched an enormous web: the web of the whole universe! Every time she took a step, it trembled a little, like a guitar string after someone has touched it.</p><p>Anara loved walking this way, listening. The darkness was not silent. It was full of tiny sounds: murmurs, crackles, whispers of light.</p><p>Anara was not walking just to walk. Anara was looking for her own kind.</p><p>“Where are the other cosmic spiders?” she would ask, touching the web with one foot, then two, then all eight.</p><p>The web never answered in words. But Anara could see with her feet. When something heavy moved very far away, the threads trembled and she felt it.</p><footer>Extrait du chapitre 1, « Weaving the New World » <span class="ex-note">Extraits en anglais.</span></footer></blockquote>
 </article>
+<form id="bookForm" class="notify" action="https://formspree.io/f/mwkajqen" method="POST" data-ok="Merci, vous êtes sur la liste." data-err="L’inscription n’a pas fonctionné. Réessayez plus tard.">
+<input type="hidden" name="_subject" value="Book updates signup"><input type="hidden" name="list" value="books"><input type="text" name="_gotcha" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true">
+<p class="notify-h">Être prévenu·e à la sortie des livres</p><p class="notify-p">Un court e-mail quand The Companions ou Anara sera publié. Rien d’autre.</p>
+<div class="notify-row"><label class="sr" for="book-email">Votre e-mail</label><input id="book-email" type="email" name="email" placeholder="Votre e-mail" required autocomplete="email"><button type="submit">Me prévenir</button></div>
+<p id="bookStatus" class="notify-p" role="status" aria-live="polite"></p></form>
 <h2 id="music">Musique &amp; scène</h2><div class="feature"><div><h3 id="dejame">"Déjame"</h3><p>
 <em>"Déjame"</em> est ma première chanson officielle.
             Elle reflète mon chemin de vie, entre moments d’espoir, luttes et quête de beauté au milieu de l’incertitude.
@@ -102,11 +107,15 @@
           <a href="http://nefinia.blogspot.com" target="_blank">nefinia.blogspot.com</a>.
         </p>
 <p><a class="go" href="../events/index.html?lang=fr">Musique live pour votre événement : voir Événements →</a></p></main>
-<footer><span>© Nefinia</span><a aria-label="Sofia Gallego" class="flogo" href="./index.html"><img alt="Cosmovision logo" height="64" src="../assets/images/cosmovision.png" width="64"/></a><span>Paris · La Serena</span></footer>
+<footer><span>© Nefinia · <a class="support" href="https://ko-fi.com/cosmosofia" rel="noopener">Soutenir mon travail</a></span><a aria-label="Sofia Gallego" class="flogo" href="./index.html"><img alt="Cosmovision logo" height="64" src="../assets/images/cosmovision.png" width="64"/></a><span>Paris · La Serena</span></footer>
 <script>
   document.getElementById('burger').addEventListener('click', function(){
     var m=document.getElementById('menu'), o=m.classList.toggle('open'); this.setAttribute('aria-expanded', String(o));
   });
 </script>
+<script>(function(){var f=document.getElementById("bookForm");if(!f)return;var st=document.getElementById("bookStatus");
+f.addEventListener("submit",function(e){e.preventDefault();var b=f.querySelector("button");b.disabled=true;
+fetch(f.action,{method:"POST",body:new FormData(f),headers:{Accept:"application/json"}}).then(function(r){if(!r.ok)throw 0;f.reset();st.textContent=f.dataset.ok;try{gtag("event","sign_up",{list:"books"});}catch(_){}})
+.catch(function(){st.textContent=f.dataset.err;}).then(function(){b.disabled=false;});});})();</script>
 </body>
 </html>

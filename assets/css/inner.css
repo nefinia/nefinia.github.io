@@ -123,3 +123,15 @@ body.inner::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:n
 .lal-cover img{display:block;width:100%;border-radius:6px}
 .game-card{scroll-margin-top:80px}
 @media (max-width:760px){.games .lal{grid-template-columns:1fr;padding:20px}.games .lal .lal-cover{order:-1}}
+
+/* book updates signup */
+.page > .notify{max-width:none;margin:8px 0 12px;padding:24px 26px;border:1px solid var(--line);border-radius:6px;background:rgba(10,12,26,.72);display:block}
+.notify-h{font-weight:500;font-size:19px!important;color:var(--ink)!important;margin:0 0 4px!important}
+.notify-p{font-size:15px!important;color:var(--dim)!important;margin:0 0 12px!important}
+.notify-row{display:flex;gap:10px;flex-wrap:wrap;max-width:560px}
+.notify-row input{flex:1 1 220px}
+.notify-row button{font-family:var(--mono);font-size:12.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:12px 20px;border:0;border-radius:2px;background:var(--ink);color:var(--void);cursor:pointer}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+/* support link in footers */
+.support{font-size:12px;color:var(--faint)!important;text-decoration:none;border-bottom:1px solid var(--line)}
+.support:hover{color:var(--ink)!important}

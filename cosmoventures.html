@@ -201,16 +201,28 @@
     <h2>Have a scientific, educational or creative project?</h2>
     <p class="cv-lead">Cosmoventures can help define the scientific basis, validate the concept, improve the content or design a format that audiences can understand and remember.</p>
     <p class="mail">Write to <span class="addr">sofiag.gallego@gmail.com</span></p>
-    <div class="ctas"><a class="btn primary" href="./contact.html">Discuss your project</a></div>
+    <form id="cvForm" class="cv-form" action="https://formspree.io/f/mwkajqen" method="POST" data-ok="Thank you! Your message is on its way. I usually reply within two working days." data-err="The message could not be sent. Please write to sofiag.gallego@gmail.com.">
+      <input type="hidden" name="_subject" value="CosmoVentures enquiry"><input type="text" name="_gotcha" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true">
+      <div class="cv-row"><label><span>Your name</span><input id="cv-name" name="name" required autocomplete="name"></label>
+      <label><span>Your email</span><input id="cv-email" type="email" name="email" required autocomplete="email"></label></div>
+      <label><span>Organisation (optional)</span><input id="cv-org" name="organisation" autocomplete="organization"></label>
+      <label><span>What are you working on?</span><textarea id="cv-msg" name="message" rows="5" required></textarea></label>
+      <div class="ctas"><button class="btn primary" type="submit">Send</button></div>
+      <p id="cvStatus" class="cv-status" role="status" aria-live="polite"></p>
+    </form>
   </section>
 </main>
 
-<footer><span>Cosmoventures SASU · Paris, France</span><a class="flogo" href="./index.html" aria-label="Sofia Gallego"><img src="assets/images/cosmovision.png" alt="Cosmovision logo" width="64" height="64"></a><span>© Nefinia</span></footer>
+<footer><span>Cosmoventures SASU · Paris, France · <a class="support" href="https://ko-fi.com/cosmosofia" rel="noopener">Support my work</a></span><a class="flogo" href="./index.html" aria-label="Sofia Gallego"><img src="assets/images/cosmovision.png" alt="Cosmovision logo" width="64" height="64"></a><span>© Nefinia</span></footer>
 
 <script>
   document.getElementById('burger').addEventListener('click', function(){
     var m=document.getElementById('menu'), o=m.classList.toggle('open'); this.setAttribute('aria-expanded', String(o));
   });
 </script>
+<script>(function(){var f=document.getElementById("cvForm");if(!f)return;var st=document.getElementById("cvStatus");
+f.addEventListener("submit",function(e){e.preventDefault();var b=f.querySelector("button");b.disabled=true;
+fetch(f.action,{method:"POST",body:new FormData(f),headers:{Accept:"application/json"}}).then(function(r){if(!r.ok)throw 0;f.reset();st.textContent=f.dataset.ok;try{gtag("event","generate_lead",{form:"cosmoventures"});}catch(_){}})
+.catch(function(){st.textContent=f.dataset.err;}).then(function(){b.disabled=false;});});})();</script>
 </body>
 </html>
