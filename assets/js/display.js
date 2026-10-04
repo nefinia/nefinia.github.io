@@ -74,6 +74,7 @@
     ".sgd-btn:hover{background:rgba(20,22,40,.9)}.sgd-btn:focus-visible,.sgd button:focus-visible{outline:3px solid #ffb86b;outline-offset:2px}" +
     ".sgd-float{position:fixed;left:14px;bottom:14px;z-index:2147483000;box-shadow:0 4px 14px rgba(0,0,0,.25)}" +
     ".navin .sgd-btn{margin-left:8px}" +
+    ".top-right .sgd-btn{margin:0 4px;flex:none}" +
     ".sgd{position:fixed;top:64px;right:14px;z-index:2147483001;width:min(340px,calc(100vw - 28px));max-height:calc(100vh - 80px);overflow:auto;background:#fdfbf7;color:#1d1b2c;border:1px solid #d9d3c7;border-radius:16px;box-shadow:0 14px 40px rgba(0,0,0,.28);padding:14px 16px;font:500 14px system-ui,sans-serif;text-align:left}" +
     ".sgd.low{top:auto;bottom:60px;left:14px;right:auto}" +
     ".sgd[hidden]{display:none}.sgd h2{font:700 18px system-ui,sans-serif;margin:0;color:#1d1b2c}" +
@@ -139,7 +140,9 @@
     var langs = document.querySelector("nav .langs"), navin = document.querySelector("nav .navin");
     panel = document.createElement("div"); panel.className = "sgd"; panel.hidden = true;
     panel.setAttribute("role", "dialog"); panel.setAttribute("aria-labelledby", "sgdT");
-    if (langs && langs.parentNode) langs.parentNode.insertBefore(btn, langs);
+    var slot = document.querySelector("[data-display-settings-slot]") || document.querySelector("header .top-right .lang");
+    if (slot && slot.parentNode) slot.parentNode.insertBefore(btn, slot);
+    else if (langs && langs.parentNode) langs.parentNode.insertBefore(btn, langs);
     else if (navin) navin.appendChild(btn);
     else { btn.classList.add("sgd-float"); panel.classList.add("low"); document.body.appendChild(btn); }
     document.body.appendChild(panel);
