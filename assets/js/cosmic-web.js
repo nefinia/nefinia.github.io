@@ -284,12 +284,6 @@
       const v=active.v; ctx.lineWidth=.8;
       active.spots.forEach(p=>{ ctx.strokeStyle='rgba(205,215,255,'+(.35*glow)+')'; ctx.beginPath(); ctx.moveTo(v.x+ox,v.y+oy); ctx.lineTo(p.x+ox,p.y+oy); ctx.stroke(); });
     }
-    if(!narrow){
-      const r=intro.getBoundingClientRect().right-web.getBoundingClientRect().left+40;
-      const g=ctx.createLinearGradient(0,0,r,0);
-      g.addColorStop(0,'rgba(4,5,11,.85)'); g.addColorStop(.7,'rgba(4,5,11,.55)'); g.addColorStop(1,'rgba(4,5,11,0)');
-      ctx.fillStyle=g; ctx.fillRect(0,0,r,H);
-    }
     SECTIONS.forEach(s=>{
       const x=s.v.x+ox, y=s.v.y+oy, w=s.el.offsetWidth, h=s.el.offsetHeight;
       const tx = s.side==='l'? x-w+14 : (s.side==='u'||s.side==='d')? x-w/2 : x-14;

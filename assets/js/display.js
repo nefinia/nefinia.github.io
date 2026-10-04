@@ -51,7 +51,9 @@
     "html[data-ds-flip] img,html[data-ds-flip] video,html[data-ds-flip] canvas,html[data-ds-flip] picture,html[data-ds-flip] iframe,html[data-ds-flip] svg image,html[data-ds-flip] [data-ds-keep]{filter:invert(1) hue-rotate(180deg)}" +
     "html[data-ds-flip] picture img{filter:none}" +
     "html[data-ds-flip] *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}" +
-    "html[data-ds-flip] body,html[data-ds-flip] .hero,html[data-ds-flip] header{background-image:none!important}" +
+    "html[data-ds-flip] body:not(.inner):not(:has(#web)),html[data-ds-flip] .hero:not(:has(#web)),html[data-ds-flip] header{background-image:none!important}" +
+    // starry pages: in the other theme the sky itself turns around too (dark stars and web on a light page)
+    "html[data-ds-flip] #cv{filter:none}" +
     "html[data-ds-font=readable] body,html[data-ds-font=readable] body *:not(svg *){font-family:'Atkinson Hyperlegible',system-ui,sans-serif!important}" +
     "html[data-ds-font=dyslexic] body,html[data-ds-font=dyslexic] body *:not(svg *){font-family:'OpenDyslexic',system-ui,sans-serif!important}" +
     "html[data-ds-font=serif] body,html[data-ds-font=serif] body *:not(svg *){font-family:Georgia,'Times New Roman',serif!important}" +
