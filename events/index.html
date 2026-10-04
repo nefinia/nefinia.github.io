@@ -613,7 +613,8 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const norm=s=>s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
 const PLAY='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>';
-const thumb=id=>`https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+const OWN_THUMBS=new Set(["FSFwsav9XY0","BD9RXGT6QyI","tMJFzrkMxTU"]); /* custom thumbnails hosted in events/thumbs/ */
+const thumb=id=>OWN_THUMBS.has(id)?`thumbs/${id}.jpg`:`https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
 const embed=(id,auto)=>`https://www.youtube-nocookie.com/embed/${id}?rel=0${auto?"&autoplay=1":""}`;
 
 /* ---------- Videos: poster first, iframe only on click ---------- */
