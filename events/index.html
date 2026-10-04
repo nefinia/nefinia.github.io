@@ -97,9 +97,13 @@
     .poster .big{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:78px;height:78px;border-radius:50%;background:rgba(251,247,241,.92);display:grid;place-items:center;z-index:1;box-shadow:0 10px 30px rgba(59,48,54,.25)}
     .poster .big svg{width:26px;height:26px;fill:var(--rose);margin-left:4px}
     .thumbs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
-    .thumb{aspect-ratio:16/9;border-radius:10px;border:2px solid transparent;padding:0;cursor:pointer;background:#e9e0da center/cover no-repeat;opacity:.8}
-    .thumb:hover{opacity:1}
-    .thumb[aria-current="true"]{border-color:var(--rose);opacity:1}
+    .thumb{display:flex;flex-direction:column;gap:6px;min-width:0;border:0;padding:0;background:none;cursor:pointer;text-align:left;font:inherit}
+    .thumb .img{display:block;aspect-ratio:16/9;border-radius:10px;border:2px solid transparent;background:#e9e0da center/cover no-repeat;opacity:.8}
+    .thumb:hover .img{opacity:1}
+    .thumb[aria-current="true"] .img{border-color:var(--rose);opacity:1}
+    .thumb .cap{font-size:12px;line-height:1.35;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .thumb[aria-current="true"] .cap{color:var(--ink)}
+    .now{margin:2px 0 0;text-align:center;font-family:var(--display);font-size:1.15rem;color:var(--ink);min-height:1.4em}
     .more{justify-self:center;background:none;border:0;color:var(--rose);font-size:15px;font-weight:500;cursor:pointer;text-decoration:underline;text-underline-offset:4px}
 
     /* Services */
@@ -261,6 +265,7 @@
       </div>
       <div class="stage">
         <div class="screen" id="screen"></div>
+        <p class="now" id="vidNow"></p>
         <div class="thumbs" id="thumbs"></div>
         <button class="more" type="button" id="moreVids" data-t="moreVids">Show all videos</button>
       </div>
@@ -419,7 +424,7 @@
 
 <script>
 /* ---------- Performance videos ---------- */
-const VIDEOS=["_RbtXcu2Ch4","BD9RXGT6QyI","KcGVe_4KJzc","tMJFzrkMxTU","yYZW344d488","Fkf3A3XVmEQ","0mj9CcjxChs","6k6E8tYep_0","8emqAGSG4H8","7tm1iom-E-4","CGF57tHqiJQ","WN8r6ex9YX4","TDxtjgeXANI","uGzw7Y1JY8k","XpCzFkTFMSg","qBfStE8NYME","-_ja1FDesAg","AhlXQqJiy0k","WVtugy2UwWQ","wfffXSyVoDE","1UC4t9cazUo","3kdCAhmFvlM","4K0ahW1Vcx0","FM2G42FLads","NHQyckktNGg","Q4pAM8IIy7k","zA4DlLaDZN4"];
+const VIDEOS=[["_RbtXcu2Ch4", "O mio babbino caro"],["BD9RXGT6QyI", "Por ti volaré"],["KcGVe_4KJzc", "Chandelier"],["qKzobJikkQ8", "Can't Help Falling in Love"],["tMJFzrkMxTU", "Por una cabeza"],["yYZW344d488", "Gabriel's Oboe"],["Fkf3A3XVmEQ", "Sofia"],["0mj9CcjxChs", "Bach — Prelude, Cello Suite No. 1"],["6k6E8tYep_0", "Déjame"],["8emqAGSG4H8", "Dying in the Sun"],["7tm1iom-E-4", "Viva la Vida · violin & piano"],["CGF57tHqiJQ", "My Way"],["WN8r6ex9YX4", "Hijo de la Luna"],["TDxtjgeXANI", "Méditation — Thaïs"],["uGzw7Y1JY8k", "The Godfather"],["XpCzFkTFMSg", "Here With Me"],["qBfStE8NYME", "Los momentos"],["-_ja1FDesAg", "Hasta mi final"],["AhlXQqJiy0k", "Linger · violin & guitar"],["WVtugy2UwWQ", "Born to Die"],["wfffXSyVoDE", "Here With Me"],["1UC4t9cazUo", "Canon in D · flute & violin"],["3kdCAhmFvlM", "Tus ojillos negros"],["4K0ahW1Vcx0", "My Immortal"],["FM2G42FLads", "Manifiesto"],["NHQyckktNGg", "Se tu m'ami"],["Q4pAM8IIy7k", "Insustancia"],["zA4DlLaDZN4", "Tus ojillos negros"]];
 
 /* ---------- Repertoire (y = YouTube id of a reference recording) ---------- */
 const CATS={
@@ -607,16 +612,17 @@ const embed=(id,auto)=>`https://www.youtube-nocookie.com/embed/${id}?rel=0${auto
 /* ---------- Videos: poster first, iframe only on click ---------- */
 function showPoster(i){
   vid=i;
-  $("#screen").innerHTML=`<button class="poster" type="button" style="background-image:url('${thumb(VIDEOS[i])}')" aria-label="${esc(dict[lang].playVideo)}"><span class="big">${PLAY}</span></button>`;
+  $("#screen").innerHTML=`<button class="poster" type="button" style="background-image:url('${thumb(VIDEOS[i][0])}')" aria-label="${esc(dict[lang].playVideo)}: ${esc(VIDEOS[i][1])}"><span class="big">${PLAY}</span></button>`;
+  $("#vidNow").textContent=VIDEOS[i][1];
   $("#screen .poster").addEventListener("click",()=>{
     stopSong();
-    $("#screen").innerHTML=`<iframe src="${embed(VIDEOS[i],true)}" title="${esc(dict[lang].vidTitle)}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+    $("#screen").innerHTML=`<iframe src="${embed(VIDEOS[i][0],true)}" title="${esc(VIDEOS[i][1])}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
   });
   renderThumbs();
 }
 function renderThumbs(){
   const list=allVids?VIDEOS:VIDEOS.slice(0,6);
-  $("#thumbs").innerHTML=list.map((id,i)=>`<button class="thumb" type="button" data-v="${i}" aria-current="${i===vid}" aria-label="${esc(dict[lang].playVideo)} ${i+1}" style="background-image:url('${thumb(id)}')"></button>`).join("");
+  $("#thumbs").innerHTML=list.map(([id,t],i)=>`<button class="thumb" type="button" data-v="${i}" aria-current="${i===vid}" aria-label="${esc(dict[lang].playVideo)}: ${esc(t)}"><span class="img" style="background-image:url('${thumb(id)}')"></span><span class="cap">${esc(t)}</span></button>`).join("");
   $("#moreVids").textContent=allVids?dict[lang].lessVids:dict[lang].moreVids;
 }
 $("#thumbs").addEventListener("click",e=>{const b=e.target.closest(".thumb"); if(b) showPoster(+b.dataset.v);});
