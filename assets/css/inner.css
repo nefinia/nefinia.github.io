@@ -1,6 +1,6 @@
 /* Inner pages: same world as the homepage (home.css tokens, Roboto + Roboto Mono, starfield), a readable column, no grey box. */
 body.inner{font-family:"Roboto",Helvetica,Arial,sans-serif;font-weight:400;font-size:17px;line-height:1.7}
-body.inner::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(4,5,11,.35),rgba(4,5,11,.78) 30%,rgba(4,5,11,.9))}
+body.inner::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(4,5,11,.3),rgba(4,5,11,.5) 30%,rgba(4,5,11,.62))}
 .page{max-width:1060px;margin:0 auto;padding:72px 16px 32px}
 .page > *{max-width:760px}
 .page > .wide,.page > .cards,.page > .grid,.page > section,.page > .video,.page > .feature,.page > .figs{max-width:none}
@@ -145,3 +145,9 @@ body.inner::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:n
 .page a.ev-btn:hover{background:var(--glow)}
 .page > .ev-cta{max-width:none}
 @media (max-width:760px){.events-intro .feature{grid-template-columns:1fr}.ev-photo{max-height:420px}}
+
+/* reading panel: a soft, semi-transparent field behind the text column */
+body.inner .page{position:relative}
+body.inner .page::before{content:"";position:absolute;z-index:-1;inset:28px -8px 0;border-radius:14px;background:rgba(6,8,18,.58);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);box-shadow:0 0 60px 30px rgba(6,8,18,.35);pointer-events:none}
+@media (max-width:760px){body.inner .page::before{inset:18px 0 0;border-radius:10px}}
+body.inner{isolation:isolate}
