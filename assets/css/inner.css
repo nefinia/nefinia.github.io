@@ -143,6 +143,7 @@ body.inner::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:n
 .ev-cta-h{font-family:var(--display);font-weight:900;font-size:clamp(22px,2.6vw,30px)!important;color:var(--ink)!important;margin:4px 0 18px!important}
 .page a.ev-btn{display:inline-block;font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:14px 24px;border:0;border-radius:2px;background:var(--ink);color:var(--void)}
 .page a.ev-btn:hover{background:var(--glow)}
+.page .ev-scores{margin-top:18px;font-size:15px;opacity:.85}
 .page > .ev-cta{max-width:none}
 @media (max-width:760px){.events-intro .feature{grid-template-columns:1fr}.ev-photo{max-height:420px}}
 
