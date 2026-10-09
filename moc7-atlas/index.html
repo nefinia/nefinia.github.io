@@ -619,7 +619,7 @@ const ASK_URL="";
 const KEY="moc7hive.v1";/* storage key kept so saved data survives */
 let store={stars:[],notes:{},hive:[],tab:"now",day:1,sim:"live",themes:[],hideEx:false,refs:{},saved:[],share:{},questions:[],profile:null,ai:{provider:"",model:"",base:"",remember:false,key:""}};
 try{const raw=localStorage.getItem(KEY);if(raw)Object.assign(store,JSON.parse(raw))}catch(e){}
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}};
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){};if(typeof syncTouch==="function")syncTouch()};
 const stars=()=>new Set(store.stars);
 
 /* -------------- helpers -------------- */
@@ -1123,6 +1123,7 @@ function privacyHtml(){
     <h3 style="font:400 1.35rem var(--f-display);color:var(--head)">Privacy</h3>
     <p style="margin:0">MoC7 Atlas is built to keep your data with you. There is no account, no cookies, no analytics and no advertising, and the page loads nothing from other websites: fonts and code are part of the page itself.</p>
     <div><b>What stays on this device</b><div class="where">Your saved talks, notes, references, profile, consensus answers and (only if you ask it to remember them) AI keys. They live in this browser's storage and nowhere else. You can download them or delete them all at any time below. Clearing your browser data also deletes them.</div></div>
+    ${SYNC_URL?`<div><b>Sync, only if you turn it on</b><div class="where">An encrypted copy of your profile, notes, saved items and consensus answers is kept so your other devices can fetch it. It is locked on this device with your private sync code before it is sent; the server cannot read it and holds no name, email or account. It is stored with Cloudflare in Western Europe, deleted 90 days after its last use, and you can delete it yourself at any time. AI keys are never synced.</div></div>`:""}
     <div><b>What leaves this device, and only when you do it</b><div class="where">Opening an outside link (an abstract, Google Scholar, a DOI). Using an AI option: your question goes to the company you choose, under your own account with them, often outside the EU. Sharing, emailing or downloading your notes: they go only where you send them. The website that serves this page keeps ordinary technical logs, like any website.</div></div>
     <div><b>Programme data</b><div class="where">Speaker names, affiliations and titles come from the public MoC7 programme on amcs-community.org.</div></div>
     <div><b>Shared work</b><div class="where">In this version nothing is shared with anyone. If a shared consensus board is added for the groups, it will be optional, anonymous unless you choose to show your name, stored in the EU, deleted after the conference once the organisers have exported it, and you will be able to delete anything you added.</div></div>
@@ -1316,7 +1317,7 @@ const initials=n=>(n||"").trim().split(/\s+/).map(w=>w[0]).slice(0,2).join("").t
 function viewProfile(){
   const p=store.profile||{};const signed=!!store.profile;
   return `<section class="stack">
-    <div><h2>Your profile</h2><p class="lede">Optional, and it never leaves this device: there is no account. Your group fills in automatically in Consensus, and you decide whether your name appears on anything you share and whether an AI may see your interests.</p></div>
+    <div><h2>Your profile</h2><p class="lede">Optional, and there is no account. ${SYNC_URL&&!IN_CLAUDE?"It stays on this device unless you turn on encrypted sync below.":"It never leaves this device."} Your group fills in automatically in Consensus, and you decide whether your name appears on anything you share and whether an AI may see your interests.</p></div>
     <form class="card form" id="pform" autocomplete="off">
       <label>Name<input class="inp" id="p-name" required maxlength="80" value="${esc(p.name||"")}" placeholder="Your name"></label>
       <label>Affiliation<input class="inp" id="p-aff" maxlength="120" value="${esc(p.aff||"")}" placeholder="University or organisation"></label>
@@ -1325,10 +1326,11 @@ function viewProfile(){
       <label class="full">Research interests<textarea class="inp" id="p-int" maxlength="600" placeholder="A few keywords or a sentence: e.g. micro-phenomenology, AI consciousness indicators, dreaming, formal models">${esc(p.interests||"")}</textarea></label>
       <label class="full" style="flex-direction:row;align-items:center;gap:8px;color:var(--ink)"><input type="checkbox" id="p-show" ${p.showName===true?"checked":""} style="width:auto"> Show my name on what I share</label>
       <div class="full row"><button class="btn primary" type="submit">Save profile</button>${signed?`<button class="btn ghost" type="button" data-act="signout">Clear profile</button>`:""}</div>
-      <div class="full where">Stored only in this browser. Nothing here is sent anywhere unless you choose to use an AI option with your interests.</div>
+      <div class="full where">Stored in this browser. It is sent nowhere unless you turn on sync (encrypted) or let an AI option see your interests.</div>
     </form>
     ${signed||store.stars.length||store.saved.length||store.hive.length||Object.keys(store.notes).length?`<div class="card"><div class="eyebrow">Take it with you</div><div class="where" style="margin:4px 0 10px">Everything in one file: your profile, saved talks and things you kept, notes, questions for speakers and consensus answers. Plain text, ready for a document, an email or any AI chat.</div>
       <div class="row"><button class="btn" data-act="pcopy">Copy</button><button class="btn ghost" data-act="pdl">Download (.md)</button></div></div>`:""}
+    ${syncCard()}
   </section>`;
 }
 function profileMarkdown(){
@@ -1589,6 +1591,68 @@ async function synthHive(items){
   SYNTHBUSY=false;render();
 }
 
+/* -------------- sync across devices (end-to-end encrypted) -------------- */
+/* A random sync code is the only key. The page derives an AES key and a storage id from it,
+   encrypts before sending, and the server only ever holds ciphertext. AI keys are never synced. */
+const SYNC_URL=ASK_URL?ASK_URL.replace(/\/*$/,"/sync"):"";
+const SYNC_FIELDS=["stars","notes","hive","refs","saved","questions","profile","themes","hideEx"];
+let SYNC={busy:false,err:"",timer:null};
+const syncPack=()=>JSON.stringify(Object.fromEntries(SYNC_FIELDS.map(k=>[k,store[k]])));
+const hashStr=t=>{let h=5381;for(let i=0;i<t.length;i++)h=(h*33^t.charCodeAt(i))>>>0;return h.toString(36)};
+const syncDirty=()=>!store.sync||hashStr(syncPack())!==store.sync.snap;
+const b64=u8=>{let s="";u8.forEach(c=>s+=String.fromCharCode(c));return btoa(s)};
+const unb64=t=>Uint8Array.from(atob(t),c=>c.charCodeAt(0));
+function newSyncCode(){const A="ABCDEFGHJKMNPQRSTUVWXYZ23456789";const r=crypto.getRandomValues(new Uint8Array(20));return [...r].map(x=>A[x%A.length]).join("").match(/.{4}/g).join("-")}
+const normCode=c=>String(c||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+async function syncKeys(code){const e=new TextEncoder();const c=normCode(code);
+  const raw=await crypto.subtle.digest("SHA-256",e.encode("moc7-atlas key "+c));
+  const id=[...new Uint8Array(await crypto.subtle.digest("SHA-256",e.encode("moc7-atlas id "+c)))].map(x=>x.toString(16).padStart(2,"0")).join("");
+  return {id,key:await crypto.subtle.importKey("raw",raw,"AES-GCM",false,["encrypt","decrypt"])}}
+async function syncCall(body){const r=await fetch(SYNC_URL,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});const d=await r.json().catch(()=>({}));if(r.status===404)return null;if(!r.ok)throw new Error(d.error||"Sync didn't work just now.");return d}
+function syncMerge(R){
+  if(!syncDirty()){SYNC_FIELDS.forEach(k=>{if(R[k]!==undefined)store[k]=R[k]});return}
+  const byId=(a,b)=>{const m=new Map();[...(b||[]),...(a||[])].forEach(x=>x&&m.set(x.id,x));return [...m.values()]};
+  store.stars=[...new Set([...(store.stars||[]),...(R.stars||[])])];
+  const n={...(R.notes||{})};Object.entries(store.notes||{}).forEach(([k,v])=>{const o=n[k]||"";n[k]=!o||o.includes(v)?(o||v):v.includes(o)?v:v+"\n\n"+o});store.notes=n;
+  const rf={...(R.refs||{})};Object.entries(store.refs||{}).forEach(([k,v])=>{const seen=new Set((rf[k]||[]).map(x=>x.url));rf[k]=[...(rf[k]||[]),...v.filter(x=>!seen.has(x.url))]});store.refs=rf;
+  store.saved=byId(store.saved,R.saved);store.hive=byId(store.hive,R.hive);store.questions=byId(store.questions,R.questions);
+  if(!store.profile&&R.profile)store.profile=R.profile;
+}
+async function syncNow(){
+  if(!SYNC_URL||!store.sync||!store.sync.code||SYNC.busy)return;SYNC.busy=true;SYNC.err="";let changed=false;
+  try{
+    const {id,key}=await syncKeys(store.sync.code);
+    const got=await syncCall({op:"get",id});
+    if(got&&got.updated!==store.sync.at){const [iv,ct]=got.blob.split(".");
+      const R=JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM",iv:unb64(iv)},key,unb64(ct))));
+      syncMerge(R);changed=true;store.sync.at=got.updated;store.sync.snap=hashStr(JSON.stringify(Object.fromEntries(SYNC_FIELDS.map(k=>[k,R[k]]))));}
+    if(!got||syncDirty()){const packed=syncPack();const iv=crypto.getRandomValues(new Uint8Array(12));
+      const ct=new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM",iv},key,new TextEncoder().encode(packed)));
+      const d=await syncCall({op:"put",id,blob:b64(iv)+"."+b64(ct)});store.sync.at=d.updated;store.sync.snap=hashStr(packed)}
+    store.sync.when=Date.now();
+  }catch(e){SYNC.err=e&&e.name==="OperationError"?"That code doesn't open this copy.":(e&&e.message)||"Sync didn't work just now."}
+  SYNC.busy=false;try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}
+  if(store.tab==="profile"||changed)render(true);
+}
+function syncTouch(){if(!SYNC_URL||!store.sync||!store.sync.code)return;clearTimeout(SYNC.timer);SYNC.timer=setTimeout(()=>{if(syncDirty())syncNow()},2500)}
+function syncStart(code){store.sync={code,at:null,snap:"",when:null};SYNC.err="";syncNow()}
+const syncLink=()=>location.href.split("#")[0]+"#sync="+normCode(store.sync.code);
+function syncCard(){
+  if(!SYNC_URL||IN_CLAUDE)return"";const S=store.sync;
+  if(!S||!S.code)return `<div class="card"><div class="eyebrow">Your other devices</div>
+    <div class="where" style="margin:4px 0 10px">Keep your profile, notes and saved talks the same on your phone and laptop. No email and no account: you get a private sync code, and everything is encrypted on this device before it leaves, so only someone with the code can read it.</div>
+    <div class="row"><button class="btn" data-act="syncon">Turn on sync</button></div>
+    <form class="ask" id="syncform" autocomplete="off" style="margin-top:10px"><input class="inp" id="syncin" placeholder="Code from your other device" autocapitalize="characters" spellcheck="false"><button class="btn ghost" type="submit">Connect</button></form></div>`;
+  const t=S.when?new Date(S.when).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}):"";
+  return `<div class="card"><div class="row" style="justify-content:space-between"><div class="eyebrow">Your other devices</div><span class="status ${SYNC.err?"warn":"ok"}">${SYNC.busy?"Syncing…":SYNC.err?"Not synced":"Synced"+(t?" · "+t:"")}</span></div>
+    ${SYNC.err?`<div class="where" style="margin-top:6px">${esc(SYNC.err)}</div>`:""}
+    <div class="where" style="margin:8px 0 4px">Your sync code. Open the link on your other device, or type the code there in Profile.</div>
+    <div style="font:600 1.05rem var(--f-mono);letter-spacing:.04em;margin-bottom:10px">${esc(S.code)}</div>
+    <div class="row"><button class="btn" data-act="synclink">Copy link for another device</button><button class="btn ghost" data-act="synccode">Copy code</button></div>
+    <div class="where" style="margin-top:10px">Keep it private: the code is the only key. If you lose it, nothing is lost here; turn sync on again for a new code. The encrypted copy is deleted 90 days after its last use.</div>
+    <div class="row" style="margin-top:8px"><button class="btn ghost" data-act="syncoff">Stop syncing on this device</button><button class="btn ghost" data-act="syncdel">Delete the synced copy</button></div></div>`;
+}
+
 /* -------------- render -------------- */
 const ITEMS_COUNT={talks:PT.length};
 function render(keepFocus){
@@ -1662,6 +1726,11 @@ document.addEventListener("click",e=>{
   if(act==="consent"){store.ai.consent=store.ai.consent||{};store.ai.consent[store.ai.provider]=true;CONSENTASK=false;save();if(DOCK&&DOCKQ){const q=DOCKQ;DOCKQ="";ASKDRAFT="";return askLLM(q)}toast("Thanks. Ask again");return render()}
   if(act==="backpeople"){PERSON=null;return render()}
   if(act==="backtopics"){TOPIC=null;return render()}
+  if(act==="syncon"){syncStart(newSyncCode());return render()}
+  if(act==="synclink"){copyText(syncLink());return}
+  if(act==="synccode"){copyText(store.sync.code);return}
+  if(act==="syncoff"){store.sync=null;save();toast("Sync is off on this device");return render()}
+  if(act==="syncdel"){(async()=>{try{const {id}=await syncKeys(store.sync.code);await syncCall({op:"delete",id});store.sync=null;save();toast("Synced copy deleted")}catch(err){toast("Couldn't delete it just now. Try again.")}render()})();return}
   if(act==="signout"){store.profile=null;save();toast("Profile cleared");return render()}
   if(act==="recs")return getRecs();
   if(act==="clearchat"){CHAT=[];return render()}
@@ -1714,6 +1783,7 @@ document.addEventListener("submit",e=>{
   if(e.target.id==="sform"){e.preventDefault();const title=$("#s-title").value.trim();if(!title)return;const raw=$("#s-url").value.trim();const r=raw?normRef(raw):null;
     if(raw&&!r){toast("That link doesn't look right. Paste a DOI, an arXiv id or a full link");return}
     store.saved.push({id:"s"+Date.now().toString(36),kind:r?"link":"note",key:"s"+Date.now(),title,url:r?r.url:"",note:$("#s-note").value.trim(),t:Date.now()});save();toast("Saved");return render()}
+  if(e.target.id==="syncform"){e.preventDefault();const c=normCode($("#syncin").value);if(c.length!==20){toast("The code has 20 letters and numbers");return}syncStart(c.match(/.{4}/g).join("-"));return render()}
   if(e.target.id==="dockform"){e.preventDefault();const i=$("#dockin");const v=i.value;if(v.trim()){i.value="";DOCKQ=v;return askLLM(v)}return}
   if(e.target.id==="askform"){e.preventDefault();const v=$("#askin").value;return askLLM(v)}
   if(e.target.id!=="hform")return;e.preventDefault();
@@ -1729,6 +1799,13 @@ document.addEventListener("toggle",e=>{},true);
 // initial day: during the week open today's programme
 window.addEventListener("resize",()=>{if(store.tab==="map"){clearTimeout(window.__rs);window.__rs=setTimeout(mountSky,200)}});
 try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{if(store.tab==="map")drawSky()})}catch(e){}
+(function initSync(){
+  if(!SYNC_URL||IN_CLAUDE)return;
+  const m=location.hash.match(/sync=([A-Za-z0-9-]+)/);
+  if(m){const c=normCode(m[1]);try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}if(c.length===20){syncStart(c.match(/.{4}/g).join("-"));setTimeout(()=>toast("This device is now synced"),600)}}
+  else if(store.sync&&store.sync.code)syncNow();
+  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")syncNow()});
+})();
 (function init(){finishOpenRouter();if(store.ai.provider==="openrouter"&&KEYMEM)loadORModels();const n=nowCph();if(!n.sim&&n.day>=0&&n.day<=5)store.day=n.day;render();setInterval(()=>{updateClock();if(store.tab==="now"&&!document.activeElement.matches("textarea,input"))render()},60000)})();
 </script>
 
