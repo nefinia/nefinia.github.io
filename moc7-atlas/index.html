@@ -1327,16 +1327,18 @@ function viewProfile(){
       <div class="full row"><button class="btn primary" type="submit">Save profile</button>${signed?`<button class="btn ghost" type="button" data-act="signout">Clear profile</button>`:""}</div>
       <div class="full where">Stored only in this browser. Nothing here is sent anywhere unless you choose to use an AI option with your interests.</div>
     </form>
-    ${signed?`<div class="card"><div class="eyebrow">Take it with you</div><div class="where" style="margin:4px 0 10px">Your profile and saved talks as plain text, ready for a document, an email or any AI chat.</div>
+    ${signed||store.stars.length||store.saved.length||store.hive.length||Object.keys(store.notes).length?`<div class="card"><div class="eyebrow">Take it with you</div><div class="where" style="margin:4px 0 10px">Everything in one file: your profile, saved talks and things you kept, notes, questions for speakers and consensus answers. Plain text, ready for a document, an email or any AI chat.</div>
       <div class="row"><button class="btn" data-act="pcopy">Copy</button><button class="btn ghost" data-act="pdl">Download (.md)</button></div></div>`:""}
   </section>`;
 }
 function profileMarkdown(){
-  const p=store.profile||{};const L=[`# ${p.name||"My profile"} · MoC7, Copenhagen, 12–16 October 2026`,""];
+  const p=store.profile||{};const L=[`# ${p.name?p.name+" · ":""}My MoC7, Copenhagen, 12–16 October 2026`,""];
   if(p.aff)L.push(`- Affiliation: ${p.aff}`);if(p.group)L.push(`- Discussion group: ${p.group}`);if(p.theme)L.push(`- Main theme: ${THEMES[p.theme]}`);
   if(p.interests)L.push("","## Research interests","",p.interests);
-  const its=store.stars.map(id=>ITEMS[id]).filter(Boolean).sort((a,b)=>a.day-b.day||a.s-b.s);
-  if(its.length){L.push("","## Saved talks and sessions","");its.forEach(it=>L.push(`- ${DAYS[it.day]} ${fmt(it.s)}–${fmt(it.e)}, ${it.room}: ${it.title}${it.name?` (${it.name})`:""}`))}
+  const sub=md=>md.replace(/^#\s[^\n]*\n?/,"").replace(/^(#+)\s/gm,"#$1 ").trim();
+  const notes=sub(notesMarkdown());if(notes)L.push("","## Saved talks, notes and things I kept","",notes);
+  const qs=store.questions.filter(q=>ITEMS[q.itemId]);if(qs.length){L.push("","## My questions for speakers","");qs.forEach(q=>L.push(`- ${ITEMS[q.itemId].title}: ${q.text}`))}
+  if(store.hive.length)L.push("","## Consensus answers","",sub(hiveMarkdown()));
   L.push("","Made with MoC7 Atlas, an unofficial companion to the MoC7 programme.");
   return L.join("\n");
 }
@@ -1679,7 +1681,7 @@ document.addEventListener("click",e=>{
   if(act==="wipe0"){WIPE=false;return render()}
   if(act==="wipe2"){try{localStorage.removeItem(KEY);localStorage.removeItem("moc7hive.pkce")}catch(err){}KEYMEM="";Object.keys(SESSKEYS).forEach(k=>delete SESSKEYS[k]);store={stars:[],notes:{},hive:[],tab:"now",day:1,sim:"live",themes:[],hideEx:false,refs:{},saved:[],share:{},questions:[],profile:null,ai:{provider:"",model:"",base:"",remember:false,key:"",keys:{}}};SKYPOS={};WIPE=false;CHAT=[];RECS=null;SYNTH=null;render();toast("Everything on this device was deleted");return}
   if(act==="pcopy"){copyText(profileMarkdown());return}
-  if(act==="pdl")return offerFile("my-moc7-profile.md",profileMarkdown());
+  if(act==="pdl")return offerFile("my-moc7.md",profileMarkdown());
   if(act==="mexport")return offerFile("my-moc7-notes.md",notesMarkdown());
   if(act==="mcopy")return copyText(notesMarkdown());
   if(act==="copymail"){const m="moc7-organisers@amcs.science";if(navigator.clipboard)navigator.clipboard.writeText(m).then(()=>toast("Copied"),()=>{const r=document.createRange();r.selectNodeContents($("#mail"));getSelection().removeAllRanges();getSelection().addRange(r)});return}
