@@ -1535,7 +1535,7 @@ function renderDock(){
   const on=!!ASK_URL&&!IN_CLAUDE;if(store.tab==="ask")DOCK=false;fab.hidden=!on||DOCK||store.tab==="ask";d.hidden=!on||!DOCK;if(!on||!DOCK)return;
   const r=aiReady();const P=PROVIDERS[store.ai.provider];
   const msgs=CHAT.map(m=>`<div class="msg ${m.role==="user"?"u":"a"} ${m.err?"err":""}">${esc(m.content)}</div>`).join("")+(ASKING?`<div class="msg a">${esc(ASKING)}</div>`:"");
-  const starters=["Which talks are about AI?","How do I get to the venue?","What's on this evening?"].map(q=>`<button class="chip" data-q="${esc(q)}">${esc(q)}</button>`).join("");
+  const starters=["Which keynotes shouldn't I miss?","What's on this evening?","How do I get to the venue?"].map(q=>`<button class="chip" data-q="${esc(q)}">${esc(q)}</button>`).join("");
   const keep=document.activeElement&&document.activeElement.id==="dockin";const draft=($("#dockin")||{}).value||"";
   d.innerHTML=`<header><b>Ask about MoC7</b><button class="x" data-act="dockx" aria-label="Close">×</button></header>
     <div class="body" id="dockbody">${CHAT.length?`<div class="chat">${msgs}</div>`:`<div class="where">Talks, speakers, rooms, times, travel. Answers come from the programme.</div><div class="chips">${starters}</div>`}
