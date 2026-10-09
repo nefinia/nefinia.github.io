@@ -614,7 +614,7 @@ CS.forEach(([no,day,st,en,place,focus])=>{const id="cs-"+no;ITEMS[id]={id,kind:"
 /* Who runs this copy of the app. Leave empty to hide the contact line. */
 const HOST={name:"",email:""};
 /* The free conference assistant (a small Cloudflare Worker). Leave empty to hide it. */
-const ASK_URL="";
+const ASK_URL="https://moc7-ask.sofiag-gallego.workers.dev/";
 /* -------------- storage -------------- */
 const KEY="moc7hive.v1";/* storage key kept so saved data survives */
 let store={stars:[],notes:{},hive:[],tab:"now",day:1,sim:"live",themes:[],hideEx:false,refs:{},saved:[],share:{},questions:[],profile:null,ai:{provider:"",model:"",base:"",remember:false,key:""}};
