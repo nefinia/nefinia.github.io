@@ -246,6 +246,7 @@ a.tag:hover{border-color:var(--accent);color:var(--accent)}
 .synth{white-space:pre-wrap;line-height:1.5;font-size:.93rem}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:99px;font-size:.88rem;font-weight:600;z-index:50}
 @media (prefers-reduced-motion:no-preference){.card,.item{transition:box-shadow .2s}}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;border:0;background:var(--head);color:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.18);z-index:40}
 .fab:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .dock{position:fixed;right:18px;bottom:calc(86px + env(safe-area-inset-bottom,0px));width:min(380px,calc(100vw - 24px));max-height:min(560px,72vh);display:flex;flex-direction:column;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.18);z-index:41;overflow:hidden}
@@ -1091,10 +1092,10 @@ function viewMine(){
   return `<section class="stack">
     <div><h2>Saved</h2><p class="lede">Your agenda, plus anything else you want to keep: people, topics, papers, links, an idea from the coffee queue. It all stays on this device until you download it.</p></div>
     <form class="card form" id="sform" autocomplete="off">
-      <div class="full eyebrow">Save anything</div>
-      <label class="full">What is it?<input class="inp" id="s-title" required maxlength="200" placeholder="A paper, a person to email, a thought, a café…"></label>
+      <div class="full eyebrow">Write a note</div>
+      <label class="full"><span class="sr-only">Note</span><textarea class="inp" id="s-note" maxlength="6000" style="min-height:150px" placeholder="An idea from a talk, a question to follow up, a person to email, a paper to read, a café…"></textarea></label>
+      <label>Title (optional)<input class="inp" id="s-title" maxlength="200" placeholder="Otherwise the first line"></label>
       <label>Link, DOI or arXiv id (optional)<input class="inp" id="s-url" placeholder="10.1038/… or https://…"></label>
-      <label>Note (optional)<input class="inp" id="s-note" maxlength="400" placeholder="Why it matters"></label>
       <div class="full row"><button class="btn primary" type="submit">Save</button></div>
     </form>
     <div><h3 style="font:400 1.3rem var(--f-display);color:var(--head)">My agenda</h3></div>
@@ -1516,7 +1517,7 @@ function viewAsk(){
       ${a.provider==="local"?`<div class="full where">Allow browser access on your server (for Ollama: OLLAMA_ORIGINS=*). Nothing leaves your computer.</div>`:""}
     </div>`;
   }
-  const msgs=CHAT.map(m=>`<div class="msg ${m.role==="user"?"u":"a"} ${m.err?"err":""}">${esc(m.content)}</div>`).join("");
+  const msgs=chatHtml();
   const recs=RECS?RECS.map(x=>{const it=ITEMS[x.id];if(!it)return"";const on=stars().has(it.id);return `<div class="rec"><div class="row" style="justify-content:space-between;flex-wrap:nowrap;align-items:start"><div style="min-width:0"><div class="where">${DAYS[it.day]} · ${fmt(it.s)} · ${esc(it.room)}</div><b>${esc(it.title)}</b><div class="where">${esc(it.name)}</div><div class="why">${esc(x.why||"")}</div></div><button class="ico ${on?"on":""}" data-act="star" data-id="${it.id}" aria-pressed="${on}" aria-label="Save">${SV.star}</button></div></div>`}).join(""):"";
   return `<section class="stack">
     <div><h2>Ask</h2><p class="lede">Use whichever AI you like, on your phone or laptop. Nothing here needs an AI; this is an extra.</p></div>
@@ -1550,11 +1551,13 @@ function viewAsk(){
   </section>`;
 }
 let DOCK=false,DOCKQ="";
+const mdLite=t=>esc(t).replace(/\*\*([^*\n]+)\*\*/g,"<b>$1</b>").replace(/^#{1,4}\s+/gm,"");
+function chatHtml(){return CHAT.map((m,i)=>m.role==="user"?`<div class="msg u">${esc(m.content)}</div>`:`<div class="msg a ${m.err?"err":""}">${mdLite(m.content)}${m.err?"":`<div style="margin-top:6px"><button class="btn ghost" style="padding:2px 8px;font-size:.8rem" data-saveans="${i}" ${m.saved?"disabled":""}>${m.saved?"Saved to notes":"Save to notes"}</button></div>`}</div>`).join("")}
 function renderDock(){
   const fab=$("#fab"),d=$("#dock");if(!fab||!d)return;
   const on=!!ASK_URL&&!IN_CLAUDE;if(store.tab==="ask")DOCK=false;fab.hidden=!on||DOCK||store.tab==="ask";d.hidden=!on||!DOCK;if(!on||!DOCK)return;
   const r=aiReady();const P=PROVIDERS[store.ai.provider];
-  const msgs=CHAT.map(m=>`<div class="msg ${m.role==="user"?"u":"a"} ${m.err?"err":""}">${esc(m.content)}</div>`).join("")+(ASKING?`<div class="msg a">${esc(ASKING)}</div>`:"");
+  const msgs=chatHtml()+(ASKING?`<div class="msg a">${esc(ASKING)}</div>`:"");
   const starters=["What's happening now?","What's on this evening?","How do I get to the venue?"].map(q=>`<button class="chip" data-q="${esc(q)}">${esc(q)}</button>`).join("");
   const keep=document.activeElement&&document.activeElement.id==="dockin";const draft=($("#dockin")||{}).value||"";
   d.innerHTML=`<header><b>Ask about MoC7</b><button class="x" data-act="dockx" aria-label="Close">×</button></header>
@@ -1696,6 +1699,7 @@ document.addEventListener("click",e=>{
   if(t.dataset.topicl){e.preventDefault();TOPIC=t.dataset.topicl;return go("topics")}
   if(t.matches("summary")){const d=t.parentElement;const key=d.dataset.par;setTimeout(()=>{if(d.open)OPEN_PAR.add(key);else OPEN_PAR.delete(key);t.textContent=d.open?"Hide talks":"Show all talks"});return}
   const ds=t.dataset;
+  if(ds.saveans!=null){const i=+ds.saveans;const m=CHAT[i];if(!m||m.saved)return;const q=(CHAT[i-1]&&CHAT[i-1].role==="user")?CHAT[i-1].content:"Answer";store.saved.push({id:"s"+Date.now().toString(36),kind:"note",key:"s"+Date.now(),title:q.length>120?q.slice(0,118)+"…":q,url:"",note:m.content.replace(/\*\*/g,"").replace(/^#{1,4}\s+/gm,""),t:Date.now()});m.saved=true;save();toast("Saved to your notes");return render(true)}
   if(ds.tab)return go(ds.tab);
   if(ds.go)return go(ds.go);
   if(ds.day!=null){store.day=+ds.day;PDAY=null;QUERY="";save();return render()}
@@ -1785,9 +1789,9 @@ document.addEventListener("submit",e=>{
   if(e.target.id==="pform"){e.preventDefault();const name=$("#p-name").value.trim();if(!name){$("#p-name").focus();return}
     store.profile={name,aff:$("#p-aff").value.trim(),group:$("#p-group").value,theme:$("#p-theme").value,interests:$("#p-int").value.trim(),showName:$("#p-show").checked};
     if(store.profile.group)store.lastGroup=store.profile.group;save();toast("Profile saved on this device");return go("now")}
-  if(e.target.id==="sform"){e.preventDefault();const title=$("#s-title").value.trim();if(!title)return;const raw=$("#s-url").value.trim();const r=raw?normRef(raw):null;
+  if(e.target.id==="sform"){e.preventDefault();const nv=$("#s-note").value.trim();let title=$("#s-title").value.trim();let body=nv;if(!title&&nv){const ls=nv.split("\n");const fl=ls[0];if(fl.length>80){title=fl.slice(0,78)+"…"}else{title=fl;body=ls.slice(1).join("\n").trim()}}if(!title){$("#s-note").focus();return}const raw=$("#s-url").value.trim();const r=raw?normRef(raw):null;
     if(raw&&!r){toast("That link doesn't look right. Paste a DOI, an arXiv id or a full link");return}
-    store.saved.push({id:"s"+Date.now().toString(36),kind:r?"link":"note",key:"s"+Date.now(),title,url:r?r.url:"",note:$("#s-note").value.trim(),t:Date.now()});save();toast("Saved");return render()}
+    store.saved.push({id:"s"+Date.now().toString(36),kind:r?"link":"note",key:"s"+Date.now(),title,url:r?r.url:"",note:body,t:Date.now()});save();toast("Saved");return render()}
   if(e.target.id==="syncform"){e.preventDefault();const c=normCode($("#syncin").value);if(c.length!==20){toast("The code has 20 letters and numbers");return}syncStart(c.match(/.{4}/g).join("-"));return render()}
   if(e.target.id==="dockform"){e.preventDefault();const i=$("#dockin");const v=i.value;if(v.trim()){i.value="";DOCKQ=v;return askLLM(v)}return}
   if(e.target.id==="askform"){e.preventDefault();const v=$("#askin").value;return askLLM(v)}
