@@ -1466,7 +1466,7 @@ async function llm(system,turns,{onText,signal,task="ask"}={}){
     let res,data;
     const nowTxt=new Date().toLocaleString("en-GB",{timeZone:"Europe/Copenhagen",weekday:"long",day:"numeric",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"});
     if(task==="ask"&&turns.length){turns=turns.map((t,i)=>i===turns.length-1?{...t,content:`[Current time in Copenhagen: ${nowTxt}.] ${t.content}`}:t)}
-    try{res=await fetch(ASK_URL,{method:"POST",signal,headers:{"content-type":"application/json"},body:JSON.stringify({task,turns,id:atlasId(),profile:`Now in Copenhagen: ${new Date().toLocaleString("en-GB",{timeZone:"Europe/Copenhagen",weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}.`+(store.ai.useProfile?" "+profileLine():"")})});data=await res.json()}
+    try{res=await fetch(ASK_URL,{method:"POST",signal,headers:{"content-type":"application/json"},body:JSON.stringify({task,turns,id:atlasId(),profile:`Now in Copenhagen: ${new Date().toLocaleString("en-GB",{timeZone:"Europe/Copenhagen",weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}.`+(task==="ask"&&turns.length?((n)=>n?" Booklet notes: "+n:"")(practicalFor(turns[turns.length-1].content.replace(/^\[Current time[^\]]*\]\s*/,""))):"")+(store.ai.useProfile?" "+profileLine():"")})});data=await res.json()}
     catch(e){throw{code:"offline"}}
     if(typeof data.left==="number")ATLAS_LEFT=data.left;
     if(!res.ok)throw{code:"atlas",message:data.error||"The assistant couldn't answer just now."};
@@ -1506,7 +1506,22 @@ async function llm(system,turns,{onText,signal,task="ask"}={}){
 }
 
 const itemLine=it=>`${DAYS[it.day]} ${fmt(it.s)}–${fmt(it.e)} | ${it.room} | ${it.kind}${it.name?` | ${it.name}${it.aff?" ("+it.aff+")":""}`:""} | ${it.title}${it.sess?` | session: ${SESS[it.sess][4]}`:""}`;
-const VENUE=`MoC7 (Models of Consciousness 7), University of Copenhagen, 12–16 October 2026. Venue HC Ørsted Institute (HCØ), Universitetsparken 5: keynotes Auditorium 1, parallel sessions Auditoria 2–5, discussion sessions classrooms A101–A112 (1st floor), workshop Auditorium 8; Niels Bohr Building (NBB) opposite. Metro M3 Vibenshus Runddel; buses 150S, 173E, 184, 185. Wi-Fi eduroam or KU Guest. Wednesday: buses to Louisiana Museum 12:50 from Universitetsparken 15, no backpacks or laptops, return 19:00. Thursday dinner 19:00 Food Club Nørrebro (if booked). Friday farewell 16:00 Maersk Tower. Organisers: moc7-organisers@amcs.science.`;
+const BOOKLET="https://amcs-community.org/wp-content/uploads/2026/10/moc7-booklet-web-full.pdf";
+// Practical facts from the booklet: [keywords, fact]. All go into the full context; matching ones ride along with hosted questions.
+const PRACTICAL=[
+ [/signal|group|chat|whatsapp|social|qr|join|meet ?up|people|friends|plans?\b|evening|tonight|drinks?|bar\b|tivoli|carlsberg|party|inferno/i,`Social plans (Carlsberg on Sunday, Tivoli on Tuesday, the Friday party) are organised in the "MoC7 socials" Signal group: join by scanning the QR code on page 3 of the booklet (${BOOKLET}). Tivoli and Carlsberg also have their own Signal groups, linked on booklet pages 13 and 8.`],
+ [/tivoli|tuesday evening|illumination/i,"Tuesday evening, Tivoli (self-organised): Halloween illuminations every 30 minutes, 19:30–21:30; tickets at the entrance or online."],
+ [/party|inferno|friday (night|evening)|dance/i,"Friday party (self-organised) from 18:00 at Inferno, Istedgade 36."],
+ [/farewell|bubbles|maersk|friday/i,"Friday farewell bubbles 16:00–18:00, Maersk Tower 15th floor (Blegdamsvej 3B), about 15 minutes' walk from HCØ."],
+ [/dinner|food club|thursday (night|evening)|restaurant/i,"Conference dinner Thursday 19:00 at Food Club Nørrebro, Sortedam Dossering 7C (€75, booked at registration; buffet with vegetarian, vegan and gluten-free options), about 20 minutes' walk from HCØ."],
+ [/lunch|food|eat|canteen|sandwich|coffee|hungry/i,"Lunch 12:20–13:30 at the HCØ canteen in front of Auditorium 1 (Mon, Tue, Thu), paid individually; Friday lunch at NBB; Wednesday sandwiches on the bus to Louisiana."],
+ [/reception|monday (evening|afternoon)|welcome/i,"Welcome reception Monday 16:00–18:30 at the Niels Bohr Building, included in registration."],
+ [/emergenc|112|doctor|hurt|first aid|defibrillator|sick/i,"Emergencies: call 112. Defibrillators and first-aid kits are marked on the HCØ map (booklet p. 18)."],
+ [/contact|organi[sz]er|support|lost|email/i,"Questions: moc7-organisers@amcs.science. Local support: Nina Rajcic and Sandrine Rose Schiller Hansen."],
+ [/desk|workspace|place to work|quiet place|climb/i,"Desks to work at on the 1st floor near the classrooms; a climbing wall is two minutes from HCØ."],
+];
+function practicalFor(q,max=520){let out="";for(const[re,f]of PRACTICAL){if(re.test(q)&&out.length+f.length<=max)out+=(out?" ":"")+f}return out}
+const VENUE=`MoC7 (Models of Consciousness 7), University of Copenhagen, 12–16 October 2026. Venue HC Ørsted Institute (HCØ), Universitetsparken 5: keynotes Auditorium 1, parallel sessions Auditoria 2–5, discussion sessions classrooms A101–A112 (1st floor), workshop Auditorium 8; Niels Bohr Building (NBB) opposite. Metro M3 Vibenshus Runddel; buses 150S, 173E, 184, 185. Wi-Fi eduroam or KU Guest. Wednesday: buses to Louisiana Museum 12:50 from Universitetsparken 15, no backpacks or laptops, return 19:00. Thursday dinner 19:00 Food Club Nørrebro (if booked). Friday farewell 16:00 Maersk Tower. Organisers: moc7-organisers@amcs.science. ${PRACTICAL.map(x=>x[1]).join(" ")}`;
 function programmeContext(){
   const lines=Object.values(ITEMS).sort((a,b)=>a.day-b.day||a.s-b.s).map(it=>`[${it.id}] `+itemLine(it));
   const ev=EV.filter(e=>e[3]==="social"||e[3]==="travel"||e[3]==="break").map(e=>`${DAYS[e[0]]} ${e[1]}–${e[2]} | ${e[4]}${e[5]?" | "+e[5]:""}`);
