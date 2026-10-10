@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          sudo apt-get install -y -q poppler-utils zbar-tools >/dev/null
+          sudo apt-get update -q >/dev/null && sudo apt-get install -y -q poppler-utils zbar-tools >/dev/null
           mkdir out && cd out
           curl -sSL -A "Mozilla/5.0" -o ../b.pdf https://amcs-community.org/wp-content/uploads/2026/10/moc7-booklet-web-full.pdf
           file ../b.pdf > info.txt; pdfinfo ../b.pdf >> info.txt || true
