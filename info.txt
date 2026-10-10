@@ -1,0 +1,18 @@
+../b.pdf: PDF document, version 1.7 (zip deflate encoded)
+Creator:         Typst 0.15.0
+CreationDate:    Sun Oct  4 14:29:18 2026 UTC
+ModDate:         Sun Oct  4 14:29:18 2026 UTC
+Custom Metadata: no
+Metadata Stream: yes
+Tagged:          yes
+UserProperties:  no
+Suspects:        no
+Form:            none
+JavaScript:      no
+Pages:           124
+Encrypted:       no
+Page size:       498.898 x 708.661 pts
+Page rot:        0
+File size:       2968881 bytes
+Optimized:       no
+PDF version:     1.7
