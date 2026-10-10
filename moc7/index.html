@@ -294,7 +294,7 @@ a.tag:hover{border-color:var(--accent);color:var(--accent)}
     <div class="brand"><h1>MoC7 <em>Atlas</em></h1><small><span class="long">Unofficial guide to Models of Consciousness 7 · Copenhagen, 12–16 Oct</span><span class="short">Unofficial guide to MoC7</span></small></div>
     <span class="clock" id="clock">—</span>
     <button class="me" id="installBtn" hidden aria-label="Install MoC7 Atlas as an app"><span class="av" aria-hidden="true">↓</span><span>Install</span></button>
-    <button class="me" id="meBtn" data-go="profile" aria-label="Your profile"><span class="av" id="meAv">?</span><span id="meName">Profile</span></button>
+    <button class="me" id="meBtn" data-go="profile" aria-label="Your profile"><span class="av" id="meAv"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c1.2-3.6 4-5.4 7-5.4s5.8 1.8 7 5.4"/></svg></span><span id="meName">Profile</span></button>
     <nav class="tabs" role="tablist" id="tabs">
       <button role="tab" data-tab="now">Now</button>
       <button role="tab" data-tab="prog">Programme</button>
@@ -1384,8 +1384,9 @@ function profileMarkdown(){
   L.push("","Made with MoC7 Atlas, an unofficial companion to the MoC7 programme.");
   return L.join("\n");
 }
+const ME_ICON='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c1.2-3.6 4-5.4 7-5.4s5.8 1.8 7 5.4"/></svg>';
 function updateMe(){
-  const p=store.profile;$("#meAv").textContent=p?initials(p.name):"?";$("#meName").textContent=p?p.name.split(" ")[0]:"Profile";
+  const p=store.profile;const av=$("#meAv");if(p)av.textContent=initials(p.name);else av.innerHTML=ME_ICON;$("#meName").textContent=p?p.name.split(" ")[0]:"Profile";
 }
 
 /* -------------- assistant: bring your own model -------------- */
