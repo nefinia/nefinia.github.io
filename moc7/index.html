@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>MoC7 Atlas</title>
+<meta name="author" content="Sofia Gallego">
 <meta name="description" content="A calm companion for Models of Consciousness 7 (Copenhagen, 12–16 October 2026): programme, posters, people, topics, a map of how the talks connect, and the consensus sessions. Everything stays on your device.">
 <meta name="theme-color" content="#2b2257">
 <link rel="canonical" href="https://sofiagallego.com/moc7/">
@@ -304,6 +305,7 @@ a.tag:hover{border-color:var(--accent);color:var(--accent)}
     <nav class="tabs" role="tablist" id="tabs">
       <button role="tab" data-tab="now">Now</button>
       <button role="tab" data-tab="prog">Programme</button>
+      <button role="tab" data-tab="social">Social</button>
       <button role="tab" data-tab="posters">Posters</button>
       <button role="tab" data-tab="people">People</button>
       <button role="tab" data-tab="topics">Topics</button>
@@ -318,8 +320,9 @@ a.tag:hover{border-color:var(--accent);color:var(--accent)}
 <div class="wrap" id="welcome" hidden><div class="welcome"><span>Plan your week at Models of Consciousness 7: browse the programme, save talks, take notes, and see how the ideas connect. Nothing to sign up for, and everything you save stays on your phone.</span><button class="btn primary" id="welcomeOk">OK</button></div></div>
 <main class="wrap" id="view"></main>
 <footer><div class="wrap">
-  <span>The MoC7 conference app. Times and rooms follow the booklet; the full programme with abstracts is on <a href="https://amcs-community.org/moc7-schedule-information/" target="_blank" rel="noopener">amcs-community.org</a></span>
+  <span>The MoC7 conference app. Times and rooms follow the official programme, checked every hour; the full programme with abstracts is on <a href="https://amcs-community.org/moc7-schedule-information/" target="_blank" rel="noopener">amcs-community.org</a></span>
   <span>Everything you save stays on this device. No account, no cookies, no tracking. <button class="btn ghost" data-act="privacy" style="padding:0 4px;font-size:inherit;color:var(--accent)">Privacy</button>.</span>
+  <span>Designed and built by <a href="https://sofiagallego.com" target="_blank" rel="noopener">Sofia Gallego</a>.</span>
 </div></footer>
 <div class="toast" id="toast" hidden></div>
 <div class="installsheet" id="installSheet" hidden role="dialog" aria-label="Install MoC7 Atlas"><div class="card stack" style="gap:8px">
@@ -669,6 +672,32 @@ const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){};i
 const stars=()=>new Set(store.stars);
 
 /* -------------- helpers -------------- */
+// Live updates: the hourly programme check publishes live.json next to the app with any official changes since the booklet
+let LIVE=null;
+const WEEKDAY={Sunday:0,Monday:1,Tuesday:2,Wednesday:3,Thursday:4,Friday:5};
+function applyLive(d){
+  const list=[];
+  for(const[k,c]of Object.entries((d&&d.changes)||{})){
+    const id=k.replace(/^moc7-/,"");const it=ITEMS[id];const who=String(c.name||(it&&it.name)||"").replace(/^P?\d+\s+/,"");
+    if(c.added){list.push({id:null,who,what:`New in the programme: ${c.title}${c.slot?" · "+c.slot.replace(/^\w+\s+/,""):""}`});continue}
+    if(c.removed){list.push({id:it?id:null,who,what:`No longer in the official programme: ${c.title}`});continue}
+    if(!it)continue;
+    if(c.slot){const m=c.slot.match(/(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday)[^·]*·\s*(\d{1,2}:\d{2})\s*[–-]\s*(\d{1,2}:\d{2})\s*·\s*(.+)$/);
+      if(m){it.day=WEEKDAY[m[1]];it.s=toMin(m[2]);it.e=toMin(m[3]);it.room=m[4].trim()}
+      list.push({id,who,what:`Now ${c.slot.replace(/^\w+\s+/,"")}${c.was&&c.was.slot?` (was ${c.was.slot.replace(/^\w+\s+/,"")})`:""}`})}
+    if(c.title){it.title=c.title;list.push({id,who,what:`New title: ${c.title}`})}
+    if(c.name){it.name=c.name.replace(/^P?\d+\s+/,"");list.push({id,who,what:`Speaker now: ${it.name}`})}
+  }
+  LIVE={updated:d&&d.updated,list};
+}
+async function loadLive(){try{const r=await fetch("live.json",{cache:"no-store"});if(!r.ok)return;applyLive(await r.json());if(LIVE.list.length&&!document.activeElement.matches("textarea,input"))render()}catch(e){}}
+function liveNote(){
+  if(!LIVE||!LIVE.list.length)return"";
+  const when=LIVE.updated?new Date(LIVE.updated).toLocaleString("en-GB",{timeZone:"Europe/Copenhagen",weekday:"short",hour:"2-digit",minute:"2-digit"}):"";
+  return `<div class="welcome" style="margin:0 0 14px;display:block"><b>Programme updated by the organisers${when?" · "+esc(when):""}</b> <span class="where">${LIVE.list.length} change${LIVE.list.length>1?"s":""} since the booklet, already shown in the app.</span>
+    <details style="margin-top:4px"><summary style="cursor:pointer">See what changed</summary><ul style="margin:6px 0 0;padding-left:18px">${LIVE.list.map(x=>`<li><b>${esc(x.who)}</b>: ${esc(x.what)}</li>`).join("")}</ul></details></div>`;
+}
+function liveText(){return LIVE&&LIVE.list.length?"Official programme changes since the booklet (these override the programme): "+LIVE.list.map(x=>`${x.who}: ${x.what}`).join("; ")+". ":""}
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const $=s=>document.querySelector(s);
 const SV={
@@ -1189,6 +1218,41 @@ async function shareText(title,text){
 const mailtoHref=(sub,body)=>`mailto:?subject=${enc(sub)}&body=${enc(body.length>1800?body.slice(0,1800)+"\n\n[…the full version is in the download]":body)}`;
 
 /* ---- info ---- */
+const BOOKLET="https://amcs-community.org/wp-content/uploads/2026/10/moc7-booklet-web-full.pdf";
+const SIGNAL={socials:"https://signal.group/#CjQKIDl39UIxE1aGvSL3Utild1mJTW8fr6UmBwmFuK0oTDc1EhBFEZyRSAKlovbPKHu79Jl3",carlsberg:"https://signal.group/#CjQKIITltEWK6E7DNGudEaau2DYjPthDl1yTxojjURCGs1HtEhBGHQo6aQcSou-1SLPPwzB_",tivoli:"https://signal.group/#CjQKIPJTc7iP1GFWYNnmNB7lZHAhBiocUXtzxGyfMIiIKzJYEhDbml95p2K2uYhYU-r0YqHA"};
+// Social programme, from the booklet (pp. 8–14). Links come from the booklet's own QR codes.
+const MAPQ=a=>"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(a);
+const SOCIAL=[
+ {day:0,items:[
+  {t:"Copenhagen Show & drinks",when:"15:00, 16:30 or 18:00",where:"Next House, Bernstorffsgade 27, by Central Station",tag:"Paid separately",d:"A comedy show about Danish culture in the underground cinema room, then a drink together (drinks not included). Up to 50 people per show, first come, first served. Arriving Saturday? Take an early show so Sunday arrivals can have the late one.",links:[["Book a show","https://billetto.dk/en/e/copenhagen-show-billetter-1768525"],["Map",MAPQ("Next House Copenhagen, Bernstorffsgade 27")]]},
+  {t:"Home of Carlsberg & a draught",when:"Afternoon, time agreed in Signal",where:"Carlsberg Byen",tag:"Self-organised",d:"The museum on the original 1847 brewery grounds, ending at the Carlsberg Bar with a perfectly poured draught.",links:[["Carlsberg Signal group",SIGNAL.carlsberg],["Map",MAPQ("Home of Carlsberg, Copenhagen")]]},
+  {t:"Christiania & a free walking tour",when:"Sunday morning",where:"Christiania and the historical centre",tag:"Suggestion",d:"The organisers' tip for the morning before everything starts."}]},
+ {day:1,items:[
+  {t:"Welcome reception",when:"16:00–18:30",where:"Niels Bohr Building, opposite HCØ",tag:"Included",d:"Welcome speeches in Margrethe Bohr Salen and Robert Sunderland on the Copenhagen Quantum Spirit, then the Troposphere atrium and the Inge Lehmann gardens. Drinks and dinner after are self-organised.",links:[["Map",MAPQ("Niels Bohr Building, Jagtvej 155, Copenhagen")]]}]},
+ {day:2,items:[
+  {t:"Art & chill",when:"From the first coffee break until Wednesday noon",where:"Auditorium 8, HCØ",tag:"Open",d:"Svend Sømod's acoustic and light installation, with mathematical furniture to zone out in during the breaks."},
+  {t:"Tivoli Halloween illuminations",when:"Right after the last session · shows every 30 min, 19:30–21:30",where:"Tivoli Gardens",tag:"Self-organised",d:"One of the oldest amusement parks in the world. Tickets at the gate or online; the meeting point is set in the Signal group.",links:[["Tivoli Signal group",SIGNAL.tivoli],["Illuminations","https://www.tivoli.dk/en/programme/events/illuminationer-hit-2026"],["Map",MAPQ("Tivoli Gardens, Copenhagen")]]}]},
+ {day:3,items:[
+  {t:"Louisiana Museum of Modern Art",when:"Buses 12:50 · back 19:00",where:"Pick-up at Universitetsparken 15, by the street",tag:"Included · fully booked",d:"Sandwiches on the bus along the coast, a creative workshop at 15:00, free time in the museum and sculpture park, then Evan Thompson's keynote and the Mind & Matter Ceremony at 18:00. Leave backpacks and laptops at home. Not booked? The talks are live-streamed.",links:[["Map",MAPQ("Universitetsparken 15, Copenhagen")]]}]},
+ {day:4,items:[
+  {t:"Conference dinner",when:"19:00",where:"Food Club Nørrebro, Sortedam Dossering 7C",tag:"If booked · €75",d:"Communal dining at long shared tables, buffet-style, with vegetarian, vegan and gluten-free options. 20 minutes on foot from HCØ along the Lakes. Not booked? Try Absalon or Send Flere Krydderier, and book early.",links:[["Food Club","https://www.madklubben.dk/restauranter/koebenhavn/food-club/noerrebro"],["Communal dining","https://www.visitcopenhagen.com/copenhagen/eat-drink/restaurants/communal-dining-in-copenhagen"],["Map",MAPQ("Food Club Nørrebro, Sortedam Dossering 7C")]]}]},
+ {day:5,items:[
+  {t:"Farewell bubbles",when:"16:00–18:00",where:"Maersk Tower, 15th floor, Blegdamsvej 3B",tag:"Included",d:"A last view over all of Copenhagen after the closing keynote and plenary. 15 minutes on foot from HCØ.",links:[["Map",MAPQ("Maersk Tower, Blegdamsvej 3B, Copenhagen")]]},
+  {t:"Conference party",when:"From 18:00, till your consciousness lasts",where:"Inferno, Istedgade 36",tag:"Self-organised",d:"An experimental cocktail bar with a cocktail printer, then on to the Meatpacking District. Danish Fridays start late.",links:[["MoC7 socials Signal group",SIGNAL.socials],["Inferno","https://infernobar.dk/"],["Map",MAPQ("Inferno, Istedgade 36, Copenhagen")]]}]},
+];
+function viewSocial(){
+  const p=Object.fromEntries(new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Copenhagen",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).map(x=>[x.type,x.value]));
+  const today=(+p.year===2026&&+p.month===10)?(+p.day-11):-1;
+  const lk=([n,u])=>`<a class="btn ghost" href="${esc(u)}" target="_blank" rel="noopener">${esc(n)} ↗</a>`;
+  const card=it=>`<div class="mini"><div class="eyebrow">${esc(it.when)}</div><b>${esc(it.t)}</b> <span class="tag">${esc(it.tag)}</span><div class="where" style="margin-top:4px">${esc(it.where)}</div><p style="margin:6px 0 0;font-size:.9rem;line-height:1.45">${esc(it.d)}</p>${it.links?`<div class="row" style="margin-top:8px;gap:6px;flex-wrap:wrap">${it.links.map(lk).join("")}</div>`:""}</div>`;
+  const days=SOCIAL.filter(g=>today<0||today>5||g.day>=today);
+  return `<section class="stack">
+    <div><h2>Social</h2><p class="lede">Evenings, excursions and where people meet. Self-organised plans happen in Signal.</p></div>
+    <div class="mini"><div class="eyebrow">Signal groups</div><b>MoC7 socials</b><div class="where">Where the group plans what's next, all week.</div><div class="row" style="margin-top:8px;gap:6px;flex-wrap:wrap"><a class="btn primary" href="${SIGNAL.socials}" target="_blank" rel="noopener">Join MoC7 socials ↗</a><a class="btn ghost" href="${SIGNAL.carlsberg}" target="_blank" rel="noopener">Carlsberg (Sun) ↗</a><a class="btn ghost" href="${SIGNAL.tivoli}" target="_blank" rel="noopener">Tivoli (Tue) ↗</a></div></div>
+    ${days.map(g=>`<div class="stack" style="gap:8px"><h3 style="margin:8px 0 0">${g.day===today?"Today · ":""}${esc(DAYLONG[g.day])}</h3><div class="grid2">${g.items.map(card).join("")}</div></div>`).join("")}
+    ${today>0&&today<=5?`<p class="where">Earlier days are hidden. The full list is in the <a href="${BOOKLET}" target="_blank" rel="noopener">booklet</a>, pp. 8–14.</p>`:""}
+  </section>`;
+}
 function viewInfo(){
   return `<section class="stack info">
     <div><h2>Practical</h2><p class="lede">The essentials from the booklet, in one place.</p></div>
@@ -1199,7 +1263,7 @@ function viewInfo(){
       <div class="mini"><div class="eyebrow">Wi‑Fi</div><b>eduroam</b><div class="where">If eduroam fails, join <b>KU Guest</b> and register with your name, phone (with country code) and email; the password arrives by SMS or email.</div></div>
       <div class="mini"><div class="eyebrow">Wednesday · Louisiana</div><b>Buses leave at 12:50</b><div class="where">From Universitetsparken 15, by the street between the building and the park. Leave laptops and backpacks at home: the museum does not allow backpacks. Return buses leave at 19:00.</div></div>
       <div class="mini"><div class="eyebrow">Food</div><b>Canteen in front of Auditorium 1</b><div class="where">Hot dishes and sandwiches on Monday, Tuesday and Thursday. Friday lunch is at NBB. Lunch is paid individually. Thursday dinner at Food Club Nørrebro (if booked), 19:00.</div></div>
-      <div class="mini"><div class="eyebrow">Social plans</div><b>MoC7 socials Signal group</b><div class="where">Tivoli on Tuesday, Carlsberg on Sunday and Friday's party are organised there. The QR code is on page 3 of the booklet.</div></div>
+      <div class="mini"><div class="eyebrow">Social plans</div><b>MoC7 socials Signal group</b><div class="where">Tivoli on Tuesday, Carlsberg on Sunday and Friday's party are organised in Signal (booklet p. 3).</div><div class="row" style="margin-top:8px;gap:6px"><a class="btn" href="${SIGNAL.socials}" target="_blank" rel="noopener">Join MoC7 socials ↗</a><a class="btn ghost" href="${SIGNAL.carlsberg}" target="_blank" rel="noopener">Carlsberg</a><a class="btn ghost" href="${SIGNAL.tivoli}" target="_blank" rel="noopener">Tivoli</a></div></div>
       <div class="mini"><div class="eyebrow">Emergencies</div><b>Call 112</b><div class="where">Defibrillators and first-aid kits are marked on the HCØ map (booklet p. 18).</div></div>
       <div class="mini"><div class="eyebrow">Questions for the organisers</div><div class="copyline" style="margin-top:4px"><code id="mail">moc7-organisers@amcs.science</code><button class="btn ghost" data-act="copymail">Copy</button></div></div>
     </div>
@@ -1387,7 +1451,7 @@ function profileMarkdown(){
   const notes=sub(notesMarkdown());if(notes)L.push("","## Saved talks, notes and things I kept","",notes);
   const qs=store.questions.filter(q=>ITEMS[q.itemId]);if(qs.length){L.push("","## My questions for speakers","");qs.forEach(q=>L.push(`- ${ITEMS[q.itemId].title}: ${q.text}`))}
   if(store.hive.length)L.push("","## Consensus answers","",sub(hiveMarkdown()));
-  L.push("","Made with MoC7 Atlas, the MoC7 conference app.");
+  L.push("","Made with MoC7 Atlas, the MoC7 conference app, designed by Sofia Gallego (sofiagallego.com).");
   return L.join("\n");
 }
 const ME_ICON='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c1.2-3.6 4-5.4 7-5.4s5.8 1.8 7 5.4"/></svg>';
@@ -1453,10 +1517,13 @@ async function finishOpenRouter(){
     const d=await r.json();if(!r.ok||!d.key)throw new Error(d?.error?.message||r.status);
     store.ai.provider="openrouter";setKey(d.key);
     try{localStorage.removeItem("moc7hive.pkce")}catch(e){}
-    store.tab="ask";render();toast("Connected to OpenRouter");loadORModels();
+    store.tab="ask";render();toast("Connected to OpenRouter");await loadORModels();
+    // Accounts that never bought credit can only use free models: start them on one
+    try{const k=await (await fetch("https://openrouter.ai/api/v1/key",{headers:{authorization:"Bearer "+d.key}})).json();if(k?.data?.is_free_tier&&(!store.ai.model||!/:free$/.test(store.ai.model))){const f=pickFreeModel();if(f){store.ai.model=f;save();render()}}}catch(e){}
   }catch(e){toast("OpenRouter sign-in didn't finish. Try again.")}
 }
 let ORMODELS=null;
+function pickFreeModel(){const fr=(ORMODELS||[]).filter(m=>/:free$/.test(m.id));for(const re of[/llama-3\.3-70b/i,/deepseek-chat|deepseek-v3/i,/gemini/i,/qwen.*(72b|235b|max)/i,/mistral-small/i])for(const m of fr)if(re.test(m.id))return m.id;return fr[0]?.id||null}
 async function loadORModels(){if(ORMODELS||IN_CLAUDE)return;try{const r=await fetch("https://openrouter.ai/api/v1/models");const d=await r.json();
   ORMODELS=(d.data||[]).map(m=>({id:m.id,name:m.name||m.id,free:/:free$/.test(m.id)||(+m.pricing?.prompt===0&&+m.pricing?.completion===0)})).sort((a,b)=>(b.free-a.free)||a.name.localeCompare(b.name));if(store.tab==="ask")render()}catch(e){}}
 
@@ -1466,7 +1533,7 @@ async function llm(system,turns,{onText,signal,task="ask"}={}){
     let res,data;
     const nowTxt=new Date().toLocaleString("en-GB",{timeZone:"Europe/Copenhagen",weekday:"long",day:"numeric",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"});
     if(task==="ask"&&turns.length){turns=turns.map((t,i)=>i===turns.length-1?{...t,content:`[Current time in Copenhagen: ${nowTxt}.] ${t.content}`}:t)}
-    try{res=await fetch(ASK_URL,{method:"POST",signal,headers:{"content-type":"application/json"},body:JSON.stringify({task,turns,id:atlasId(),profile:`Now in Copenhagen: ${new Date().toLocaleString("en-GB",{timeZone:"Europe/Copenhagen",weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}.`+(task==="ask"&&turns.length?((n)=>n?" Booklet notes: "+n:"")(practicalFor(turns[turns.length-1].content.replace(/^\[Current time[^\]]*\]\s*/,""))):"")+(store.ai.useProfile?" "+profileLine():"")})});data=await res.json()}
+    try{res=await fetch(ASK_URL,{method:"POST",signal,headers:{"content-type":"application/json"},body:JSON.stringify({task,turns,id:atlasId(),profile:`Now in Copenhagen: ${new Date().toLocaleString("en-GB",{timeZone:"Europe/Copenhagen",weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}.`+(task==="ask"&&liveText()?" "+liveText():"")+(task==="ask"&&turns.length?((n)=>n?" Booklet notes: "+n:"")(practicalFor(turns[turns.length-1].content.replace(/^\[Current time[^\]]*\]\s*/,""))):"")+(store.ai.useProfile?" "+profileLine():"")})});data=await res.json()}
     catch(e){throw{code:"offline"}}
     if(typeof data.left==="number")ATLAS_LEFT=data.left;
     if(!res.ok)throw{code:"atlas",message:data.error||"The assistant couldn't answer just now."};
@@ -1501,26 +1568,37 @@ async function llm(system,turns,{onText,signal,task="ask"}={}){
   const headers={"content-type":"application/json"};if(KEYMEM&&a.provider!=="local")headers.authorization="Bearer "+KEYMEM;
   if(a.provider==="openrouter"){headers["X-Title"]="MoC7 Atlas";try{headers["HTTP-Referer"]=location.origin}catch(e){}}
   res=await fetch(base+"/chat/completions",{method:"POST",signal,headers,body:JSON.stringify({model,messages:[{role:"system",content:system},...turns]})});
-  data=await res.json();if(!res.ok)throw{code:"http",message:data?.error?.message||res.status};
+  data=await res.json();
+  if(!res.ok&&a.provider==="openrouter"&&res.status===402)throw{code:"http",message:"Your OpenRouter account has no credit for this model. Pick a model marked free, or add credit at openrouter.ai."};
+  if(!res.ok&&a.provider==="openrouter"&&res.status===429)throw{code:"http",message:"Free models on OpenRouter are busy or you reached today's free limit. Try another free model or wait a little."};
+  if(!res.ok)throw{code:"http",message:data?.error?.message||res.status};
   return data.choices?.[0]?.message?.content||"";
 }
 
 const itemLine=it=>`${DAYS[it.day]} ${fmt(it.s)}–${fmt(it.e)} | ${it.room} | ${it.kind}${it.name?` | ${it.name}${it.aff?" ("+it.aff+")":""}`:""} | ${it.title}${it.sess?` | session: ${SESS[it.sess][4]}`:""}`;
-const BOOKLET="https://amcs-community.org/wp-content/uploads/2026/10/moc7-booklet-web-full.pdf";
-// Practical facts from the booklet: [keywords, fact]. All go into the full context; matching ones ride along with hosted questions.
+// What the booklet says, as short facts: [keywords, fact]. All go into the full context; the matching ones ride along with questions to the built-in assistant.
 const PRACTICAL=[
- [/signal|group|chat|whatsapp|social|qr|join|meet ?up|people|friends|plans?\b|evening|tonight|drinks?|bar\b|tivoli|carlsberg|party|inferno/i,`Social plans (Carlsberg on Sunday, Tivoli on Tuesday, the Friday party) are organised in the "MoC7 socials" Signal group: join by scanning the QR code on page 3 of the booklet (${BOOKLET}). Tivoli and Carlsberg also have their own Signal groups, linked on booklet pages 13 and 8.`],
- [/tivoli|tuesday evening|illumination/i,"Tuesday evening, Tivoli (self-organised): Halloween illuminations every 30 minutes, 19:30–21:30; tickets at the entrance or online."],
- [/party|inferno|friday (night|evening)|dance/i,"Friday party (self-organised) from 18:00 at Inferno, Istedgade 36."],
- [/farewell|bubbles|maersk|friday/i,"Friday farewell bubbles 16:00–18:00, Maersk Tower 15th floor (Blegdamsvej 3B), about 15 minutes' walk from HCØ."],
- [/dinner|food club|thursday (night|evening)|restaurant/i,"Conference dinner Thursday 19:00 at Food Club Nørrebro, Sortedam Dossering 7C (€75, booked at registration; buffet with vegetarian, vegan and gluten-free options), about 20 minutes' walk from HCØ."],
- [/lunch|food|eat|canteen|sandwich|coffee|hungry/i,"Lunch 12:20–13:30 at the HCØ canteen in front of Auditorium 1 (Mon, Tue, Thu), paid individually; Friday lunch at NBB; Wednesday sandwiches on the bus to Louisiana."],
- [/reception|monday (evening|afternoon)|welcome/i,"Welcome reception Monday 16:00–18:30 at the Niels Bohr Building, included in registration."],
+ [/signal|group|chat|whatsapp|social|qr|join|meet ?up|friends|evening|tonight|drinks?|bar\b|tivoli|carlsberg|party|inferno/i,`Social plans are made in the "MoC7 socials" Signal group (booklet p. 3; join: ${SIGNAL.socials}). Carlsberg has its own group (${SIGNAL.carlsberg}), and so does Tivoli (${SIGNAL.tivoli}).`],
+ [/sunday|carlsberg|comedy|show|christiania|walking tour|before the conference|pre-?conference|arriv/i,"Sunday 11 Oct (paid separately): the Copenhagen Show comedy, at 15:00, 16:30 or 18:00 at Next House, Bernstorffsgade 27 by Central Station, max 50 per show, booked via the booklet QR code, with drinks after (not included). Or a self-organised Home of Carlsberg museum visit ending with a draught at the Carlsberg Bar. Also recommended: Christiania and a free walking tour in the morning."],
+ [/reception|monday (evening|afternoon)|welcome|sunderland|quantum spirit/i,"Monday 16:00–18:30 welcome reception at the Niels Bohr Building, opposite HCØ (included): speeches in Margrethe Bohr Salen, Robert Sunderland on the Copenhagen Quantum Spirit, then the Troposphere atrium and the Inge Lehmann gardens."],
+ [/tivoli|tuesday (evening|night)|illumination|halloween/i,"Tuesday evening, Tivoli Gardens (self-organised, right after the last session): Halloween illuminations every 30 minutes, 19:30–21:30; tickets at the gate or online."],
+ [/louisiana|wednesday|excursion|museum|bus|backpack|thompson|mind ?& ?matter|live ?stream/i,"Wednesday, Louisiana Museum (included, fully booked): buses leave 12:50 from Universitetsparken 15 (by the street, between the building and the park), sandwiches on board. 14:15 welcome, 15:00–16:30 creative workshop, 16:30–18:00 free time, 18:00–19:00 Evan Thompson's keynote and the Mind & Matter Ceremony, 19:00 return. No backpacks or laptops. Not booked? A live stream of the talks is provided."],
+ [/dinner|food club|thursday (night|evening)|restaurant|absalon|communal/i,"Thursday 19:00, conference dinner at Food Club Nørrebro, Sortedam Dossering 7C (only if booked at registration, €75): communal buffet with vegetarian, vegan and gluten-free options. It's 20 min on foot from HCØ, or 10 min from Nørreport. Not booked? Try Absalon or Send Flere Krydderier, and book early."],
+ [/farewell|bubbles|maersk|friday|closing/i,"Friday: closing keynote and plenary in Margrethe Bohr Salen (NBB), then farewell bubbles 16:00–18:00 at the Maersk Tower, 15th floor (Blegdamsvej 3B), 15 min walk."],
+ [/party|inferno|friday (night|evening)|dance|meatpacking/i,`Friday party (self-organised) from 18:00 at Inferno, Istedgade 36, an experimental cocktail bar with a cocktail printer, then the Meatpacking District. It's organised in the MoC7 socials Signal group (${SIGNAL.socials}).`],
+ [/lunch|food|eat|canteen|sandwich|hungry|coffee/i,"Lunch 12:20–13:30 in the HCØ canteen in front of Auditorium 1: hot dishes and sandwiches by Food and Co on Mon, Tue and Thu, paid individually. Friday lunch is at NBB; Wednesday sandwiches are on the bus."],
+ [/workshop|sound|listening|dream|sedl|da[ñn]obeit|art|installation|chill|meditat|vr\b|8 ?hz|s[øo]mod|auditorium 8/i,"Experiential workshops: Tue 11:20–12:20 Cristóbal Dañobeitía, sound and listening (Aud. 8). Tue 16:30–18:00 Barbora Sedláková, dream work (Inge Lehmann, NBB). Wed 15:00 creative workshop at Louisiana. Thu 16:30–18:00 Felix Pastorius, Johan Bech Jespersen and Nina Rajcic on shared experiences, moderated by Sandrine R. Schiller (Margrethe Bohr Salen, NBB). Art & chill: Svend Sømod's acoustic and light installation in Aud. 8, from Tuesday's first coffee break until Wednesday noon."],
+ [/poster/i,"Posters hang along the windows of HCØ's main corridor from the start of Tuesday and Thursday; poster sessions at 15:00 those days."],
+ [/consensus|discussion|a1\d\d|classroom|roadmap/i,"Discussion sessions (consensus project) are in classrooms A101–A112, 1st floor of HCØ. They draft a roadmap for consciousness science: agreeing on the map of possibilities, not on one theory."],
+ [/registr|badge|where is|find|entrance|foyer|room|floor|map|auditori/i,"HCØ main entrance on Universitetsparken; registration desk in the ground-floor foyer by the mosaic wall (opens before 9:00 Monday). Auditoria 1–5 and the canteen on the ground floor along the corridor (Vandrehallen); classrooms A101–A112 and Auditorium 8 on the 1st floor. NBB is right in front of HCØ."],
+ [/get (there|to)|metro|bus|airport|transport|bike|rejsekort|travel|station/i,"Metro M3 to Vibenshus Runddel then 10 min on foot along Nørre Allé; buses 150S, 173E, 184, 185 stop outside HCØ. Metro and rail from the airport; 3.5 km from Central Station. Use the Rejsekort app (swipe in and out). Bikes are the best way around."],
+ [/wi-?fi|internet|eduroam|ku guest|password/i,"Wi-Fi: eduroam. Otherwise KU Guest: connect, enter name, mobile with country code and email, accept, get the password by SMS or email, log in with that email."],
  [/emergenc|112|doctor|hurt|first aid|defibrillator|sick/i,"Emergencies: call 112. Defibrillators and first-aid kits are marked on the HCØ map (booklet p. 18)."],
- [/contact|organi[sz]er|support|lost|email/i,"Questions: moc7-organisers@amcs.science. Local support: Nina Rajcic and Sandrine Rose Schiller Hansen."],
- [/desk|workspace|place to work|quiet place|climb/i,"Desks to work at on the 1st floor near the classrooms; a climbing wall is two minutes from HCØ."],
+ [/contact|organi[sz]er|support|lost|email|help/i,"Questions: moc7-organisers@amcs.science. Local support: Nina Rajcic and Sandrine Rose Schiller Hansen. Organisers include Camilo Miguel Signorelli, Emanuela Yeung, Robert Prentner, Keisuke Suzuki, Joanna Szczotka, Anna Eiserbeck, Johannes Kleiner, Moritz Kriegleder, Jonathan Mason, Ian Durham, Wanja Wiese and Sucharit Katyal."],
+ [/desk|workspace|place to work|quiet place|climb|sport/i,"Desks to work at on the 1st floor of HCØ near the classrooms; a climbing wall is two minutes from HCØ."],
+ [/theme|topic|about|hygge|moc[1-6]|previous|history/i,"MoC7 core themes: philosophical foundations; methodologies, models and measures; AI, LLMs and consciousness science; phenomenology and applied phenomenology. Earlier MoCs: Oxford 2019, online 2021, Stanford 2022, Oxford 2023, Bamberg 2024, Hokkaido 2025."],
 ];
-function practicalFor(q,max=520){let out="";for(const[re,f]of PRACTICAL){if(re.test(q)&&out.length+f.length<=max)out+=(out?" ":"")+f}return out}
+function practicalFor(q,max=620){let out="";for(const[re,f]of PRACTICAL){if(re.test(q)&&out.length+f.length<=max)out+=(out?" ":"")+f}return out}
 const VENUE=`MoC7 (Models of Consciousness 7), University of Copenhagen, 12–16 October 2026. Venue HC Ørsted Institute (HCØ), Universitetsparken 5: keynotes Auditorium 1, parallel sessions Auditoria 2–5, discussion sessions classrooms A101–A112 (1st floor), workshop Auditorium 8; Niels Bohr Building (NBB) opposite. Metro M3 Vibenshus Runddel; buses 150S, 173E, 184, 185. Wi-Fi eduroam or KU Guest. Wednesday: buses to Louisiana Museum 12:50 from Universitetsparken 15, no backpacks or laptops, return 19:00. Thursday dinner 19:00 Food Club Nørrebro (if booked). Friday farewell 16:00 Maersk Tower. Organisers: moc7-organisers@amcs.science. ${PRACTICAL.map(x=>x[1]).join(" ")}`;
 function programmeContext(){
   const lines=Object.values(ITEMS).sort((a,b)=>a.day-b.day||a.s-b.s).map(it=>`[${it.id}] `+itemLine(it));
@@ -1727,7 +1805,7 @@ function render(keepFocus){
   const n=store.stars.length+store.saved.length;const sc=$("#starCount");sc.hidden=!n;sc.textContent=n;
   const v=$("#view");
   const ae=document.activeElement;const fid=ae&&ae.id;const sel=fid&&ae.selectionStart;
-  v.innerHTML=({now:viewNow,prog:viewProg,posters:viewPosters,people:viewPeople,topics:viewTopics,map:viewMap,hive:viewHive,ask:viewAsk,profile:viewProfile,mine:viewMine,info:viewInfo})[tab]();updateMe();if(tab==="map")requestAnimationFrame(mountSky);
+  v.innerHTML=({now:viewNow,prog:viewProg,posters:viewPosters,people:viewPeople,topics:viewTopics,map:viewMap,hive:viewHive,ask:viewAsk,profile:viewProfile,mine:viewMine,social:viewSocial,info:viewInfo})[tab]();if(["now","prog","mine","posters"].includes(tab))v.insertAdjacentHTML("afterbegin",liveNote());updateMe();if(tab==="map")requestAnimationFrame(mountSky);
   if(keepFocus&&fid){const el=document.getElementById(fid);if(el){el.focus();try{el.setSelectionRange(sel,sel)}catch(e){}}}
   updateClock();renderDock();
 }
@@ -1873,7 +1951,7 @@ try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{if
   else if(store.sync&&store.sync.code)syncNow();
   document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")syncNow()});
 })();
-(function init(){finishOpenRouter();if(store.ai.provider==="openrouter"&&KEYMEM)loadORModels();const n=nowCph();if(!n.sim&&n.day>=0&&n.day<=5)store.day=n.day;render();setInterval(()=>{updateClock();if(store.tab==="now"&&!document.activeElement.matches("textarea,input"))render()},60000)})();
+(function init(){finishOpenRouter();if(store.ai.provider==="openrouter"&&KEYMEM)loadORModels();const n=nowCph();if(!n.sim&&n.day>=0&&n.day<=5)store.day=n.day;render();loadLive();document.addEventListener("visibilitychange",()=>{if(!document.hidden)loadLive()});setInterval(()=>{updateClock();if(store.tab==="now"&&!document.activeElement.matches("textarea,input"))render()},60000)})();
 
 (function(){const W=document.getElementById("welcome");if(!W)return;let seen=false;try{seen=localStorage.getItem("moc7atlas.welcome")==="1"}catch(e){}
   if(!seen)W.hidden=false;document.getElementById("welcomeOk").addEventListener("click",()=>{W.hidden=true;try{localStorage.setItem("moc7atlas.welcome","1")}catch(e){}})})();

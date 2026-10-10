@@ -6,6 +6,7 @@ on:
 permissions:
   contents: write
   issues: write
+  pages: write
 concurrency: moc7-watch
 jobs:
   watch:
@@ -16,11 +17,17 @@ jobs:
       - id: w
         run: python .github/moc7-watch/watch.py
       - name: Save snapshot
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "moc7-watch"
           git config user.email "actions@users.noreply.github.com"
-          git add .github/moc7-watch/snapshot.json
-          git diff --cached --quiet || (git commit -m "MoC7 programme snapshot [skip ci]" && git push)
+          git add .github/moc7-watch/snapshot.json moc7/live.json
+          if ! git diff --cached --quiet; then
+            LIVE_CHANGED=$(git diff --cached --name-only | grep -c moc7/live.json || true)
+            git commit -m "MoC7 programme snapshot" && git push
+            if [ "$LIVE_CHANGED" != "0" ]; then gh api -X POST repos/${{ github.repository }}/pages/builds || true; fi
+          fi
       - name: Open an issue (GitHub emails you)
         if: steps.w.outputs.changed == 'true'
         env:
