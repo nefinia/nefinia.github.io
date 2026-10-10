@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>MoC7 Atlas</title>
 <meta name="author" content="Sofia Gallego">
+<script src="../assets/js/display.js"></script>
 <meta name="description" content="A calm companion for Models of Consciousness 7 (Copenhagen, 12–16 October 2026): programme, posters, people, topics, a map of how the talks connect, and the consensus sessions. Everything stays on your device.">
 <meta name="theme-color" content="#2b2257">
 <link rel="canonical" href="https://sofiagallego.com/moc7/">
@@ -79,6 +80,7 @@ a{color:var(--accent)}
 .brand h1 em{font-style:italic;color:var(--accent)}
 .brand small{color:var(--muted);font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .topacts{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.topacts .sgd-btn{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--head);font:600 .78rem var(--f-body);padding:0;margin:0;cursor:pointer}
 .iconbtn{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--head);display:grid;place-items:center;cursor:pointer;padding:0}
 .iconbtn:hover{border-color:var(--accent);color:var(--accent)}
 @media (max-width:640px){.brand{flex-basis:100%}.topacts{margin-left:auto}}
@@ -297,7 +299,7 @@ a.tag:hover{border-color:var(--accent);color:var(--accent)}
 <header class="top">
   <div class="wrap">
     <div class="brand"><h1>MoC7 <em>Atlas</em></h1><small><span class="long">Guide to Models of Consciousness 7 · Copenhagen, 12–16 Oct</span><span class="short">Guide to MoC7</span></small></div>
-    <div class="topacts">
+    <div class="topacts"><span data-display-settings-slot hidden></span>
       <span class="clock" id="clock">—</span>
       <button class="iconbtn" id="installBtn" hidden title="Install as an app" aria-label="Install MoC7 Atlas as an app"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg></button>
       <button class="me" id="meBtn" data-go="profile" aria-label="Your profile"><span class="av" id="meAv"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c1.2-3.6 4-5.4 7-5.4s5.8 1.8 7 5.4"/></svg></span><span id="meName">Profile</span></button>
@@ -311,18 +313,19 @@ a.tag:hover{border-color:var(--accent);color:var(--accent)}
       <button role="tab" data-tab="topics">Topics</button>
       <button role="tab" data-tab="map">Constellation</button>
       <button role="tab" data-tab="hive">Consensus</button>
+      <button role="tab" data-tab="board">Board</button>
       <button role="tab" data-tab="ask">Ask</button>
       <button role="tab" data-tab="mine">Saved<span class="count" id="starCount" hidden></span></button>
       <button role="tab" data-tab="info">Practical</button>
     </nav>
   </div>
 </header>
-<div class="wrap" id="welcome" hidden><div class="welcome"><span>Plan your week at Models of Consciousness 7: browse the programme, save talks, take notes, and see how the ideas connect. Nothing to sign up for, and everything you save stays on your phone.</span><button class="btn primary" id="welcomeOk">OK</button></div></div>
+<div class="wrap" id="welcome" hidden><div class="welcome"><span>Plan your week at Models of Consciousness 7: browse the programme, save talks, take notes, and see how the ideas connect. Nothing to sign up for, and everything you save stays on your phone unless you choose to share it.</span><button class="btn primary" id="welcomeOk">OK</button></div></div>
 <main class="wrap" id="view"></main>
 <footer><div class="wrap">
   <span>The MoC7 conference app. Times and rooms follow the official programme, checked every hour; the full programme with abstracts is on <a href="https://amcs-community.org/moc7-schedule-information/" target="_blank" rel="noopener">amcs-community.org</a></span>
   <span>Everything you save stays on this device. No account, no cookies, no tracking. <button class="btn ghost" data-act="privacy" style="padding:0 4px;font-size:inherit;color:var(--accent)">Privacy</button>.</span>
-  <span>Designed and built by <a href="https://sofiagallego.com" target="_blank" rel="noopener">Sofia Gallego</a>.</span>
+  <span>Designed and built by <a href="https://sofiagallego.com" target="_blank" rel="noopener">Sofia Gallego</a>. <button class="btn ghost" data-act="about" style="padding:0 4px;font-size:inherit;color:var(--accent)">About this app</button></span>
 </div></footer>
 <div class="toast" id="toast" hidden></div>
 <div class="installsheet" id="installSheet" hidden role="dialog" aria-label="Install MoC7 Atlas"><div class="card stack" style="gap:8px">
@@ -668,7 +671,7 @@ const ASK_URL="https://moc7-ask.sofiag-gallego.workers.dev/";
 const KEY="moc7hive.v1";/* storage key kept so saved data survives */
 let store={stars:[],notes:{},hive:[],tab:"now",day:1,sim:"live",themes:[],hideEx:false,refs:{},saved:[],share:{},questions:[],profile:null,ai:{provider:"",model:"",base:"",remember:false,key:""}};
 try{const raw=localStorage.getItem(KEY);if(raw)Object.assign(store,JSON.parse(raw))}catch(e){}
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){};if(typeof syncTouch==="function")syncTouch()};
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){};if(typeof syncTouch==="function")syncTouch();if(typeof shareTouch==="function")shareTouch()};
 const stars=()=>new Set(store.stars);
 
 /* -------------- helpers -------------- */
@@ -698,6 +701,8 @@ function liveNote(){
     <details style="margin-top:4px"><summary style="cursor:pointer">See what changed</summary><ul style="margin:6px 0 0;padding-left:18px">${LIVE.list.map(x=>`<li><b>${esc(x.who)}</b>: ${esc(x.what)}</li>`).join("")}</ul></details></div>`;
 }
 function liveText(){return LIVE&&LIVE.list.length?"Official programme changes since the booklet (these override the programme): "+LIVE.list.map(x=>`${x.who}: ${x.what}`).join("; ")+". ":""}
+function othersHtml(id){const o=othersOn(id);if(!o.length)return"";
+  return `<div class="stack" style="gap:6px;margin-top:10px"><div class="eyebrow">Shared by participants · ${o.length}</div>${o.map(r=>`<div class="where" style="color:var(--ink);font-size:.88rem;line-height:1.45"><span class="tag">${r.kind==="question"?"Question":r.kind==="ref"?"Reference":"Note"}</span> ${r.url?`<a href="${esc(r.url)}" target="_blank" rel="noopener nofollow">${esc(r.text)} ↗</a>`:esc(r.text)}${r.by?` <span class="where">· ${esc(r.by)}</span>`:""} <button class="btn ghost" data-report="${r.sid}" style="padding:0 4px;font-size:.75rem" title="Report">Report</button></div>`).join("")}</div>`}
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const $=s=>document.querySelector(s);
 const SV={
@@ -746,8 +751,8 @@ function talkRow(it,opts={}){
       <button class="ico ${on?"on":""}" data-act="star" data-id="${it.id}" aria-label="${on?"Remove from Saved":"Save"}" aria-pressed="${on}" title="Save">${SV.star}</button>
     </div>
     ${open?`<div class="note"><textarea class="inp" id="note-${it.id}" data-note="${it.id}" placeholder="Your notes on this talk…">${esc(store.notes[it.id]||"")}</textarea>${refEditor(it.id)}
-      <label class="row" style="gap:8px;margin-top:8px;font-size:.88rem"><input type="checkbox" data-share="${it.id}" ${store.share[it.id]?"checked":""}> Show my note and references in the Constellation</label>
-      ${it.kind!=="Poster"&&it.kind!=="Discussion"?`<div class="refform"><input class="inp" id="qq-${it.id}" maxlength="300" placeholder="A question for the speaker (saved here, shown in the Constellation)"><button class="btn" data-askq="${it.id}">Add question</button></div>`:""}</div>`:""}
+      <label class="row" style="gap:8px;margin-top:8px;font-size:.88rem"><input type="checkbox" data-share="${it.id}" ${store.share[it.id]?"checked":""}> Share my note and references with everyone <span class="where">(anonymous unless you show your name)</span></label>
+      ${it.kind!=="Poster"&&it.kind!=="Discussion"?`<div class="refform"><input class="inp" id="qq-${it.id}" maxlength="300" placeholder="A question for the speaker (shared with everyone)"><button class="btn" data-askq="${it.id}">Add question</button></div>`:""}${othersHtml(it.id)}</div>`:""}
   </div>`;
 }
 function hl(text,q,already){const s=already?text:esc(text);if(!q)return s;const re=new RegExp("("+q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","ig");return s.replace(re,"<mark>$1</mark>")}
@@ -913,7 +918,7 @@ const EXAMPLES=[
 ].map((x,i)=>({...x,id:"ex"+i,ex:true,t:0}));
 EXAMPLES[7].needs="ex1";
 let HSESS=null, HGROUP=null, HTHREAD=null, HOPEN=false;
-function hiveItems(){const real=store.hive;return real.length||store.hideEx?real:EXAMPLES}
+function hiveItems(){const real=[...store.hive,...othersCards()];return real.length||store.hideEx?real:EXAMPLES}
 const STOP=new Set("the and for with that this from into across between their there about which what when where while than then them they have has had are was were been being not only also more most less such each other some any all can could should would will just like very much many how why who whom whose its our your his her a an of to in on at by as or is it be we".split(" "));
 function words(t){return [...new Set(t.toLowerCase().replace(/[^\p{L}\p{N}\s-]/gu," ").split(/\s+/).map(w=>w.replace(/^-+|-+$/g,"")).filter(w=>w.length>=4&&!STOP.has(w)).map(w=>w.length>5?w.replace(/(ies)$/,"y").replace(/s$/,""):w))]}
 function threads(items){
@@ -922,7 +927,7 @@ function threads(items){
 }
 const myGroup=()=>store.lastGroup||(store.profile&&store.profile.group)||"";
 function viewHive(){
-  const all=hiveItems();const usingEx=!store.hive.length&&!store.hideEx;
+  const all=hiveItems();const usingEx=!store.hive.length&&!othersCards().length&&!store.hideEx;
   const S=HSESS||currentSession();const c=CS.find(x=>x[0]===S);const q=SQ[S];
   const sessBtns=CS.map(c=>{const n=all.filter(h=>h.session===c[0]).length;return `<button class="sess" data-hs="${c[0]}" aria-pressed="${S===c[0]}"><div class="row" style="justify-content:space-between"><span class="n">${c[0]}</span><span class="w">${DAYS[c[1]]} ${c[2]}${n?` · ${n}`:""}</span></div><div class="l">${esc(c[5])}</div></button>`}).join("");
   let items=all.filter(h=>h.session===S);if(HGROUP)items=items.filter(h=>h.group===HGROUP);
@@ -930,7 +935,7 @@ function viewHive(){
   const g=myGroup();
   const byGroup={};items.forEach(h=>(byGroup[h.group]=byGroup[h.group]||[]).push(h));
   const groupsHere=Object.keys(byGroup).sort((a,b)=>parseInt(a.slice(6))-parseInt(b.slice(6)));
-  const line=h=>{const need=h.needs&&all.find(x=>x.id===h.needs);return `<div class="item ${h.ex?"ex":""}">${h.type==="open"?`<span class="pill pk-Discussion">open</span> `:""}${HTHREAD?hl(h.text,HTHREAD):esc(h.text)}${need?`<div class="needs">needs first → ${esc(need.text)}${need.group!==h.group?` (${esc(need.group)})`:""}</div>`:""}<div class="meta"><span>${h.by?esc(h.by)+" · ":""}${h.ex?"example":new Date(h.t).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</span>${h.ex?"":`<button class="x" data-del="${h.id}" aria-label="Remove" title="Remove">✕</button>`}</div></div>`};
+  const line=h=>{const need=h.needs&&all.find(x=>x.id===h.needs);return `<div class="item ${h.ex?"ex":""}">${h.type==="open"?`<span class="pill pk-Discussion">open</span> `:""}${HTHREAD?hl(h.text,HTHREAD):esc(h.text)}${need?`<div class="needs">needs first → ${esc(need.text)}${need.group!==h.group?` (${esc(need.group)})`:""}</div>`:""}<div class="meta"><span>${h.by?esc(h.by)+" · ":""}${h.ex?"example":new Date(h.t).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</span>${h.ex?"":h.other?`<button class="x" data-report="${h.sid}" aria-label="Report" title="Report this answer">⚑</button>`:`<button class="x" data-del="${h.id}" aria-label="Remove" title="Remove">✕</button>`}</div></div>`};
   const answers=groupsHere.map(gr=>`<div class="col"><h4><span>${esc(gr)}</span><span class="mono">${byGroup[gr].length}</span></h4>${byGroup[gr].map(line).join("")}</div>`).join("");
   const targets=all.filter(h=>h.type==="mile"||h.type==="deliv");
   const linkForm=S===7?`<div class="card stack" style="gap:8px"><div class="eyebrow">Link milestones</div>
@@ -943,6 +948,7 @@ function viewHive(){
     ${usingEx?`<div class="banner"><span>The dashed lines are examples so you can see how answers appear. They disappear when your group adds its first answer.</span><button class="btn ghost" data-act="hideex">Hide examples</button></div>`:""}
     <div class="sessbar" role="group" aria-label="Session">${sessBtns}</div>
     <form class="card stack" id="hform" autocomplete="off" style="gap:10px">
+      <div class="where">Answers are shared with everyone: they appear here and on the Board for all groups. Anonymous unless you show your name in your profile.</div>
       <div class="eyebrow">Session ${S} · ${DAYLONG[c[1]]} · ${c[2]} · ${esc(c[4])}</div>
       <h3 style="font:400 1.35rem/1.25 var(--f-display);color:var(--head)">${esc(q[1])}</h3>
       <div class="row" style="gap:8px"><label for="h-group" class="where">Your group</label><select class="sel" id="h-group">${g?"":`<option value="">Choose…</option>`}${GROUPS.map(x=>`<option ${g===x?"selected":""}>${x}</option>`).join("")}</select></div>
@@ -968,6 +974,40 @@ function hiveMarkdown(){
   return md;
 }
 
+/* ---- sharing: what people chose to share goes to the MoC7 Atlas server and comes back for everyone ----
+   Shared: notes and references on talks where "Share" is ticked, questions for speakers, consensus answers.
+   Names only if the person chose to show theirs. Unsharing or deleting removes it from the server. */
+const SHARE_URL=typeof ASK_URL==="string"&&ASK_URL?ASK_URL+"share":"";
+let SHARED=[],SHAREDAT=0;const SHAREQ={timer:null,busy:false};
+const hash36=s=>{let h=5381;for(const c of String(s))h=((h<<5)+h+c.codePointAt(0))>>>0;return h.toString(36)};
+const myName=()=>store.profile&&store.profile.showName===true?store.profile.name:"";
+function desiredShares(){
+  const by=myName(),out={};
+  Object.keys(store.share).filter(k=>store.share[k]).forEach(k=>{
+    const n=(store.notes[k]||"").trim();if(n)out["n:"+k]={kind:"note",item:k,text:n,by};
+    (store.refs[k]||[]).forEach(r=>{out["r:"+k+":"+hash36(r.url)]={kind:"ref",item:k,text:r.label||r.url,url:r.url,by}});
+  });
+  store.questions.forEach(q=>{out["q:"+q.id]={kind:"question",item:q.itemId,text:q.text,by:q.by||""}});
+  store.hive.forEach(h=>{out["c:"+h.id]={kind:"card",item:"cs-"+h.session,text:h.text,by:h.by||"",meta:{group:h.group,type:h.type,session:h.session,needs:h.needs||"",id:h.id}}});
+  return out;
+}
+function shareTouch(){if(!SHARE_URL)return;clearTimeout(SHAREQ.timer);SHAREQ.timer=setTimeout(pushShares,1200)}
+async function shareCall(body){const r=await fetch(SHARE_URL,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({...body,id:atlasId()})});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||r.status);return d}
+async function pushShares(){
+  if(SHAREQ.busy){shareTouch();return}SHAREQ.busy=true;
+  const want=desiredShares();const sent=store.sent||(store.sent={});let changed=false,failed=false;
+  try{
+    for(const[cid,p]of Object.entries(want)){const sig=hash36(JSON.stringify(p));if(sent[cid]===sig)continue;try{await shareCall({op:"put",cid,...p});sent[cid]=sig;changed=true}catch(e){failed=true}}
+    for(const cid of Object.keys(sent)){if(want[cid])continue;try{await shareCall({op:"delete",cid});delete sent[cid];changed=true}catch(e){failed=true}}
+  }finally{SHAREQ.busy=false}
+  if(changed){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}loadShared()}
+  if(failed)setTimeout(shareTouch,60000);
+}
+async function loadShared(){if(!SHARE_URL)return;try{const d=await shareCall({op:"list"});SHARED=(d.rows||[]).filter(r=>!r.mine);SHAREDAT=Date.now();
+  if(["hive","board","map","prog","mine"].includes(store.tab)&&!document.activeElement.matches("textarea,input"))render()}catch(e){}}
+async function reportShared(sid){try{await shareCall({op:"report",sid:+sid});SHARED=SHARED.filter(r=>r.sid!==+sid);toast("Reported. Thank you");render()}catch(e){toast("Couldn't report right now")}}
+const othersCards=()=>SHARED.filter(r=>r.kind==="card"&&r.meta).map(r=>({id:r.meta.id||"s"+r.sid,group:r.meta.group||"Group",type:r.meta.type,session:r.meta.session,needs:r.meta.needs||undefined,text:r.text,by:r.by||"",t:r.t,other:true,sid:r.sid}));
+const othersOn=id=>SHARED.filter(r=>r.item===id&&r.kind!=="card");
 /* ---- the hive: collective knowledge map ---- */
 const EX_CONTRIB=[
  {type:"note",itemId:"k-megan-peters",text:"Example note: the point that indicators validated in humans may not mean the same thing in other systems seems central for the AI sessions on Thursday."},
@@ -991,6 +1031,7 @@ function collective(){
   store.questions.forEach(q=>out.push({type:"question",itemId:q.itemId,text:q.text,by:q.by,t:q.t}));
   Object.entries(store.refs).filter(([k])=>k.startsWith("topic:")).forEach(([k,v])=>v.forEach(r=>out.push({type:"ref",topic:k.slice(6),url:r.url,text:r.label,by:me,t:Date.now()})));
   store.hive.forEach(h=>out.push({type:"card",card:h,text:h.text,by:h.by||h.group,t:h.t}));
+  SHARED.forEach(r=>{if(r.kind==="card"){const h=othersCards().find(x=>x.sid===r.sid);if(h)out.push({type:"card",card:h,text:h.text,by:h.by||h.group,t:h.t,sid:r.sid})}else out.push({type:r.kind,itemId:r.item,text:r.text,url:r.url||undefined,by:r.by||"",t:r.t,sid:r.sid})});
   const all=out.length||store.hideEx?out:[...EX_CONTRIB,...EXAMPLES.map(h=>({type:"card",card:h,text:h.text,by:h.group,t:0,ex:true}))];
   all.forEach(c=>{c.topics=c.topic?[c.topic]:c.itemId?topicsOfItem(c.itemId):topicsOfText(c.text);if(c.type==="card"&&!c.topics.length)c.topics=["consensus"];if(c.type==="card"&&!c.topics.includes("consensus"))c.topics.push("consensus")});
   return all;
@@ -1059,7 +1100,7 @@ function viewMap(){
     <div class="legend"><span><i style="background:var(--head)"></i>Topic</span><span><i style="background:var(--k-key)"></i>Keynote</span><span><i style="background:var(--k-talk)"></i>Talk</span><span><i style="background:var(--k-ws)"></i>Workshop</span><span><i style="background:var(--k-post)"></i>Poster</span><span><i style="background:var(--gold)"></i>Your notes &amp; questions</span><span><i style="background:var(--accent)"></i>Close in content / concept</span></div>
     <div class="card" id="skypanel">${skyPanel(sel)}</div>
     ${c.length&&!usingEx?`<div class="row"><button class="btn" data-act="hivedl">Download everything shared (.md)</button></div>`:""}
-    <div class="where">To add to the sky: open the notes on any talk, write, and tick "Show my note and references in the Constellation". Questions for speakers, topic references and consensus cards appear automatically. For now this sky shows only what is saved on this device; nothing is sent anywhere.</div>
+    <div class="where">To add to the sky: open the notes on any talk, write, and tick "Show my note and references in the Constellation". Questions for speakers, topic references and consensus cards appear automatically. What you and others share appears here for everyone; what you keep private stays on this device.</div>
   </section>`;
 }
 function skyPanel(n){
@@ -1196,13 +1237,14 @@ function notesMarkdown(){
 function privacyHtml(){
   return `<div class="card stack" id="privacy" style="gap:10px">
     <h3 style="font:400 1.35rem var(--f-display);color:var(--head)">Privacy</h3>
-    <p style="margin:0">MoC7 Atlas is built to keep your data with you. There is no account, no cookies, no analytics and no advertising, and the page loads nothing from other websites: fonts and code are part of the page itself.</p>
-    <div><b>What stays on this device</b><div class="where">Your saved talks, notes, references, profile, consensus answers and (only if you ask it to remember them) AI keys. They live in this browser's storage and nowhere else. You can download them or delete them all at any time below. Clearing your browser data also deletes them.</div></div>
+    <p style="margin:0">MoC7 Atlas is built to keep your data with you. There is no account, no cookies and no advertising. Fonts and code are part of the page itself. The only outside script is Cloudflare Web Analytics, which counts visits without cookies and without identifying you.</p>
+    <div><b>What stays on this device</b><div class="where">Your saved talks, notes, references, profile, consensus answers, questions you asked the assistant and (only if you ask it to remember them) AI keys. They live in this browser's storage and nowhere else. You can download them or delete them all at any time below. Clearing your browser data also deletes them.</div></div>
     ${SYNC_URL?`<div><b>Sync, only if you turn it on</b><div class="where">An encrypted copy of your profile, notes, saved items and consensus answers is kept so your other devices can fetch it. It is locked on this device with your private sync code before it is sent; the server cannot read it and holds no name, email or account. It is stored with Cloudflare in Western Europe, deleted 90 days after its last use, and you can delete it yourself at any time. AI keys are never synced.</div></div>`:""}
-    <div><b>What leaves this device, and only when you do it</b><div class="where">Opening an outside link (an abstract, Google Scholar, a DOI). Using an AI option: your question goes to the company you choose, under your own account with them, often outside the EU. Sharing, emailing or downloading your notes: they go only where you send them. The website that serves this page keeps ordinary technical logs, like any website.</div></div>
+    <div><b>What leaves this device, and only when you do it</b><div class="where">Opening an outside link (an abstract, Google Scholar, a DOI, a Signal group). Asking the built-in assistant: your question goes to the MoC7 Atlas server and to Anthropic to be answered, and is not kept. Using another AI option: your question goes to the company you choose, under your own account with them, often outside the EU. Sharing, emailing or downloading your notes: they go only where you send them. The website that serves this page keeps ordinary technical logs, like any website.</div></div>
     <div><b>Programme data</b><div class="where">Speaker names, affiliations and titles come from the public MoC7 programme on amcs-community.org.</div></div>
-    <div><b>Shared work</b><div class="where">In this version nothing is shared with anyone. If a shared consensus board is added for the groups, it will be optional, anonymous unless you choose to show your name, stored in the EU, deleted after the conference once the organisers have exported it, and you will be able to delete anything you added.</div></div>
-    <div><b>Calm by design</b><div class="where">No chat, no feed, no notifications. It is a place to plan, take notes and see how the ideas connect.</div></div>
+    <div><b>What you choose to share</b><div class="where">Shared items are notes and references on a talk where you tick "Share", questions for speakers, and consensus answers. Everyone using MoC7 Atlas can see them on the Board, the talk and the Constellation. They are anonymous unless you chose to show your name in your profile. The server keeps the text, that name if shown, and a scrambled code for this device so you can edit or remove your own posts; no IP address, email or account. Data is stored with Cloudflare in Western Europe. Untick "Share" or delete an item and it is removed from the server. Everything shared is erased on 15 December 2026. Anyone can report a post, and three reports hide it.</div></div>
+    <div><b>Visit counts</b><div class="where">Cloudflare Web Analytics records page views, country, device type and the page that linked here, without cookies or a personal identifier, so the organisers can see how the app is used.</div></div>
+    <div><b>Questions about your data</b><div class="where">Write to the organisers at <code>moc7-organisers@amcs.science</code>.</div></div>
     ${HOST.name||HOST.email?`<div><b>Who runs this page</b><div class="copyline" style="margin-top:4px">${esc(HOST.name)}${HOST.name&&HOST.email?" · ":""}${HOST.email?`<code>${esc(HOST.email)}</code>`:""}</div></div>`:""}
     <div class="row">${dataButtons()}</div>
   </div>`;
@@ -1240,6 +1282,26 @@ const SOCIAL=[
   {t:"Farewell bubbles",when:"16:00–18:00",where:"Maersk Tower, 15th floor, Blegdamsvej 3B",tag:"Included",d:"A last view over all of Copenhagen after the closing keynote and plenary. 15 minutes on foot from HCØ.",links:[["Map",MAPQ("Maersk Tower, Blegdamsvej 3B, Copenhagen")]]},
   {t:"Conference party",when:"From 18:00, till your consciousness lasts",where:"Inferno, Istedgade 36",tag:"Self-organised",d:"An experimental cocktail bar with a cocktail printer, then on to the Meatpacking District. Danish Fridays start late.",links:[["MoC7 socials Signal group",SIGNAL.socials],["Inferno","https://infernobar.dk/"],["Map",MAPQ("Inferno, Istedgade 36, Copenhagen")]]}]},
 ];
+let BKIND="";
+function viewBoard(){
+  const mineW=desiredShares();
+  const mine=Object.entries(mineW).map(([cid,p])=>({cid,kind:p.kind,item:p.item,text:p.text,url:p.url,by:p.by,meta:p.meta,t:(p.kind==="question"?(store.questions.find(q=>"q:"+q.id===cid)||{}).t:p.kind==="card"?(store.hive.find(h=>"c:"+h.id===cid)||{}).t:0)||Date.now(),mine:true}));
+  let rows=[...SHARED,...mine].sort((a,b)=>b.t-a.t);
+  const counts={question:0,note:0,ref:0,card:0};rows.forEach(r=>counts[r.kind]=(counts[r.kind]||0)+1);
+  if(BKIND)rows=rows.filter(r=>r.kind===BKIND);
+  const LBL={question:"Questions",note:"Notes",ref:"References",card:"Consensus"};
+  const ago=t=>{const m=Math.round((Date.now()-t)/6e4);return m<1?"just now":m<60?m+" min ago":m<1440?Math.round(m/60)+" h ago":new Date(t).toLocaleDateString("en-GB",{weekday:"short",day:"numeric"})};
+  const where=r=>{if(r.kind==="card"&&r.meta){const c=CS.find(x=>x[0]===r.meta.session);return `Consensus session ${r.meta.session}${c?": "+esc(c[5]):""} · ${esc(r.meta.group||"")}`}const it=ITEMS[r.item];return it?`<a href="#" data-goitem="${it.id}">${esc(it.title)}</a> · ${esc(it.name||"")}`:""};
+  const row=r=>`<div class="mini"><div class="row" style="justify-content:space-between;gap:8px"><span class="eyebrow">${{question:"Question",note:"Note",ref:"Reference",card:"Consensus answer"}[r.kind]||""}${r.by?" · "+esc(r.by):""}${r.mine?" · yours":""}</span><span class="where">${ago(r.t)}</span></div>
+    <div style="margin:4px 0;line-height:1.45">${r.url?`<a href="${esc(r.url)}" target="_blank" rel="noopener nofollow">${esc(r.text)} ↗</a>`:esc(r.text)}</div>
+    <div class="row" style="justify-content:space-between;gap:8px"><span class="where">${where(r)}</span>${r.mine?"":`<button class="btn ghost" data-report="${r.sid}" style="padding:0 6px;font-size:.78rem">Report</button>`}</div></div>`;
+  return `<section class="stack">
+    <div><h2>Board</h2><p class="lede">What participants chose to share: questions for speakers, notes and references on talks, and the consensus groups' answers. Posts are anonymous unless the person chose to show their name.</p></div>
+    <div class="chips">${[["","All",Object.values(counts).reduce((a,b)=>a+b,0)],...Object.entries(LBL).map(([k,l])=>[k,l,counts[k]||0])].map(([k,l,n])=>`<button class="chip" data-bkind="${k}" aria-pressed="${BKIND===k}">${l} · ${n}</button>`).join("")}</div>
+    ${rows.length?`<div class="stack" style="gap:8px">${rows.slice(0,400).map(row).join("")}</div>`:`<div class="card"><b>Nothing here yet.</b><div class="where" style="margin-top:4px">To share, open the notes on any talk and tick "Share my note and references with everyone", or add a question for the speaker. Consensus answers appear here as groups add them.</div></div>`}
+    <p class="where">To remove something you shared, untick "Share" on that talk, or delete the question or answer. It disappears from the board within a minute. See something inappropriate? Report it: three reports hide it.${SHAREDAT?` Updated ${ago(SHAREDAT)}.`:""}</p>
+  </section>`;
+}
 function viewSocial(){
   const p=Object.fromEntries(new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Copenhagen",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).map(x=>[x.type,x.value]));
   const today=(+p.year===2026&&+p.month===10)?(+p.day-11):-1;
@@ -1268,6 +1330,9 @@ function viewInfo(){
       <div class="mini"><div class="eyebrow">Questions for the organisers</div><div class="copyline" style="margin-top:4px"><code id="mail">moc7-organisers@amcs.science</code><button class="btn ghost" data-act="copymail">Copy</button></div></div>
     </div>
     <div class="row"><a class="btn" href="https://amcs-community.org/wp-content/uploads/2026/10/moc7-booklet-web-full.pdf" target="_blank" rel="noopener">Booklet (PDF) ↗</a><a class="btn" href="https://amcs-community.org/moc7-schedule-information/" target="_blank" rel="noopener">Official programme ↗</a><a class="btn" href="https://amcs-community.org/moc7-practical-information/" target="_blank" rel="noopener">Practical information ↗</a></div>
+    <div class="card stack" id="about" style="gap:6px"><h3 style="font:400 1.35rem var(--f-display);color:var(--head)">About this app</h3>
+      <p style="margin:0;line-height:1.5">MoC7 Atlas gathers the conference in one place: the programme and posters, the people, the social plans, a map of how the ideas connect, a board for questions and the consensus groups' answers, and an assistant that knows the programme. Times follow the official programme, checked every hour.</p>
+      <p class="where" style="margin:0">Designed and built by <a href="https://sofiagallego.com" target="_blank" rel="noopener">Sofia Gallego</a> for MoC7. Ideas or problems: <code>moc7-organisers@amcs.science</code>.</p></div>
     ${privacyHtml()}
   </section>`;
 }
@@ -1625,7 +1690,7 @@ ${profileLine()}
 
 ${store.ai.provider==="device"?compactContext(q||(store.profile&&store.profile.interests)||""):programmeContext()}`;
 
-let CHAT=[],ASKING=null,RECS=null,RECBUSY=false,SYNTH=null,SYNTHBUSY=false,ASKDRAFT="";
+let CHAT=Array.isArray(store.chat)?store.chat.slice():[],ASKING=null,RECS=null,RECBUSY=false,SYNTH=null,SYNTHBUSY=false,ASKDRAFT="";
 function viewAsk(){
   const a=store.ai;const r=aiReady();const P=PROVIDERS[a.provider];
   const q=ASKDRAFT.trim()||"Which talks should I not miss on Thursday?";
@@ -1708,13 +1773,13 @@ function aiConsented(){const k=store.ai.provider;store.ai.consent=store.ai.conse
 let CONSENTASK=false;
 async function askLLM(q){
   if(!q.trim()||ASKING)return;if(!aiConsented()){ASKDRAFT=q;return}
-  DOCKQ="";CHAT.push({role:"user",content:q.trim()});ASKING="Thinking…";render();
-  const turns=CHAT.filter(m=>!m.err).slice(-10).map(m=>({role:m.role,content:m.content}));
+  DOCKQ="";CHAT.push({role:"user",content:q.trim(),t:Date.now()});ASKING="Thinking…";render();
+  const turns=CHAT.filter(m=>!m.err&&(!m.t||Date.now()-m.t<2*36e5)).slice(-10).map(m=>({role:m.role,content:m.content}));
   try{
     const text=await llm(SYS_ASK(q),turns,{onText:({text})=>{ASKING=text;const el=$("#streaming");if(el)el.textContent=text}});
-    CHAT.push({role:"assistant",content:text||"(no answer)"});
+    CHAT.push({role:"assistant",content:text||"(no answer)",t:Date.now()});
   }catch(e){CHAT.push({role:"assistant",content:e.code==="atlas"?e.message:e.code==="http"?`The provider said: ${e.message}`:errCopy(e.code),err:true})}
-  ASKING=null;ASKDRAFT="";render();const i=$("#askin");if(i)i.focus();
+  ASKING=null;ASKDRAFT="";store.chat=CHAT.filter(m=>!m.err).slice(-80);save();render();const i=$("#askin");if(i)i.focus();
 }
 function parseJSONish(t){try{return JSON.parse(t)}catch(e){}const m=t.match(/\[[\s\S]*\]/);if(m){try{return JSON.parse(m[0])}catch(e){}}return null}
 async function getRecs(){
@@ -1805,7 +1870,7 @@ function render(keepFocus){
   const n=store.stars.length+store.saved.length;const sc=$("#starCount");sc.hidden=!n;sc.textContent=n;
   const v=$("#view");
   const ae=document.activeElement;const fid=ae&&ae.id;const sel=fid&&ae.selectionStart;
-  v.innerHTML=({now:viewNow,prog:viewProg,posters:viewPosters,people:viewPeople,topics:viewTopics,map:viewMap,hive:viewHive,ask:viewAsk,profile:viewProfile,mine:viewMine,social:viewSocial,info:viewInfo})[tab]();if(["now","prog","mine","posters"].includes(tab))v.insertAdjacentHTML("afterbegin",liveNote());updateMe();if(tab==="map")requestAnimationFrame(mountSky);
+  v.innerHTML=({now:viewNow,prog:viewProg,posters:viewPosters,people:viewPeople,topics:viewTopics,map:viewMap,hive:viewHive,ask:viewAsk,profile:viewProfile,mine:viewMine,social:viewSocial,board:viewBoard,info:viewInfo})[tab]();if(["now","prog","mine","posters"].includes(tab))v.insertAdjacentHTML("afterbegin",liveNote());updateMe();if(tab==="map")requestAnimationFrame(mountSky);
   if(keepFocus&&fid){const el=document.getElementById(fid);if(el){el.focus();try{el.setSelectionRange(sel,sel)}catch(e){}}}
   updateClock();renderDock();
 }
@@ -1846,6 +1911,8 @@ document.addEventListener("click",e=>{
   if(ds.hs!=null){HSESS=+ds.hs||null;HTHREAD=null;HGROUP=null;return render()}
   if(ds.hg!=null){HGROUP=ds.hg||null;HTHREAD=null;return render()}
   if(ds.th){HTHREAD=HTHREAD===ds.th?null:ds.th;return render()}
+  if(ds.report){reportShared(ds.report);return}
+  if(ds.bkind!=null&&t.matches("[data-bkind]")){BKIND=ds.bkind;return render()}
   if(ds.del){store.hive=store.hive.filter(h=>h.id!==ds.del);store.hive.forEach(h=>{if(h.needs===ds.del)delete h.needs});save();toast("Card removed");return render()}
   if(ds.layer){SKYLAYERS[ds.layer]=!SKYLAYERS[ds.layer];t.setAttribute("aria-pressed",SKYLAYERS[ds.layer]);return drawSky()}
   if(ds.skysel){return skyFocus(ds.skysel)}
@@ -1867,6 +1934,7 @@ document.addEventListener("click",e=>{
     const it=store.hive.find(h=>h.id===A);if(!it){toast("Examples can't be linked. Add your group's milestones first");return}it.needs=B;save();toast("Linked");return render()}
   if(act==="hivedl")return offerFile("moc7-shared-knowledge.md",hiveDump());
   if(act==="clearcon"){SKYCON=null;SKYHL=skyMatches();$("#skypanel").innerHTML=skyPanel(SKYSEL&&SKY.byId[SKYSEL]);return drawSky()}
+  if(act==="about"){go("info");setTimeout(()=>{const el=document.getElementById("about");if(el)el.scrollIntoView({behavior:"smooth"})},50);return}
   if(act==="privacy"){go("info");setTimeout(()=>{const el=document.getElementById("privacy");if(el)el.scrollIntoView({behavior:"smooth"})},50);return}
   if(act==="consent"){store.ai.consent=store.ai.consent||{};store.ai.consent[store.ai.provider]=true;CONSENTASK=false;save();if(DOCK&&DOCKQ){const q=DOCKQ;DOCKQ="";ASKDRAFT="";return askLLM(q)}toast("Thanks. Ask again");return render()}
   if(act==="backpeople"){PERSON=null;return render()}
@@ -1878,7 +1946,7 @@ document.addEventListener("click",e=>{
   if(act==="syncdel"){(async()=>{try{const {id}=await syncKeys(store.sync.code);await syncCall({op:"delete",id});store.sync=null;save();toast("Synced copy deleted")}catch(err){toast("Couldn't delete it just now. Try again.")}render()})();return}
   if(act==="signout"){store.profile=null;save();toast("Profile cleared");return render()}
   if(act==="recs")return getRecs();
-  if(act==="clearchat"){CHAT=[];return render()}
+  if(act==="clearchat"){CHAT=[];store.chat=[];save();return render()}
   if(act==="synth"){let items=hiveItems();if(HSESS)items=items.filter(h=>h.session===HSESS);if(HGROUP)items=items.filter(h=>h.group===HGROUP);return synthHive(items)}
   if(act==="star"){const s=stars();s.has(ds.id)?s.delete(ds.id):s.add(ds.id);store.stars=[...s];save();
     if(store.tab==="mine"&&!s.has(ds.id))return render();
@@ -1893,7 +1961,7 @@ document.addEventListener("click",e=>{
   if(act==="exportall")return offerFile("my-moc7-data.json",exportData());
   if(act==="wipe1"){WIPE=true;return render()}
   if(act==="wipe0"){WIPE=false;return render()}
-  if(act==="wipe2"){try{localStorage.removeItem(KEY);localStorage.removeItem("moc7hive.pkce")}catch(err){}KEYMEM="";Object.keys(SESSKEYS).forEach(k=>delete SESSKEYS[k]);store={stars:[],notes:{},hive:[],tab:"now",day:1,sim:"live",themes:[],hideEx:false,refs:{},saved:[],share:{},questions:[],profile:null,ai:{provider:"",model:"",base:"",remember:false,key:"",keys:{}}};SKYPOS={};WIPE=false;CHAT=[];RECS=null;SYNTH=null;render();toast("Everything on this device was deleted");return}
+  if(act==="wipe2"){const toDel=Object.keys(store.sent||{});if(SHARE_URL&&toDel.length)toDel.forEach(cid=>shareCall({op:"delete",cid}).catch(()=>{}));try{localStorage.removeItem(KEY);localStorage.removeItem("moc7hive.pkce")}catch(err){}KEYMEM="";Object.keys(SESSKEYS).forEach(k=>delete SESSKEYS[k]);store={stars:[],notes:{},hive:[],tab:"now",day:1,sim:"live",themes:[],hideEx:false,refs:{},saved:[],share:{},questions:[],profile:null,ai:{provider:"",model:"",base:"",remember:false,key:"",keys:{}}};SKYPOS={};WIPE=false;CHAT=[];RECS=null;SYNTH=null;render();toast("Everything on this device was deleted");return}
   if(act==="pcopy"){copyText(profileMarkdown());return}
   if(act==="pdl")return offerFile("my-moc7.md",profileMarkdown());
   if(act==="mexport")return offerFile("my-moc7-notes.md",notesMarkdown());
@@ -1913,7 +1981,7 @@ document.addEventListener("input",e=>{
   if(el.id==="poq"){POQ=el.value;clearTimeout(window.__pt);window.__pt=setTimeout(()=>render(true),150);return}
 });
 document.addEventListener("change",e=>{
-  if(e.target.dataset&&e.target.dataset.share){store.share[e.target.dataset.share]=e.target.checked;save();toast(e.target.checked?"Shared with everyone":"No longer shared");return}
+  if(e.target.dataset&&e.target.dataset.share){store.share[e.target.dataset.share]=e.target.checked;save();toast(e.target.checked?"Shared with everyone":"No longer shared. Removed from the board");return}
   if(e.target.id==="importfile"){const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);const d=j&&j.data;if(!d||typeof d!=="object"||!Array.isArray(d.stars))throw 0;
       const keys=store.ai.keys;store={...store,...d,ai:{...store.ai,...(d.ai||{}),keys}};save();render();toast("Imported")}catch(err){toast("That file isn't a MoC7 Atlas export")}};r.readAsText(f);return}
   if(e.target.id==="ai-useprofile"){store.ai.useProfile=e.target.checked;save();return}
@@ -1951,7 +2019,7 @@ try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{if
   else if(store.sync&&store.sync.code)syncNow();
   document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")syncNow()});
 })();
-(function init(){finishOpenRouter();if(store.ai.provider==="openrouter"&&KEYMEM)loadORModels();const n=nowCph();if(!n.sim&&n.day>=0&&n.day<=5)store.day=n.day;render();loadLive();document.addEventListener("visibilitychange",()=>{if(!document.hidden)loadLive()});setInterval(()=>{updateClock();if(store.tab==="now"&&!document.activeElement.matches("textarea,input"))render()},60000)})();
+(function init(){finishOpenRouter();if(store.ai.provider==="openrouter"&&KEYMEM)loadORModels();const n=nowCph();if(!n.sim&&n.day>=0&&n.day<=5)store.day=n.day;render();loadLive();loadShared();shareTouch();setInterval(()=>{if(!document.hidden)loadShared()},90000);document.addEventListener("visibilitychange",()=>{if(!document.hidden){loadLive();loadShared()}});setInterval(()=>{updateClock();if(store.tab==="now"&&!document.activeElement.matches("textarea,input"))render()},60000)})();
 
 (function(){const W=document.getElementById("welcome");if(!W)return;let seen=false;try{seen=localStorage.getItem("moc7atlas.welcome")==="1"}catch(e){}
   if(!seen)W.hidden=false;document.getElementById("welcomeOk").addEventListener("click",()=>{W.hidden=true;try{localStorage.setItem("moc7atlas.welcome","1")}catch(e){}})})();
@@ -1976,5 +2044,6 @@ try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{if
 })();
 </script>
 
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "7b6420812e4d4b47b127ffaa187ab46b"}'></script>
 </body>
 </html>
