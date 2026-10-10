@@ -1,7 +1,7 @@
 {
   "name": "MoC7 Atlas",
   "short_name": "MoC7 Atlas",
-  "description": "Unofficial guide to Models of Consciousness 7, Copenhagen, 12–16 October 2026. Everything you save stays on your device.",
+  "description": "Guide to Models of Consciousness 7, Copenhagen, 12–16 October 2026. Everything you save stays on your device.",
   "start_url": "/moc7/",
   "scope": "/moc7/",
   "display": "standalone",

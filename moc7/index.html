@@ -295,7 +295,7 @@ a.tag:hover{border-color:var(--accent);color:var(--accent)}
 
 <header class="top">
   <div class="wrap">
-    <div class="brand"><h1>MoC7 <em>Atlas</em></h1><small><span class="long">Unofficial guide to Models of Consciousness 7 · Copenhagen, 12–16 Oct</span><span class="short">Unofficial guide to MoC7</span></small></div>
+    <div class="brand"><h1>MoC7 <em>Atlas</em></h1><small><span class="long">Guide to Models of Consciousness 7 · Copenhagen, 12–16 Oct</span><span class="short">Guide to MoC7</span></small></div>
     <div class="topacts">
       <span class="clock" id="clock">—</span>
       <button class="iconbtn" id="installBtn" hidden title="Install as an app" aria-label="Install MoC7 Atlas as an app"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg></button>
@@ -318,7 +318,7 @@ a.tag:hover{border-color:var(--accent);color:var(--accent)}
 <div class="wrap" id="welcome" hidden><div class="welcome"><span>Plan your week at Models of Consciousness 7: browse the programme, save talks, take notes, and see how the ideas connect. Nothing to sign up for, and everything you save stays on your phone.</span><button class="btn primary" id="welcomeOk">OK</button></div></div>
 <main class="wrap" id="view"></main>
 <footer><div class="wrap">
-  <span>An unofficial companion to the official MoC7 programme. Times and rooms follow the booklet; when in doubt, the organisers' page wins: <a href="https://amcs-community.org/moc7-schedule-information/" target="_blank" rel="noopener">amcs-community.org</a></span>
+  <span>The MoC7 conference app. Times and rooms follow the booklet; the full programme with abstracts is on <a href="https://amcs-community.org/moc7-schedule-information/" target="_blank" rel="noopener">amcs-community.org</a></span>
   <span>Everything you save stays on this device. No account, no cookies, no tracking. <button class="btn ghost" data-act="privacy" style="padding:0 4px;font-size:inherit;color:var(--accent)">Privacy</button>.</span>
 </div></footer>
 <div class="toast" id="toast" hidden></div>
@@ -1387,7 +1387,7 @@ function profileMarkdown(){
   const notes=sub(notesMarkdown());if(notes)L.push("","## Saved talks, notes and things I kept","",notes);
   const qs=store.questions.filter(q=>ITEMS[q.itemId]);if(qs.length){L.push("","## My questions for speakers","");qs.forEach(q=>L.push(`- ${ITEMS[q.itemId].title}: ${q.text}`))}
   if(store.hive.length)L.push("","## Consensus answers","",sub(hiveMarkdown()));
-  L.push("","Made with MoC7 Atlas, an unofficial companion to the MoC7 programme.");
+  L.push("","Made with MoC7 Atlas, the MoC7 conference app.");
   return L.join("\n");
 }
 const ME_ICON='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c1.2-3.6 4-5.4 7-5.4s5.8 1.8 7 5.4"/></svg>';

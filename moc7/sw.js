@@ -1,6 +1,6 @@
 /* MoC7 Atlas offline support: keeps a copy of the app so it opens without a connection.
    The page is always fetched fresh when online; the copy is only used offline. */
-const CACHE = "moc7-atlas-v1";
+const CACHE = "moc7-atlas-v2";
 const FILES = ["/moc7/", "/moc7/manifest.webmanifest", "/moc7/favicon.svg", "/moc7/favicon-32.png", "/moc7/apple-touch-icon.png", "/moc7/icon-192.png", "/moc7/icon-512.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
