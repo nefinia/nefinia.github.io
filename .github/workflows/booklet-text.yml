@@ -1,0 +1,19 @@
+name: Booklet text (one-off)
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  text:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          sudo apt-get install -y -q poppler-utils zbar-tools >/dev/null
+          mkdir out && cd out
+          curl -sSL -A "Mozilla/5.0" -o ../b.pdf https://amcs-community.org/wp-content/uploads/2026/10/moc7-booklet-web-full.pdf
+          file ../b.pdf > info.txt; pdfinfo ../b.pdf >> info.txt || true
+          pdftotext -layout ../b.pdf booklet.txt || true
+          pdftoppm -r 220 -png ../b.pdf pg || true
+          for f in pg-*.png; do echo "== $f"; zbarimg -q --raw "$f" || true; done > qr.txt
+          rm -f pg-*.png
+          git init -q && git checkout -q -b booklet-tmp && git add . && git -c user.name=bot -c user.email=bot@users.noreply.github.com commit -qm tmp
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" booklet-tmp
