@@ -1,0 +1,15 @@
+{
+  "name": "MoC7 Atlas",
+  "short_name": "MoC7 Atlas",
+  "description": "Unofficial guide to Models of Consciousness 7, Copenhagen, 12–16 October 2026. Everything you save stays on your device.",
+  "start_url": "/moc7/",
+  "scope": "/moc7/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2b2257",
+  "icons": [
+    {"src": "/moc7/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "/moc7/icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "/moc7/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

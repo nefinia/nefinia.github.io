@@ -24,6 +24,11 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MoC7 Atlas">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -278,12 +283,17 @@ a.tag:hover{border-color:var(--accent);color:var(--accent)}
 @media (max-width:640px){.brand small .long{display:none}.brand small .short{display:inline}}
 .welcome{margin-top:14px;background:var(--sunk);border:1px solid var(--line);border-radius:var(--r);padding:10px 14px;display:flex;gap:12px;align-items:center;justify-content:space-between;font-size:.92rem;line-height:1.45}
 .welcome .btn{flex:0 0 auto}
+.installsheet{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(16px + env(safe-area-inset-bottom,0px));z-index:60;display:flex;justify-content:center}
+.installsheet .card{max-width:520px;width:100%;box-shadow:0 8px 30px rgba(0,0,0,.18)}
+#installBtn .av{background:var(--sunk);color:var(--head)}
+@media (display-mode: standalone){#installBtn{display:none!important}}
 </style>
 
 <header class="top">
   <div class="wrap">
     <div class="brand"><h1>MoC7 <em>Atlas</em></h1><small><span class="long">Unofficial guide to Models of Consciousness 7 · Copenhagen, 12–16 Oct</span><span class="short">Unofficial guide to MoC7</span></small></div>
     <span class="clock" id="clock">—</span>
+    <button class="me" id="installBtn" hidden aria-label="Install MoC7 Atlas as an app"><span class="av" aria-hidden="true">↓</span><span>Install</span></button>
     <button class="me" id="meBtn" data-go="profile" aria-label="Your profile"><span class="av" id="meAv">?</span><span id="meName">Profile</span></button>
     <nav class="tabs" role="tablist" id="tabs">
       <button role="tab" data-tab="now">Now</button>
@@ -306,6 +316,12 @@ a.tag:hover{border-color:var(--accent);color:var(--accent)}
   <span>Everything you save stays on this device. No account, no cookies, no tracking. <button class="btn ghost" data-act="privacy" style="padding:0 4px;font-size:inherit;color:var(--accent)">Privacy</button>.</span>
 </div></footer>
 <div class="toast" id="toast" hidden></div>
+<div class="installsheet" id="installSheet" hidden role="dialog" aria-label="Install MoC7 Atlas"><div class="card stack" style="gap:8px">
+  <b style="font:400 1.2rem var(--f-display);color:var(--head)">Add MoC7 Atlas to your home screen</b>
+  <div id="installSteps" class="where"></div>
+  <div class="where">It then opens like an app, full screen, and keeps working with poor Wi-Fi.</div>
+  <div class="row"><button class="btn primary" id="installClose">OK</button></div>
+</div></div>
 <button class="fab" id="fab" hidden data-act="dock" aria-label="Ask about MoC7" title="Ask about MoC7"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M10 3.5c.6 3.6 2.4 5.4 6 6-3.6.6-5.4 2.4-6 6-.6-3.6-2.4-5.4-6-6 3.6-.6 5.4-2.4 6-6z"/><path d="M18 14.5c.3 1.6 1 2.3 2.5 2.5-1.5.3-2.2 1-2.5 2.5-.3-1.5-1-2.2-2.5-2.5 1.5-.2 2.2-.9 2.5-2.5z"/></svg></button>
 <div class="dock" id="dock" hidden role="dialog" aria-label="Ask about MoC7"></div>
 
@@ -1839,6 +1855,25 @@ try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{if
 
 (function(){const W=document.getElementById("welcome");if(!W)return;let seen=false;try{seen=localStorage.getItem("moc7atlas.welcome")==="1"}catch(e){}
   if(!seen)W.hidden=false;document.getElementById("welcomeOk").addEventListener("click",()=>{W.hidden=true;try{localStorage.setItem("moc7atlas.welcome","1")}catch(e){}})})();
+
+/* install as an app */
+(function(){
+  const btn=document.getElementById("installBtn"),sheet=document.getElementById("installSheet"),steps=document.getElementById("installSteps");if(!btn)return;
+  const standalone=()=>window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;
+  const ua=navigator.userAgent;const ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  let deferred=null;
+  if("serviceWorker" in navigator&&location.protocol==="https:"){navigator.serviceWorker.register("/moc7/sw.js",{scope:"/moc7/"}).catch(()=>{})}
+  if(standalone())return;
+  window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;btn.hidden=false});
+  window.addEventListener("appinstalled",()=>{btn.hidden=true;sheet.hidden=true;try{toast("Installed. Look for MoC7 Atlas on your home screen")}catch(e){}});
+  if(ios)btn.hidden=false;
+  btn.addEventListener("click",async()=>{
+    if(deferred){deferred.prompt();try{await deferred.userChoice}catch(e){}deferred=null;btn.hidden=true;return}
+    steps.innerHTML=ios?`In Safari, tap the <b>Share</b> button (the square with an arrow), then <b>Add to Home Screen</b>.<br><br>On iPhone the installed app keeps its own saved items, separate from Safari. Install it before you start saving, or move your notes with <b>Saved → Download my data</b> and <b>Import</b>.`
+      :`Open your browser's menu and choose <b>Install app</b> or <b>Add to Home screen</b>.`;
+    sheet.hidden=false});
+  document.getElementById("installClose").addEventListener("click",()=>{sheet.hidden=true});
+})();
 </script>
 
 </body>
