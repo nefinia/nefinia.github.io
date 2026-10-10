@@ -13,5 +13,5 @@ jobs:
           for i,p in enumerate(r.pages,1):
               for a in (p.get("/Annots") or []):
                   a=a.get_object(); u=(a.get("/A") or {}).get("/URI")
-                  if u and "signal" in str(u).lower(): print("PAGE",i,u)
+                  if u and "amcs-community" not in str(u): print(f"::notice::PAGE {i} {u}")
           PY
