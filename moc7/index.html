@@ -746,8 +746,8 @@ function talkRow(it,opts={}){
       <button class="ico ${on?"on":""}" data-act="star" data-id="${it.id}" aria-label="${on?"Remove from Saved":"Save"}" aria-pressed="${on}" title="Save">${SV.star}</button>
     </div>
     ${open?`<div class="note"><textarea class="inp" id="note-${it.id}" data-note="${it.id}" placeholder="Your notes on this talk…">${esc(store.notes[it.id]||"")}</textarea>${refEditor(it.id)}
-      <label class="row" style="gap:8px;margin-top:8px;font-size:.88rem"><input type="checkbox" data-share="${it.id}" ${store.share[it.id]?"checked":""}> Share my note and references with everyone</label>
-      ${it.kind!=="Poster"&&it.kind!=="Discussion"?`<div class="refform"><input class="inp" id="qq-${it.id}" maxlength="300" placeholder="A question for the speaker (shared with everyone)"><button class="btn" data-askq="${it.id}">Add question</button></div>`:""}</div>`:""}
+      <label class="row" style="gap:8px;margin-top:8px;font-size:.88rem"><input type="checkbox" data-share="${it.id}" ${store.share[it.id]?"checked":""}> Show my note and references in the Constellation</label>
+      ${it.kind!=="Poster"&&it.kind!=="Discussion"?`<div class="refform"><input class="inp" id="qq-${it.id}" maxlength="300" placeholder="A question for the speaker (saved here, shown in the Constellation)"><button class="btn" data-askq="${it.id}">Add question</button></div>`:""}</div>`:""}
   </div>`;
 }
 function hl(text,q,already){const s=already?text:esc(text);if(!q)return s;const re=new RegExp("("+q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","ig");return s.replace(re,"<mark>$1</mark>")}
@@ -1059,7 +1059,7 @@ function viewMap(){
     <div class="legend"><span><i style="background:var(--head)"></i>Topic</span><span><i style="background:var(--k-key)"></i>Keynote</span><span><i style="background:var(--k-talk)"></i>Talk</span><span><i style="background:var(--k-ws)"></i>Workshop</span><span><i style="background:var(--k-post)"></i>Poster</span><span><i style="background:var(--gold)"></i>Shared by participants</span><span><i style="background:var(--accent)"></i>Close in content / concept</span></div>
     <div class="card" id="skypanel">${skyPanel(sel)}</div>
     ${c.length&&!usingEx?`<div class="row"><button class="btn" data-act="hivedl">Download everything shared (.md)</button></div>`:""}
-    <div class="where">To add to the sky: open the notes on any talk, write, and tick "Share my note and references with everyone". Questions for speakers, topic references and consensus cards appear automatically. In this preview only your own contributions show; once sharing is live, everyone's will.</div>
+    <div class="where">To add to the sky: open the notes on any talk, write, and tick "Show my note and references in the Constellation". Questions for speakers, topic references and consensus cards appear automatically. For now this sky shows only what is saved on this device; nothing is sent anywhere.</div>
   </section>`;
 }
 function skyPanel(n){
