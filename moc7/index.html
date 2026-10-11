@@ -978,7 +978,7 @@ function hiveMarkdown(){
    Shared: notes and references on talks where "Share" is ticked, questions for speakers, consensus answers.
    Names only if the person chose to show theirs. Unsharing or deleting removes it from the server. */
 const SHARE_URL=typeof ASK_URL==="string"&&ASK_URL?ASK_URL+"share":"";
-let SHARED=[],SHAREDAT=0,MYSIDS={};const SHAREQ={timer:null,busy:false};
+let SHARED=[],SHAREDAT=0,MYSIDS={},MYVOTES={};const SHAREQ={timer:null,busy:false};
 const hash36=s=>{let h=5381;for(const c of String(s))h=((h<<5)+h+c.codePointAt(0))>>>0;return h.toString(36)};
 const myName=()=>store.profile&&store.profile.showName===true?store.profile.name:"";
 function desiredShares(){
@@ -1004,8 +1004,10 @@ async function pushShares(){
   if(changed){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}loadShared()}
   if(failed)setTimeout(shareTouch,60000);
 }
-async function loadShared(){if(!SHARE_URL)return;try{const d=await shareCall({op:"list"});SHARED=(d.rows||[]).filter(r=>!r.mine);MYSIDS=Object.fromEntries((d.rows||[]).filter(r=>r.mine).map(r=>[r.cid,r.sid]));SHAREDAT=Date.now();
+async function loadShared(){if(!SHARE_URL)return;try{const d=await shareCall({op:"list"});SHARED=(d.rows||[]).filter(r=>!r.mine);MYSIDS=Object.fromEntries((d.rows||[]).filter(r=>r.mine).map(r=>[r.cid,r.sid]));MYVOTES=Object.fromEntries((d.rows||[]).filter(r=>r.mine).map(r=>[r.sid,r.votes||0]));SHAREDAT=Date.now();
   if(["hive","board","map","prog","mine"].includes(store.tab)&&!document.activeElement.matches("textarea,input"))render()}catch(e){}}
+async function likeShared(sid){const r=SHARED.find(x=>x.sid===sid);if(!r)return;const up=!r.voted;r.voted=up;r.votes=Math.max(0,(r.votes||0)+(up?1:-1));render();
+  try{await shareCall({op:"vote",sid,up})}catch(e){r.voted=!up;r.votes=Math.max(0,(r.votes||0)+(up?-1:1));render();toast("Couldn't save your like right now")}}
 async function reportShared(sid){try{await shareCall({op:"report",sid:+sid});SHARED=SHARED.filter(r=>r.sid!==+sid);toast("Reported. Thank you");render()}catch(e){toast("Couldn't report right now")}}
 const othersCards=()=>SHARED.filter(r=>r.kind==="card"&&r.meta).map(r=>({id:r.meta.id||"s"+r.sid,group:r.meta.group||"Group",type:r.meta.type,session:r.meta.session,needs:r.meta.needs||undefined,text:r.text,by:r.by||"",t:r.t,other:true,sid:r.sid}));
 const othersOn=id=>SHARED.filter(r=>r.item===id&&r.kind!=="card");
@@ -1188,7 +1190,7 @@ function hiveDump(){const all=collective();let md="# MoC7: shared knowledge\n";
     xs.forEach(c=>{const it=c.itemId&&ITEMS[c.itemId];md+=`- **${TYPE_LABEL[c.type]}**: ${c.text}${c.url?` <${c.url}>`:""}${it?` (on “${it.title}”${it.name?", "+it.name:""})`:""}${c.by?` · ${c.by}`:""}\n`})});return md}
 
 /* ---- saved ---- */
-const SKIND={person:"People",topic:"Topics",paper:"Papers",link:"Links & references",note:"Notes & ideas"};
+const SKIND={person:"People",topic:"Topics",paper:"Papers",link:"Links & references",note:"Notes & ideas",board:"From the Board"};
 function viewMine(){
   const its=[...stars()].map(id=>ITEMS[id]).filter(Boolean).sort((a,b)=>a.day-b.day||a.s-b.s);
   let html="";let lastDay=-1;
@@ -1284,7 +1286,7 @@ const SOCIAL=[
   {t:"Farewell bubbles",when:"16:00–18:00",where:"Maersk Tower, 15th floor, Blegdamsvej 3B",tag:"Included",d:"A last view over all of Copenhagen after the closing keynote and plenary. 15 minutes on foot from HCØ.",links:[["Map",MAPQ("Maersk Tower, Blegdamsvej 3B, Copenhagen")]]},
   {t:"Conference party",when:"From 18:00, till your consciousness lasts",where:"Inferno, Istedgade 36",tag:"Self-organised",d:"An experimental cocktail bar with a cocktail printer, then on to the Meatpacking District. Danish Fridays start late.",links:[["MoC7 socials Signal group",SIGNAL.socials],["Inferno","https://infernobar.dk/"],["Map",MAPQ("Inferno, Istedgade 36, Copenhagen")]]}]},
 ];
-let BKIND="",BREPLY=null,BKINDNEW="question";
+let BKIND="",BREPLY=null,BKINDNEW="question",BSORT="new",BQ="",BDRAFT="";
 function viewBoard(){
   const mineW=desiredShares();
   const tOf=cid=>{const id=cid.slice(2);return cid.startsWith("q:")?(store.questions.find(q=>q.id===id)||{}).t:cid.startsWith("c:")?(store.hive.find(h=>h.id===id)||{}).t:cid.startsWith("p:")?((store.posts||[]).find(x=>x.id===id)||{}).t:0};
@@ -1294,6 +1296,12 @@ function viewBoard(){
   let rows=everything.filter(r=>!isReply(r)).sort((a,b)=>b.t-a.t);
   const counts={question:0,note:0,ref:0,card:0};rows.forEach(r=>counts[r.kind]=(counts[r.kind]||0)+1);
   if(BKIND)rows=rows.filter(r=>r.kind===BKIND);
+  const nRep=r=>r.sid?replies.filter(x=>x.item==="re:"+r.sid).length:0;
+  const likes=r=>r.mine?(MYVOTES[r.sid]||0):(r.votes||0);
+  if(BQ){const q=BQ.toLowerCase();rows=rows.filter(r=>(r.text+" "+(r.by||"")+" "+((ITEMS[r.item]||{}).title||"")+" "+((ITEMS[r.item]||{}).name||"")).toLowerCase().includes(q)||replies.some(x=>x.item==="re:"+r.sid&&x.text.toLowerCase().includes(q)))}
+  if(BSORT==="old")rows.sort((a,b)=>a.t-b.t);
+  else if(BSORT==="liked")rows.sort((a,b)=>likes(b)-likes(a)||b.t-a.t);
+  else if(BSORT==="open")rows=rows.filter(r=>r.kind==="question"&&!nRep(r));
   const LBL={question:"Questions",note:"Notes & ideas",ref:"Links",card:"Consensus"};
   const ago=t=>{const m=Math.round((Date.now()-t)/6e4);return m<1?"just now":m<60?m+" min ago":m<1440?Math.round(m/60)+" h ago":new Date(t).toLocaleDateString("en-GB",{weekday:"short",day:"numeric"})};
   const where=r=>{if(r.kind==="card"&&r.meta){const c=CS.find(x=>x[0]===r.meta.session);return `Consensus session ${r.meta.session}${c?": "+esc(c[5]):""} · ${esc(r.meta.group||"")}`}const it=ITEMS[r.item];return it?`On <a href="#" data-goitem="${it.id}">${esc(it.title)}</a> · ${esc(it.name||"")}`:""};
@@ -1303,18 +1311,19 @@ function viewBoard(){
     ${r.sid&&r.kind!=="card"?(BREPLY===r.sid?`<div class="refform" style="margin-top:6px"><input class="inp" id="breply" maxlength="600" placeholder="Your reply (shared with everyone)"><button class="btn" data-breplysend="${r.sid}">Reply</button></div>`:`<button class="btn ghost" data-breply="${r.sid}" style="padding:0 6px;font-size:.78rem;margin-top:4px">Reply${list.length?" · "+list.length:""}</button>`):""}`};
   const row=r=>`<div class="mini"><div class="row" style="justify-content:space-between;gap:8px"><span class="eyebrow">${{question:"Question",note:r.item==="general"?"Idea":"Note",ref:"Link",card:"Consensus answer"}[r.kind]||""}${r.by?" · "+esc(r.by):""}${r.mine?" · yours":""}</span><span class="where">${ago(r.t)}</span></div>
     <div style="margin:4px 0;line-height:1.45">${r.url?`<a href="${esc(r.url)}" target="_blank" rel="noopener nofollow">${esc(r.text)} ↗</a>`:esc(r.text)}</div>
-    <div class="row" style="justify-content:space-between;gap:8px"><span class="where">${where(r)}</span><span>${del(r)}${r.mine?"":`<button class="btn ghost" data-report="${r.sid}" style="padding:0 6px;font-size:.78rem">Report</button>`}</span></div>${rep(r)}</div>`;
+    <div class="row" style="justify-content:space-between;gap:8px"><span class="where">${where(r)}</span><span class="row" style="gap:4px">${r.sid?(r.mine?(likes(r)?`<span class="where">♥ ${likes(r)}</span>`:""):`<button class="btn ghost" data-blike="${r.sid}" aria-pressed="${!!r.voted}" title="${r.voted?"Unlike":"Like"}" style="padding:0 6px;font-size:.78rem;${r.voted?"color:var(--accent);border-color:var(--accent)":""}">♥ ${likes(r)||""}</button>`):""}${r.sid?saveBtn("board","b:"+r.sid,(r.text.length>140?r.text.slice(0,140)+"…":r.text)+(r.by?" ("+r.by+")":""),r.url||""):""}${del(r)}${r.mine?"":`<button class="btn ghost" data-report="${r.sid}" style="padding:0 6px;font-size:.78rem">Report</button>`}</span></div>${rep(r)}</div>`;
   const talkOpts=Object.values(ITEMS).filter(it=>it.kind!=="Discussion").sort((a,b)=>a.day-b.day||a.s-b.s).map(it=>`<option value="${esc(it.title.slice(0,90))} · ${esc(it.name||"")}"></option>`).join("");
   const composer=`<div class="card stack" style="gap:8px">
       <div class="chips" role="group" aria-label="What to post">${[["question","Ask everyone"],["note","Share an idea"],["ref","Share a link"]].map(([k,l])=>`<button class="chip" data-bnew="${k}" aria-pressed="${BKINDNEW===k}">${l}</button>`).join("")}</div>
-      <textarea class="inp" id="bpost" maxlength="1000" rows="2" placeholder="${BKINDNEW==="question"?"A question for everyone: about a talk, a method, dinner plans…":BKINDNEW==="ref"?"Paste a link (paper, DOI, preprint) and a few words about it":"An idea, a connection between talks, an invitation to talk…"}"></textarea>
+      <textarea class="inp" id="bpost" maxlength="1000" rows="2" placeholder="${BKINDNEW==="question"?"A question for everyone: about a talk, a method, dinner plans…":BKINDNEW==="ref"?"Paste a link (paper, DOI, preprint) and a few words about it":"An idea, a connection between talks, an invitation to talk…"}">${esc(BDRAFT)}</textarea>
       <input class="inp" id="babout" list="btalks" placeholder="About a talk (optional): start typing a title or speaker"><datalist id="btalks">${talkOpts}</datalist>
       <div class="row" style="justify-content:space-between;gap:8px"><span class="where">Shared with everyone${myName()?" as "+esc(myName()):", anonymously"}.</span><button class="btn primary" data-act="bpost">Post</button></div></div>`;
   return `<section class="stack">
     <div><h2>Board</h2><p class="lede">Questions for everyone, ideas, links, and what people shared on talks and in the consensus sessions.</p></div>
     ${composer}
     <div class="chips">${[["","All",Object.values(counts).reduce((a,b)=>a+b,0)],...Object.entries(LBL).map(([k,l])=>[k,l,counts[k]||0])].map(([k,l,n])=>`<button class="chip" data-bkind="${k}" aria-pressed="${BKIND===k}">${l} · ${n}</button>`).join("")}</div>
-    ${rows.length?`<div class="stack" style="gap:8px">${rows.slice(0,400).map(row).join("")}</div>`:`<div class="card"><b>Nothing here yet.</b><div class="where" style="margin-top:4px">Be the first: ask everyone a question above. Notes you share on talks and the consensus groups' answers also appear here.</div></div>`}
+    <div class="row" style="gap:8px"><select class="sel" id="bsort" data-act="bsort" aria-label="Order" style="flex:0 0 auto">${[["new","Newest"],["old","Oldest"],["liked","Most liked"],["open","Unanswered questions"]].map(([k,l])=>`<option value="${k}" ${BSORT===k?"selected":""}>${l}</option>`).join("")}</select><input class="inp" id="bq" value="${esc(BQ)}" placeholder="Search the board" style="flex:1;min-width:0"></div>
+    ${rows.length?`<div class="stack" style="gap:8px">${rows.slice(0,400).map(row).join("")}</div>`:BQ||BSORT==="open"?`<div class="where">Nothing matches.</div>`:`<div class="card"><b>Nothing here yet.</b><div class="where" style="margin-top:4px">Be the first: ask everyone a question above. Notes you share on talks and the consensus groups' answers also appear here.</div></div>`}
     <p class="where">Delete your own posts at any time, or untick "Share" on a talk. See something inappropriate? Report it: three reports hide it.${SHAREDAT?` Updated ${ago(SHAREDAT)}.`:""}</p>
   </section>`;
 }
@@ -1324,7 +1333,7 @@ function boardPost(){
   let kind=BKINDNEW,url;
   if(kind==="ref"){const m=text.match(/https?:\/\/\S+|10\.\d{4,9}\/\S+/i);if(!m){toast("Add a link (https://… or a DOI)");return}url=m[0].startsWith("10.")?"https://doi.org/"+m[0]:m[0];text=text.replace(m[0],"").replace(/\s+/g," ").trim()||url}
   store.posts=store.posts||[];store.posts.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),kind,item:it?it.id:"general",text:text.slice(0,kind==="note"?1000:300),url,t:Date.now()});
-  save();toast("Posted to the Board");render();
+  BDRAFT="";save();toast("Posted to the Board");render();
 }
 function viewSocial(){
   const p=Object.fromEntries(new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Copenhagen",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).map(x=>[x.type,x.value]));
@@ -1937,9 +1946,10 @@ document.addEventListener("click",e=>{
   if(ds.th){HTHREAD=HTHREAD===ds.th?null:ds.th;return render()}
   if(ds.report){reportShared(ds.report);return}
   if(ds.bkind!=null&&t.matches("[data-bkind]")){BKIND=ds.bkind;return render()}
-  if(ds.bnew){BKINDNEW=ds.bnew;const v=($("#bpost")||{}).value||"";render();const ta=$("#bpost");if(ta){ta.value=v;ta.focus()}return}
+  if(ds.bnew){BKINDNEW=ds.bnew;render();const ta=$("#bpost");if(ta)ta.focus();return}
   if(ds.breply){BREPLY=+ds.breply;render();const i=$("#breply");if(i)i.focus();return}
   if(ds.breplysend){const i=$("#breply");const v=i?i.value.trim():"";if(!v)return;store.posts=store.posts||[];store.posts.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),kind:"note",item:"re:"+ds.breplysend,text:v.slice(0,600),t:Date.now()});BREPLY=null;save();toast("Reply posted");return render()}
+  if(ds.blike){likeShared(+ds.blike);return}
   if(ds.bdel){store.posts=(store.posts||[]).filter(x=>x.id!==ds.bdel);save();toast("Deleted");return render()}
   if(ds.del){store.hive=store.hive.filter(h=>h.id!==ds.del);store.hive.forEach(h=>{if(h.needs===ds.del)delete h.needs});save();toast("Card removed");return render()}
   if(ds.layer){SKYLAYERS[ds.layer]=!SKYLAYERS[ds.layer];t.setAttribute("aria-pressed",SKYLAYERS[ds.layer]);return drawSky()}
@@ -2000,6 +2010,8 @@ document.addEventListener("click",e=>{
 document.addEventListener("input",e=>{
   const el=e.target;
   if(el.dataset&&el.dataset.note){store.notes[el.dataset.note]=el.value;clearTimeout(window.__nt);window.__nt=setTimeout(save,300);return}
+  if(el.id==="bq"){BQ=el.value;clearTimeout(window.__bqt);window.__bqt=setTimeout(()=>render(true),200);return}
+  if(el.id==="bpost"){BDRAFT=el.value;return}
   if(el.id==="q"){QUERY=el.value;clearTimeout(window.__qt);window.__qt=setTimeout(()=>render(true),150);return}
   if(el.id==="peq"){PQ=el.value;clearTimeout(window.__pe);window.__pe=setTimeout(()=>render(true),150);return}
   if(el.id==="ai-key"){setKey(el.value.trim());clearTimeout(window.__ak);window.__ak=setTimeout(()=>render(true),400);return}
@@ -2010,6 +2022,7 @@ document.addEventListener("input",e=>{
   if(el.id==="poq"){POQ=el.value;clearTimeout(window.__pt);window.__pt=setTimeout(()=>render(true),150);return}
 });
 document.addEventListener("change",e=>{
+  if(e.target.id==="bsort"){BSORT=e.target.value;return render()}
   if(e.target.dataset&&e.target.dataset.share){store.share[e.target.dataset.share]=e.target.checked;save();toast(e.target.checked?"Shared with everyone":"No longer shared. Removed from the board");return}
   if(e.target.id==="importfile"){const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);const d=j&&j.data;if(!d||typeof d!=="object"||!Array.isArray(d.stars))throw 0;
       const keys=store.ai.keys;store={...store,...d,ai:{...store.ai,...(d.ai||{}),keys}};save();render();toast("Imported")}catch(err){toast("That file isn't a MoC7 Atlas export")}};r.readAsText(f);return}
