@@ -775,7 +775,7 @@ function talkRow(it,opts={}){
     </div>
     ${open?`<div class="note"><textarea class="inp" id="note-${it.id}" data-note="${it.id}" placeholder="Your notes on this talk…">${esc(store.notes[it.id]||"")}</textarea>${refEditor(it.id)}
       <label class="row" style="gap:8px;margin-top:8px;font-size:.88rem"><input type="checkbox" data-share="${it.id}" ${store.share[it.id]?"checked":""}> Share my note and references with everyone <span class="where">(anonymous unless you show your name)</span></label>
-      ${it.kind!=="Poster"&&it.kind!=="Discussion"?`<div class="refform"><input class="inp" id="qq-${it.id}" maxlength="300" placeholder="A question for the speaker (shared with everyone)"><button class="btn" data-askq="${it.id}">Add question</button></div>`:""}${othersHtml(it.id)}</div>`:""}
+      ${it.kind!=="Poster"&&it.kind!=="Discussion"?`<div class="refform"><input class="inp" id="qq-${it.id}" maxlength="1000" placeholder="A question for the speaker (shared with everyone)"><button class="btn" data-askq="${it.id}">Add question</button></div>`:""}${othersHtml(it.id)}</div>`:""}
   </div>`;
 }
 function hl(text,q,already){const s=already?text:esc(text);if(!q)return s;const re=new RegExp("("+q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","ig");return s.replace(re,"<mark>$1</mark>")}
@@ -1344,7 +1344,7 @@ function boardPost(){
   const about=($("#babout")||{}).value||"";const aq=about.split(" · ")[0].trim().toLowerCase();const it=aq.length>=5?(Object.values(ITEMS).find(x=>x.title.toLowerCase().startsWith(aq))||Object.values(ITEMS).find(x=>x.title.toLowerCase().includes(aq)||(x.name||"").toLowerCase()===aq)):null;
   let kind=BKINDNEW,url;
   if(kind==="ref"){const m=text.match(/https?:\/\/\S+|10\.\d{4,9}\/\S+/i);if(!m){toast("Add a link (https://… or a DOI)");return}url=m[0].startsWith("10.")?"https://doi.org/"+m[0]:m[0];text=text.replace(m[0],"").replace(/\s+/g," ").trim()||url}
-  store.posts=store.posts||[];store.posts.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),kind,item:it?it.id:"general",text:text.slice(0,kind==="note"?1000:300),url,t:Date.now()});
+  store.posts=store.posts||[];store.posts.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),kind,item:it?it.id:"general",text:text.slice(0,kind==="ref"?300:1000),url,t:Date.now()});
   BDRAFT="";save();toast("Posted to the Board");render();
 }
 function viewSocial(){
@@ -1574,7 +1574,7 @@ const IN_CLAUDE=!!(window.claude&&window.claude.use);
 const HAS_DEVICE_AI=typeof self!=="undefined"&&"LanguageModel" in self;
 // Providers that answer inside the page
 const PROVIDERS={
-  atlas:{name:"MoC7 Atlas assistant",sub:"Free, no sign-in. Answers about the conference, up to 50 questions a day.",hosted:true},
+  atlas:{name:"MoC7 Atlas assistant",sub:"Free, no sign-in. Answers about the conference, up to 100 questions a day.",hosted:true},
   claude:{name:"Claude",sub:"Your own Claude account. Nothing to set up.",claudeOnly:true},
   openrouter:{name:"OpenRouter",sub:"Sign in once, then pick any model: Claude, GPT, Gemini, Llama, Mistral, DeepSeek, free ones.",oauth:true,base:"https://openrouter.ai/api/v1",model:"openrouter/auto"},
   device:{name:"Built into this browser",sub:"Runs on your laptop, free and offline. Chrome only.",device:true},
