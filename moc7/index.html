@@ -905,18 +905,7 @@ const SQ={
  8:["roadmap","Your group's roadmap in a few lines: the focus areas and the route through them.","e.g. Start with validated human measures, then extend to infants and animals"]
 };
 const GROUPS=Array.from({length:12},(_,i)=>`Group ${i+1}`);
-const EXAMPLES=[
- {type:"deliv",group:"Group 1",session:3,text:"An open database of consciousness tests, with the assumptions behind each one"},
- {type:"deliv",group:"Group 4",session:3,text:"A common reporting template for first-person reports"},
- {type:"assume",group:"Group 2",session:2,text:"Reports are treated as evidence about experience, not only about behaviour"},
- {type:"open",group:"Group 1",session:2,text:"Theory-light tests versus theory-heavy indicators: can both be right?"},
- {type:"method",group:"Group 2",session:4,text:"Micro-phenomenological interviews paired with EEG"},
- {type:"method",group:"Group 4",session:4,text:"Topic modelling of first-person reports across labs"},
- {type:"mile",group:"Group 1",session:6,text:"Agree which tests are validated in adult humans first"},
- {type:"mile",group:"Group 4",session:6,text:"Pilot the reporting template in three labs"},
- {type:"open",group:"Group 2",session:4,text:"Can first-person reports from different traditions be compared at all?"}
-].map((x,i)=>({...x,id:"ex"+i,ex:true,t:0}));
-EXAMPLES[7].needs="ex1";
+const EXAMPLES=[];
 let HSESS=null, HGROUP=null, HTHREAD=null, HOPEN=false;
 function hiveItems(){return [...store.hive,...othersCards()]}
 const STOP=new Set("the and for with that this from into across between their there about which what when where while than then them they have has had are was were been being not only also more most less such each other some any all can could should would will just like very much many how why who whom whose its our your his her a an of to in on at by as or is it be we".split(" "));
@@ -1013,16 +1002,7 @@ const othersCards=()=>SHARED.filter(r=>r.kind==="card"&&r.meta).map(r=>({id:r.me
 const othersOn=id=>SHARED.filter(r=>r.item===id&&r.kind!=="card");
 const isReply=r=>String(r.item||"").startsWith("re:");
 /* ---- the hive: collective knowledge map ---- */
-const EX_CONTRIB=[
- {type:"note",itemId:"k-megan-peters",text:"Example note: the point that indicators validated in humans may not mean the same thing in other systems seems central for the AI sessions on Thursday."},
- {type:"ref",itemId:"a-johannes-kleiner",url:"https://doi.org/10.1016/j.tics.2024.01.010",text:"Bayne et al. (2024) Tests for consciousness in humans and beyond"},
- {type:"question",itemId:"a-stephanie-wai",text:"Example question: would a different aggregation method change which species rank higher in practice?"},
- {type:"note",itemId:"a-romy-beaute",text:"Example note: useful for groups mapping first-person methods in session 4."},
- {type:"ref",itemId:"a-simone-anthes",url:"https://doi.org/10.1038/nn.4545",text:"Siclari et al. (2017) The neural correlates of dreaming"},
- {type:"question",itemId:"a-dezhi-luo",text:"Example question: which benchmark results would count as evidence against consciousness in a model?"},
- {type:"ref",topic:"theories",url:"https://doi.org/10.1038/s41586-025-08888-1",text:"Cogitate Consortium (2025) Adversarial testing of GNW and IIT"},
- {type:"note",itemId:"a-wanja-wiese",text:"Example note: impossible experiences as constraints could link to the state-space mapping talks in the same session."}
-].map((x,i)=>({...x,id:"exc"+i,ex:true,by:"",t:0}));
+const EX_CONTRIB=[];
 function topicsOfItem(id){return TOPICS.filter(T=>T.items.includes(id)).map(T=>T.k)}
 function topicsOfText(t){return TOPICS.filter(T=>T.re.test(t)).map(T=>T.k)}
 function collective(){
@@ -1227,7 +1207,7 @@ function viewMine(){
     ${its.length?html:`<div class="empty">Nothing starred yet. Tap the star next to any talk, poster or discussion session.<div class="row" style="justify-content:center;margin-top:10px"><button class="btn" data-go="prog">Open the programme</button></div></div>`}
     ${showM("talks")?"":"-->"}${groups}
     ${showM("notes")?"":"<!--"}${noted.length?`<div class="eyebrow">Notes on talks you didn't star</div><div class="card">${noted.map(it=>talkRow(it,{where:true,noTime:true})).join("")}</div>`:""}
-    <div class="card"><div class="eyebrow" style="margin-bottom:6px">Week notes · people to follow up, ideas, papers</div><textarea class="inp" id="note-_general" data-note="_general" style="min-height:120px" placeholder="E.g. ask Liad about prediction maps for IIT; read Kleiner on direct tests…">${esc(store.notes._general||"")}</textarea></div>
+    <div class="card"><div class="eyebrow" style="margin-bottom:6px">Week notes · people to follow up, ideas, papers</div><textarea class="inp" id="note-_general" data-note="_general" style="min-height:120px" placeholder="People to follow up with, papers to read, ideas to come back to…">${esc(store.notes._general||"")}</textarea></div>
     ${showM("notes")?"":"-->"}<div class="card stack" style="gap:8px"><div class="eyebrow">Take your notes with you</div>
       <div class="row"><button class="btn primary" data-act="mshare">Share to an app…</button><a class="btn" href="${mailtoHref("My MoC7 notes",notesMarkdown())}" data-act="mmail">Email to myself</a><button class="btn" data-act="mexport">Download (.md)</button><button class="btn ghost" data-act="mcopy">Copy as text</button></div>
       <div class="where">Share opens your phone's share sheet (Notes, Mail, Drive…). Nothing goes anywhere you don't choose.</div>
