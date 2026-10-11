@@ -1497,13 +1497,13 @@ function viewTopics(){
   if(TOPIC){const T=TOPICS.find(x=>x.k===TOPIC);
     return `<section class="stack"><div><button class="btn ghost" data-act="backtopics">← All topics</button></div>
       <div class="row" style="justify-content:space-between;flex-wrap:nowrap;align-items:start"><div><h2>${esc(T.name)}</h2><p class="lede">${esc(T.d)}</p></div>${saveBtn("topic",T.k,T.name)}</div>
-      <div class="card"><div class="eyebrow" style="margin-bottom:4px">Recommended reading</div>${T.papers.length?T.papers.map(paperRow).join(""):'<div class="where">No starter papers yet. Add the ones you would recommend below.</div>'}
+      <div class="card"><div class="eyebrow" style="margin-bottom:4px">Background reading</div><div class="where" style="margin-bottom:6px">A starting point, not a ranking: widely cited reviews and foundational papers on this topic, chosen for the app, plus a few on models of consciousness by members of the MoC community. Each was checked against Crossref or arXiv. Not selected or endorsed by the organisers.</div>${T.papers.length?T.papers.map(paperRow).join(""):'<div class="where">No starter papers yet. Add the ones you would recommend below.</div>'}
         <div class="eyebrow" style="margin-top:12px">Your references on this topic</div>${refEditor("topic:"+T.k)}</div>
       <div class="eyebrow">${T.items.length} talks and posters at MoC7</div>
       <div class="card">${T.items.map(id=>talkRow(ITEMS[id],{where:true,noTime:true})).join("")}</div>
     </section>`}
   return `<section class="stack">
-    <div><h2>Topics</h2><p class="lede">The week grouped by subject, with key papers to read before or after. Each talk and poster was placed by reading its abstract; many belong to more than one topic.</p></div>
+    <div><h2>Topics</h2><p class="lede">The week grouped by subject, with background reading for before or after. Each talk and poster was placed by reading its abstract; many belong to more than one topic.</p></div>
     <div class="topicgrid">${TOPICS.map(T=>`<button class="topic" data-topic="${T.k}"><b>${esc(T.name)}</b><small>${T.items.length} talks & posters${T.papers.length?` · ${T.papers.length} papers`:""}</small></button>`).join("")}</div>
     <div class="where">Paper links were checked against Crossref and arXiv. Speaker links open a search, so check you have the right person.</div>
   </section>`;
