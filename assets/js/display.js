@@ -35,10 +35,11 @@
     root.style.setProperty("--ds-lh", String(S.lh || 1.6)); root.toggleAttribute("data-ds-lh", !!S.lh);
     root.style.setProperty("--ds-ls", (S.ls || 0) + "em"); root.toggleAttribute("data-ds-ls", !!S.ls);
     root.toggleAttribute("data-ds-calm", S.motion === "calm");
+    root.toggleAttribute("data-ds-natdark", !!natDark);
     window.dispatchEvent(new Event("resize"));   // drawings like the cosmic web re-measure their labels
   }
   load(); applyAll();
-  if (darkMQ && darkMQ.addEventListener) darkMQ.addEventListener("change", function () { if (S.theme === "system") applyAll(); });
+  if (darkMQ && darkMQ.addEventListener) darkMQ.addEventListener("change", function () { setTimeout(function () { measure(); applyAll(); }, 50); });
 
   var css = document.createElement("style");
   css.textContent =
@@ -88,6 +89,12 @@
     ".sgd .ft{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:8px}" +
     ".sgd .reset{font:600 13px system-ui,sans-serif;padding:7px 12px;border-radius:999px;border:1px solid #d9d3c7;background:#fff;color:#1d1b2c;cursor:pointer}" +
     ".sgd .note{font-size:12px;color:#5b576b}" +
+    // on a dark page the panel is dark too; with the other theme on, the page filter turns both together
+    "html[data-ds-natdark] .sgd{background:#1f1d2e;color:#f1ede4;border-color:#3d3952}html[data-ds-natdark] .sgd h2{color:#f1ede4}" +
+    "html[data-ds-natdark] .sgd .lb,html[data-ds-natdark] .sgd .note{color:#b9b3c9}" +
+    "html[data-ds-natdark] .sgd .seg button,html[data-ds-natdark] .sgd .x,html[data-ds-natdark] .sgd .reset{background:#2b2840;color:#f1ede4;border-color:#4a4562}" +
+    "html[data-ds-natdark] .sgd .seg button[aria-pressed=true]{background:#f1ede4;border-color:#f1ede4;color:#1f1d2e}" +
+    "html[data-ds-natdark] .sgd input[type=range]{accent-color:#ff9d7a}" +
     ".sgd .f-readable{font-family:'Atkinson Hyperlegible',sans-serif!important}.sgd .f-dyslexic{font-family:'OpenDyslexic',sans-serif!important}.sgd .f-serif{font-family:Georgia,serif!important}.sgd .f-mono{font-family:ui-monospace,Menlo,monospace!important}";
   (document.head || root).appendChild(css);
 
