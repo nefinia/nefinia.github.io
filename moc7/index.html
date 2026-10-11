@@ -84,7 +84,12 @@ a{color:var(--accent)}
 .iconbtn{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--head);display:grid;place-items:center;cursor:pointer;padding:0}
 .iconbtn:hover{border-color:var(--accent);color:var(--accent)}
 @media (max-width:640px){.brand{flex-basis:100%}.topacts{margin-left:auto}}
-@media (max-width:1060px){.tabs{-webkit-mask-image:linear-gradient(to right,#000 88%,transparent);mask-image:linear-gradient(to right,#000 88%,transparent)}}
+.tabwrap{position:relative;width:100%}
+.tabarrow{position:absolute;top:10px;bottom:2px;width:34px;border:0;padding:0;color:var(--muted);font:500 1.15rem/1 var(--f-body);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .2s;display:grid;align-items:center;z-index:1}
+.tabarrow.l{left:0;justify-items:start;background:linear-gradient(to right,var(--bg) 45%,transparent)}
+.tabarrow.r{right:0;justify-items:end;background:linear-gradient(to left,var(--bg) 45%,transparent)}
+.tabarrow.on{opacity:1;pointer-events:auto}
+.tabarrow:hover{color:var(--ink)}
 .clock{font:500 .78rem var(--f-mono);color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:4px 10px;white-space:nowrap}
 .tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;width:100%;margin-top:10px}
 .tabs::-webkit-scrollbar{display:none}
@@ -304,7 +309,7 @@ a.tag:hover{border-color:var(--accent);color:var(--accent)}
       <button class="iconbtn" id="installBtn" hidden title="Install as an app" aria-label="Install MoC7 Atlas as an app"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg></button>
       <button class="me" id="meBtn" data-go="profile" aria-label="Your profile"><span class="av" id="meAv"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c1.2-3.6 4-5.4 7-5.4s5.8 1.8 7 5.4"/></svg></span><span id="meName">Profile</span></button>
     </div>
-    <nav class="tabs" role="tablist" id="tabs">
+    <div class="tabwrap"><button class="tabarrow l" id="tabL" aria-label="More tabs to the left" tabindex="-1">‹</button><nav class="tabs" role="tablist" id="tabs">
       <button role="tab" data-tab="now">Now</button>
       <button role="tab" data-tab="prog">Programme</button>
       <button role="tab" data-tab="mine">Saved<span class="count" id="starCount" hidden></span></button>
@@ -317,7 +322,7 @@ a.tag:hover{border-color:var(--accent);color:var(--accent)}
       <button role="tab" data-tab="people">People</button>
       <button role="tab" data-tab="topics">Topics</button>
       <button role="tab" data-tab="map">Constellation</button>
-    </nav>
+    </nav><button class="tabarrow r" id="tabR" aria-label="More tabs to the right" tabindex="-1">›</button></div>
   </div>
 </header>
 <div class="wrap" id="welcome" hidden><div class="welcome"><span>Plan your week at Models of Consciousness 7: browse the programme, save talks, take notes, and see how the ideas connect. Nothing to sign up for, and everything you save stays on your phone unless you choose to share it.</span><button class="btn primary" id="welcomeOk">OK</button></div></div>
@@ -2077,5 +2082,14 @@ try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{if
 </script>
 
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "7b6420812e4d4b47b127ffaa187ab46b"}'></script>
+<script>
+(function(){const n=document.getElementById("tabs"),L=document.getElementById("tabL"),R=document.getElementById("tabR");if(!n)return;
+ const upd=()=>{const max=n.scrollWidth-n.clientWidth;L.classList.toggle("on",n.scrollLeft>4);R.classList.toggle("on",max>4&&n.scrollLeft<max-4)};
+ n.addEventListener("scroll",upd,{passive:true});addEventListener("resize",upd);
+ L.addEventListener("click",()=>n.scrollBy({left:-n.clientWidth*.7,behavior:"smooth"}));R.addEventListener("click",()=>n.scrollBy({left:n.clientWidth*.7,behavior:"smooth"}));
+ // keep the open tab in view, then refresh the arrows
+ new MutationObserver(()=>{const a=n.querySelector('[aria-selected="true"]');if(a){const l=a.offsetLeft,r=l+a.offsetWidth;if(l<n.scrollLeft+30||r>n.scrollLeft+n.clientWidth-30)n.scrollTo({left:l-n.clientWidth/2+a.offsetWidth/2,behavior:"smooth"})}setTimeout(upd,350)}).observe(n,{attributes:true,subtree:true,attributeFilter:["aria-selected"]});
+ setTimeout(upd,100);upd();})();
+</script>
 </body>
 </html>
