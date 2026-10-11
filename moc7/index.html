@@ -918,7 +918,7 @@ const EXAMPLES=[
 ].map((x,i)=>({...x,id:"ex"+i,ex:true,t:0}));
 EXAMPLES[7].needs="ex1";
 let HSESS=null, HGROUP=null, HTHREAD=null, HOPEN=false;
-function hiveItems(){const real=[...store.hive,...othersCards()];return real.length||store.hideEx?real:EXAMPLES}
+function hiveItems(){return [...store.hive,...othersCards()]}
 const STOP=new Set("the and for with that this from into across between their there about which what when where while than then them they have has had are was were been being not only also more most less such each other some any all can could should would will just like very much many how why who whom whose its our your his her a an of to in on at by as or is it be we".split(" "));
 function words(t){return [...new Set(t.toLowerCase().replace(/[^\p{L}\p{N}\s-]/gu," ").split(/\s+/).map(w=>w.replace(/^-+|-+$/g,"")).filter(w=>w.length>=4&&!STOP.has(w)).map(w=>w.length>5?w.replace(/(ies)$/,"y").replace(/s$/,""):w))]}
 function threads(items){
@@ -927,7 +927,7 @@ function threads(items){
 }
 const myGroup=()=>store.lastGroup||(store.profile&&store.profile.group)||"";
 function viewHive(){
-  const all=hiveItems();const usingEx=!store.hive.length&&!othersCards().length&&!store.hideEx;
+  const all=hiveItems();const usingEx=false;
   const S=HSESS||currentSession();const c=CS.find(x=>x[0]===S);const q=SQ[S];
   const sessBtns=CS.map(c=>{const n=all.filter(h=>h.session===c[0]).length;return `<button class="sess" data-hs="${c[0]}" aria-pressed="${S===c[0]}"><div class="row" style="justify-content:space-between"><span class="n">${c[0]}</span><span class="w">${DAYS[c[1]]} ${c[2]}${n?` · ${n}`:""}</span></div><div class="l">${esc(c[5])}</div></button>`}).join("");
   let items=all.filter(h=>h.session===S);if(HGROUP)items=items.filter(h=>h.group===HGROUP);
@@ -954,7 +954,7 @@ function viewHive(){
       <div class="row" style="gap:8px"><label for="h-group" class="where">Your group</label><select class="sel" id="h-group">${g?"":`<option value="">Choose…</option>`}${GROUPS.map(x=>`<option ${g===x?"selected":""}>${x}</option>`).join("")}</select></div>
       <textarea class="inp" id="h-text" rows="5" placeholder="${esc(q[2])}&#10;One idea per line"></textarea>
       <label class="row" style="gap:8px;font-size:.88rem"><input type="checkbox" id="h-open" ${HOPEN?"checked":""}> These are open questions or disagreements</label>
-      <div class="row"><button class="btn primary" type="submit">Add to the map</button><span class="where">Each line becomes one ${esc(HT[q[0]][1].toLowerCase().replace(/s$/,""))}. In this preview answers stay on this device.</span></div>
+      <div class="row"><button class="btn primary" type="submit">Add to the map</button><span class="where">Each line becomes one ${esc(HT[q[0]][1].toLowerCase().replace(/s$/,""))}. Everyone sees it here and on the Board.</span></div>
     </form>
     ${linkForm}
     <div class="row" style="justify-content:space-between"><div class="chips"><button class="chip" data-hg="" aria-pressed="${!HGROUP}">All groups</button>${GROUPS.filter(x=>all.some(h=>h.group===x&&h.session===S)).map(x=>`<button class="chip" data-hg="${x}" aria-pressed="${HGROUP===x}">${x}</button>`).join("")}</div></div>
@@ -1036,7 +1036,7 @@ function collective(){
   Object.entries(store.refs).filter(([k])=>k.startsWith("topic:")).forEach(([k,v])=>v.forEach(r=>out.push({type:"ref",topic:k.slice(6),url:r.url,text:r.label,by:me,t:Date.now()})));
   store.hive.forEach(h=>out.push({type:"card",card:h,text:h.text,by:h.by||h.group,t:h.t}));
   SHARED.forEach(r=>{if(r.kind==="card"){const h=othersCards().find(x=>x.sid===r.sid);if(h)out.push({type:"card",card:h,text:h.text,by:h.by||h.group,t:h.t,sid:r.sid})}else if(!isReply(r))out.push({type:r.kind,itemId:ITEMS[r.item]?r.item:undefined,text:r.text,url:r.url||undefined,by:r.by||"",t:r.t,sid:r.sid})});
-  const all=out.length||store.hideEx?out:[...EX_CONTRIB,...EXAMPLES.map(h=>({type:"card",card:h,text:h.text,by:h.group,t:0,ex:true}))];
+  const all=out;
   all.forEach(c=>{c.topics=c.topic?[c.topic]:c.itemId?topicsOfItem(c.itemId):topicsOfText(c.text);if(c.type==="card"&&!c.topics.length)c.topics=["consensus"];if(c.type==="card"&&!c.topics.includes("consensus"))c.topics.push("consensus")});
   return all;
 }
