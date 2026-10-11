@@ -1191,6 +1191,14 @@ function hiveDump(){const all=collective();let md="# MoC7: shared knowledge\n";
 
 /* ---- saved ---- */
 const SKIND={person:"People",topic:"Topics",paper:"Papers",link:"Links & references",note:"Notes & ideas",board:"From the Board"};
+let MFILTER="";
+const showM=k=>MFILTER===""||MFILTER===k;
+function mchips(nTalks,counts,nNoted){
+  const nNotes=(counts.note||0)+nNoted+((store.notes._general||"").trim()?1:0);
+  const opts=[["","All"],["talks","Talks",nTalks],["notes","Notes",nNotes],["person","People",counts.person],["topic","Topics",counts.topic],["paper","Papers",counts.paper],["link","Links",counts.link],["board","From the Board",counts.board]].filter(([k,,n])=>k===""||n);
+  if(opts.length<3)return"";
+  return `<div class="chips" role="group" aria-label="Show">${opts.map(([k,l,n])=>`<button class="chip" data-mfilter="${k}" aria-pressed="${MFILTER===k}">${l}${n?" · "+n:""}</button>`).join("")}</div>`;
+}
 function viewMine(){
   const its=[...stars()].map(id=>ITEMS[id]).filter(Boolean).sort((a,b)=>a.day-b.day||a.s-b.s);
   let html="";let lastDay=-1;
@@ -1200,26 +1208,27 @@ function viewMine(){
     html+=(clash?`<div class="where" style="color:var(--t-X);padding-top:8px">Overlaps with “${esc(clash.title.slice(0,60))}${clash.title.length>60?"…":""}”</div>`:"")+talkRow(it);
   });
   if(lastDay>=0)html+="</div>";
-  const groups=Object.keys(SKIND).map(k=>{const xs=store.saved.filter(x=>x.kind===k).sort((a,b)=>b.t-a.t);if(!xs.length)return"";
+  const counts={};const groups=Object.keys(SKIND).map(k=>{const xs=store.saved.filter(x=>x.kind===k).sort((a,b)=>b.t-a.t);if(!xs.length)return"";counts[k]=xs.length;if(!(MFILTER===""||MFILTER===k||(MFILTER==="notes"&&k==="note")))return"";
     return `<div class="eyebrow">${SKIND[k]}</div><div class="card">${xs.map(x=>{
       const open=k==="person"?`<a href="#" data-person="${esc(x.key)}">${esc(x.title)}</a>`:k==="topic"?`<a href="#" data-topicl="${esc(x.key)}">${esc(x.title)}</a>`:x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)} ↗</a>`:`<b>${esc(x.title)}</b>`;
       return `<div class="paper"><div style="min-width:0"><div>${open}</div>${x.note?`<div class="pm" style="white-space:pre-wrap">${esc(x.note)}</div>`:""}</div><button class="ico" data-unsave="${x.id}" aria-label="Remove" title="Remove">✕</button></div>`}).join("")}</div>`}).join("");
   const noted=Object.keys(store.notes).filter(k=>k!=="_general"&&(store.notes[k]||"").trim()&&!stars().has(k)).map(k=>ITEMS[k]).filter(Boolean);
   return `<section class="stack">
     <div><h2>Saved</h2><p class="lede">Your agenda, plus anything else you want to keep: people, topics, papers, links, an idea from the coffee queue. It all stays on this device until you download it.</p></div>
-    <form class="card form" id="sform" autocomplete="off">
+    ${mchips(its.length,counts,noted.length)}
+    ${showM("notes")?"":"<!--"}<form class="card form" id="sform" autocomplete="off">
       <div class="full eyebrow">Write a note</div>
       <label class="full"><span class="sr-only">Note</span><textarea class="inp" id="s-note" maxlength="6000" style="min-height:150px" placeholder="An idea from a talk, a question to follow up, a person to email, a paper to read, a café…"></textarea></label>
       <label>Title (optional)<input class="inp" id="s-title" maxlength="200" placeholder="Otherwise the first line"></label>
       <label>Link, DOI or arXiv id (optional)<input class="inp" id="s-url" placeholder="10.1038/… or https://…"></label>
       <div class="full row"><button class="btn primary" type="submit">Save</button></div>
     </form>
-    <div><h3 style="font:400 1.3rem var(--f-display);color:var(--head)">My agenda</h3></div>
+    ${showM("notes")?"":"-->"}${showM("talks")?"":"<!--"}<div><h3 style="font:400 1.3rem var(--f-display);color:var(--head)">My agenda</h3></div>
     ${its.length?html:`<div class="empty">Nothing starred yet. Tap the star next to any talk, poster or discussion session.<div class="row" style="justify-content:center;margin-top:10px"><button class="btn" data-go="prog">Open the programme</button></div></div>`}
-    ${groups}
-    ${noted.length?`<div class="eyebrow">Notes on talks you didn't star</div><div class="card">${noted.map(it=>talkRow(it,{where:true,noTime:true})).join("")}</div>`:""}
+    ${showM("talks")?"":"-->"}${groups}
+    ${showM("notes")?"":"<!--"}${noted.length?`<div class="eyebrow">Notes on talks you didn't star</div><div class="card">${noted.map(it=>talkRow(it,{where:true,noTime:true})).join("")}</div>`:""}
     <div class="card"><div class="eyebrow" style="margin-bottom:6px">Week notes · people to follow up, ideas, papers</div><textarea class="inp" id="note-_general" data-note="_general" style="min-height:120px" placeholder="E.g. ask Liad about prediction maps for IIT; read Kleiner on direct tests…">${esc(store.notes._general||"")}</textarea></div>
-    <div class="card stack" style="gap:8px"><div class="eyebrow">Take your notes with you</div>
+    ${showM("notes")?"":"-->"}<div class="card stack" style="gap:8px"><div class="eyebrow">Take your notes with you</div>
       <div class="row"><button class="btn primary" data-act="mshare">Share to an app…</button><a class="btn" href="${mailtoHref("My MoC7 notes",notesMarkdown())}" data-act="mmail">Email to myself</a><button class="btn" data-act="mexport">Download (.md)</button><button class="btn ghost" data-act="mcopy">Copy as text</button></div>
       <div class="where">Share opens your phone's share sheet (Notes, Mail, Drive…). Nothing goes anywhere you don't choose.</div>
       <div class="eyebrow" style="margin-top:6px">Move to another device or clean up</div><div class="row">${dataButtons()}</div></div>
@@ -1944,6 +1953,7 @@ document.addEventListener("click",e=>{
   if(ds.hs!=null){HSESS=+ds.hs||null;HTHREAD=null;HGROUP=null;return render()}
   if(ds.hg!=null){HGROUP=ds.hg||null;HTHREAD=null;return render()}
   if(ds.th){HTHREAD=HTHREAD===ds.th?null:ds.th;return render()}
+  if(ds.mfilter!=null&&t.matches("[data-mfilter]")){MFILTER=ds.mfilter;return render()}
   if(ds.report){reportShared(ds.report);return}
   if(ds.bkind!=null&&t.matches("[data-bkind]")){BKIND=ds.bkind;return render()}
   if(ds.bnew){BKINDNEW=ds.bnew;render();const ta=$("#bpost");if(ta)ta.focus();return}
