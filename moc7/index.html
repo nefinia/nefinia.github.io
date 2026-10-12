@@ -798,7 +798,7 @@ function viewNow(){
       </div>
       <div class="grid2">
         <div class="mini"><div class="eyebrow">Sunday 11 · before it starts</div><b>Copenhagen Show & drinks</b><div class="where">15:00, 16:30 or 18:00 at Next House, by Central Station. Or a self-organised visit to Home of Carlsberg. Plans happen in the MoC7 socials Signal group.</div></div>
-        <div class="mini"><div class="eyebrow">Monday 12 · arriving</div><b>Registration before 9:00</b><div class="where">HC Ørsted Institute, Universitetsparken 5. The desk is in the foyer in front of the mosaic wall.</div></div>
+        <div class="mini"><div class="eyebrow">Monday 12 · arriving</div><b>Registration before 9:00</b><div class="where">HC Ørsted Institute, Universitetsparken 5. The desk is in the foyer in front of the mosaic wall.</div><a class="btn" href="${ENTRANCE}" target="_blank" rel="noopener" style="margin-top:8px;display:inline-flex">Entrance on the map ↗</a></div>
         <div class="mini"><div class="eyebrow">Plan your week</div><b>Star talks and posters</b><div class="where">${ITEMS_COUNT.talks} talks in 28 parallel sessions and 68 posters. Starred items gather in Saved, with clashes flagged.</div><div class="row" style="margin-top:8px"><button class="btn" data-go="prog">Open the programme</button></div></div>
       </div>
     </section>`;
@@ -811,6 +811,7 @@ function viewNow(){
   const mineNext=[...stars()].map(id=>ITEMS[id]).filter(it=>it&&it.day===d&&it.e>m).sort((a,b)=>a.s-b.s).slice(0,4);
   const curHtml=cur.length?cur.map(b=>nowBlock(b,m)).join(""):`<div class="empty">Nothing scheduled right now. ${next[0]?`Next: <b>${esc(next[0].title)}</b> at ${fmt(next[0].s)}.`:"That's it for today."}</div>`;
   return `<section class="stack">
+    ${d>=1&&d<=5&&m<600?`<div class="welcome" style="margin:0"><span>Arriving at HCØ? Use this entrance${d===1?" for registration":""}.</span><a class="btn" href="${ENTRANCE}" target="_blank" rel="noopener">Entrance on the map ↗</a></div>`:""}
     <div class="hero-now">
       <div class="eyebrow">${esc(DAYLONG[d])} · ${fmt(m)}</div>
       <div class="big">Happening now</div>
@@ -1279,6 +1280,7 @@ async function shareText(title,text){
 const mailtoHref=(sub,body)=>`mailto:?subject=${enc(sub)}&body=${enc(body.length>1800?body.slice(0,1800)+"\n\n[…the full version is in the download]":body)}`;
 
 /* ---- info ---- */
+const ENTRANCE="https://www.google.com/maps/search/?api=1&query=55.700659,12.560836"; // the entrance to use all week (registration and every day), pinned on site
 const BOOKLET="https://amcs-community.org/wp-content/uploads/2026/10/moc7-booklet-web-full.pdf";
 const SIGNAL={socials:"https://signal.group/#CjQKIDl39UIxE1aGvSL3Utild1mJTW8fr6UmBwmFuK0oTDc1EhBFEZyRSAKlovbPKHu79Jl3",carlsberg:"https://signal.group/#CjQKIITltEWK6E7DNGudEaau2DYjPthDl1yTxojjURCGs1HtEhBGHQo6aQcSou-1SLPPwzB_",tivoli:"https://signal.group/#CjQKIPJTc7iP1GFWYNnmNB7lZHAhBiocUXtzxGyfMIiIKzJYEhDbml95p2K2uYhYU-r0YqHA"};
 // Social programme, from the booklet (pp. 8–14). Links come from the booklet's own QR codes.
@@ -1383,9 +1385,9 @@ function viewInfo(){
   return `<section class="stack info">
     <div><h2>Practical</h2><p class="lede">The essentials from the booklet, in one place.</p></div>
     <div class="grid2">
-      <div class="mini"><div class="eyebrow">Venue</div><b>HC Ørsted Institute (HCØ)</b><div class="where">Universitetsparken 5, North Campus. Registration in the foyer, in front of the mosaic wall.</div>
+      <div class="mini"><div class="eyebrow">Venue</div><b>HC Ørsted Institute (HCØ)</b><div class="where">Universitetsparken 5, North Campus. Come in through this entrance for registration and every day of the week; registration is in the foyer, in front of the mosaic wall.</div><a class="btn" href="${ENTRANCE}" target="_blank" rel="noopener" style="margin:8px 0 4px;display:inline-flex">Entrance on the map ↗</a>
         <dl><dt>Aud. 1</dt><dd>Keynotes & showcases</dd><dt>Aud. 2–5</dt><dd>Parallel sessions, ground floor</dd><dt>A101–A112</dt><dd>Discussion sessions, 1st floor</dd><dt>Aud. 8</dt><dd>Workshop & acoustic installation</dd><dt>NBB</dt><dd>Niels Bohr Building, opposite HCØ: reception, Friday afternoon</dd></dl></div>
-      <div class="mini"><div class="eyebrow">Getting there</div><b>Metro M3 to Vibenshus Runddel</b><div class="where">Then about 10 minutes on foot along Nørre Allé. Buses 150S, 173E, 184 and 185 stop right outside HCØ. The metro runs 24/7; swipe in and out with the Rejsekort app.</div></div>
+      <div class="mini"><div class="eyebrow">Getting there</div><b>Metro M3 to Vibenshus Runddel</b><div class="where">Then about 10 minutes on foot along Nørre Allé. Buses 150S, 173E, 184 and 185 stop right outside HCØ. The metro runs 24/7; swipe in and out with the Rejsekort app.</div><a class="btn ghost" href="${ENTRANCE}" target="_blank" rel="noopener" style="margin-top:8px;display:inline-flex">Walk to the entrance ↗</a></div>
       <div class="mini"><div class="eyebrow">Wi‑Fi</div><b>eduroam</b><div class="where">If eduroam fails, join <b>KU Guest</b> and register with your name, phone (with country code) and email; the password arrives by SMS or email.</div></div>
       <div class="mini"><div class="eyebrow">Wednesday · Louisiana</div><b>Buses leave at 12:50</b><div class="where">From Universitetsparken 15, by the street between the building and the park. Leave laptops and backpacks at home: the museum does not allow backpacks. Return buses leave at 19:00.</div></div>
       <div class="mini"><div class="eyebrow">Food</div><b>Canteen in front of Auditorium 1</b><div class="where">Hot dishes and sandwiches on Monday, Tuesday and Thursday. Friday lunch is at NBB. Lunch is paid individually. Thursday dinner at Food Club Nørrebro (if booked), 19:00.</div></div>
@@ -1719,7 +1721,7 @@ const PRACTICAL=[
  [/workshop|sound|listening|dream|sedl|da[ñn]obeit|art|installation|chill|meditat|vr\b|8 ?hz|s[øo]mod|auditorium 8/i,"Experiential workshops: Tue 11:20–12:20 Cristóbal Dañobeitía, sound and listening (Aud. 8). Tue 16:30–18:00 Barbora Sedláková, dream work (Inge Lehmann, NBB). Wed 15:00 creative workshop at Louisiana. Thu 16:30–18:00 Felix Pastorius, Johan Bech Jespersen and Nina Rajcic on shared experiences, moderated by Sandrine R. Schiller (Margrethe Bohr Salen, NBB). Art & chill: Svend Sømod's acoustic and light installation in Aud. 8, from Tuesday's first coffee break until Wednesday noon."],
  [/poster/i,"Posters hang along the windows of HCØ's main corridor from the start of Tuesday and Thursday; poster sessions at 15:00 those days."],
  [/consensus|discussion|a1\d\d|classroom|roadmap/i,"Discussion sessions (consensus project) are in classrooms A101–A112, 1st floor of HCØ. They draft a roadmap for consciousness science: agreeing on the map of possibilities, not on one theory."],
- [/registr|badge|where is|find|entrance|foyer|room|floor|map|auditori/i,"HCØ main entrance on Universitetsparken; registration desk in the ground-floor foyer by the mosaic wall (opens before 9:00 Monday). Auditoria 1–5 and the canteen on the ground floor along the corridor (Vandrehallen); classrooms A101–A112 and Auditorium 8 on the 1st floor. NBB is right in front of HCØ."],
+ [/regist|badge|where is|find|entrance|foyer|room|floor|map|auditori|get in|door|arriv/i,"The entrance to use all week, for registration and every day, is pinned here: "+ENTRANCE+" . Registration desk in the ground-floor foyer by the mosaic wall (opens before 9:00 Monday). Auditoria 1–5 and the canteen on the ground floor along the corridor (Vandrehallen); classrooms A101–A112 and Auditorium 8 on the 1st floor. NBB is right in front of HCØ."],
  [/get (there|to)|metro|bus|airport|transport|bike|rejsekort|travel|station/i,"Metro M3 to Vibenshus Runddel then 10 min on foot along Nørre Allé; buses 150S, 173E, 184, 185 stop outside HCØ. Metro and rail from the airport; 3.5 km from Central Station. Use the Rejsekort app (swipe in and out). Bikes are the best way around."],
  [/wi-?fi|internet|eduroam|ku guest|password/i,"Wi-Fi: eduroam. Otherwise KU Guest: connect, enter name, mobile with country code and email, accept, get the password by SMS or email, log in with that email."],
  [/emergenc|112|doctor|hurt|first aid|defibrillator|sick/i,"Emergencies: call 112. Defibrillators and first-aid kits are marked on the HCØ map (booklet p. 18)."],
