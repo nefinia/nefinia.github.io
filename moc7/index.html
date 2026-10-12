@@ -83,6 +83,7 @@ a{color:var(--accent)}
 .brand small{color:var(--muted);font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .topacts{display:flex;align-items:center;gap:8px;flex:0 0 auto}
 .topacts .sgd-btn{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--head);font:600 .78rem var(--f-body);padding:0;margin:0;cursor:pointer}
+a.place{color:inherit;text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:2px}
 .iconbtn{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--head);display:grid;place-items:center;cursor:pointer;padding:0}
 .iconbtn:hover{border-color:var(--accent);color:var(--accent)}
 @media (max-width:640px){.brand{flex-basis:100%}.topacts{margin-left:auto}}
@@ -1349,6 +1350,22 @@ function boardPost(){
   store.posts=store.posts||[];store.posts.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),kind,item:it?it.id:"general",text:text.slice(0,kind==="ref"?300:1000),url,t:Date.now()});
   BDRAFT="";save();toast("Posted to the Board");render();
 }
+// addresses and venues open in maps (applied to the text on screen, never inside links, buttons or fields)
+const PLACES=[
+ ["Next House, Bernstorffsgade 27","Next House Copenhagen, Bernstorffsgade 27, 1577 København"],["Next House","Next House Copenhagen, Bernstorffsgade 27, 1577 København"],["Bernstorffsgade 27","Next House Copenhagen, Bernstorffsgade 27, 1577 København"],
+ ["Universitetsparken 15","Universitetsparken 15, 2100 København Ø"],["Universitetsparken 5","HC Ørsted Institute, Universitetsparken 5, 2100 København Ø"],
+ ["Food Club Nørrebro, Sortedam Dossering 7C","Food Club Nørrebro, Sortedam Dossering 7C, 2200 København N"],["Food Club Nørrebro","Food Club Nørrebro, Sortedam Dossering 7C, 2200 København N"],["Sortedam Dossering 7C","Food Club Nørrebro, Sortedam Dossering 7C, 2200 København N"],
+ ["Maersk Tower, 15th floor (Blegdamsvej 3B)","Maersk Tower, Blegdamsvej 3B, 2200 København"],["Maersk Tower","Maersk Tower, Blegdamsvej 3B, 2200 København"],["Blegdamsvej 3B","Maersk Tower, Blegdamsvej 3B, 2200 København"],
+ ["Inferno, Istedgade 36","Inferno, Istedgade 36, 1650 København V"],["Istedgade 36","Inferno, Istedgade 36, 1650 København V"],
+ ["Niels Bohr Building","Niels Bohr Building, University of Copenhagen"],["Home of Carlsberg","Home of Carlsberg, Copenhagen"],["Carlsberg Byen","Home of Carlsberg, Copenhagen"],
+ ["Tivoli Gardens","Tivoli Gardens, Copenhagen"],["Louisiana Museum of Modern Art","Louisiana Museum of Modern Art, Humlebæk"],["Louisiana Museum","Louisiana Museum of Modern Art, Humlebæk"],["Vibenshus Runddel","Vibenshus Runddel Station, København"]
+];
+const PLACE_RE=new RegExp(PLACES.map(([k])=>k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|"),"g");
+function linkPlaces(root){
+  if(!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement.closest("a,button,textarea,input,select,option,label,script,style,h1,h2,.tlinks,[data-noplace]")?NodeFilter.FILTER_REJECT:(PLACE_RE.lastIndex=0,PLACE_RE.test(n.nodeValue))?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT});
+  const nodes=[];while(w.nextNode())nodes.push(w.currentNode);
+  nodes.forEach(n=>{const f=document.createDocumentFragment();let last=0;n.nodeValue.replace(PLACE_RE,(m,i)=>{f.append(n.nodeValue.slice(last,i));const a=document.createElement("a");a.href=MAPQ(PLACES.find(([k])=>k===m)[1]);a.target="_blank";a.rel="noopener";a.textContent=m;a.className="place";f.append(a);last=i+m.length;return m});f.append(n.nodeValue.slice(last));n.replaceWith(f)});
+}
 function viewSocial(){
   const p=Object.fromEntries(new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Copenhagen",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).map(x=>[x.type,x.value]));
   const today=(+p.year===2026&&+p.month===10)?(+p.day-11):-1;
@@ -1917,7 +1934,7 @@ function render(keepFocus){
   const n=store.stars.length+store.saved.length;const sc=$("#starCount");sc.hidden=!n;sc.textContent=n;
   const v=$("#view");
   const ae=document.activeElement;const fid=ae&&ae.id;const sel=fid&&ae.selectionStart;
-  v.innerHTML=({now:viewNow,prog:viewProg,posters:viewPosters,people:viewPeople,topics:viewTopics,map:viewMap,hive:viewHive,ask:viewAsk,profile:viewProfile,mine:viewMine,social:viewSocial,board:viewBoard,info:viewInfo})[tab]();if(["now","prog","mine","posters"].includes(tab))v.insertAdjacentHTML("afterbegin",liveNote());updateMe();if(tab==="map")requestAnimationFrame(mountSky);
+  v.innerHTML=({now:viewNow,prog:viewProg,posters:viewPosters,people:viewPeople,topics:viewTopics,map:viewMap,hive:viewHive,ask:viewAsk,profile:viewProfile,mine:viewMine,social:viewSocial,board:viewBoard,info:viewInfo})[tab]();if(["now","prog","mine","posters"].includes(tab))v.insertAdjacentHTML("afterbegin",liveNote());if(["now","prog","info","social","mine"].includes(tab))linkPlaces(v);updateMe();if(tab==="map")requestAnimationFrame(mountSky);
   if(keepFocus&&fid){const el=document.getElementById(fid);if(el){el.focus();try{el.setSelectionRange(sel,sel)}catch(e){}}}
   updateClock();renderDock();
 }
