@@ -140,3 +140,7 @@ footer{align-items:center}
 
 .support{font-size:12px;color:var(--faint)!important;text-decoration:none;border-bottom:1px solid var(--line)}
 .support:hover{color:var(--ink)!important}
+/* personal monogram beside the name (inline SVG, colour follows the theme) */
+.brand .mono{height:38px;width:auto;margin:-6px 0 -6px -2px;color:#7f98ff;fill:currentColor;stroke:currentColor;stroke-width:14;stroke-linejoin:round;flex:none;overflow:visible}
+body.cv .brand .mono{color:var(--glow)}
+@media (max-width:520px){.brand .mono{height:32px}}
