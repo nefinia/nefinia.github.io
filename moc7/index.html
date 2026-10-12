@@ -2095,7 +2095,21 @@ try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{if
   else if(store.sync&&store.sync.code)syncNow();
   document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")syncNow()});
 })();
-(function init(){finishOpenRouter();if(store.ai.provider==="openrouter"&&KEYMEM)loadORModels();const n=nowCph();if(!n.sim&&n.day>=0&&n.day<=5)store.day=n.day;render();loadLive();loadShared();shareTouch();setInterval(()=>{if(!document.hidden)loadShared()},90000);document.addEventListener("visibilitychange",()=>{if(!document.hidden){loadLive();loadShared()}});setInterval(()=>{updateClock();if(store.tab==="now"&&!document.activeElement.matches("textarea,input"))render()},60000)})();
+(function init(){finishOpenRouter();if(store.ai.provider==="openrouter"&&KEYMEM)loadORModels();const n=nowCph();if(!n.sim&&n.day>=0&&n.day<=5)store.day=n.day;render();loadLive();loadShared();shareTouch();setInterval(()=>{if(!document.hidden)loadShared()},90000);// Updates: check for a newer version of the app and reload at a calm moment (everything saved stays saved) 
+let APPVER=null,UPDATE_WAITING=false; 
+const calmToReload=()=>!ASKING&&!BDRAFT.trim()&&!ASKDRAFT.trim()&&!(document.activeElement&&document.activeElement.matches("input,textarea,select")); 
+function reloadForUpdate(){try{sessionStorage.setItem("moc7atlas.updated","1")}catch(e){}location.reload()} 
+async function checkUpdate(){ 
+  try{const r=await fetch(location.pathname,{method:"HEAD",cache:"no-store"});const v=r.ok&&(r.headers.get("etag")||r.headers.get("last-modified"));if(!v)return; 
+    if(APPVER===null){APPVER=v;return} 
+    if(v!==APPVER){UPDATE_WAITING=true;if(document.hidden||calmToReload())reloadForUpdate()}}catch(e){} 
+} 
+setInterval(()=>{if(UPDATE_WAITING&&calmToReload())reloadForUpdate();else checkUpdate()},4*60000); 
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)checkUpdate()}); 
+document.addEventListener("focusout",()=>setTimeout(()=>{if(UPDATE_WAITING&&calmToReload())reloadForUpdate()},1500)); 
+window.checkUpdate=checkUpdate;setTimeout(checkUpdate,3000); 
+try{if(sessionStorage.getItem("moc7atlas.updated")){sessionStorage.removeItem("moc7atlas.updated");setTimeout(()=>toast("MoC7 Atlas was updated"),600)}}catch(e){} 
+document.addEventListener("visibilitychange",()=>{if(!document.hidden){loadLive();loadShared()}});setInterval(()=>{updateClock();if(store.tab==="now"&&!document.activeElement.matches("textarea,input"))render()},60000)})();
 
 (function(){const W=document.getElementById("welcome");if(!W)return;let seen=false;try{seen=localStorage.getItem("moc7atlas.welcome")==="1"}catch(e){}
   if(!seen)W.hidden=false;document.getElementById("welcomeOk").addEventListener("click",()=>{W.hidden=true;try{localStorage.setItem("moc7atlas.welcome","1")}catch(e){}})})();
