@@ -1,7 +1,7 @@
 name: MoC7 programme watch
 on:
   schedule:
-    - cron: "17 * * * *"
+    - cron: "45 4,10 * * *"   # 06:45 and 12:45 in Copenhagen (UTC+2); GitHub may start a few minutes late
   workflow_dispatch:
 permissions:
   contents: write
