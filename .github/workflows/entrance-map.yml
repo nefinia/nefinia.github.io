@@ -29,12 +29,12 @@ jobs:
                   img.paste(t, (int(tx * 256 - x0), int(ty * 256 - y0)))
           d = ImageDraw.Draw(img)
           cx, cy = W // 2, H // 2
-          d.ellipse([cx - 22, cy - 22, cx + 22, cy + 22], fill=(43, 34, 87, 60), outline=(43, 34, 87), width=3)
-          d.ellipse([cx - 9, cy - 9, cx + 9, cy + 9], fill=(214, 72, 52), outline="white", width=3)
+          d.ellipse([cx - 16, cy - 16, cx + 16, cy + 16], outline=(214, 72, 52), width=3)
+          d.ellipse([cx - 7, cy - 7, cx + 7, cy + 7], fill=(214, 72, 52), outline="white", width=2)
           img = img.resize((W, H))
           img.save("moc7/entrance-map.png", optimize=True)
           print("saved", img.size)
           PY
       - run: |
           git config user.name "moc7-watch"; git config user.email "actions@users.noreply.github.com"
-          git add moc7/entrance-map.png && git commit -m "MoC7 Atlas: entrance map image (© OpenStreetMap contributors)" && git push
+          git add moc7/entrance-map.png && git commit --allow-empty -m "MoC7 Atlas: entrance map image (© OpenStreetMap contributors)" && git push
