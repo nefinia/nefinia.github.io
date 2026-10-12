@@ -138,6 +138,14 @@ textarea.inp{width:100%;resize:vertical;min-height:70px}
 /* talk rows */
 .talk{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:start;padding:10px 0;border-top:1px solid var(--line)}
 .talk:first-child{border-top:0}
+@media (max-width:640px){
+  .blk{grid-template-columns:1fr;gap:4px}
+  .blk .t{padding-top:6px;display:flex;gap:0;font-size:.78rem}
+  .blk .t span{display:inline;font-size:inherit;opacity:.75}
+  .blk .t span:not(:empty)::before{content:"–"}
+  .talk{grid-template-columns:1fr auto;gap:2px 10px}
+  .talk .tt{grid-column:1/-1;padding-top:0;min-width:0}
+}
 .talk .tt{font:500 .78rem var(--f-mono);color:var(--muted);padding-top:3px;min-width:3.2em}
 .talk .ti{font-weight:600;line-height:1.35}
 .talk .who{color:var(--muted);font-size:.86rem;margin-top:2px}
