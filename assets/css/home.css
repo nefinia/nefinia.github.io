@@ -143,3 +143,5 @@ footer{align-items:center}
 /* personal monogram beside the name on the homepage (inline SVG, colour follows the theme) */
 .intro h1.named{display:flex;align-items:center;gap:.28em}
 .intro h1 .mono-hero{flex:none;height:2.1em;width:.98em;color:var(--ink);fill:currentColor;stroke:currentColor;stroke-width:10;stroke-linejoin:round;overflow:visible}
+/* line the greeting, roles and buttons up with the name, not the monogram */
+.intro:has(h1.named) > :not(h1){margin-left:calc(1.26 * clamp(40px,4.8vw,60px))}
