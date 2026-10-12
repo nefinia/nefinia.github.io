@@ -64,17 +64,22 @@
   /* ---------- cosmic web: a warped, weighted Voronoi field. Voids are cells, filaments are cell edges, clusters are vertices ---------- */
   function rng(seed){ return ()=>{ seed=(seed*16807)%2147483647; return (seed-1)/2147483646; }; }
   let W=0,H=0,dpr=1,narrow=false,layer=null,verts=[],picks=[],seeds=[],boost=new Set();
-  const A=24;
-  const warp=(x,y)=>[x+A*Math.sin(y*.0105+Math.sin(x*.0063)*1.4), y+A*Math.cos(x*.0112+Math.sin(y*.0081)*1.2)];
-  const unwarp=(u,v)=>{ let x=u,y=v; for(let k=0;k<8;k++){ const w=warp(x,y); x+=u-w[0]; y+=v-w[1]; } return [x,y]; };
+  // layered (multi-octave) warp: filaments curve and wander like a simulated web instead of straight cell edges
+  const warp=(x,y)=>[
+    x+30*Math.sin(y*.0061+Math.sin(x*.0043)*1.3)+12*Math.sin(y*.017+x*.004+1.7)+4*Math.sin((x+y)*.041+2.1),
+    y+30*Math.cos(x*.0067+Math.sin(y*.0049)*1.1)+12*Math.cos(x*.019-y*.005+.4)+4*Math.cos((x-y)*.037+.9)];
+  const unwarp=(u,v)=>{ let x=u,y=v; for(let k=0;k<22;k++){ const w=warp(x,y); x+=(u-w[0])*.8; y+=(v-w[1])*.8; } return [x,y]; };
+  // smooth value noise for clumpy brightness along filaments
+  const clump=(x,y)=> .5+.5*Math.sin(x*.047+Math.sin(y*.031)*2.2)*Math.cos(y*.043+Math.sin(x*.027)*2.0);
+  let cellSz=160, gCols=0, gRows=0, grid=[], fSeeds=[], fCell=60, fCols=0, fRows=0, fGrid=[];
   const key=(i,j)=> i<j? i*4096+j : j*4096+i;
   const ew=(i,j)=>{ if(boost.has(key(i,j))) return 1; const a=Math.min(i,j),b=Math.max(i,j); const h=Math.abs(Math.sin(a*12.9898+b*78.233)*43758.5453)%1; return .1+.9*h*h; };
 
   function voronoi(R){
-    const cell = narrow? 125 : 160;
-    seeds=[];
-    for(let y=-cell*1.5; y<H+cell*1.5; y+=cell) for(let x=-cell*1.5; x<W+cell*1.5; x+=cell)
-      seeds.push([x+R()*cell, y+R()*cell]);
+    const cell = narrow? 115 : 145; cellSz=cell;
+    seeds=[]; grid=[]; gRows=0;
+    for(let y=-cell*1.5; y<H+cell*1.5; y+=cell){ gCols=0; for(let x=-cell*1.5; x<W+cell*1.5; x+=cell){
+      grid.push(seeds.length); seeds.push([x+R()*cell, y+R()*cell]); gCols++; } gRows++; }
     verts=[];
     const n=seeds.length, lim=(cell*2.6)**2;
     for(let i=0;i<n;i++) for(let j=i+1;j<n;j++){
@@ -112,36 +117,59 @@
     picks=best.slice().sort((a,b)=>a.y-b.y || a.x-b.x);
     return bestMin;
   }
+  // nearest seeds through the grid (each seed sits inside its own grid cell)
+  function near3(u,v,S,G,cols,rows,cell){
+    const cx=Math.floor((u+cell*1.5)/cell), cy=Math.floor((v+cell*1.5)/cell);
+    let d1=1e9,d2=1e9,d3=1e9,i1=0,i2=0;
+    for(let gy=cy-2; gy<=cy+2; gy++){ if(gy<0||gy>=rows) continue;
+      for(let gx=cx-2; gx<=cx+2; gx++){ if(gx<0||gx>=cols) continue;
+        const m=G[gy*cols+gx], q=S[m], d=Math.hypot(q[0]-u,q[1]-v);
+        if(d<d1){d3=d2;d2=d1;i2=i1;d1=d;i1=m;} else if(d<d2){d3=d2;d2=d;i2=m;} else if(d<d3) d3=d; } }
+    return [d2-d1, d3-d1, i1, i2];
+  }
   function near(x,y){
-    const [u,v]=warp(x,y); let d1=1e9,d2=1e9,d3=1e9,i1=0,i2=0;
-    for(let m=0;m<seeds.length;m++){ const q=seeds[m], d=Math.hypot(q[0]-u,q[1]-v);
-      if(d<d1){d3=d2;d2=d1;i2=i1;d1=d;i1=m;} else if(d<d2){d3=d2;d2=d;i2=m;} else if(d<d3) d3=d; }
-    return [d2-d1, d3-d1, ew(i1,i2)];
+    const [u,v]=warp(x,y); const [f,g,i1,i2]=near3(u,v,seeds,grid,gCols,gRows,cellSz);
+    return [f, g, ew(i1,i2)];
+  }
+  // a finer web inside the voids: thin, faint tendrils
+  function nearFine(x,y){
+    const [u,v]=warp(x*1.07+13,y*1.07-7); const [f,,i1,i2]=near3(u,v,fSeeds,fGrid,fCols,fRows,fCell);
+    const a=Math.min(i1,i2),b=Math.max(i1,i2); const h=Math.abs(Math.sin(a*7.13+b*3.71)*9187.33)%1;
+    return [f, h*h];
   }
 
   function render(R){
     boost=new Set(); picks.forEach(p=>{ const [a,b,c]=p.s; boost.add(key(a,b)); boost.add(key(b,c)); boost.add(key(a,c)); });
+    fCell = narrow? 48 : 62; fSeeds=[]; fGrid=[]; fRows=0;
+    for(let y=-fCell*1.5; y<H+fCell*1.5; y+=fCell){ fCols=0; for(let x=-fCell*1.5; x<W+fCell*1.5; x+=fCell){
+      fGrid.push(fSeeds.length); fSeeds.push([x+R()*fCell, y+R()*fCell]); fCols++; } fRows++; }
     const s=2, w=Math.ceil(W/s), h=Math.ceil(H/s);
     const off=document.createElement('canvas'); off.width=w; off.height=h;
     const oc=off.getContext('2d'), img=oc.createImageData(w,h), D=img.data;
     for(let py=0;py<h;py++) for(let px=0;px<w;px++){
-      const x=px*s,y=py*s, [f,g,e]=near(x,y);
-      const fil=Math.exp(-1*(f/(3+4*e))**2)*e, node=Math.exp(-1*(g/12)**2);
-      let v=.13*fil+.2*node*fil+.035*e*Math.exp(-1*(f/22)**2);
-      for(const p of picks){ const r2=(p.x-x)**2+(p.y-y)**2; v+=.22*Math.exp(-r2/500); }
-      const i=(py*w+px)*4; D[i]=172; D[i+1]=186; D[i+2]=255; D[i+3]=Math.min(255,v*255);
+      const x=px*s,y=py*s, [f,g,e]=near(x,y), [ff,fw]=nearFine(x,y), c=.35+.95*clump(x,y);
+      const core=Math.exp(-1*(f/(1.6+3.8*e))**2)*e, halo=Math.exp(-1*(f/(9+20*e))**2)*e;
+      const node=Math.exp(-1*(g/(9+10*e))**2)*core;
+      const fine=(Math.exp(-1*(ff/1.4)**2)+.25*Math.exp(-1*(ff/6)**2))*(.25+.75*fw)*(1-core);
+      let v=(.15*core+.05*halo)*c + .32*node + .17*fine*c;
+      for(const p of picks){ const r2=(p.x-x)**2+(p.y-y)**2; v+=.24*Math.exp(-r2/380)+.06*Math.exp(-r2/5200); }
+      const t=Math.min(1,v*2.2), i=(py*w+px)*4;
+      D[i]=150+85*t; D[i+1]=158+82*t; D[i+2]=255; D[i+3]=Math.min(255,v*255);
     }
     oc.putImageData(img,0,0);
     layer=document.createElement('canvas'); layer.width=W*dpr; layer.height=H*dpr;
     const lc=layer.getContext('2d'); lc.scale(dpr,dpr);
-    lc.imageSmoothingEnabled=true; lc.filter='blur(1.2px)'; lc.drawImage(off,0,0,W,H); lc.filter='none';
-    const N = Math.round(W*H/150);
+    lc.imageSmoothingEnabled=true; lc.filter='blur(1.1px)'; lc.drawImage(off,0,0,W,H); lc.filter='none';
+    // galaxies: tiny points that crowd along filaments and pile up in the knots
+    const N = Math.round(W*H/70);
     for(let k=0;k<N;k++){
-      const x=R()*W, y=R()*H, [f,g,e]=near(x,y);
-      const p = .75*e*Math.exp(-1*(f/(4+5*e))**2) + .9*Math.exp(-1*(g/15)**2)*e + .01;
+      const x=R()*W, y=R()*H, [f,g,e]=near(x,y), [ff,fw]=nearFine(x,y), c=.3+clump(x,y);
+      const core=Math.exp(-1*(f/(2.5+5*e))**2)*e;
+      const p = 1.1*core*c + 1.1*Math.exp(-1*(g/(12+10*e))**2)*core + .55*Math.exp(-1*(ff/2.2)**2)*(.25+.75*fw)*c + .004;
       if(R()>p) continue;
-      const b=.2+R()*.6, r=.3+R()*R()*1.05;
+      const b=.18+R()*.55, r=.25+R()*R()*.9;
       lc.fillStyle='rgba(228,233,255,'+b+')'; lc.beginPath(); lc.arc(x,y,r,0,6.283); lc.fill();
+      if(R()<.012){ const gr=lc.createRadialGradient(x,y,0,x,y,4); gr.addColorStop(0,'rgba(235,240,255,.55)'); gr.addColorStop(1,'rgba(235,240,255,0)'); lc.fillStyle=gr; lc.beginPath(); lc.arc(x,y,4,0,6.283); lc.fill(); }
     }
   }
   // screen-space path of one filament, following the warp
