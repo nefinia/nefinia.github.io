@@ -139,6 +139,28 @@
     panel.hidden = !v; btn.setAttribute("aria-expanded", String(!!v));
     if (v) { draw(); var f = panel.querySelector(".x"); if (f) f.focus(); } else btn.focus();
   }
+
+  /* keep "Aa" and the languages together; on small screens the languages fold into one button */
+  function groupTools(langs) {
+    if (!langs || !btn || btn.parentNode !== langs.parentNode || langs.parentNode.classList.contains("navtools")) return;
+    var box = document.createElement("div"); box.className = "navtools";
+    langs.parentNode.insertBefore(box, btn); box.appendChild(btn); box.appendChild(langs);
+    var links = Array.prototype.slice.call(langs.querySelectorAll("a[hreflang]"));
+    var cur = langs.querySelector('a[aria-current="true"]') || links[0];
+    var more = document.createElement("span"); more.className = "lang-more";
+    links.forEach(function (a, i) { a.style.order = i; if (a !== cur) more.appendChild(a); });
+    langs.appendChild(more);
+    var small = window.matchMedia("(max-width: 980px)");
+    cur.setAttribute("aria-haspopup", "true");
+    cur.addEventListener("click", function (e) {
+      if (!small.matches) return;
+      e.preventDefault();
+      var o = langs.classList.toggle("open"); cur.setAttribute("aria-expanded", String(o));
+    });
+    document.addEventListener("click", function (e) {
+      if (langs.classList.contains("open") && !langs.contains(e.target)) { langs.classList.remove("open"); cur.setAttribute("aria-expanded", "false"); }
+    });
+  }
   function mount() {
     measure(); applyAll();
     if (document.querySelector(".sgd-btn") || document.querySelector("[data-no-display-settings]")) return;
@@ -153,6 +175,7 @@
     else if (navin) navin.appendChild(btn);
     else { btn.classList.add("sgd-float"); panel.classList.add("low"); document.body.appendChild(btn); }
     document.body.appendChild(panel);
+    groupTools(langs);
     btn.addEventListener("click", function () { open(panel.hidden); });
     panel.addEventListener("click", function (e) {
       var b = e.target.closest("button"); if (!b) return;

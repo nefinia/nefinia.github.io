@@ -152,3 +152,16 @@ footer .flogo img{width:88px;height:88px}
 /* homepage: stars stay crisp in the cosmic web, then soften behind the sections below */
 body:not(.inner) main{position:relative;isolation:isolate}
 body:not(.inner) main::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(4,5,11,0),rgba(4,5,11,.6) 140px,rgba(4,5,11,.68));-webkit-backdrop-filter:blur(1.6px);backdrop-filter:blur(1.6px);-webkit-mask-image:linear-gradient(180deg,transparent,#000 140px);mask-image:linear-gradient(180deg,transparent,#000 140px)}
+/* "Aa" and languages side by side; on phones the languages fold into one */
+.navtools{display:flex;align-items:center;gap:4px;margin-left:14px;flex:none}
+.navtools .sgd-btn{margin:0!important}
+.navtools .langs{margin:0;padding-left:8px;border-left:1px solid var(--line);position:relative}
+.langs .lang-more{display:contents}
+@media (max-width:980px){
+  .navtools{margin-left:auto;margin-right:10px}
+  .navtools .langs{padding-left:0;border-left:0}
+  .langs > a[aria-current="true"]::after{content:" ▾";font-size:10px;opacity:.7}
+  .langs .lang-more{display:none;position:absolute;top:calc(100% + 6px);right:0;flex-direction:column;min-width:56px;padding:4px;background:rgba(4,5,11,.97);border:1px solid var(--line);border-radius:6px;z-index:40}
+  .langs.open .lang-more{display:flex}
+  .langs .lang-more a{padding:8px 10px!important;text-align:center}
+}
