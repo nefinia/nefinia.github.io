@@ -127,7 +127,7 @@ footer{max-width:1180px;margin:0 auto;padding:32px 16px 48px;color:var(--faint);
 /* personal logo */
 .brand{display:inline-flex;align-items:center;gap:10px}
 .brand img{width:28px;height:28px;border-radius:50%}
-footer{align-items:center}
+footer{align-items:flex-end;padding-bottom:18px}
 .flogo img{display:block;width:64px;height:64px;opacity:.9;transition:opacity .2s}
 .flogo:hover img{opacity:1}
 @media (max-width:900px){
