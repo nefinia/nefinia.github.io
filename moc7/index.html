@@ -784,6 +784,21 @@ function talkRow(it,opts={}){
 function hl(text,q,already){const s=already?text:esc(text);if(!q)return s;const re=new RegExp("("+q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","ig");return s.replace(re,"<mark>$1</mark>")}
 let OPEN_NOTE=null, QUERY="", PDAY=null;
 
+// first morning: everything needed to arrive, at the top of Now
+function arrivalCard(){
+  return `<div class="card stack" style="gap:10px;border-color:var(--accent)">
+    <div><div class="eyebrow">Welcome to MoC7 · getting here</div><h3 style="font:400 1.35rem var(--f-display);color:var(--head);margin:4px 0 0">HC Ørsted Institute (HCØ), Universitetsparken 5</h3></div>
+    <a href="${ENTRANCE}" target="_blank" rel="noopener" aria-label="Open the entrance in maps" style="display:block"><img src="entrance-map.png" width="720" height="420" alt="Map of North Campus with the HCØ entrance marked" style="width:100%;height:auto;border-radius:10px;border:1px solid var(--line);display:block"></a>
+    <div class="where" style="font-size:.72rem;margin-top:-4px">The red dot is the entrance to use all week. Tap the map to open it in your maps app. Map © OpenStreetMap contributors.</div>
+    <div class="grid2">
+      <div class="mini"><div class="eyebrow">Registration · from 8:15</div><b>Foyer, by the mosaic wall</b><div class="where">Collect your badge before the opening keynote at 9:00 in Auditorium 1.</div></div>
+      <div class="mini"><div class="eyebrow">Metro</div><b>M3 to Vibenshus Runddel</b><div class="where">Then about 10 minutes on foot along Nørre Allé. The metro runs 24/7; swipe in and out with the Rejsekort app.</div></div>
+      <div class="mini"><div class="eyebrow">Bus</div><b>150S, 173E, 184, 185</b><div class="where">They stop on Nørre Allé, right outside HCØ.</div></div>
+      <div class="mini"><div class="eyebrow">Wi‑Fi</div><b>eduroam</b><div class="where">Or KU Guest: register with your name, phone (with country code) and email; the password comes by SMS or email.</div></div>
+    </div>
+    <div class="row" style="gap:6px;flex-wrap:wrap"><a class="btn primary" href="${ENTRANCE}" target="_blank" rel="noopener">Directions to the entrance ↗</a><button class="btn ghost" data-go="info">All practical info</button></div>
+  </div>`;
+}
 function viewNow(){
   const n=nowCph();
   const sim=`<div class="row" style="margin-top:12px"><label class="eyebrow" for="simsel">See the app at</label><select class="sel" id="simsel" data-act="sim">${Object.entries(SIMS).map(([k,v])=>`<option value="${k}" ${store.sim===k?"selected":""}>${v}</option>`).join("")}</select></div>`;
@@ -811,7 +826,7 @@ function viewNow(){
   const mineNext=[...stars()].map(id=>ITEMS[id]).filter(it=>it&&it.day===d&&it.e>m).sort((a,b)=>a.s-b.s).slice(0,4);
   const curHtml=cur.length?cur.map(b=>nowBlock(b,m)).join(""):`<div class="empty">Nothing scheduled right now. ${next[0]?`Next: <b>${esc(next[0].title)}</b> at ${fmt(next[0].s)}.`:"That's it for today."}</div>`;
   return `<section class="stack">
-    ${d>=1&&d<=5&&m<600?`<div class="welcome" style="margin:0"><span>Arriving at HCØ? Use this entrance${d===1?" for registration":""}.</span><a class="btn" href="${ENTRANCE}" target="_blank" rel="noopener">Entrance on the map ↗</a></div>`:""}
+    ${d===1&&m<630?arrivalCard():d>=1&&d<=5&&m<600?`<div class="welcome" style="margin:0"><span>Arriving at HCØ? Use this entrance.</span><a class="btn" href="${ENTRANCE}" target="_blank" rel="noopener">Entrance on the map ↗</a></div>`:""}
     <div class="hero-now">
       <div class="eyebrow">${esc(DAYLONG[d])} · ${fmt(m)}</div>
       <div class="big">Happening now</div>
