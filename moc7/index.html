@@ -1019,6 +1019,7 @@ function desiredShares(){
     (store.refs[k]||[]).forEach(r=>{out["r:"+k+":"+hash36(r.url)]={kind:"ref",item:k,text:r.label||r.url,url:r.url,by}});
   });
   store.questions.forEach(q=>{out["q:"+q.id]={kind:"question",item:q.itemId,text:q.text,by:q.by||""}});
+  const pf=store.profile;if(pf&&pf.listed&&pf.name)out["me:people"]={kind:"note",item:"people",text:JSON.stringify({n:pf.name,a:pf.aff||"",i:(pf.interests||"").slice(0,600)}),url:pf.link||undefined,by:pf.name};
   (store.posts||[]).forEach(x=>{out["p:"+x.id]={kind:x.kind,item:x.item||"general",text:x.text,url:x.url||undefined,by}});
   store.hive.forEach(h=>{out["c:"+h.id]={kind:"card",item:"cs-"+h.session,text:h.text,by:h.by||"",meta:{group:h.group,type:h.type,session:h.session,needs:h.needs||"",id:h.id}}});
   return out;
@@ -1042,7 +1043,7 @@ async function likeShared(sid){const r=SHARED.find(x=>x.sid===sid);if(!r)return;
 async function reportShared(sid){try{await shareCall({op:"report",sid:+sid});SHARED=SHARED.filter(r=>r.sid!==+sid);toast("Reported. Thank you");render()}catch(e){toast("Couldn't report right now")}}
 const othersCards=()=>SHARED.filter(r=>r.kind==="card"&&r.meta).map(r=>({id:r.meta.id||"s"+r.sid,group:r.meta.group||"Group",type:r.meta.type,session:r.meta.session,needs:r.meta.needs||undefined,text:r.text,by:r.by||"",t:r.t,other:true,sid:r.sid}));
 const othersOn=id=>SHARED.filter(r=>r.item===id&&r.kind!=="card");
-const isReply=r=>String(r.item||"").startsWith("re:");
+const isReply=r=>String(r.item||"").startsWith("re:")||r.item==="people";
 /* ---- the hive: collective knowledge map ---- */
 const EX_CONTRIB=[];
 function topicsOfItem(id){return TOPICS.filter(T=>T.items.includes(id)).map(T=>T.k)}
@@ -1277,7 +1278,7 @@ function privacyHtml(){
     ${SYNC_URL?`<div><b>Sync, only if you turn it on</b><div class="where">An encrypted copy of your profile, notes, saved items and consensus answers is kept so your other devices can fetch it. It is locked on this device with your private sync code before it is sent; the server cannot read it and holds no name, email or account. It is stored with Cloudflare in Western Europe, deleted 90 days after its last use, and you can delete it yourself at any time. AI keys are never synced.</div></div>`:""}
     <div><b>What leaves this device, and only when you do it</b><div class="where">Opening an outside link (an abstract, Google Scholar, a DOI, a Signal group). Asking the built-in assistant: your question goes to the MoC7 Atlas server and to Anthropic to be answered, and is not kept. Using another AI option: your question goes to the company you choose, under your own account with them, often outside the EU. Sharing, emailing or downloading your notes: they go only where you send them. The website that serves this page keeps ordinary technical logs, like any website.</div></div>
     <div><b>Programme data</b><div class="where">Speaker names, affiliations and titles come from the public MoC7 programme on amcs-community.org.</div></div>
-    <div><b>What you choose to share</b><div class="where">Shared items are notes and references on a talk where you tick "Share", questions for speakers, and consensus answers. Everyone using MoC7 Atlas can see them on the Board, the talk and the Constellation. They are anonymous unless you chose to show your name in your profile. The server keeps the text, that name if shown, and a scrambled code for this device so you can edit or remove your own posts; no IP address, email or account. Data is stored with Cloudflare in Western Europe. Untick "Share" or delete an item and it is removed from the server. Everything shared is erased on 15 December 2026. Anyone can report a post, and three reports hide it.</div></div>
+    <div><b>What you choose to share</b><div class="where">Shared items are notes and references on a talk where you tick "Share", questions for speakers, posts on the Board, consensus answers and, if you tick "List me in People", your name, affiliation, interests and link. Everyone using MoC7 Atlas can see them on the Board, the talk and the Constellation. They are anonymous unless you chose to show your name in your profile. The server keeps the text, that name if shown, and a scrambled code for this device so you can edit or remove your own posts; no IP address, email or account. Data is stored with Cloudflare in Western Europe. Untick "Share" or delete an item and it is removed from the server. Everything shared is erased on 15 December 2026. Anyone can report a post, and three reports hide it.</div></div>
     <div><b>Visit counts</b><div class="where">Cloudflare Web Analytics records page views, country, device type and the page that linked here, without cookies or a personal identifier, so the organisers can see how the app is used.</div></div>
     <div><b>Questions about your data</b><div class="where">Write to the organisers at <code>moc7-organisers@amcs.science</code>.</div></div>
     ${HOST.name||HOST.email?`<div><b>Who runs this page</b><div class="copyline" style="margin-top:4px">${esc(HOST.name)}${HOST.name&&HOST.email?" · ":""}${HOST.email?`<code>${esc(HOST.email)}</code>`:""}</div></div>`:""}
@@ -1536,17 +1537,27 @@ function personCard(P,full){
      :items.length?`<div class="where" style="margin-top:4px">${items.map(it=>`${DAYS[it.day]} ${fmt(it.s)} · ${esc(it.title.length>70?it.title.slice(0,70)+"…":it.title)}`).join("<br>")}</div>`:""}
   </div>${saveBtn("person",P.key,P.name)}</div>`;
 }
+// people who listed themselves (from the shared board): their own words, matched to the programme by name
+function selfPeople(){
+  const rows=[...SHARED.filter(r=>r.item==="people")];
+  const mine=desiredShares()["me:people"];if(mine)rows.push({...mine,sid:MYSIDS["me:people"],mine:true,t:Date.now()});
+  return rows.map(r=>{let d={};try{d=JSON.parse(r.text)}catch(e){}return d.n?{name:d.n,aff:d.a||"",interests:d.i||"",link:r.url||"",sid:r.sid,mine:!!r.mine,key:pkey(d.n)}:null}).filter(Boolean);
+}
+function selfHtml(x){return `<div style="margin:6px 0 2px;padding:8px 10px;border-left:2px solid var(--accent);background:var(--sunk);border-radius:6px"><div class="eyebrow">In their own words${x.mine?" · yours":""}</div>${x.interests?`<div style="font-size:.9rem;line-height:1.45">${linkify(x.interests)}</div>`:""}${x.link?`<div style="margin-top:4px"><a href="${esc(x.link)}" target="_blank" rel="noopener nofollow ugc">${esc(x.link.replace(/^https?:\/\//,"").replace(/\/$/,""))} ↗</a></div>`:""}${x.mine?"":`<button class="btn ghost" data-report="${x.sid}" style="padding:0 4px;font-size:.72rem;margin-top:4px">Report</button>`}</div>`}
 function viewPeople(){
-  if(PERSON&&PEOPLE[PERSON]){return `<section class="stack"><div><button class="btn ghost" data-act="backpeople">← All people</button></div><div class="card">${personCard(PEOPLE[PERSON],true)}</div></section>`}
+  const SELF=selfPeople();const selfBy=Object.fromEntries(SELF.map(x=>[x.key,x]));
+  if(PERSON&&PEOPLE[PERSON]){return `<section class="stack"><div><button class="btn ghost" data-act="backpeople">← All people</button></div><div class="card">${personCard(PEOPLE[PERSON],true)}${selfBy[PERSON]?selfHtml(selfBy[PERSON]):""}</div></section>`}
   const q=PQ.trim().toLowerCase();
   let list=PEOPLE_LIST.filter(P=>!q||(P.name+" "+[...P.affs].join(" ")+" "+P.items.map(id=>ITEMS[id].title).join(" ")).toLowerCase().includes(q));
   if(PROLE)list=list.filter(P=>P.roles.has(PROLE));
-  const roles=["Speaker","Keynote","Showcase","Poster","Workshop","Organiser","Advisory board"];
+  const roles=["Speaker","Keynote","Showcase","Poster","Workshop","Organiser","Advisory board","Participant"];
   return `<section class="stack">
-    <div><h2>People</h2><p class="lede">Everyone in the programme: speakers, poster presenters, organisers and the advisory board. Open a person for their talks, links to their publications, and your own references.</p><p class="where" style="margin:4px 0 0">Names and affiliations come from the public MoC7 programme on amcs-community.org.</p></div>
+    <div><h2>People</h2><p class="lede">Everyone in the programme (speakers, poster presenters, organisers, the advisory board) and participants who listed themselves. Open a person for their talks, links to their publications, and your own references.</p><p class="where" style="margin:4px 0 0">Names and affiliations come from the public MoC7 programme on amcs-community.org.</p></div>
     <input class="search" id="peq" type="search" placeholder="Search a name, a university or a word from their talk…" value="${esc(PQ)}" autocomplete="off">
     <div class="chips"><button class="chip" data-prole="" aria-pressed="${!PROLE}">Everyone · ${PEOPLE_LIST.length}</button>${roles.map(r=>`<button class="chip" data-prole="${r}" aria-pressed="${PROLE===r}">${r}</button>`).join("")}</div>
-    <div class="card">${list.slice(0,120).map(P=>personCard(P,false)).join("")||'<div class="where">No one matches.</div>'}${list.length>120?`<div class="where" style="padding-top:8px">${list.length-120} more; refine the search.</div>`:""}</div>
+    ${(()=>{const extra=SELF.filter(x=>!PEOPLE[x.key]&&(!q||(x.name+" "+x.aff+" "+x.interests).toLowerCase().includes(q)));return (!PROLE||PROLE==="Participant")&&extra.length?`<div class="eyebrow">Participants who listed themselves · ${extra.length}</div><div class="card">${extra.map(x=>`<div style="padding:10px 0;border-bottom:1px solid var(--line)"><b>${esc(x.name)}</b>${x.aff?` <span class="where">· ${esc(x.aff)}</span>`:""}${selfHtml(x)}</div>`).join("")}</div>`:""})()}
+    ${PROLE==="Participant"?"":`<div class="card">${list.slice(0,120).map(P=>personCard(P,false)+(selfBy[P.key]?selfHtml(selfBy[P.key]):"")).join("")||'<div class="where">No one matches.</div>'}${list.length>120?`<div class="where" style="padding-top:8px">${list.length-120} more; refine the search.</div>`:""}</div>`}
+    <p class="where">Not here, or want to add a line about yourself? Fill in your <button class="btn ghost" data-go="profile" style="padding:0 4px;font-size:inherit;color:var(--accent)">profile</button> and tick "List me in People".</p>
   </section>`;
 }
 
@@ -1580,7 +1591,9 @@ function viewProfile(){
       <label>Discussion group<select class="sel" id="p-group"><option value="">Not assigned yet</option>${GROUPS.map(g=>`<option ${p.group===g?"selected":""}>${g}</option>`).join("")}</select></label>
       <label>Main theme<select class="sel" id="p-theme"><option value="">Any</option>${Object.entries(THEMES).map(([k,v])=>`<option value="${k}" ${p.theme===k?"selected":""}>${esc(v)}</option>`).join("")}</select></label>
       <label class="full">Research interests<textarea class="inp" id="p-int" maxlength="600" placeholder="A few keywords or a sentence: e.g. micro-phenomenology, AI consciousness indicators, dreaming, formal models">${esc(p.interests||"")}</textarea></label>
+      <label class="full">Website or profile link (optional)<input class="inp" id="p-link" maxlength="300" placeholder="https://…" value="${esc(p.link||"")}"></label>
       <label class="full" style="flex-direction:row;align-items:center;gap:8px;color:var(--ink)"><input type="checkbox" id="p-show" ${p.showName===true?"checked":""} style="width:auto"> Show my name on what I share</label>
+      <label class="full" style="flex-direction:row;align-items:flex-start;gap:8px;color:var(--ink)"><input type="checkbox" id="p-list" ${p.listed===true?"checked":""} style="width:auto;margin-top:3px"> <span>List me in People, with my name, affiliation, interests and link, so others can find me. <span class="where">Visible to everyone using the app. If you are in the programme, this adds to your card. Untick to remove it.</span></span></label>
       <div class="full row"><button class="btn primary" type="submit">Save profile</button>${signed?`<button class="btn ghost" type="button" data-act="signout">Clear profile</button>`:""}</div>
       <div class="full where">Stored in this browser. It is sent nowhere unless you turn on sync (encrypted) or let an AI option see your interests.</div>
     </form>
@@ -2082,7 +2095,7 @@ document.addEventListener("change",e=>{
 });
 document.addEventListener("submit",e=>{
   if(e.target.id==="pform"){e.preventDefault();const name=$("#p-name").value.trim();if(!name){$("#p-name").focus();return}
-    store.profile={name,aff:$("#p-aff").value.trim(),group:$("#p-group").value,theme:$("#p-theme").value,interests:$("#p-int").value.trim(),showName:$("#p-show").checked};
+    store.profile={name,aff:$("#p-aff").value.trim(),group:$("#p-group").value,theme:$("#p-theme").value,interests:$("#p-int").value.trim(),showName:$("#p-show").checked,listed:!!($("#p-list")&&$("#p-list").checked),link:(()=>{let l=($("#p-link")||{}).value||"";l=l.trim();if(l&&!/^https?:\/\//i.test(l))l="https://"+l;return l})()};
     if(store.profile.group)store.lastGroup=store.profile.group;save();toast("Profile saved on this device");return go("now")}
   if(e.target.id==="sform"){e.preventDefault();const nv=$("#s-note").value.trim();let title=$("#s-title").value.trim();let body=nv;if(!title&&nv){const ls=nv.split("\n");const fl=ls[0];if(fl.length>80){title=fl.slice(0,78)+"…"}else{title=fl;body=ls.slice(1).join("\n").trim()}}if(!title){$("#s-note").focus();return}const raw=$("#s-url").value.trim();const r=raw?normRef(raw):null;
     if(raw&&!r){toast("That link doesn't look right. Paste a DOI, an arXiv id or a full link");return}
