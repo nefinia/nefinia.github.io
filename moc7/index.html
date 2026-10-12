@@ -801,7 +801,7 @@ function arrivalCard(){
 }
 function viewNow(){
   const n=nowCph();
-  const sim=`<div class="row" style="margin-top:12px"><label class="eyebrow" for="simsel">See the app at</label><select class="sel" id="simsel" data-act="sim">${Object.entries(SIMS).map(([k,v])=>`<option value="${k}" ${store.sim===k?"selected":""}>${v}</option>`).join("")}</select></div>`;
+  const sim="";
   if(n.before){
     const start=Date.UTC(2026,9,12,7,0);const days=Math.max(0,Math.ceil((start-Date.now())/864e5));
     return `<section class="stack">
@@ -2123,7 +2123,7 @@ try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{if
   else if(store.sync&&store.sync.code)syncNow();
   document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")syncNow()});
 })();
-(function init(){finishOpenRouter();if(store.ai.provider==="openrouter"&&KEYMEM)loadORModels();const n=nowCph();if(!n.sim&&n.day>=0&&n.day<=5)store.day=n.day;render();loadLive();loadShared();shareTouch();setInterval(()=>{if(!document.hidden)loadShared()},90000);// Updates: check for a newer version of the app and reload at a calm moment (everything saved stays saved) 
+(function init(){if(store.sim&&store.sim!=="live"){store.sim="live";save()}finishOpenRouter();if(store.ai.provider==="openrouter"&&KEYMEM)loadORModels();const n=nowCph();if(!n.sim&&n.day>=0&&n.day<=5)store.day=n.day;render();loadLive();loadShared();shareTouch();setInterval(()=>{if(!document.hidden)loadShared()},90000);// Updates: check for a newer version of the app and reload at a calm moment (everything saved stays saved) 
 let APPVER=null,UPDATE_WAITING=false; 
 const calmToReload=()=>!ASKING&&!BDRAFT.trim()&&!ASKDRAFT.trim()&&!(document.activeElement&&document.activeElement.matches("input,textarea,select")); 
 function reloadForUpdate(){try{sessionStorage.setItem("moc7atlas.updated","1")}catch(e){}location.reload()} 
