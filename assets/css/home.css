@@ -145,3 +145,7 @@ footer{align-items:center}
 .intro h1 .mono-hero{flex:none;height:2.1em;width:.98em;color:var(--ink);fill:currentColor;stroke:currentColor;stroke-width:10;stroke-linejoin:round;overflow:visible}
 /* line the greeting, roles and buttons up with the name, not the monogram */
 .intro:has(h1.named) > :not(h1){margin-left:calc(1.26 * clamp(40px,4.8vw,60px))}
+/* menu: the monogram turned on its side, same colour as the name */
+.brand .mono-nav{display:block;flex:none;height:22px;width:48px;color:var(--ink);fill:currentColor;stroke:currentColor;stroke-width:16;stroke-linejoin:round;overflow:visible}
+/* footer: the round Cosmovision logo, a little larger */
+footer .flogo img{width:88px;height:88px}
