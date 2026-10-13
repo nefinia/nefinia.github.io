@@ -175,6 +175,19 @@ textarea.inp{width:100%;resize:vertical;min-height:70px}
 details.lanes-d > summary{cursor:pointer;list-style:none;color:var(--accent);font-weight:600;font-size:.88rem;margin-top:8px}
 details.lanes-d > summary::-webkit-details-marker{display:none}
 .peek{display:flex;flex-direction:column;gap:3px;margin-top:6px}
+.popts{display:flex;flex-direction:column;margin-top:6px}
+.popt{border-top:1px solid var(--line)}.popt:first-child{border-top:0}
+.prow{display:flex;align-items:baseline;gap:6px;width:100%;background:none;border:0;padding:9px 0;text-align:left;cursor:pointer;color:var(--ink);font:inherit}
+.prow .room{font:500 .76rem var(--f-mono);color:var(--muted);flex:none;min-width:4.6em}
+.prow .pdot{flex:none;font-size:.8rem}.prow .ptitle{flex:1;font-weight:600;font-size:.93rem;line-height:1.3}
+.prow .pchev{flex:none;color:var(--accent);font-weight:600;width:1em;text-align:center}
+.pstar{color:var(--gold);font-size:.8rem;flex:none}
+.ptalks{padding:0 0 8px 0;margin-left:4.9em}
+.ptalk{display:grid;grid-template-columns:auto 1fr;gap:0 8px;width:100%;background:none;border:0;border-top:1px dashed var(--line);padding:7px 0;text-align:left;cursor:pointer;font:inherit;color:var(--ink)}
+.ptalk .tt{font:500 .74rem var(--f-mono);color:var(--muted);grid-row:span 2;padding-top:2px}.ptalk .ptl{font-size:.9rem;line-height:1.3}.ptalk .who{grid-column:2;font-size:.8rem;color:var(--muted)}
+.ptalk-open{border-top:1px dashed var(--line)}.ptalk-open .talk{border-top:0}
+.pabs{font-size:.86rem;line-height:1.45;color:var(--ink);margin-top:6px;opacity:.9}.pabs a{white-space:nowrap}
+@media (max-width:640px){.ptalks{margin-left:0}}
 .peek div{font-size:.86rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .peek b{color:var(--ink);font-weight:600}
 
@@ -774,7 +787,8 @@ const shortRoom=r=>String(r).replace(/^Auditorium\s*(\d+).*/,"Aud. $1").replace(
 function clashLine(it){if(it.kind==="Poster"||it.kind==="Discussion")return"";const st=stars();
   const c=[...st].map(id=>ITEMS[id]).find(o=>o&&o.id!==it.id&&o.day===it.day&&o.kind!=="Poster"&&o.kind!=="Discussion"&&o.s<it.e&&it.s<o.e);
   return c?`<div class="clash">Clashes with your saved “${esc(c.title.length>60?c.title.slice(0,60)+"…":c.title)}” · ${esc(shortRoom(c.room))}</div>`:""}
-let NOTE_MORE=null;
+let NOTE_MORE=null,OPEN_ROW=null,OPEN_TALK=null,ABS_SHORT=null,ABS_LOADING=false;
+function loadAbstracts(){if(ABS_SHORT||ABS_LOADING)return;ABS_LOADING=true;fetch("abstracts.json").then(r=>r.ok?r.json():{}).then(d=>{ABS_SHORT=d||{};render()}).catch(()=>{ABS_SHORT={}}).finally(()=>{ABS_LOADING=false})}
 function talkRow(it,opts={}){
   const st=stars();const on=st.has(it.id);const has=!!((store.notes[it.id]||"").trim()||(store.refs[it.id]||[]).length);
   const open=OPEN_NOTE===it.id;
@@ -786,9 +800,9 @@ function talkRow(it,opts={}){
   return `<div class="talk" ${opts.noTime?'style="grid-template-columns:1fr auto"':""}>
     ${t}
     <div style="min-width:0">
-      <div class="ti">${it.kind!=="Talk"?`<span class="pill pk-${it.kind}">${esc(it.kind)}</span> `:""}${opts.hl?hl(it.title,opts.hl):esc(it.title)}</div>
-      <div class="who">${who}</div>${extra}${on&&store.tab!=="mine"?clashLine(it):""}
-      ${it.href||refs.length?`<div class="tlinks">${it.href?`<a href="${it.href}" target="_blank" rel="noopener">Abstract ↗</a>`:""}${refs.map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.label)} ↗</a>`).join("")}</div>`:""}
+      <div class="ti">${it.kind!=="Talk"?`<span class="pill pk-${it.kind}">${esc(it.kind)}</span> `:""}${opts.abs&&it.href?`<a href="${it.href}" target="_blank" rel="noopener" style="color:inherit">${esc(it.title)}</a>`:opts.hl?hl(it.title,opts.hl):esc(it.title)}</div>
+      <div class="who">${who}</div>${extra}${opts.abs?`<div class="pabs">${ABS_SHORT?esc(ABS_SHORT[it.id]||"No abstract available yet."):"Loading the abstract…"} ${it.href?`<a href="${it.href}" target="_blank" rel="noopener">Read the full abstract ↗</a>`:""}</div>`:""}${on&&store.tab!=="mine"?clashLine(it):""}
+      ${(it.href&&!opts.abs)||refs.length?`<div class="tlinks">${it.href&&!opts.abs?`<a href="${it.href}" target="_blank" rel="noopener">Abstract ↗</a>`:""}${refs.map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.label)} ↗</a>`).join("")}</div>`:""}
     </div>
     <div class="acts">
       <button class="ico ${has?"has":""}" data-act="note" data-id="${it.id}" aria-label="Notes and references" title="Notes and references">${SV.note}</button>
@@ -896,13 +910,15 @@ function blockHtml(b,m){
     const lanes=filt.map(k=>{const S=SESS[k];const t=PT.map(r=>ITEMS[r[0]]).filter(it=>it.sess===k);
       return `<div class="lane"><header><span class="room">${esc(S[3])}</span><b>${esc(S[4])}</b>${themeTag(S[5])}</header>${t.map(it=>talkRow(it)).join("")}</div>`}).join("");
     const ws=Object.values(ITEMS).filter(it=>it.kind==="Workshop"&&it.day===b.day&&it.s>=b.s&&it.s<b.e);
-    const peek=keys.map(k=>{const S=SESS[k];return `<div><span class="room">${esc(S[3].replace("Auditorium","Aud."))}</span> · <b style="color:var(--t-${S[5]})">●</b> ${esc(S[4])}</div>`}).join("");
-    const st=stars();const starredHere=PT.filter(r=>r[4].startsWith(b.ref)&&st.has(r[0])).length;
-    const openAll=!!store.themes.length||OPEN_PAR.has(b.ref)||starredHere>0&&OPEN_PAR.has(b.ref);
-    return `<div class="${cls}">${time}<div class="card"><div class="kind">Parallel sessions · ${esc(b.place)}${starredHere?` · <span style="color:var(--gold)">${starredHere} starred</span>`:""}</div>
-      <div class="peek">${peek}</div>
-      <details class="lanes-d" data-par="${b.ref}" ${openAll?"open":""}><summary>${openAll?"Hide talks":"Show all talks"}</summary><div class="lanes">${lanes||'<div class="where">No session in the selected themes.</div>'}</div></details>
-      ${ws.map(w=>`<div class="ws"><div class="kind">Experiential workshop · ${esc(w.room)}</div>${talkRow(w,{noTime:true})}</div>`).join("")}
+    const st=stars();const starredHere=PT.filter(r=>r[4].startsWith(b.ref)&&st.has(r[0])).length+ws.filter(w=>st.has(w.id)).length;
+    // every option in this slot looks the same: one line each; tap to see its talks, tap a talk for its short abstract
+    const opts=[...filt.map(k=>{const S=SESS[k];return {key:b.ref+"|"+k,room:S[3],title:S[4],theme:S[5],talks:PT.map(r=>ITEMS[r[0]]).filter(it=>it.sess===k)}}),
+                ...ws.map(w=>({key:b.ref+"|"+w.id,room:w.room,title:w.title,theme:"W",label:"Workshop",talks:[w]}))];
+    const optRow=o=>{const open=OPEN_ROW===o.key;const nst=o.talks.filter(it=>st.has(it.id)).length;
+      return `<div class="popt ${open?"open":""}"><button class="prow" data-prow="${esc(o.key)}" aria-expanded="${open}"><span class="room">${esc(shortRoom(o.room))}</span><span class="pdot" style="color:var(--t-${o.theme})">●</span><span class="ptitle">${o.label?`<span class="pill pk-Workshop">${o.label}</span> `:""}${esc(o.title)}</span>${nst?`<span class="pstar">★${nst>1?" "+nst:""}</span>`:""}<span class="pchev">${open?"–":"+"}</span></button>
+        ${open?`<div class="ptalks">${o.talks.map(it=>OPEN_TALK===it.id?`<div class="ptalk-open">${talkRow(it,{abs:true,noTime:o.talks.length===1})}</div>`:`<button class="ptalk" data-ptalk="${it.id}"><span class="tt">${o.talks.length>1?fmt(it.s):""}</span><span class="ptl">${esc(it.title)}</span><span class="who">${esc(it.name||"")}${st.has(it.id)?' <span class="pstar">★</span>':""}</span></button>`).join("")}</div>`:""}</div>`};
+    return `<div class="${cls}">${time}<div class="card"><div class="kind">Parallel · ${opts.length} options${starredHere?` · <span style="color:var(--gold)">${starredHere} starred</span>`:""}</div>
+      <div class="popts">${opts.map(optRow).join("")||'<div class="where">No session in the selected themes.</div>'}</div>
     </div></div>`;
   }
   // social
@@ -2033,6 +2049,8 @@ document.addEventListener("click",e=>{
   if(ds.nmore){NOTE_MORE=NOTE_MORE===ds.nmore?null:ds.nmore;render();const f=NOTE_MORE==="ref"?document.getElementById("ref-"+OPEN_NOTE):NOTE_MORE==="q"?document.getElementById("qq-"+OPEN_NOTE):null;if(f)f.focus();return}
   if(ds.sedit!=null&&t.matches("[data-sedit]")){EDIT_SAVED=ds.sedit||null;render();const ta=EDIT_SAVED&&document.getElementById("sedit-"+EDIT_SAVED);if(ta){ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length)}return}
   if(ds.ssave){const ta=document.getElementById("sedit-"+ds.ssave);const v=ta?ta.value.trim():"";const x=store.saved.find(y=>y.id===ds.ssave);if(x&&v){x.note=v;x.title=noteTitle(v);x.kind="note";EDIT_SAVED=null;save();toast("Note updated");return render()}if(ta)ta.focus();return}
+  if(ds.prow){OPEN_ROW=OPEN_ROW===ds.prow?null:ds.prow;OPEN_TALK=null;const o=ds.prow.split("|")[1];if(o&&ITEMS[o]){OPEN_TALK=o;loadAbstracts()}return render(true)}
+  if(ds.ptalk){OPEN_TALK=OPEN_TALK===ds.ptalk?null:ds.ptalk;loadAbstracts();return render(true)}
   if(ds.report){reportShared(ds.report);return}
   if(ds.bkind!=null&&t.matches("[data-bkind]")){BKIND=ds.bkind;return render()}
   if(ds.bnew){BKINDNEW=ds.bnew;render();const ta=$("#bpost");if(ta)ta.focus();return}
