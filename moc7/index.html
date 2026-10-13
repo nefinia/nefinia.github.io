@@ -138,6 +138,9 @@ textarea.inp{width:100%;resize:vertical;min-height:70px}
 /* talk rows */
 .talk{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:start;padding:10px 0;border-top:1px solid var(--line)}
 .talk:first-child{border-top:0}
+.talk .tt .troom{display:block;font-size:.7rem;opacity:.8;margin-top:1px;white-space:nowrap}
+.clash{color:var(--t-X);font-size:.82rem;margin-top:4px}
+.notebar{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.notebar .btn{padding:4px 10px;font-size:.82rem}.notebar .btn[aria-pressed=true]{border-color:var(--accent);color:var(--accent)}
 @media (max-width:640px){
   .blk{grid-template-columns:1fr;gap:4px}
   .blk .t{padding-top:6px;display:flex;gap:0;font-size:.78rem}
@@ -145,6 +148,8 @@ textarea.inp{width:100%;resize:vertical;min-height:70px}
   .blk .t span:not(:empty)::before{content:"–"}
   .talk{grid-template-columns:1fr auto;gap:2px 10px}
   .talk .tt{grid-column:1/-1;padding-top:0;min-width:0}
+  .talk .tt .troom{display:inline;margin-left:6px}
+  .talk .tt .troom::before{content:"· "}
 }
 .talk .tt{font:500 .78rem var(--f-mono);color:var(--muted);padding-top:3px;min-width:3.2em}
 .talk .ti{font-weight:600;line-height:1.35}
@@ -765,10 +770,15 @@ function updateClock(){
 }
 
 /* -------------- views -------------- */
+const shortRoom=r=>String(r).replace(/^Auditorium\s*(\d+).*/,"Aud. $1").replace(/^Classrooms?\s*/,"").replace(/^HCØ, main corridor$/,"Corridor").replace(/\s*\((HCØ|NBB)\)$/,"");
+function clashLine(it){if(it.kind==="Poster"||it.kind==="Discussion")return"";const st=stars();
+  const c=[...st].map(id=>ITEMS[id]).find(o=>o&&o.id!==it.id&&o.day===it.day&&o.kind!=="Poster"&&o.kind!=="Discussion"&&o.s<it.e&&it.s<o.e);
+  return c?`<div class="clash">Clashes with your saved “${esc(c.title.length>60?c.title.slice(0,60)+"…":c.title)}” · ${esc(shortRoom(c.room))}</div>`:""}
+let NOTE_MORE=null;
 function talkRow(it,opts={}){
   const st=stars();const on=st.has(it.id);const has=!!((store.notes[it.id]||"").trim()||(store.refs[it.id]||[]).length);
   const open=OPEN_NOTE===it.id;
-  const t=opts.noTime?"":`<div class="tt">${fmt(it.s)}</div>`;
+  const t=opts.noTime?"":`<div class="tt">${fmt(it.s)}${it.room&&!opts.where?`<span class="troom">${esc(shortRoom(it.room))}</span>`:""}</div>`;
   const names=it.name?splitNames(it.name).map(n=>`<a href="#" data-person="${esc(pkey(n))}" class="plink">${opts.hl?hl(n,opts.hl):esc(n)}</a>`).join(" & "):"";
   const who=[names,it.aff?(opts.hl?hl(it.aff,opts.hl):esc(it.aff)):""].filter(Boolean).join(" · ");
   const extra=opts.where?`<div class="who">${esc(DAYS[it.day])} · ${fmt(it.s)}–${fmt(it.e)} · ${esc(it.room)}</div>`:"";
@@ -777,16 +787,18 @@ function talkRow(it,opts={}){
     ${t}
     <div style="min-width:0">
       <div class="ti">${it.kind!=="Talk"?`<span class="pill pk-${it.kind}">${esc(it.kind)}</span> `:""}${opts.hl?hl(it.title,opts.hl):esc(it.title)}</div>
-      <div class="who">${who}</div>${extra}
+      <div class="who">${who}</div>${extra}${on&&store.tab!=="mine"?clashLine(it):""}
       ${it.href||refs.length?`<div class="tlinks">${it.href?`<a href="${it.href}" target="_blank" rel="noopener">Abstract ↗</a>`:""}${refs.map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.label)} ↗</a>`).join("")}</div>`:""}
     </div>
     <div class="acts">
       <button class="ico ${has?"has":""}" data-act="note" data-id="${it.id}" aria-label="Notes and references" title="Notes and references">${SV.note}</button>
       <button class="ico ${on?"on":""}" data-act="star" data-id="${it.id}" aria-label="${on?"Remove from Saved":"Save"}" aria-pressed="${on}" title="Save">${SV.star}</button>
     </div>
-    ${open?`<div class="note"><textarea class="inp" id="note-${it.id}" data-note="${it.id}" placeholder="Your notes on this talk…">${esc(store.notes[it.id]||"")}</textarea>${refEditor(it.id)}
-      <label class="row" style="gap:8px;margin-top:8px;font-size:.88rem"><input type="checkbox" data-share="${it.id}" ${store.share[it.id]?"checked":""}> Share my note and references with everyone <span class="where">(anonymous unless you show your name)</span></label>
-      ${it.kind!=="Poster"&&it.kind!=="Discussion"?`<div class="refform"><input class="inp" id="qq-${it.id}" maxlength="1000" placeholder="A question for the speaker (shared with everyone)"><button class="btn" data-askq="${it.id}">Add question</button></div>`:""}${othersHtml(it.id)}</div>`:""}
+    ${open?`<div class="note"><textarea class="inp" id="note-${it.id}" data-note="${it.id}" placeholder="Your notes on this talk… (saved as you type)">${esc(store.notes[it.id]||"")}</textarea>
+      <div class="notebar"><button class="btn ghost" data-nmore="ref" aria-pressed="${NOTE_MORE==="ref"}">+ Reference${refs.length?" · "+refs.length:""}</button>${it.kind!=="Poster"&&it.kind!=="Discussion"?`<button class="btn ghost" data-nmore="q" aria-pressed="${NOTE_MORE==="q"}">Ask the speaker</button>`:""}<button class="btn ghost" data-nmore="share" aria-pressed="${NOTE_MORE==="share"}">${store.share[it.id]?"Shared ✓":"Share"}</button></div>
+      ${NOTE_MORE==="ref"||refs.length?refEditor(it.id):""}
+      ${NOTE_MORE==="share"?`<label class="row" style="gap:8px;margin-top:8px;font-size:.88rem"><input type="checkbox" data-share="${it.id}" ${store.share[it.id]?"checked":""}> Share my note and references with everyone <span class="where">(anonymous unless you show your name)</span></label>`:""}
+      ${NOTE_MORE==="q"?`<div class="refform"><input class="inp" id="qq-${it.id}" maxlength="1000" placeholder="Your question (shared with everyone)"><button class="btn" data-askq="${it.id}">Post</button></div>`:""}${othersHtml(it.id)}</div>`:""}
   </div>`;
 }
 function hl(text,q,already){const s=already?text:esc(text);if(!q)return s;const re=new RegExp("("+q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","ig");return s.replace(re,"<mark>$1</mark>")}
@@ -1222,6 +1234,11 @@ function hiveDump(){const all=collective();let md="# MoC7: shared knowledge\n";
 
 /* ---- saved ---- */
 const SKIND={person:"People",topic:"Topics",paper:"Papers",link:"Links & references",note:"Notes & ideas",board:"From the Board"};
+let EDIT_SAVED=null;
+const noteTitle=t=>{const fl=String(t).split("\n")[0].trim();return fl.length>80?fl.slice(0,78)+"…":fl};
+// notes saved before this change kept the first line as a title and the rest as the note
+const noteText=x=>{const n=x.note||"",tt=(x.title||"").replace(/…$/,"");return n&&n.startsWith(tt)?n:[x.title,n].filter(Boolean).join("\n")};
+const sure=what=>{try{return confirm(what)}catch(e){return true}};
 let MFILTER="";
 const showM=k=>MFILTER===""||MFILTER===k;
 function mchips(nTalks,counts,nNoted){
@@ -1241,18 +1258,17 @@ function viewMine(){
   if(lastDay>=0)html+="</div>";
   const counts={};const groups=Object.keys(SKIND).map(k=>{const xs=store.saved.filter(x=>x.kind===k).sort((a,b)=>b.t-a.t);if(!xs.length)return"";counts[k]=xs.length;if(!(MFILTER===""||MFILTER===k||(MFILTER==="notes"&&k==="note")))return"";
     return `<div class="eyebrow">${SKIND[k]}</div><div class="card">${xs.map(x=>{
+      if(k==="note"){const txt=noteText(x);return EDIT_SAVED===x.id?`<div class="paper" style="display:block"><textarea class="inp" id="sedit-${x.id}" style="min-height:110px;width:100%">${esc(txt)}</textarea><div class="row" style="gap:6px;margin-top:6px"><button class="btn primary" data-ssave="${x.id}">Save</button><button class="btn ghost" data-sedit="">Cancel</button></div></div>`:`<div class="paper"><div style="min-width:0;white-space:pre-wrap;line-height:1.45">${linkify(txt)}</div><div class="row" style="gap:2px;flex:none;align-self:start"><button class="btn ghost" data-sedit="${x.id}" style="padding:2px 8px;font-size:.8rem">Edit</button><button class="ico" data-unsave="${x.id}" aria-label="Remove" title="Remove">✕</button></div></div>`}
       const open=k==="person"?`<a href="#" data-person="${esc(x.key)}">${esc(x.title)}</a>`:k==="topic"?`<a href="#" data-topicl="${esc(x.key)}">${esc(x.title)}</a>`:x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)} ↗</a>`:`<b>${esc(x.title)}</b>`;
       return `<div class="paper"><div style="min-width:0"><div>${open}</div>${x.note?`<div class="pm" style="white-space:pre-wrap">${esc(x.note)}</div>`:""}</div><button class="ico" data-unsave="${x.id}" aria-label="Remove" title="Remove">✕</button></div>`}).join("")}</div>`}).join("");
   const noted=Object.keys(store.notes).filter(k=>k!=="_general"&&(store.notes[k]||"").trim()&&!stars().has(k)).map(k=>ITEMS[k]).filter(Boolean);
   return `<section class="stack">
     <div><h2>Saved</h2><p class="lede">Your agenda, plus anything else you want to keep: people, topics, papers, links, an idea from the coffee queue. It all stays on this device until you download it.</p></div>
     ${mchips(its.length,counts,noted.length)}
-    ${showM("notes")?"":"<!--"}<form class="card form" id="sform" autocomplete="off">
-      <div class="full eyebrow">Write a note</div>
-      <label class="full"><span class="sr-only">Note</span><textarea class="inp" id="s-note" maxlength="6000" style="min-height:150px" placeholder="An idea from a talk, a question to follow up, a person to email, a paper to read, a café…"></textarea></label>
-      <label>Title (optional)<input class="inp" id="s-title" maxlength="200" placeholder="Otherwise the first line"></label>
-      <label>Link, DOI or arXiv id (optional)<input class="inp" id="s-url" placeholder="10.1038/… or https://…"></label>
-      <div class="full row"><button class="btn primary" type="submit">Save</button></div>
+    ${showM("notes")?"":"<!--"}<form class="card stack" id="sform" autocomplete="off" style="gap:8px">
+      <div class="eyebrow">Write a note</div>
+      <label><span class="sr-only">Note</span><textarea class="inp" id="s-note" maxlength="6000" style="min-height:110px" placeholder="An idea from a talk, a person to follow up, a paper to read… Links and DOIs become clickable."></textarea></label>
+      <div class="row"><button class="btn primary" type="submit">Save note</button></div>
     </form>
     ${showM("notes")?"":"-->"}${showM("talks")?"":"<!--"}<div><h3 style="font:400 1.3rem var(--f-display);color:var(--head)">My agenda</h3></div>
     ${its.length?html:`<div class="empty">Nothing starred yet. Tap the star next to any talk, poster or discussion session.<div class="row" style="justify-content:center;margin-top:10px"><button class="btn" data-go="prog">Open the programme</button></div></div>`}
@@ -2014,14 +2030,17 @@ document.addEventListener("click",e=>{
   if(ds.hg!=null){HGROUP=ds.hg||null;HTHREAD=null;return render()}
   if(ds.th){HTHREAD=HTHREAD===ds.th?null:ds.th;return render()}
   if(ds.mfilter!=null&&t.matches("[data-mfilter]")){MFILTER=ds.mfilter;return render()}
+  if(ds.nmore){NOTE_MORE=NOTE_MORE===ds.nmore?null:ds.nmore;render();const f=NOTE_MORE==="ref"?document.getElementById("ref-"+OPEN_NOTE):NOTE_MORE==="q"?document.getElementById("qq-"+OPEN_NOTE):null;if(f)f.focus();return}
+  if(ds.sedit!=null&&t.matches("[data-sedit]")){EDIT_SAVED=ds.sedit||null;render();const ta=EDIT_SAVED&&document.getElementById("sedit-"+EDIT_SAVED);if(ta){ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length)}return}
+  if(ds.ssave){const ta=document.getElementById("sedit-"+ds.ssave);const v=ta?ta.value.trim():"";const x=store.saved.find(y=>y.id===ds.ssave);if(x&&v){x.note=v;x.title=noteTitle(v);x.kind="note";EDIT_SAVED=null;save();toast("Note updated");return render()}if(ta)ta.focus();return}
   if(ds.report){reportShared(ds.report);return}
   if(ds.bkind!=null&&t.matches("[data-bkind]")){BKIND=ds.bkind;return render()}
   if(ds.bnew){BKINDNEW=ds.bnew;render();const ta=$("#bpost");if(ta)ta.focus();return}
   if(ds.breply){BREPLY=+ds.breply;render();const i=$("#breply");if(i)i.focus();return}
   if(ds.breplysend){const i=$("#breply");const v=i?i.value.trim():"";if(!v)return;store.posts=store.posts||[];store.posts.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),kind:"note",item:"re:"+ds.breplysend,text:v.slice(0,600),t:Date.now()});BREPLY=null;save();toast("Reply posted");return render()}
   if(ds.blike){likeShared(+ds.blike);return}
-  if(ds.bdel){store.posts=(store.posts||[]).filter(x=>x.id!==ds.bdel);save();toast("Deleted");return render()}
-  if(ds.del){store.hive=store.hive.filter(h=>h.id!==ds.del);store.hive.forEach(h=>{if(h.needs===ds.del)delete h.needs});save();toast("Card removed");return render()}
+  if(ds.bdel){if(!sure("Delete this post? It will disappear from the Board for everyone."))return;store.posts=(store.posts||[]).filter(x=>x.id!==ds.bdel);save();toast("Deleted");return render()}
+  if(ds.del){if(!sure("Remove this answer from the consensus board?"))return;store.hive=store.hive.filter(h=>h.id!==ds.del);store.hive.forEach(h=>{if(h.needs===ds.del)delete h.needs});save();toast("Card removed");return render()}
   if(ds.layer){SKYLAYERS[ds.layer]=!SKYLAYERS[ds.layer];t.setAttribute("aria-pressed",SKYLAYERS[ds.layer]);return drawSky()}
   if(ds.skysel){return skyFocus(ds.skysel)}
   if(ds.concept!=null&&t.tagName==="BUTTON"){if(store.tab!=="map"){go("map")}return skyConcept(+ds.concept)}
@@ -2030,9 +2049,9 @@ document.addEventListener("click",e=>{
   if(ds.prole!=null){PROLE=ds.prole;return render()}
   if(ds.topic){TOPIC=ds.topic;return go("topics")}
   if(ds.save){toggleSave(ds.save,ds.key,ds.title,ds.url);return render()}
-  if(ds.unsave){store.saved=store.saved.filter(x=>x.id!==ds.unsave);save();return render()}
+  if(ds.unsave){if(!sure("Remove this from Saved?"))return;store.saved=store.saved.filter(x=>x.id!==ds.unsave);save();return render()}
   if(ds.addref){const inp=document.getElementById("ref-"+ds.addref);const r=normRef(inp?inp.value:"");if(!r){toast("Paste a DOI, an arXiv id or a link");return}(store.refs[ds.addref]=store.refs[ds.addref]||[]).push(r);save();toast("Reference added");return render()}
-  if(ds.delref){const L=store.refs[ds.delref]||[];L.splice(+ds.i,1);if(!L.length)delete store.refs[ds.delref];save();return render()}
+  if(ds.delref){if(!sure("Remove this reference?"))return;const L=store.refs[ds.delref]||[];L.splice(+ds.i,1);if(!L.length)delete store.refs[ds.delref];save();return render()}
   if(ds.prov){if(store.ai.provider!==ds.prov){store.ai.provider=ds.prov;store.ai.model="";store.ai.base="";KEYMEM=SESSKEYS[ds.prov]||store.ai.keys[ds.prov]||""}save();if(ds.prov==="openrouter"&&KEYMEM)loadORModels();return render()}
   if(ds.q){return askLLM(ds.q)}
   const act=ds.act;if(!act)return;
@@ -2060,7 +2079,7 @@ document.addEventListener("click",e=>{
   if(act==="star"){const s=stars();s.has(ds.id)?s.delete(ds.id):s.add(ds.id);store.stars=[...s];save();
     if(store.tab==="mine"&&!s.has(ds.id))return render();
     t.classList.toggle("on",s.has(ds.id));t.setAttribute("aria-pressed",s.has(ds.id));const n=store.stars.length+store.saved.length;const sc=$("#starCount");sc.hidden=!n;sc.textContent=n;return}
-  if(act==="note"){OPEN_NOTE=OPEN_NOTE===ds.id?null:ds.id;render();const ta=document.getElementById("note-"+ds.id);if(ta)ta.focus();return}
+  if(act==="note"){OPEN_NOTE=OPEN_NOTE===ds.id?null:ds.id;NOTE_MORE=null;render();const ta=document.getElementById("note-"+ds.id);if(ta)ta.focus();return}
   if(act==="hideex"){store.hideEx=true;save();return render()}
   if(act==="hexport-md")return offerFile("moc7-consensus.md",hiveMarkdown());
   if(act==="hexport-json")return offerFile("moc7-consensus.json",JSON.stringify(store.hive,null,2));
@@ -2105,9 +2124,8 @@ document.addEventListener("submit",e=>{
   if(e.target.id==="pform"){e.preventDefault();const name=$("#p-name").value.trim();if(!name){$("#p-name").focus();return}
     store.profile={name,aff:$("#p-aff").value.trim(),group:$("#p-group").value,theme:$("#p-theme").value,interests:$("#p-int").value.trim(),showName:$("#p-show").checked,listed:!!($("#p-list")&&$("#p-list").checked),link:(()=>{let l=($("#p-link")||{}).value||"";l=l.trim();if(l&&!/^https?:\/\//i.test(l))l="https://"+l;return l})()};
     if(store.profile.group)store.lastGroup=store.profile.group;save();toast("Profile saved on this device");return go("now")}
-  if(e.target.id==="sform"){e.preventDefault();const nv=$("#s-note").value.trim();let title=$("#s-title").value.trim();let body=nv;if(!title&&nv){const ls=nv.split("\n");const fl=ls[0];if(fl.length>80){title=fl.slice(0,78)+"…"}else{title=fl;body=ls.slice(1).join("\n").trim()}}if(!title){$("#s-note").focus();return}const raw=$("#s-url").value.trim();const r=raw?normRef(raw):null;
-    if(raw&&!r){toast("That link doesn't look right. Paste a DOI, an arXiv id or a full link");return}
-    store.saved.push({id:"s"+Date.now().toString(36),kind:r?"link":"note",key:"s"+Date.now(),title,url:r?r.url:"",note:body,t:Date.now()});save();toast("Saved");return render()}
+  if(e.target.id==="sform"){e.preventDefault();const nv=$("#s-note").value.trim();if(!nv){$("#s-note").focus();return}
+    store.saved.push({id:"s"+Date.now().toString(36),kind:"note",key:"s"+Date.now(),title:noteTitle(nv),url:"",note:nv,t:Date.now()});save();toast("Note saved");return render()}
   if(e.target.id==="syncform"){e.preventDefault();const c=normCode($("#syncin").value);if(c.length!==20){toast("The code has 20 letters and numbers");return}syncStart(c.match(/.{4}/g).join("-"));return render()}
   if(e.target.id==="dockform"){e.preventDefault();const i=$("#dockin");const v=i.value;if(v.trim()){i.value="";DOCKQ=v;return askLLM(v)}return}
   if(e.target.id==="askform"){e.preventDefault();const v=$("#askin").value;return askLLM(v)}
