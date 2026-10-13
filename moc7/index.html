@@ -140,6 +140,7 @@ textarea.inp{width:100%;resize:vertical;min-height:70px}
 .talk:first-child{border-top:0}
 .talk .tt .troom{display:block;font-size:.7rem;opacity:.8;margin-top:1px;white-space:nowrap}
 .clash{color:var(--t-X);font-size:.82rem;margin-top:4px}
+.brief>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center}.brief>summary::-webkit-details-marker{display:none}.brief .bchev::after{content:"+";color:var(--accent);font-weight:600}.brief[open] .bchev::after{content:"–"}
 .brief .bl{font-size:.88rem;line-height:1.45}.brief .bl b{font:500 .78rem var(--f-mono);color:var(--muted);margin-right:6px}.brief .bl i{font-style:normal;color:var(--muted)}
 .announce{border:1px solid var(--accent);border-left:4px solid var(--accent);background:var(--surface);border-radius:var(--r);padding:10px 14px;line-height:1.45}.announce .eyebrow{color:var(--accent);margin-bottom:2px}
 .notebar{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.notebar .btn{padding:4px 10px;font-size:.82rem}.notebar .btn[aria-pressed=true]{border-color:var(--accent);color:var(--accent)}
@@ -834,6 +835,8 @@ const ANNOUNCEMENTS=[
 function announcementsHtml(){const now=Date.now();const a=ANNOUNCEMENTS.filter(x=>now>=Date.parse(x.from)&&now<Date.parse(x.until));
   return a.map(x=>`<div class="announce" role="status"><div class="eyebrow">Announcement</div><div>${x.text}</div></div>`).join("")}
 // a short plain summary of a day, built from the programme (no AI, so nothing invented)
+let BRIEF_OPEN=false;
+document.addEventListener("toggle",e=>{if(e.target.matches&&e.target.matches("[data-brief]"))BRIEF_OPEN=e.target.open},true);
 function dayBrief(d,label){
   if(d<1||d>5)return"";
   const short=t=>t.length>70?t.slice(0,68).replace(/\s+\S*$/,"")+"…":t;
@@ -850,7 +853,7 @@ function dayBrief(d,label){
   const soc=(SOCIAL.find(g=>g.day===d)||{items:[]}).items.filter(x=>!/Art & chill/.test(x.t)&&!(d===3&&/Louisiana/.test(x.t)));
   if(soc.length)lines.push(["",`<b>Later</b> ${soc.map(x=>esc(x.t)).join(" · ")}`]);
   lines.sort((a,b)=>{const ta=(a[1].match(/<b>(\d{1,2}:\d{2})<\/b>/)||[])[1],tb=(b[1].match(/<b>(\d{1,2}:\d{2})<\/b>/)||[])[1];return (ta?toMin(ta):2000)-(tb?toMin(tb):2000)});
-  return `<div class="card stack brief" style="gap:6px"><div class="eyebrow">${label} · ${esc(DAYLONG[d])}</div>${lines.map(l=>`<div class="bl">${l[1]}</div>`).join("")}</div>`;
+  return `<details class="card brief" data-brief ${BRIEF_OPEN?"open":""}><summary><span class="eyebrow">${label} · ${esc(DAYLONG[d])}</span><span class="bchev" aria-hidden="true"></span></summary><div class="stack" style="gap:6px;margin-top:8px">${lines.map(l=>`<div class="bl">${l[1]}</div>`).join("")}</div></details>`;
 }
 // first morning: everything needed to arrive, at the top of Now
 function arrivalCard(){
