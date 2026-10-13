@@ -23,6 +23,29 @@ for a in soup.select("article.abs"):
     entries[key] = {k: txt(a, "." + k) for k in ("no", "name", "co", "slot", "title")}
     entries[key]["section"] = sec
 
+# short abstracts for the app (first sentences of each entry's text)
+import copy, re
+short = {}
+for a in soup.select("article.abs"):
+    key = a.get("id") or ""
+    if not key: continue
+    c = copy.copy(a)
+    for el in c.select(".no,.name,.co,.slot,.title,button,nav,script,style,.back,.tags,.kw,.keywords"):
+        el.decompose()
+    t = " ".join(c.get_text(" ", strip=True).split())
+    if len(t) > 420:
+        cut = t[:420]
+        m = max(cut.rfind(". "), cut.rfind("? "))
+        t = (cut[:m+1] if m > 200 else cut.rsplit(" ", 1)[0]) + " …"
+    if t: short[key.replace("moc7-", "", 1)] = t
+ABS = os.path.join(HERE, "..", "..", "moc7", "abstracts.json")
+try:
+    cur_abs = json.load(open(ABS))
+except Exception:
+    cur_abs = None
+if short and cur_abs != short:
+    json.dump(short, open(ABS, "w"), ensure_ascii=False, separators=(",", ":"))
+
 if len(entries) < 20:
     print(f"Only {len(entries)} entries parsed; page layout may have changed or fetch blocked.")
     sys.exit(1)
