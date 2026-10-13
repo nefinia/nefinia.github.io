@@ -140,6 +140,7 @@ textarea.inp{width:100%;resize:vertical;min-height:70px}
 .talk:first-child{border-top:0}
 .talk .tt .troom{display:block;font-size:.7rem;opacity:.8;margin-top:1px;white-space:nowrap}
 .clash{color:var(--t-X);font-size:.82rem;margin-top:4px}
+.brief .bl{font-size:.88rem;line-height:1.45}.brief .bl b{font:500 .78rem var(--f-mono);color:var(--muted);margin-right:6px}.brief .bl i{font-style:normal;color:var(--muted)}
 .notebar{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.notebar .btn{padding:4px 10px;font-size:.82rem}.notebar .btn[aria-pressed=true]{border-color:var(--accent);color:var(--accent)}
 @media (max-width:640px){
   .blk{grid-template-columns:1fr;gap:4px}
@@ -818,6 +819,24 @@ function talkRow(it,opts={}){
 function hl(text,q,already){const s=already?text:esc(text);if(!q)return s;const re=new RegExp("("+q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","ig");return s.replace(re,"<mark>$1</mark>")}
 let OPEN_NOTE=null, QUERY="", PDAY=null;
 
+// a short plain summary of a day, built from the programme (no AI, so nothing invented)
+function dayBrief(d,label){
+  if(d<1||d>5)return"";
+  const short=t=>t.length>70?t.slice(0,68).replace(/\s+\S*$/,"")+"…":t;
+  const lines=[];
+  PL.filter(r=>r[5]===d&&/Keynote|Showcase|Plenary/.test(r[4])).sort((a,b)=>toMin(a[6])-toMin(b[6])).forEach(r=>lines.push(["",`<b>${esc(r[6])}</b> ${esc(r[4]==="Plenary"?"Plenary":r[4])}: ${esc(r[2])}, <i>${esc(short(r[9]))}</i>`]));
+  const ss=Object.values(SESS).filter(S=>S[0]===d);
+  const bySlot={};ss.forEach(S=>(bySlot[S[1]]=bySlot[S[1]]||[]).push(S[4]));
+  Object.entries(bySlot).sort((a,b)=>toMin(a[0])-toMin(b[0])).forEach(([t,ts])=>lines.push(["",`<b>${esc(t)}</b> Parallel: ${ts.map(x=>esc(short(x))).join(" · ")}`]));
+  PL.filter(r=>r[5]===d&&r[4]==="Workshop").forEach(r=>lines.push(["",`<b>${esc(r[6])}</b> Workshop: ${esc(short(r[9]))} (${esc(shortRoom(r[8]))})`]));
+  const np=PO.filter(r=>r[3]===d).length;if(np)lines.push(["",`<b>15:00</b> Poster session · ${np} posters`]);
+  CS.filter(c=>c[1]===d).forEach(c=>lines.push(["",`<b>${esc(c[2])}</b> Consensus session ${c[0]}: ${esc(short(c[5]))}`]));
+  if(d===3)lines.push(["",`<b>12:50</b> Buses to the Louisiana Museum from Universitetsparken 15 (no backpacks or laptops) · back 19:00`]);
+  const soc=(SOCIAL.find(g=>g.day===d)||{items:[]}).items.filter(x=>!/Art & chill/.test(x.t)&&!(d===3&&/Louisiana/.test(x.t)));
+  if(soc.length)lines.push(["",`<b>Later</b> ${soc.map(x=>esc(x.t)).join(" · ")}`]);
+  lines.sort((a,b)=>{const ta=(a[1].match(/<b>(\d{1,2}:\d{2})<\/b>/)||[])[1],tb=(b[1].match(/<b>(\d{1,2}:\d{2})<\/b>/)||[])[1];return (ta?toMin(ta):2000)-(tb?toMin(tb):2000)});
+  return `<div class="card stack brief" style="gap:6px"><div class="eyebrow">${label} · ${esc(DAYLONG[d])}</div>${lines.map(l=>`<div class="bl">${l[1]}</div>`).join("")}</div>`;
+}
 // first morning: everything needed to arrive, at the top of Now
 function arrivalCard(){
   return `<div class="card stack" style="gap:10px;border-color:var(--accent)">
@@ -860,6 +879,7 @@ function viewNow(){
   const mineNext=[...stars()].map(id=>ITEMS[id]).filter(it=>it&&it.day===d&&it.e>m).sort((a,b)=>a.s-b.s).slice(0,4);
   const curHtml=cur.length?cur.map(b=>nowBlock(b,m)).join(""):`<div class="empty">Nothing scheduled right now. ${next[0]?`Next: <b>${esc(next[0].title)}</b> at ${fmt(next[0].s)}.`:"That's it for today."}</div>`;
   return `<section class="stack">
+    ${m>=1140&&d<5?dayBrief(d+1,"Tomorrow in brief"):dayBrief(d,"Today in brief")}
     ${d===1&&m<630?arrivalCard():d>=1&&d<=5&&m<600?`<div class="welcome" style="margin:0"><span>Arriving at HCØ? Use this entrance.</span><a class="btn" href="${ENTRANCE}" target="_blank" rel="noopener">Entrance on the map ↗</a></div>`:""}
     <div class="hero-now">
       <div class="eyebrow">${esc(DAYLONG[d])} · ${fmt(m)}</div>
