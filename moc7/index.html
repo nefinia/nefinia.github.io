@@ -335,6 +335,19 @@ a.tag:hover{border-color:var(--accent);color:var(--accent)}
 .welcome .btn{flex:0 0 auto}
 .installsheet{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(16px + env(safe-area-inset-bottom,0px));z-index:60;display:flex;justify-content:center}
 .installsheet .card{max-width:520px;width:100%;box-shadow:0 8px 30px rgba(0,0,0,.18)}
+@media (max-width:380px){
+ .wrap{padding-inline:12px}
+ .top .wrap{padding-block:8px 0;gap:8px}
+ .brand{flex:1 1 auto;flex-basis:auto}
+ .brand h1{font-size:1.25rem}
+ .brand small,.clcity,#meName{display:none}
+ .topacts{gap:6px}
+ .me{padding:3px!important}
+ .tabs{margin-top:4px}
+ .tabs button{padding:6px 9px 8px;font-size:.92rem}
+ .welcome{margin-top:8px;padding:8px 10px;font-size:.84rem;line-height:1.4}
+ .fab{width:46px;height:46px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+}
 @media (display-mode: standalone){#installBtn{display:none!important}}
 </style>
 
@@ -789,7 +802,7 @@ function updateClock(){
   const n=nowCph();
   const el=$("#clock");
   if(n.sim)el.textContent=`Preview · ${SIMS[store.sim]}`;
-  else el.textContent=`Copenhagen ${n.hh}:${n.mm}`;
+  else el.innerHTML=`<span class="clcity">Copenhagen </span>${n.hh}:${n.mm}`;
 }
 
 /* -------------- views -------------- */
