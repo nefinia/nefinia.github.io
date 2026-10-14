@@ -1,0 +1,998 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-20EEFX7Q6N"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-20EEFX7Q6N');
+</script>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="A layered map of consciousness ideas drawn from the Models of Consciousness 7 programme, with sourced readings in both directions.">
+<title>Consciousness Constellation</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bellefair&family=Hanken+Grotesk:wght@400;500;600&display=swap">
+<style>
+/* Layout: a map of linked ideas on one side, the story of the traced path on the other (stacked on a phone). Colours follow the MoC7 themes. */
+:root {
+  color-scheme: dark;
+  --bg: #0a0f1f;
+  --sky: #0d1429;
+  --fg: #e8eaf3;
+  --muted: #9aa3bf;
+  --line: #3f4a74;
+  --rule: #232c4a;
+  --dust: #cfd6ee;
+  --mark: #1a2347;
+  --core: #ffffff;
+  --glow: 0.5;
+  --card: rgba(255,255,255,0.035);
+  --sky2: #141c3a;
+  --c-phil: #c7a6ec;
+  --c-pheno: #f0a3c0;
+  --c-method: #e8b27a;
+  --c-theory: #8fb4e8;
+  --c-ai: #8fd9b8;
+  --display: "Bellefair", Georgia, "Times New Roman", serif;
+  --body: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --bg: #f2f3f8;
+    --sky: #e6e8f2;
+    --fg: #161b30;
+    --muted: #565e7a;
+    --line: #aab2d0;
+    --rule: #d2d7e8;
+    --dust: #6b739a;
+    --mark: #dfe3f2;
+    --core: #ffffff;
+    --glow: 0.42;
+    --card: rgba(255,255,255,0.7);
+    --sky2: #eef0fa;
+    --c-phil: #7a4fb0;
+    --c-pheno: #b03a6c;
+    --c-method: #a5540c;
+    --c-theory: #2f62ad;
+    --c-ai: #1c7a56;
+  }
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f2f3f8;
+  --sky: #e6e8f2;
+  --fg: #161b30;
+  --muted: #565e7a;
+  --line: #aab2d0;
+  --rule: #d2d7e8;
+  --dust: #6b739a;
+  --mark: #dfe3f2;
+  --core: #ffffff;
+  --glow: 0.42;
+  --card: rgba(255,255,255,0.7);
+  --sky2: #eef0fa;
+  --c-phil: #7a4fb0;
+  --c-pheno: #b03a6c;
+  --c-method: #a5540c;
+  --c-theory: #2f62ad;
+  --c-ai: #1c7a56;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.6;
+  margin: 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 44px;
+}
+.wrap { max-width: 1120px; margin: 0 auto; }
+.intro { max-width: 64ch; }
+h1 {
+  background: linear-gradient(90deg, var(--c-phil), var(--c-pheno), var(--c-method), var(--c-ai), var(--c-theory));
+  -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent;
+  letter-spacing: 0.01em;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(2rem, 6vw, 2.8rem);
+  line-height: 1.1;
+  margin: 0 0 12px;
+  text-wrap: balance;
+}
+.intro p { margin: 0 0 8px; }
+.intro .quiet { color: var(--muted); }
+
+.controls { margin-top: 18px; display: grid; gap: 14px; }
+.cap { color: var(--muted); font-size: 0.92rem; margin: 0 0 8px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; }
+button {
+  transition: border-color .2s, background .2s, transform .15s;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--fg);
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 7px 14px;
+  cursor: pointer;
+}
+button:hover:not(:disabled) { border-color: var(--muted); }
+button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+button:disabled { opacity: 0.4; cursor: default; }
+button.active { border-color: var(--fg); background: var(--mark); }
+.presets button .d { color: var(--muted); margin-right: 6px; font-size: 0.85rem; }
+
+.chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: var(--sky); border: 1px solid var(--rule); user-select: none; -webkit-user-select: none; touch-action: none; font-size: 0.98rem; }
+.ghost { position: fixed; z-index: 50; pointer-events: none; transform: translate(-50%, -140%); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35); }
+.node.drop .ring { stroke: var(--fg); stroke-width: 2.8; }
+.node.drop .halo { opacity: 0.6; }
+.lensk { display: flex; align-items: center; gap: 6px; margin-top: 14px; }
+.reading { font-family: var(--display); font-size: 1.3rem; line-height: 1.5; margin: 0 0 16px; }
+.reading.small { font-size: 1.05rem; font-family: var(--body); }
+.lnk { margin-top: 8px; font-size: 0.88rem; padding: 4px 10px; }
+details { margin-top: 8px; }
+summary { cursor: pointer; color: var(--muted); font-size: 0.95rem; margin-bottom: 10px; }
+.node { touch-action: none; }
+.hint0 { margin: 14px 0 18px; color: var(--muted); font-size: 0.95rem; }
+
+.stage { display: grid; gap: 24px; margin-top: 18px; }
+@media (min-width: 940px) {
+  .stage { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: start; }
+}
+.sky { border: 1px solid var(--rule); border-radius: 18px; background: radial-gradient(ellipse at 50% 0%, var(--sky2), var(--sky) 70%); box-shadow: 0 10px 40px rgba(5,8,25,0.25); min-width: 0; overflow-x: auto; }
+svg { display: block; width: 100%; min-width: 560px; height: auto; }
+.dust { fill: var(--dust); }
+.edge { stroke-width: 1.3; stroke-linecap: round; opacity: 0.55; }
+.edge.next { stroke: var(--muted); stroke-width: 2; opacity: 1; }
+.edge.path { stroke: var(--fg); stroke-width: 2.8; opacity: 1; filter: drop-shadow(0 0 4px var(--fg)); }
+.edge.hid { opacity: 0.04; }
+.edge.faded { opacity: 0.15; }
+.node { cursor: pointer; }
+.node:focus { outline: none; }
+.node .halo { opacity: var(--glow); transition: opacity .25s; }
+.node:hover .halo { opacity: 0.9; }
+.node.inpath .halo { opacity: 1; }
+.node.dayhit .halo { opacity: 1; }
+.node .ring { fill: none; stroke: transparent; stroke-width: 1.6; }
+.node.inpath .ring { stroke: var(--fg); stroke-width: 2.2; }
+.node.next .ring { stroke: var(--fg); stroke-dasharray: 2.5 3; }
+.node.dayhit .ring { stroke: var(--fg); stroke-width: 1.4; }
+.node .hitc { fill: transparent; }
+.node:focus-visible .ring { stroke: var(--fg); stroke-width: 2.6; }
+.lbl { font-family: var(--body); font-size: 15px; font-weight: 500; letter-spacing: 0.01em; fill: var(--fg); pointer-events: none; paint-order: stroke; stroke: var(--sky); stroke-width: 4px; stroke-linejoin: round; }
+.node.dimmed .lbl, .node.off .lbl { fill: var(--muted); }
+.node.off { opacity: 0.4; }
+.node { transition: opacity .3s; }
+.node.hid { opacity: 0; pointer-events: none; }
+.node:not(.hid) .lbl { animation: fin .35s ease; }
+@keyframes fin { from { opacity: 0; } to { opacity: 1; } }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 10px; margin: 0; padding: 10px 14px 12px; color: var(--muted); font-size: 0.88rem; }
+.legend button { display: inline-flex; align-items: center; gap: 6px; border-color: transparent; padding: 3px 8px; font-size: 0.88rem; color: var(--muted); }
+.legend button.active { color: var(--fg); border-color: var(--fg); background: transparent; }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+
+.panel { min-width: 0; max-width: 64ch; background: var(--card); border: 1px solid var(--rule); border-radius: 18px; padding: 20px 22px; }
+@media (max-width: 520px) { .panel { padding: 16px; } }
+.nebula { pointer-events: none; }
+@keyframes tw { 0%,100% { opacity: var(--o); } 50% { opacity: calc(var(--o) * 0.25); } }
+.dust { animation: tw 5s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .dust { animation: none; } }
+.num { box-shadow: 0 0 14px currentColor; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.kicker { color: var(--muted); font-size: 0.9rem; margin: 0 0 4px; }
+.route { font-family: var(--display); font-size: 1.35rem; line-height: 1.3; margin: 0 0 14px; text-wrap: balance; }
+.route .sep { color: var(--muted); padding-inline: 4px; }
+.note { margin: 0 0 18px; color: var(--muted); font-size: 0.93rem; }
+.step { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; }
+.num { width: 26px; height: 26px; border-radius: 50%; color: var(--bg); font-size: 0.85rem; font-weight: 600; display: grid; place-items: center; margin-top: 2px; }
+.step h3 { font-family: var(--display); font-weight: 400; font-size: 1.45rem; line-height: 1.2; margin: 0; }
+.disc { margin: 2px 0 6px; color: var(--muted); font-size: 0.88rem; display: flex; align-items: center; gap: 6px; }
+.step p.t { margin: 0; }
+.sess { margin: 10px 0 0; padding: 0; list-style: none; font-size: 0.9rem; color: var(--muted); display: grid; gap: 4px; }
+.sess li { padding-left: 12px; border-left: 2px solid var(--rule); }
+.sess li.on { border-left-color: var(--fg); color: var(--fg); }
+.sess .when { font-weight: 600; margin-right: 6px; }
+.sess-h { margin: 14px 0 0; font-size: 0.86rem; color: var(--muted); }
+.link { margin: 14px 0 14px 40px; color: var(--muted); font-size: 0.97rem; }
+.link .from { display: block; font-size: 0.86rem; margin-bottom: 2px; }
+.empty h2 { font-family: var(--display); font-weight: 400; font-size: 1.6rem; margin: 0 0 8px; }
+.empty p { margin: 0; color: var(--muted); }
+sup.cite { font-size: 0.7em; line-height: 0; margin-left: 2px; white-space: nowrap; }
+sup.cite a { text-decoration: none; padding: 0 1px; }
+sup.cite a:hover { text-decoration: underline; }
+
+footer { margin-top: 36px; max-width: 70ch; color: var(--muted); font-size: 0.92rem; }
+footer h2 { font-family: var(--display); font-weight: 400; font-size: 1.4rem; color: var(--fg); margin: 0 0 8px; }
+footer p { margin: 0 0 8px; }
+footer ol { margin: 0 0 14px; padding-left: 1.6em; display: grid; gap: 4px; }
+footer li:target { color: var(--fg); background: var(--mark); border-radius: 4px; }
+a { color: var(--fg); text-underline-offset: 3px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="intro">
+    <h1>Consciousness Constellation</h1>
+    <p>A map that starts from the programme of Models of Consciousness 7 in Copenhagen, 12 to 16 October 2026. Each point of light is an idea that appears in the sessions, and each line is a connection between two ideas. Every connection can be read in both directions, and the two readings differ. <sup class="cite"><a href="#r17">17</a>, <a href="#r18">18</a></sup></p>
+    <p class="quiet">Colours follow the conference themes of the MoC7 Atlas, with theories and formal models as one group. <sup class="cite"><a href="#r19">19</a></sup> The big terms are always there. Hover over one, or tap it, and the ideas around it appear. Tap an idea to read about it and see where it comes up in the programme. Drag one idea onto another, or tap two in turn, and you read the second through the first. Swap them and you read the other way round. Every statement carries a numbered source.</p>
+  </div>
+
+  <div class="controls">
+    <div>
+      <p class="cap">Start from a MoC7 session</p>
+      <div class="row presets" id="presets"></div>
+    </div>
+    <div>
+      <p class="cap">Or see which ideas come up on a given day</p>
+      <div class="row" id="days"></div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="sky">
+      <svg id="sky" viewBox="0 0 660 860" role="group" aria-label="Map of thirty-two connected ideas from consciousness science"></svg>
+      <p class="legend" id="legend"></p>
+    </div>
+    <div class="panel" id="panel" aria-live="polite"></div>
+  </div>
+
+  <footer>
+    <h2>Sources</h2>
+    <ol id="refs"></ol>
+    <p>A dagger after a talk means the programme gives only its title, so the page uses nothing beyond the title. Talks without a dagger have an abstract in the programme. The programme was read on 14 October 2026 and may change.</p>
+    <p>The readings are written for this map. Each one puts a connection into words, and its numbers point to the sources for the facts it uses. Which ideas appear, and how each link is worded, is a choice, and another person could draw the map differently. This is a first draft, and people who work on each theory would improve it.</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var NS = "http://www.w3.org/2000/svg";
+  var LAYOUT = {"hard": {"x": 269, "y": 217, "pos": "left"}, "phenom": {"x": 270, "y": 88, "pos": "above"}, "qualia": {"x": 177, "y": 75, "pos": "above"}, "dualaspect": {"x": 80, "y": 207, "pos": "above"}, "substrate": {"x": 242, "y": 403, "pos": "below"}, "enactive": {"x": 144, "y": 335, "pos": "left"}, "self": {"x": 81, "y": 407, "pos": "above"}, "husserl": {"x": 172, "y": 542, "pos": "left"}, "time": {"x": 188, "y": 684, "pos": "above"}, "neurophenom": {"x": 117, "y": 752, "pos": "below"}, "microphenom": {"x": 288, "y": 682, "pos": "below"}, "psychedelic": {"x": 83, "y": 658, "pos": "above"}, "ncc": {"x": 403, "y": 96, "pos": "above"}, "report": {"x": 400, "y": 226, "pos": "above"}, "collab": {"x": 488, "y": 262, "pos": "above"}, "comparing": {"x": 483, "y": 161, "pos": "above"}, "tests": {"x": 555, "y": 379, "pos": "below"}, "consensus": {"x": 580, "y": 275, "pos": "below"}, "values": {"x": 580, "y": 175, "pos": "above"}, "hippocampus": {"x": 539, "y": 75, "pos": "above"}, "gwt": {"x": 420, "y": 421, "pos": "left"}, "iit": {"x": 331, "y": 312, "pos": "below"}, "hot": {"x": 265, "y": 580, "pos": "above"}, "ast": {"x": 287, "y": 493, "pos": "left"}, "pp": {"x": 240, "y": 306, "pos": "below"}, "formal": {"x": 420, "y": 321, "pos": "right"}, "physics": {"x": 420, "y": 517, "pos": "below"}, "llm": {"x": 581, "y": 676, "pos": "above"}, "machine": {"x": 465, "y": 607, "pos": "left"}, "indic": {"x": 560, "y": 560, "pos": "below"}, "introspect": {"x": 415, "y": 750, "pos": "below"}, "selfrep": {"x": 520, "y": 772, "pos": "below"}};
+
+  var DISC = {
+    phil:   { n: "Philosophical foundations" },
+    pheno:  { n: "Phenomenology" },
+    method: { n: "Methods and measures" },
+    theory: { n: "Theories and formal models" },
+    ai:     { n: "AI and language models" }
+  };
+
+  var REFS = [
+    [1, "Wikipedia, Hard problem of consciousness", "https://en.wikipedia.org/wiki/Hard_problem_of_consciousness"],
+    [2, "Wikipedia, Global workspace theory", "https://en.wikipedia.org/wiki/Global_workspace_theory"],
+    [3, "Wikipedia, Integrated information theory", "https://en.wikipedia.org/wiki/Integrated_information_theory"],
+    [4, "Wikipedia, Higher-order theories of consciousness", "https://en.wikipedia.org/wiki/Higher-order_theories_of_consciousness"],
+    [5, "Wikipedia, Attention schema theory", "https://en.wikipedia.org/wiki/Attention_schema_theory"],
+    [6, "Wikipedia, Neural correlates of consciousness", "https://en.wikipedia.org/wiki/Neural_correlates_of_consciousness"],
+    [7, "Wikipedia, Dual-aspect theory", "https://en.wikipedia.org/wiki/Dual-aspect_theory"],
+    [8, "Wikipedia, Enactivism", "https://en.wikipedia.org/wiki/Enactivism"],
+    [9, "Wikipedia, Predictive coding", "https://en.wikipedia.org/wiki/Predictive_coding"],
+    [10, "Wikipedia, Phenomenology (philosophy)", "https://en.wikipedia.org/wiki/Phenomenology_(philosophy)"],
+    [11, "Wikipedia, Cognitive map", "https://en.wikipedia.org/wiki/Cognitive_map"],
+    [12, "Wikipedia, Neurophenomenology", "https://en.wikipedia.org/wiki/Neurophenomenology"],
+    [13, "Wikipedia, Free energy principle", "https://en.wikipedia.org/wiki/Free_energy_principle"],
+    [14, "Cogitate consortium, adversarial testing of global neuronal workspace and integrated information theories (Nature, 30 April 2025)", "https://www.arc-cogitate.com/msp-1"],
+    [15, "Butlin et al., Consciousness in Artificial Intelligence: Insights from the Science of Consciousness (arXiv, 2023)", "https://arxiv.org/abs/2308.08708"],
+    [16, "Anthropic, research on introspection in language models", "https://www.anthropic.com/research/introspection"],
+    [17, "MoC7 programme with abstracts, AMCS community site", "https://amcs-community.org/moc7-schedule-information/"],
+    [18, "Models of Consciousness 2026, Centre for Philosophy of AI, University of Copenhagen", "https://cpai.ku.dk/events/models-of-consciousness-2026/"],
+    [19, "MoC7 Atlas, companion app by Sofia Gallego", "https://sofiagallego.com/moc7"],
+    [20, "Ned Block (1995), On a confusion about a function of consciousness, Behavioral and Brain Sciences 18(2), 227 to 247 (cited from memory, no link checked)", null]
+  ];
+
+  /* Session items: [day, when and where, text, 1 abstract in programme / 0 title only / 2 no mark] */
+  var N = {
+    hard: { name: "The hard problem", d: "phil", lines: ["The hard", "problem"],
+      text: "In 1994 David Chalmers separated the easy problems of consciousness from the hard one. The easy problems concern mechanisms such as discrimination, the integration of information and report. The hard problem asks why that processing is accompanied by experience at all. Joseph Levine's explanatory gap states a related worry: the link between a physical state and its feel looks contingent. {1}",
+      s: [["Thu", "Thu 11:20, Auditorium 5", "Session The Hard Problem and the Limits of Explanation. Nicolas Loerbroks, “The Hard Problem Presupposes Mechanistic Exhaustiveness”", 0],
+          ["Thu", "Thu 11:20, Auditorium 5", "Michael Schnabel, “Modeling Consciousness: On the Limits of Theory and Conceptual Understanding”", 0],
+          ["Mon", "Mon 11:00, Auditorium 3", "Maria Sekatskaya, “Beyond the Hard Problem: A Functionalist Framework for Digital Agency”", 1]] },
+    phenom: { name: "Access and phenomenal consciousness", d: "phil", lines: ["Access and", "phenomenal"],
+      text: "Ned Block separated two things the word consciousness can mean. Access consciousness is information available for reasoning, report and the control of action. Phenomenal consciousness is the experience itself, what it is like in Nagel's phrase. The two usually go together, and whether they can come apart is open. {20,1}",
+      s: [["Thu", "Thu 16:30, Auditorium 3", "Sucharit Katyal, “What Is Consciousness? And What Does a Theory of Consciousness Need to Explain?”", 0]] },
+    qualia: { name: "Qualia and structure", d: "phil", lines: ["Qualia and", "structure"],
+      text: "Qualia are the felt qualities of experience, such as the redness of red. One Tuesday session set three positions side by side. One argues that qualia can be identified with physical properties in the world. One argues that most phenomenal knowledge is structural, concerning relations among experiences. One argues that structural facts about experience are objective and still leave an explanatory gap. {1,17}",
+      s: [["Tue", "Tue 11:20, Auditorium 2", "Session Qualia and Phenomenal Knowledge. Paul Skokowski, “Naturalizing Qualia: Accounting for Sensory Phenomenology in the Physical World”", 1],
+          ["Tue", "Tue 11:20, Auditorium 2", "Julien Bugnon, “Most Phenomenal Knowledge is Structural”", 1],
+          ["Tue", "Tue 11:20, Auditorium 2", "Andrew Lee, “Objective Phenomenology”", 1]] },
+    dualaspect: { name: "Dual-aspect monism", d: "phil", lines: ["Dual-aspect", "monism"],
+      text: "Dual-aspect monism holds that the mental and the physical are two aspects of one underlying reality. In Atmanspacher's formulation the distinction arises from an epistemic split in that reality. Spinoza, Schopenhauer, Bohm, and Pauli and Jung are among the proponents named. {7}",
+      s: [["Fri", "Fri 13:30, Margrethe Bohr Salen (NBB)", "Keynote. Harald Atmanspacher, “The Roles of Meaning in Dual-Aspect Monism”", 0],
+          ["Thu", "Thu 16:30, Auditorium 2", "Donald Borrett, “A temporality model of flesh and dual-aspect monism”", 0],
+          ["Thu", "Thu 11:20, Auditorium 2", "Jakub Mihalik, “Russellian Monism, Organizational Invariance, and the Possibility of Artificial Consciousness”", 0]] },
+    substrate: { name: "Substrate and organisation", d: "phil", lines: ["Substrate and", "organisation"],
+      text: "Does consciousness depend on what a system is made of, or on how it is organised? At MoC7 the question runs through several sessions. Tim Ludwig argues for a no-go theorem for consciousness on a chip but not in a brain, on the ground that artificial systems are built to fit models while natural systems are described by them. Borjan Milinkovic argues that digital and biological computation differ in ways that matter for consciousness. {17}",
+      s: [["Tue", "Tue 11:20, Auditorium 3", "Session The Prospects of Machine Consciousness. Tim Ludwig, “Why there is a no-go theorem for consciousness on a chip but not for consciousness in a brain”", 1],
+          ["Tue", "Tue 11:20, Auditorium 3", "Borjan Milinkovic, “The (im)possibility of synthetic consciousness”", 1],
+          ["Thu", "Thu 11:20, Auditorium 2", "Session Mind The Substrate. Julian Braunwarth, “Does Consciousness Arise from Scale-Invariant Properties?”", 0],
+          ["Thu", "Thu 11:20, Auditorium 2", "Adel Chaibi and Aida Elamrani, “Form Under Constraint: Between Substrate and Abstraction”", 0]] },
+    enactive: { name: "Life-mind continuity", d: "phil", lines: ["Life-mind", "continuity"],
+      text: "Enactivism holds that cognition arises through the interaction of an acting organism with its environment. Varela, Thompson and Rosch introduced the term in The Embodied Mind in 1991, building on Maturana and Varela's autopoiesis, the self-maintenance of living systems. The related idea of life-mind continuity ties cognition to that self-maintaining organisation. Thompson argues that setting life and consciousness apart, as the hard problem does, is a barrier. {8}",
+      s: [["Wed", "Wed 18:00, Louisiana Museum of Modern Art", "Keynote. Evan Thompson, “Consciousness in Life”", 0],
+          ["Tue", "Tue 11:20, Auditorium 4", "Session Life–Mind Continuity: From Chemistry to Psychiatry. Tomas Veloz, “From Chemical Organization to Consciousness: A formal scaffolding”", 1],
+          ["Tue", "Tue 11:20, Auditorium 4", "Matthew Menchaca, “Dynamic co-emergence and the logic of life”", 1],
+          ["Tue", "Tue 11:20, Auditorium 4", "Catriona Osborn Moar, “Closure of Constraints, Chronicity, and Hermeneutical Injustice in Psychiatric Disorder”", 1],
+          ["Fri", "Fri 11:00, Auditorium 4", "Session Enactive and Developmental Routes to Consciousness. Fernando Rodriguez, “Is Cognition more real than Computation?”", 0]] },
+    self: { name: "The self and the regress", d: "phil", lines: ["Self and the", "regress"],
+      text: "Many accounts say that being conscious involves a self, and many then meet a regress: a self that is aware of itself seems to need a further self to be aware of that. MoC7 gave the problem its own Wednesday session, and a Friday session on self-models. {17}",
+      s: [["Wed", "Wed 11:20, Auditorium 2", "Session Self-Awareness and the Regress Problem. Camille Lépingle, “Embodied but Passive: Against the Agential Inflation of the Minimal Self”", 0],
+          ["Wed", "Wed 11:20, Auditorium 2", "Wataru Kawakami, “Guarded Reflection: How Retention Dissolves the Regress Problem of Self-Consciousness”", 0],
+          ["Wed", "Wed 11:20, Auditorium 2", "Kenneth Williford, “Circularity, Hypersets, and the Structure of Consciousness”", 0],
+          ["Wed", "Wed 11:20, Auditorium 2", "Hye Young Kim, “Modeling Self-Awareness Without Regress: A Knot-Theoretic Approach to Consciousness”", 0],
+          ["Fri", "Fri 11:00, Auditorium 5", "Session Selves and Self-Models. Antonia Antonova, “Self as Flow: Reification as a Control Parameter in Self-Modeling Systems”", 0],
+          ["Fri", "Fri 11:00, Auditorium 5", "Keisuke Suzuki, “What Counts as Real Shapes What Counts as Conscious”", 0]] },
+
+    husserl: { name: "Husserl and intentionality", d: "pheno", lines: ["Husserl and", "intentionality"],
+      text: "Edmund Husserl founded phenomenology at the start of the twentieth century, asking how objectivity is possible when experience is subjective. Intentionality, the claim that consciousness is always consciousness of something, comes from Brentano and became central to the method. The epoché suspends assumptions about reality so that attention can rest on what is directly given. {10}",
+      s: [["Thu", "Thu 9:00, Auditorium 1", "Keynote. Mirja Hartimo, “Husserl's philosophy of mathematics and logic”", 0],
+          ["Thu", "Thu 13:30, Auditorium 1", "Showcase. Eliza Ramos de Andrade, “Mathematizing husserlian temporality through the asymmetric bicone model”", 0]] },
+    time: { name: "Time-consciousness", d: "pheno", lines: ["Time-", "consciousness"],
+      text: "Time-consciousness concerns how an experience of the present holds what has just passed and what is about to come. Retention and protention are Husserl's terms for those two directions, and talks at MoC7 use them to ask how a self holds together over time. {10,17}",
+      s: [["Thu", "Thu 16:30, Auditorium 2", "Session Time-Consciousness. Antonina Skrypnyk, “The Instant Phenomenological Field as a Fundamental Unit of Conscious Experience”", 0],
+          ["Thu", "Thu 16:30, Auditorium 2", "Hanqi Wang, “Higher-Order Representation as Cross-Timescale Integration in Time-Consciousness”", 0],
+          ["Thu", "Thu 16:30, Auditorium 2", "Kohei Fukao, “How Are Retention and Protention Extended in Sign-Mediated Counting?”", 0]] },
+    neurophenom: { name: "Neurophenomenology", d: "pheno", lines: ["Neuro-", "phenomenology"],
+      text: "Neurophenomenology is a research programme that combines first-person phenomenological inquiry with third-person neuroscience. Francisco Varela gave the term a distinctive meaning in the mid-1990s, and some scientists argue that neither method alone can answer the hard questions about consciousness. {12}",
+      s: [["Fri", "Fri 9:00, Auditorium 1", "Keynote. Guillaume Dumas, “Formalizing Generative Neurophenomenology: From Coupled Brains to Metacognitive Agents”", 0],
+          ["Mon", "Mon 11:00, Auditorium 4", "Hüseyin Beyköylü, “A Complex Dynamical Systems Approach to Neurophenomenology: A Pilot Case Study of Psychedelic Transformation”", 1],
+          ["Mon", "Mon 11:00, Auditorium 4", "Sanda Ciobanu, “Mutual constraints in Practice: A Complex Dynamic Systems-Informed Neurophenomenological Case Study of Psychedelic Transformation”", 1]] },
+    microphenom: { name: "Micro-phenomenology and experiential methods", d: "pheno", lines: ["Micro-", "phenomenology"],
+      text: "Micro-phenomenology is a structured interview method for describing specific moments of experience in fine detail. At MoC7 it appears in a neuroimaging showcase, in a study of insight among men in prison, and in a Friday session on computational methods for first-person reports. Workshops and art sessions extend the same interest, among them a workshop that treats contemplative listening as both an object and a method of study. {17}",
+      s: [["Wed", "Wed 9:30, Auditorium 1", "Showcase. Chris Allen, “Micro-phenomenologically informed neuroimaging”", 0],
+          ["Thu", "Thu 11:20, Auditorium 4", "Jeanne Catherine-Gray, “Insightful Shifts in Consciousness Among Men in Prison: A Micro-Phenomenological Investigation”", 0],
+          ["Fri", "Fri 11:00, Auditorium 3", "Session Computational Analysis of First-Person Reports. Romy Beauté, “A practical guide to computational identification of experiential themes from phenomenological reports”", 0],
+          ["Fri", "Fri 11:00, Auditorium 3", "Peter Thestrup Waade, “Towards joint computational modelling of experiential, cognitive and neural dynamics”", 0],
+          ["Tue", "Tue 11:20, Auditorium 8", "Workshop. Cristóbal Dañobeitía, “Contemplative Listening as a Paradigm for Consciousness Research”", 1],
+          ["Wed", "Wed 14:30, Louisiana Museum", "Showcase. Maša Poljšak Kus, “Disclosing experiential atmospheres: attuning to the affective layers of lived experience”", 0],
+          ["Thu", "Thu 16:30, Margrethe Bohr Salen (NBB)", "Workshop, Art & Experience", 2]] },
+    psychedelic: { name: "Psychedelic states", d: "pheno", lines: ["Psychedelic", "states"],
+      text: "Altered states form a thread of the programme. Monday's session on altered states and neurophenomenology brings together phenomenological analysis, fMRI with experience sampling, and the analysis of language around psilocybin. On Thursday a session turns to ego-dissolution and non-dual experience. {17}",
+      s: [["Mon", "Mon 11:00, Auditorium 4", "Session Altered States and Neurophenomenology. Sidsel Høgsgaard Andersen, “Music-Integrated Preparation for Psilocybin”", 1],
+          ["Mon", "Mon 11:00, Auditorium 4", "Krisztina Jedlovszky, “Computational Natural Language Analysis Reveals Psilocybin-Induced Changes to Meaning-Making”", 1],
+          ["Thu", "Thu 16:30, Auditorium 4", "Session Toward Understanding Non-Dual Experience and Ego-Dissolution. Jaya Caporusso, “Dissolution Experiences and the Experience of Self and World”", 0],
+          ["Thu", "Thu 16:30, Auditorium 4", "Kiana Ward, “Modeling non-dual awareness via constraint closure”", 0]] },
+
+    ncc: { name: "Neural correlates", d: "method", lines: ["Neural", "correlates"],
+      text: "The neural correlates of consciousness are the minimal set of neuronal events and mechanisms that go along with a given mental state. Researchers separate the correlates of particular contents from the full correlate needed for any experience at all. A correlate shows a regular link and leaves open why the link exists. {6}",
+      s: [["Wed", "Wed 11:20, Auditorium 4", "Session Neural Correlates of Conscious Perception. Dmitri Filimonov, “New evidence and challenges in ERP and MEG correlates of consciousness in vision”", 0],
+          ["Wed", "Wed 11:20, Auditorium 4", "Rony Hirschhorn, “Studying consciousness – for real?”", 0],
+          ["Wed", "Wed 11:20, Auditorium 4", "Bilge Sayim, “Information compression, redundancy masking, and the limits of conscious human vision”", 0]] },
+    report: { name: "Report and metacognition", d: "method", lines: ["Report and", "metacognition"],
+      text: "Most experiments learn what a person experienced by asking them to report it. Reporting takes attention, memory and a decision, so recorded activity can reflect those demands as well as the experience. Designs that measure activity when subjects perform no task try to remove the confound. Confidence ratings and other metacognitive measures extend the same idea. {6,17}",
+      s: [["Tue", "Tue 16:30, Auditorium 4", "Session Metacognition, Confidence and Measures of Conscious Content. Wiktoria Kozyra, “Positive Evidence Bias in Perceptual Metacognition: A Bayesian and Convolutional Neural Network Account”", 0],
+          ["Tue", "Tue 16:30, Auditorium 4", "Kristian Sandberg, “Measuring consciousness: What do large-scale data reveal about metacognitive measures?”", 0],
+          ["Tue", "Tue 16:30, Auditorium 4", "Jürgen Kornmeier, “Can I trust in what I see? – Neural correlates of meta-perceptual (un)certainty estimation”", 0],
+          ["Fri", "Fri 10:00, Auditorium 1", "Showcase. Medha Shekhar, “Conscious awareness is necessarily valenced: evidence from performance-visibility dissociations”", 0]] },
+    collab: { name: "Adversarial collaboration", d: "method", lines: ["Adversarial", "collaboration"],
+      text: "Two rival theories agree on predictions before any data exist, and a shared experiment is run to test them. The Cogitate consortium did this for global neuronal workspace theory and integrated information theory, and published its first experiment in Nature on 30 April 2025. Liad Mudrik, who gives the Tuesday keynote at MoC7, helped conceptualise the predictions and the consortium structure. {14}",
+      s: [["Tue", "Tue 9:00, Auditorium 1", "Keynote. Liad Mudrik, “Using prediction maps to test theories of consciousness”", 1]] },
+    comparing: { name: "Comparing theories", d: "method", lines: ["Comparing", "theories"],
+      text: "Comparing theories is a theme of its own at MoC7. Liad Mudrik's keynote proposes prediction maps, networks of beliefs about theories arranged in a core and a periphery, as a way to test and compare them. A Thursday session gathers talks on what a theory needs to explain, on matched experiments across levels of mechanism, and on a comparative mathematical analysis of leading theories. {17}",
+      s: [["Tue", "Tue 9:00, Auditorium 1", "Keynote. Liad Mudrik, “Using prediction maps to test theories of consciousness”", 1],
+          ["Mon", "Mon 11:00, Auditorium 5", "Montijn van Loo, “A Measure-Theoretic Framework for Theories of Consciousness: Event Spaces, Information Channels, and Bridge Laws”", 1],
+          ["Thu", "Thu 16:30, Auditorium 3", "Session Comparing Theories of Consciousness. Moritz Kriegleder, “Adapting the Matched-Interlevel-Experiments Framework for Mechanisms of Consciousness”", 0],
+          ["Thu", "Thu 16:30, Auditorium 3", "Tonglin Yan, “Formalizing Consciousness: A Comparative Mathematical Analysis of Leading Theories”", 0],
+          ["Thu", "Thu 16:30, Auditorium 3", "Krzysztof Dolega, “We Don't Need Another Model: Towards a Meta-Theoretic Framework”", 0]] },
+    tests: { name: "Tests for consciousness", d: "method", lines: ["Tests for", "consciousness"],
+      text: "How do we test for consciousness in patients, infants, animals and machines? Megan Peters's Monday keynote extends the iterative natural kinds strategy and argues that indicator-based tests cannot be assumed to mean the same thing in systems where they were not validated. The first parallel session reviews tests used with patients, mirror self-recognition in toddlers, the aggregation of dimensions across species, and direct tests that rest on covariates. {17}",
+      s: [["Mon", "Mon 9:00, Auditorium 1", "Keynote. Megan Peters, “A proximity-guided iterative natural kinds strategy”", 1],
+          ["Mon", "Mon 11:00, Auditorium 2", "Session Testing for Consciousness in Patients, Infants and Animals. Joaquim Streicher, “How do we test for consciousness in humans? Mapping the conceptual landscape of consciousness assessment”", 1],
+          ["Mon", "Mon 11:00, Auditorium 2", "Emanuela Yeung, “Beyond pass/fail: Partial recognisers in mirror self-recognition”", 1],
+          ["Mon", "Mon 11:00, Auditorium 2", "Stephanie Wai, “How Not to Aggregate Dimensions of Consciousness Across Species”", 1],
+          ["Mon", "Mon 11:00, Auditorium 2", "Johannes Kleiner, “Towards Direct Tests for Consciousness in Non-Human Animals, Infants, and AI”", 1]] },
+    consensus: { name: "The consensus project", d: "method", lines: ["The consensus", "project"],
+      text: "The MoC consensus project is the conference's own experiment in shared terms and methods. Camilo Miguel Signorelli introduces it in Monday's plenary, and the abstract says it may end, or not, with the first collective paper of its kind in the field. Discussion sessions run from Monday to Thursday and a plenary discussion closes the week. The organisers draw on the Copenhagen interpretation in physics and aim at a methodological and conceptual consensus. {17,18}",
+      s: [["Mon", "Mon 14:30, Auditorium 1", "Plenary. Camilo Miguel Signorelli, introducing the MoC transdisciplinary consensus project", 1],
+          ["Mon", "Mon 15:00, Classrooms A101 to A112", "Discussion sessions", 2],
+          ["Tue", "Tue 10:00 and 14:00, Classrooms A101 to A112", "Discussion sessions", 2],
+          ["Wed", "Wed 10:00, Classrooms A101 to A112", "Discussion sessions", 2],
+          ["Thu", "Thu 10:00 and 14:00, Classrooms A101 to A112", "Discussion sessions", 2],
+          ["Fri", "Fri 15:00, Margrethe Bohr Salen (NBB)", "Plenary discussion and closing remarks", 2]] },
+    values: { name: "Values in the science", d: "method", lines: ["Values in", "the science"],
+      text: "Niccolo Negro's Monday showcase argues that non-epistemic values can encroach on consciousness science, from statistical choices to the evaluation of theories. {17}",
+      s: [["Mon", "Mon 10:00, Auditorium 1", "Showcase. Niccolo Negro, on non-epistemic values in consciousness science", 1]] },
+    hippocampus: { name: "Hippocampus and the map", d: "method", lines: ["Hippocampus", "and the map"],
+      text: "A cognitive map is a mental representation of how the parts of an environment relate. O'Keefe and Nadel linked it to the hippocampus in 1978, and place cells there are proposed as its neural basis. John O'Keefe's Monday keynote draws parallels between properties of the hippocampal map and features of consciousness, highlighting theta oscillations. {11,17}",
+      s: [["Mon", "Mon 13:30, Auditorium 1", "Keynote. John O'Keefe, “What can the hippocampus tell us about consciousness?”", 1]] },
+
+    gwt: { name: "Global workspace", d: "theory", lines: ["Global", "workspace"],
+      text: "In 1988 Bernard Baars proposed that many specialised processes run in parallel and unconsciously, and that some content wins access to a shared workspace. The workspace broadcasts that content to the rest of the system, where it can guide memory, planning and action. Stanislas Dehaene and colleagues gave the idea a neural version built on long-range connections between prefrontal, parietal and temporal regions. {2}",
+      s: [["Mon", "Mon 11:00, Auditorium 5", "Gaspard Fougea, “A computational framework for the global neuronal workspace hypothesis”", 1]] },
+    iit: { name: "Integrated information", d: "theory", lines: ["Integrated", "information"],
+      text: "Giulio Tononi proposed integrated information theory in 2004. It starts from properties of experience and asks what a physical system must be like to have them. The quantity Φ measures how far a system's cause-effect power is irreducible to that of its parts. Because the theory points to physical cause-effect structure, the hardware of a computer matters as well as its software. {3}",
+      s: [["Mon", "Mon 11:00, Auditorium 5", "Montijn van Loo, a measure-theoretic framework in which IIT is reconstructed", 1],
+          ["Tue", "Tue 16:30, Auditorium 3", "Marek Pokropski and Piotr Suffczyński, “De-idealizing models in consciousness science: A case of Integrated Information Theory”", 0]] },
+    hot: { name: "Higher-order thought", d: "theory", lines: ["Higher-order", "thought"],
+      text: "Higher-order theories say a mental state is conscious when another mental state represents it. In David Rosenthal's version a state becomes conscious when the person has a thought about being in it. Variants replace the thought with an inner sense, or build the higher-order part into the state itself. {4}",
+      s: [["Thu", "Thu 16:30, Auditorium 2", "Hanqi Wang, “Higher-Order Representation as Cross-Timescale Integration in Time-Consciousness”", 0]] },
+    ast: { name: "Attention schema", d: "theory", lines: ["Attention", "schema"],
+      text: "Michael Graziano proposes that the brain builds a simplified model of its own attention, much as it models the body. When a person says they are aware of something, they are reading from that model. The model leaves out the machinery of neurons, so awareness seems immaterial and hard to locate. {5}",
+      s: [["Wed", "Wed 11:20, Auditorium 3", "Rasmus Herlo, “Attention Self-modelling in Collaborative RL-Based Agents”", 0]] },
+    pp: { name: "Predictive processing", d: "theory", lines: ["Predictive", "processing"],
+      text: "Predictive processing holds that the brain builds a model of its environment, predicts incoming signals and learns from prediction error, weighting each signal by its reliability. The free energy principle, due to Karl Friston, describes living systems as minimising surprise in a related way. Jakob Hohwy's Tuesday showcase frames self-evidencing for predictive processing and considers its relevance for consciousness science. {9,13,17}",
+      s: [["Tue", "Tue 13:30, Auditorium 1", "Showcase. Jakob Hohwy, on self-evidencing and predictive processing", 1],
+          ["Tue", "Tue 16:30, Auditorium 3", "Catalin Teoharie, “Consciousness is self-evidencing”", 0],
+          ["Thu", "Thu 11:20, Auditorium 5", "William Seager, “Is the Metaphysics of Predictive Processing Self-Refuting?”", 0]] },
+    formal: { name: "Formal frameworks", d: "theory", lines: ["Formal", "frameworks"],
+      text: "Mathematical models of consciousness are a thread MoC7 inherits from its co-organiser, the Association for Mathematical Consciousness Science. Monday's session proposes a measure-theoretic language for comparing theories, a hypothesis about whether consciousness is mathematical, a timed-automata account of the global workspace, and an information-theoretic argument for thresholds. A Friday session turns to set theory and topology. {17,18}",
+      s: [["Mon", "Mon 11:00, Auditorium 5", "Session Formal and Information-Theoretic Frameworks. Jonathan Mason, “The Mathematical Consciousness Hypothesis (MCH)”", 1],
+          ["Mon", "Mon 11:00, Auditorium 5", "Marc Ebner, “On Consciousness Thresholds”", 1],
+          ["Wed", "Wed 11:20, Auditorium 5", "Robert Prentner, “Unifying the Science of Consciousness: Mathematized Phenomenology and Trace Logic”", 0],
+          ["Fri", "Fri 11:00, Auditorium 2", "Session Set Theory, Topology and Formal Models of Experience. Oisín Hugh Clancy, “A Set Theoretic Model of Experiences”", 0],
+          ["Fri", "Fri 11:00, Auditorium 2", "Davide Aldé, “Logical Q-space and the nature of mental qualities”", 0]] },
+    physics: { name: "Physics and consciousness", d: "theory", lines: ["Physics and", "consciousness"],
+      text: "Physics-based approaches ask whether information, contextuality or quantum structure belong in models of consciousness. Swapan Chattopadhyay argues for information- and contextuality-based approaches beyond matter-energy frameworks. The week also opens with Robert Sunderland's account of the people and relationships behind the quantum revolution in Copenhagen. {17}",
+      s: [["Mon", "Mon 16:00, Margrethe Bohr Salen (NBB)", "Welcome talk. Robert Sunderland, Niels Bohr Archive", 1],
+          ["Tue", "Tue 16:30, Auditorium 2", "Session Physics-Based Approaches to Consciousness. Swapan Chattopadhyay, “Excursions in the Land of Consciousness: An Atypical Experimental Particle Physicist's Perspective”", 1],
+          ["Tue", "Tue 16:30, Auditorium 2", "Paavo Pylkkänen, “Meaning without magnitude: form-dependence, enfoldment, and the modelling of consciousness”", 0],
+          ["Wed", "Wed 11:20, Auditorium 5", "Session Consciousness at the Limits of Physics. Pedro Resende, “On physics and the boundaries of consciousness science”", 0],
+          ["Wed", "Wed 11:20, Auditorium 5", "Chetan Prakash, “Contextuality in Models of Consciousness: Trace Logics of Observation and Belief”", 0]] },
+
+    llm: { name: "Language models", d: "ai", lines: ["Language", "models"],
+      text: "Language models enter consciousness science through three questions. Is it right to treat them as intentional systems in Dennett's sense? Can digital agency be defined without phenomenal consciousness? Do they recognise a user's mental state and their own limits? Monday's session on language models, agency and risk took these up. {17}",
+      s: [["Mon", "Mon 11:00, Auditorium 3", "Session Language Models: Agency, Interpretability and Risk. Gabriel Malagutti, “How to Interpret LLMs”", 1],
+          ["Mon", "Mon 11:00, Auditorium 3", "Tanya de Villiers-Botha, “What Good is Conscious AI?”", 1],
+          ["Mon", "Mon 11:00, Auditorium 3", "Marcin Moskalewicz, “AI-induced psychosis? Safety check”", 1],
+          ["Tue", "Tue 16:30, Auditorium 5", "Marcin Rządeczka, “AI Psychopathology? Atypical Response Patterns in Large Language Models as a Domain of Philosophical Inquiry”", 0]] },
+    machine: { name: "Machine consciousness", d: "ai", lines: ["Machine", "consciousness"],
+      text: "Whether machines could be conscious divides the speakers. Ian Durham argues that claims of AI consciousness rest on confusions about both AI and consciousness. Borjan Milinkovic argues that digital and biological computation differ in ways that matter. Tanya de Villiers-Botha asks whether there is good reason to create conscious AI, and finds a dilemma. {17}",
+      s: [["Tue", "Tue 11:20, Auditorium 3", "Ian Durham, “Against AI Consciousness”", 1],
+          ["Wed", "Wed 9:00, Auditorium 1", "AMCS Presidential Address. Lenore Blum, “World Models and the Emergence of a ‘First-Person’ Perspective in an AI”", 0],
+          ["Fri", "Fri 11:00, Auditorium 4", "Anna Frammartino Wilks, “The ‘Natural’ Path to Artificial Consciousness”", 0]] },
+    indic: { name: "Indicator properties", d: "ai", lines: ["Indicator", "properties"],
+      text: "In 2023 a group of nineteen researchers, including Patrick Butlin, Robert Long and Yoshua Bengio, drew up indicator properties from several scientific theories of consciousness, among them recurrent processing, global workspace, higher-order, predictive processing and attention schema theories. They applied the indicators to recent AI systems, concluded that none is conscious, and found no obvious technical barrier to future systems that would meet them. {15}",
+      s: [["Thu", "Thu 16:30, Auditorium 5", "Session Indicators of AI Consciousness. Angela Johnson, “From Indicators to Dynamics: Metastability, Recurrence, and Ignition in a Persistent Agent's Attention Stream”", 0],
+          ["Thu", "Thu 16:30, Auditorium 5", "Jessica White, “Locating disagreement in AI consciousness research”", 0],
+          ["Thu", "Thu 16:30, Auditorium 5", "Dezhi Luo, “(How) can we benchmark consciousness in foundation models?”", 0]] },
+    introspect: { name: "Machine introspection", d: "ai", lines: ["Machine", "introspection"],
+      text: "Researchers at Anthropic placed a known concept directly into a language model's internal activity and asked whether it noticed anything unusual. With the best protocol, the most capable model noticed about a fifth of the time, and often it missed the concept or made something up. The authors call the ability real, limited and unreliable, and say it is unlike human introspection. {16}",
+      s: [["Wed", "Wed 11:20, Auditorium 3", "Session Confidence and Self-Monitoring in Neural and Artificial Systems. Veronika Viksna, “Can Language Models Know When They Are Wrong? Selective Escalation Using Self-Monitoring Signals”", 0],
+          ["Wed", "Wed 11:20, Auditorium 3", "Muhammad Faraz, “Explicit Metacognitive Representations in Neural Circuits”", 0]] },
+    selfrep: { name: "Model self-reports", d: "ai", lines: ["Model", "self-reports"],
+      text: "When a language model says it feels curious, or says it feels nothing, the sentence is itself something to explain. Attention schema theory holds that a machine with an attention schema could claim to be conscious as people do, with no means of telling whether the claim matches reality. Anthropic's introspection experiments check a model's statements about its internal state against what the researchers placed there. {5,16}",
+      s: [["Wed", "Wed 11:20, Auditorium 3", "Maria Isabel Inzunza, “When AI Explains Itself, Should We Believe It?”", 0],
+          ["Mon", "Mon 11:00, Auditorium 3", "Marcin Moskalewicz, “AI-induced psychosis? Safety check”", 1]] }
+  };
+  Object.keys(N).forEach(function (k) { N[k].x = LAYOUT[k].x; N[k].y = LAYOUT[k].y; N[k].pos = LAYOUT[k].pos; });
+
+  var E = [
+    ["hard", "phenom"], ["hard", "qualia"], ["hard", "dualaspect"], ["hard", "enactive"], ["hard", "ast"], ["hard", "iit"],
+    ["phenom", "gwt"], ["phenom", "ncc"], ["qualia", "formal"], ["dualaspect", "physics"],
+    ["substrate", "iit"], ["substrate", "machine"], ["substrate", "enactive"],
+    ["enactive", "husserl"], ["enactive", "neurophenom"],
+    ["self", "hot"], ["self", "ast"], ["self", "psychedelic"], ["self", "time"],
+    ["husserl", "time"], ["husserl", "neurophenom"], ["husserl", "formal"], ["time", "hot"],
+    ["neurophenom", "microphenom"], ["neurophenom", "psychedelic"], ["microphenom", "report"],
+    ["ncc", "report"], ["ncc", "collab"], ["ncc", "hippocampus"],
+    ["collab", "gwt"], ["collab", "iit"], ["collab", "comparing"],
+    ["comparing", "consensus"], ["comparing", "formal"],
+    ["consensus", "values"], ["consensus", "physics"], ["consensus", "phenom"],
+    ["tests", "report"], ["tests", "indic"],
+    ["gwt", "formal"], ["iit", "formal"], ["gwt", "hot"], ["hot", "ast"],
+    ["pp", "hard"], ["pp", "report"],
+    ["llm", "machine"], ["llm", "selfrep"], ["introspect", "selfrep"], ["introspect", "hot"],
+    ["indic", "gwt"], ["indic", "hot"], ["selfrep", "ast"]
+  ];
+
+  /* Pair readings. "src>tgt" is the text for: tgt seen through src. Each is [text, source numbers]. */
+  var P = {
+    "hard>phenom": ["Seen through the hard problem, phenomenal consciousness is what remains once the functions are explained. Access consciousness sits with the easy problems, because availability for report and action is a matter of mechanism. The hard problem concerns the other half of the pair.", "1,20"],
+    "phenom>hard": ["Seen through the access and phenomenal pair, the hard problem depends on the two coming apart in principle. If they always go together, it may shrink to a question about access. If they can separate, it keeps its force.", "1,20"],
+    "hard>qualia": ["Seen through the hard problem, qualia are the felt qualities that a complete account of mechanisms seems to leave out. Levine's explanatory gap states the worry, since the link between a physical state and its feel looks contingent. The Tuesday session asks whether that impression can be answered.", "1,17"],
+    "qualia>hard": ["Seen through the qualia session, the hard problem divides into three positions. One identifies qualia with physical properties in the world, one says most phenomenal knowledge is structural, and one says structural facts are objective yet still leave an explanatory gap. Each treats the hard problem as a claim about knowledge.", "1,17"],
+    "hard>dualaspect": ["Seen through the hard problem, dual-aspect monism offers a way to stop treating the mental and the physical as separate. If both are aspects of one underlying reality, the question of why one accompanies the other changes shape.", "1,7"],
+    "dualaspect>hard": ["Seen through dual-aspect monism, the hard problem comes from an epistemic split. Mind and matter look separate because of how reality is approached, so a bridge between two substances is unnecessary. The open question moves to the underlying reality, which is neither mental nor physical in itself.", "7"],
+    "hard>enactive": ["Seen through the hard problem, enactivism is a challenge to its framing. Thompson argues that setting life and consciousness apart, as the hard problem does, is a barrier, and that phenomenology should complement science.", "1,8"],
+    "enactive>hard": ["Seen through enactivism, the hard problem is a question about life as much as about mind. If cognition belongs to self-maintaining living systems, the place to begin an explanation of experience is the organism and its sense-making.", "8"],
+    "hard>ast": ["Seen through the hard problem, attention schema theory answers a neighbouring question, which is why a brain would model its own attention and say that it is aware. Whether that explains the experience or only the saying is where readers divide.", "1,5"],
+    "ast>hard": ["Seen through attention schema theory, the hard problem is a puzzle that the brain's self-model produces. The model leaves out the machinery of neurons, so awareness seems non-physical, and the theory treats that seeming as the thing to explain.", "5"],
+    "hard>iit": ["Seen through the hard problem, integrated information theory is a direct attempt to answer it. It starts from experience, works out its properties, and asks which physical systems could have them.", "1,3"],
+    "iit>hard": ["Seen through integrated information theory, the hard problem is a problem of starting point. Beginning from physical processes makes experience hard to reach. Beginning from the properties of experience changes the question to which physical structures match them.", "3"],
+
+    "phenom>gwt": ["Seen through the access and phenomenal pair, global workspace theory is a theory of access. Content that wins the workspace becomes available for report, memory and action, which is the sense in which the theory calls it conscious.", "2,20"],
+    "gwt>phenom": ["Seen through the global workspace, the pair gets a test case. A broadcast state is accessible. A defender of phenomenal consciousness without access needs cases of experience with no broadcast, and looking for them runs into the need for report.", "2,6"],
+    "phenom>ncc": ["Seen through the access and phenomenal pair, a neural correlate raises the question of which of the two it goes with. Experiments usually measure access, because they rely on a person's report.", "6,20"],
+    "ncc>phenom": ["Seen through the neural correlates, the pair becomes an empirical matter. Activity that goes with experience when access is absent, or with access when experience is absent, would separate the two senses in the data.", "6"],
+    "qualia>formal": ["Seen through the qualia session, formal frameworks have a target. If much phenomenal knowledge is structural, relations among experiences can be written as mathematics, which is the aim of the Friday session on set theory and topology.", "17"],
+    "formal>qualia": ["Seen through formal frameworks, qualia become spaces with a structure. Friday's titles speak of a set-theoretic model of experiences and a logical Q-space of mental qualities. A structural account then has to say what such a space leaves out.", "17"],
+    "dualaspect>physics": ["Seen through dual-aspect monism, physics supplies one of the two aspects. The Pauli–Jung conjecture proposes aspects that can be complementary in the quantum sense, and Bohm used the implicate and explicate order for the same purpose.", "7"],
+    "physics>dualaspect": ["Seen through physics, dual-aspect monism is a way to bring contextuality and information into the picture without making matter and energy the whole story. Chattopadhyay's argument points in a similar direction from experimental particle physics.", "7,17"],
+
+    "substrate>iit": ["Seen through the substrate question, integrated information theory takes a clear side. It ties consciousness to physical cause-effect structure, so the same software on different hardware could differ in experience.", "3"],
+    "iit>substrate": ["Seen through integrated information theory, the substrate question takes a technical form. A conventional computer can reproduce a system's input-output behaviour without its cause-effect structure, and a 2024 preprint conjectures that such machines would have negligible consciousness if the theory is right.", "3"],
+    "substrate>machine": ["Seen through the substrate question, machine consciousness depends on which organisation counts. Milinkovic argues that digital and biological computation differ in ways that matter, and the Thursday session asks whether scale-invariant or organisational properties carry consciousness.", "17"],
+    "machine>substrate": ["Seen through machine consciousness, the substrate question becomes practical. If organisation alone matters, a machine could qualify. If substrate matters, the answer depends on how closely an artificial system resembles living matter.", "17"],
+    "substrate>enactive": ["Seen through the substrate question, enactivism names the relevant organisation as that of a living system that maintains itself. The substrate then includes metabolism and action.", "8"],
+    "enactive>substrate": ["Seen through enactivism, the substrate question concerns the continuity of life and mind. In the Tuesday session Veloz proposes chemical organisation as a formal scaffold for affordances and consciousness.", "8,17"],
+    "enactive>husserl": ["Seen through enactivism, Husserl supplies a method. Thompson argues that phenomenology should complement science, and Varela's enactive framework joins first-person study with the study of living systems.", "8,10,12"],
+    "husserl>enactive": ["Seen through Husserl, enactivism asks what the lifeworld looks like to an organism that acts. The lifeworld is the background against which all experience stands out, and sense-making is how an organism gives it meaning.", "8,10"],
+    "enactive>neurophenom": ["Seen through enactivism, neurophenomenology is a research design for its commitments. It pairs first-person inquiry with neuroscience, in the line of Varela's work with Thompson and Rosch.", "8,12"],
+    "neurophenom>enactive": ["Seen through neurophenomenology, enactivism supplies the picture of a mind that is embodied and coupled to its world. Dumas's Friday keynote extends this to coupled brains and metacognitive agents.", "12,17"],
+
+    "self>hot": ["Seen through the self, higher-order thought is a theory about how a mind represents its own states. The regress worry applies directly, since a thought about a thought seems to invite another.", "4,17"],
+    "hot>self": ["Seen through higher-order thought, the self is a state of the system that represents other states. The question for the Wednesday regress session is where the chain of representing states stops.", "4,17"],
+    "self>ast": ["Seen through the self, attention schema theory offers a self-model that is a simplified description of attention. One reading is that a description read by the system needs no further inner observer to be useful, which is one way the theory could meet the regress.", "5"],
+    "ast>self": ["Seen through attention schema theory, the self is a model the brain keeps of its own attention, much as it models the body. The Friday session on selves and self-models asks what such models do for a system's control of itself.", "5,17"],
+    "self>psychedelic": ["Seen through the self, ego-dissolution is a test of what the self is. The Thursday session lists talks on dissolution experiences and on the experience of self and world.", "17"],
+    "psychedelic>self": ["Seen through psychedelic states, the self appears as something that can change within a single experience. Monday's talks follow such changes with interviews, fMRI and the analysis of language.", "17"],
+    "self>time": ["Seen through the self, time-consciousness is the structure that keeps experience continuous. The title of Kawakami's Wednesday talk proposes that retention dissolves the regress of self-consciousness.", "17"],
+    "time>self": ["Seen through time-consciousness, a self can be a process that holds the just-past within the present. One reading, suggested by Kawakami's title, is that retention does some of the work that a second inner observer would otherwise do.", "10,17"],
+
+    "husserl>time": ["Seen through Husserl, time-consciousness is a core topic of phenomenology and a place where the method is tested. Ramos de Andrade's Thursday showcase brings mathematics to Husserlian temporality.", "10,17"],
+    "time>husserl": ["Seen through time-consciousness, intentionality extends in time. An act of consciousness is directed at something, and the something has just been and is about to be.", "10,17"],
+    "husserl>neurophenom": ["Seen through Husserl, neurophenomenology uses the epoché and the reduction as disciplines for first-person reports.", "10,12"],
+    "neurophenom>husserl": ["Seen through neurophenomenology, Husserl's methods become something that can be paired with recordings. The Wikipedia article on phenomenology describes naturalising approaches of this kind as not widely accepted as phenomenology, so the pairing is contested.", "10,12"],
+    "husserl>formal": ["Seen through Husserl, formal frameworks have a philosophical precedent. Mirja Hartimo's Thursday keynote concerns Husserl's philosophy of mathematics and logic.", "17"],
+    "formal>husserl": ["Seen through formal frameworks, Husserl's analysis of experience is something that can be written as structure. The title of Prentner's Wednesday talk speaks of mathematized phenomenology.", "17"],
+    "time>hot": ["Seen through time-consciousness, a higher-order state has to extend over time. The title of Wang's Thursday talk proposes higher-order representation as cross-timescale integration.", "17"],
+    "hot>time": ["Seen through higher-order thought, time-consciousness asks how the representing state and the represented state relate across moments.", "4,17"],
+
+    "neurophenom>microphenom": ["Seen through neurophenomenology, micro-phenomenology is a source of fine-grained first-person data to set beside brain data. The title of Chris Allen's showcase joins it to neuroimaging.", "12,17"],
+    "microphenom>neurophenom": ["Seen through micro-phenomenology, neurophenomenology depends on how reliable the first-person side is. The Friday session on computational analysis of reports aims at shared methods for finding themes in them.", "17"],
+    "neurophenom>psychedelic": ["Seen through neurophenomenology, a psilocybin retreat is a design for pairing experience with data. Beyköylü's study follows a couple with fMRI, experience sampling and interviews.", "12,17"],
+    "psychedelic>neurophenom": ["Seen through psychedelic states, neurophenomenology has to cope with experiences that change fast and are hard to describe. Ciobanu's complementary case study applies shared formal methods to neural and experiential data.", "17"],
+    "microphenom>report": ["Seen through micro-phenomenology, a report is the product of a method, and its quality depends on how the questions are asked.", "17"],
+    "report>microphenom": ["Seen through report, micro-phenomenology meets the confounds that any report carries, since reporting takes attention, memory and a decision.", "6"],
+
+    "ncc>report": ["Seen through the neural correlates, report is a confound. A recorded signal might belong to the experience, or to the attention, memory and decision that reporting requires.", "6"],
+    "report>ncc": ["Seen through report, a neural correlate has to survive the removal of the task. Signals that remain when people stop reporting are better candidates for the experience itself.", "6"],
+    "ncc>collab": ["Seen through the neural correlates, the adversarial collaboration is a contest between two maps of the brain. Global workspace theory expects frontal involvement, and integrated information theory points to the posterior cortex.", "2,3,6,14"],
+    "collab>ncc": ["Seen through the adversarial collaboration, a neural correlate becomes a prediction written down in advance. A correlate found after the fact can be fitted to many theories.", "14"],
+    "ncc>hippocampus": ["Seen through the neural correlates, the hippocampus is a structure to be placed. O'Keefe's keynote draws parallels between the hippocampal map and features of consciousness, which raises the question of whether the map is a correlate or a model.", "6,11,17"],
+    "hippocampus>ncc": ["Seen through the hippocampus, the search for correlates includes a system known for place cells and theta oscillations. Whether those features have counterparts in consciousness is the question of the keynote.", "11,17"],
+
+    "collab>gwt": ["Seen through the adversarial collaboration, global workspace theory is one of two accounts that agreed to name in advance what would count against it. Stanislas Dehaene was the proponent for the workspace theory in Cogitate.", "14"],
+    "gwt>collab": ["Seen through the global workspace, the collaboration tests broadcast and the role of frontal regions.", "2,14"],
+    "collab>iit": ["Seen through the adversarial collaboration, integrated information theory had parts that could be put to the test. Tononi, Boly and Koch were the proponents in Cogitate.", "3,14"],
+    "iit>collab": ["Seen through integrated information theory, the collaboration tested what the theory says about the posterior cortex. Its core claims about cause-effect structure sit further from any single experiment.", "3,14"],
+    "collab>comparing": ["Seen through the adversarial collaboration, comparing theories means agreeing in advance on predictions, a framework that Mudrik helped design.", "14"],
+    "comparing>collab": ["Seen through comparing theories, the collaboration is one design among others. Mudrik's prediction maps propose networks of beliefs about theories as another way to compare them.", "14,17"],
+
+    "comparing>consensus": ["Seen through comparing theories, a consensus project looks for what the theories already share. The Thursday session asks what a theory of consciousness needs to explain.", "17,18"],
+    "consensus>comparing": ["Seen through the consensus project, comparing theories is a step towards methodological and conceptual agreement, with the first collective paper of its kind as the possible result.", "17,18"],
+    "comparing>formal": ["Seen through comparing theories, formal frameworks are a shared language. Van Loo proposes a measure-theoretic one in which IIT and another theory can both be reconstructed.", "17"],
+    "formal>comparing": ["Seen through formal frameworks, comparison takes a precise form. The title of Yan's Thursday talk promises a comparative mathematical analysis of leading theories.", "17"],
+    "consensus>values": ["Seen through the consensus project, values are part of what a field has to agree on. Negro argues that non-epistemic values can enter at many stages, from statistical choices to theory evaluation.", "17,18"],
+    "values>consensus": ["Seen through values, a consensus is also a social outcome. A group can agree on methods while some of its choices stay value-laden.", "17"],
+    "consensus>physics": ["Seen through the consensus project, physics is the model the organisers cite: the Copenhagen interpretation, together with a welcome talk on the people behind Copenhagen's quantum revolution.", "17,18"],
+    "physics>consensus": ["Seen through physics, consensus in Copenhagen has a history. Robert Sunderland of the Niels Bohr Archive tells the story of the people and relationships behind the quantum revolution.", "17"],
+    "consensus>phenom": ["Seen through the consensus project, access and phenomenal consciousness is a candidate for shared vocabulary. One word covers two senses, and a lexicon would record both.", "17,20"],
+    "phenom>consensus": ["Seen through the access and phenomenal pair, consensus depends on terms whose senses are kept apart. The title of Katyal's Thursday talk asks what consciousness is and what a theory needs to explain.", "17,20"],
+
+    "tests>report": ["Seen through tests for consciousness, report is the oldest indicator. Tests in patients, infants and animals look for substitutes where reporting is unavailable.", "17"],
+    "report>tests": ["Seen through report, a test without report needs another way to show that the signal belongs to experience. Kleiner proposes direct tests that rely on covariates.", "17"],
+    "tests>indic": ["Seen through tests for consciousness, indicator properties are indicators built from theories. Peters argues that indicator tests cannot be assumed to mean the same thing in systems where they were not validated.", "15,17"],
+    "indic>tests": ["Seen through the indicator properties, a test list is derived from several theories and applied to AI systems. The authors found no current system to be conscious and no obvious barrier for future ones.", "15"],
+
+    "gwt>formal": ["Seen through global workspace theory, formalisation means describing components such as the workspace in a precise language.", "2,17"],
+    "formal>gwt": ["Seen through formal frameworks, the workspace becomes a set of components with testable properties. Fougea uses timed automata and refinement to that end.", "17"],
+    "iit>formal": ["Seen through integrated information theory, formal frameworks have a clear case of a theory stated in mathematics.", "3,17"],
+    "formal>iit": ["Seen through formal frameworks, the theory becomes one of several that can be reconstructed in a common language. Van Loo reconstructs it, and Pokropski and Suffczyński ask how idealised its models are.", "17"],
+    "gwt>hot": ["Seen through the global workspace, higher-order theory asks what the broadcast adds. A higher-order theorist wants some state that represents the content as the person's own.", "2,4"],
+    "hot>gwt": ["Seen through higher-order thought, the workspace is a theory about availability, and the question is whether availability is enough.", "2,4"],
+    "hot>ast": ["Seen through higher-order thought, the attention schema is a higher-order representation of a particular kind.", "4,5"],
+    "ast>hot": ["Seen through attention schema theory, a higher-order thought is a model with a job. A model of attention helps the brain control attention and keep track of other people's.", "4,5"],
+
+    "pp>hard": ["Seen through predictive processing, the hard problem is a question about what a model of the world adds. Seager's Thursday talk asks whether the metaphysics of predictive processing refutes itself.", "1,9,17"],
+    "hard>pp": ["Seen through the hard problem, predictive processing explains perception and action as inference, and the open question is why inference would feel like anything.", "1,9"],
+    "pp>report": ["Seen through predictive processing, a confidence report is a judgement about the reliability of a prediction. Kozyra's Tuesday talk offers a Bayesian and convolutional network account of a positive evidence bias in perceptual metacognition.", "9,17"],
+    "report>pp": ["Seen through report, predictive processing supplies the vocabulary of precision for confidence. Weighting inputs by reliability is how the framework describes it.", "9"],
+
+    "llm>machine": ["Seen through language models, machine consciousness is a question about systems that talk. De Villiers-Botha asks what good conscious AI would be and finds a dilemma.", "17"],
+    "machine>llm": ["Seen through machine consciousness, a language model is one kind of candidate. Durham argues that claims of AI consciousness rest on confusions about both AI and consciousness.", "17"],
+    "llm>selfrep": ["Seen through language models, a self-report is the output of a trained system. Malagutti argues against treating such systems as intentional systems under Dennett's interpretivism.", "17"],
+    "selfrep>llm": ["Seen through self-reports, the interpretive stance on language models matters. Moskalewicz proposes an experiment on whether models recognise a user's mental state and their own limits.", "17"],
+    "introspect>selfrep": ["Seen through machine introspection, a self-report can be checked against something placed in the model. When the concept was injected and the model names it, the report is accurate on that occasion.", "16"],
+    "selfrep>introspect": ["Seen through model self-reports, introspection experiments need careful reading. The authors call the ability real, limited and unreliable, and say it is unlike human introspection.", "16"],
+    "introspect>hot": ["Seen through machine introspection, a higher-order account asks for a system that represents its own states. The Wednesday session on self-monitoring asks whether language models know when they are wrong and whether to believe their explanations.", "4,17"],
+    "hot>introspect": ["Seen through higher-order thought, a model that sometimes detects a concept placed in its activity has something that works like a representation of its own state. Its limits, with misses and invented answers, show how far the resemblance goes.", "4,16"],
+    "indic>gwt": ["Seen through the indicator properties, global workspace theory becomes a checklist item, restated in computational terms so that it can be applied to machines.", "15"],
+    "gwt>indic": ["Seen through global workspace theory, the indicators ask whether a system has parallel specialised processes, a shared workspace and broadcast, the architecture the theory describes. Johnson's Thursday talk title adds metastability, recurrence and ignition in a persistent agent.", "2,15,17"],
+    "indic>hot": ["Seen through the indicator properties, higher-order theory contributes a short list among several. The report draws on five theories and counts how many of their features a system meets.", "15"],
+    "hot>indic": ["Seen through higher-order theory, the indicators ask whether a system monitors its own representations.", "4,15"],
+    "selfrep>ast": ["Seen through model self-reports, attention schema theory expects claims of awareness from any system with a self-model, and says such a machine could not tell whether its claim matched reality.", "5"],
+    "ast>selfrep": ["Seen through attention schema theory, a model's statement “I am aware” is evidence about its self-model. The theory and the self-reports lead to the same caution.", "5"]
+  };
+
+  var PRESETS = [
+    { day: "Mon", label: "Testing for consciousness", path: ["ncc", "report", "tests", "indic", "gwt"],
+      note: "Megan Peters's keynote on Monday at 9:00, and the 11:00 session in Auditorium 2 on testing for consciousness in patients, infants and animals.", refs: "17" },
+    { day: "Mon", label: "Language models and substrates", path: ["selfrep", "llm", "machine", "substrate", "iit"],
+      note: "Monday at 11:00 in Auditorium 3 on language models, agency and risk, and Tuesday at 11:20 in the same hall on the prospects of machine consciousness.", refs: "17" },
+    { day: "Mon", label: "Altered states", path: ["neurophenom", "psychedelic", "self", "time"],
+      note: "Monday at 11:00 in Auditorium 4 on altered states and neurophenomenology, and Thursday at 16:30 in the same hall on non-dual experience.", refs: "17" },
+    { day: "Mon", label: "The map in the hippocampus", path: ["phenom", "ncc", "hippocampus"],
+      note: "John O'Keefe's keynote on Monday at 13:30.", refs: "17" },
+    { day: "Mon to Fri", label: "The consensus project", path: ["physics", "consensus", "comparing", "collab", "ncc"],
+      note: "Camilo Miguel Signorelli's plenary on Monday at 14:30, discussion sessions from Monday to Thursday, and the closing plenary discussion on Friday at 15:00.", refs: "17,18" },
+    { day: "Tue", label: "Qualia and structure", path: ["hard", "qualia", "formal", "husserl"],
+      note: "Tuesday at 11:20 in Auditorium 2 on qualia and phenomenal knowledge, and Friday at 11:00 in Auditorium 2 on set theory, topology and formal models of experience.", refs: "17" },
+    { day: "Tue", label: "Prediction and self-evidencing", path: ["ast", "hard", "pp", "report", "ncc"],
+      note: "Jakob Hohwy's showcase on Tuesday at 13:30, and Tuesday at 16:30 in Auditorium 4 on metacognition, confidence and measures of conscious content.", refs: "17" },
+    { day: "Wed", label: "Self and regress", path: ["hot", "self", "time", "husserl", "enactive", "hard"],
+      note: "Wednesday at 11:20 in Auditorium 2 on self-awareness and the regress problem, and Evan Thompson's keynote at the Louisiana Museum at 18:00.", refs: "17" },
+    { day: "Thu", label: "Husserl and time", path: ["formal", "husserl", "time", "hot", "self"],
+      note: "Mirja Hartimo's keynote on Thursday at 9:00, Eliza Ramos de Andrade's showcase at 13:30, and the time-consciousness session at 16:30.", refs: "17" },
+    { day: "Thu", label: "Comparing theories", path: ["iit", "formal", "comparing", "collab", "gwt"],
+      note: "Thursday at 16:30 in Auditorium 3 on comparing theories of consciousness, and Liad Mudrik's keynote on Tuesday at 9:00.", refs: "17" },
+    { day: "Thu", label: "Indicators of AI consciousness", path: ["gwt", "indic", "hot", "introspect", "selfrep"],
+      note: "Thursday at 16:30 in Auditorium 5, and Wednesday at 11:20 in Auditorium 3 on confidence and self-monitoring in neural and artificial systems.", refs: "17" },
+    { day: "Fri", label: "Neurophenomenology", path: ["enactive", "neurophenom", "microphenom", "report"],
+      note: "Guillaume Dumas's keynote on Friday at 9:00, and Friday at 11:00 in Auditorium 3 on computational analysis of first-person reports.", refs: "17" },
+    { day: "Fri", label: "Dual-aspect monism", path: ["hard", "dualaspect", "physics", "consensus"],
+      note: "Harald Atmanspacher's keynote on Friday at 13:30.", refs: "17" }
+  ];
+
+  var DAYS = [["all", "All days"], ["Mon", "Mon 12"], ["Tue", "Tue 13"], ["Wed", "Wed 14"], ["Thu", "Thu 15"], ["Fri", "Fri 16"]];
+
+  function cites(refStr) {
+    return '<sup class="cite">' + refStr.split(",").map(function (r) {
+      return '<a href="#r' + r + '" aria-label="Source ' + r + '">' + r + "</a>";
+    }).join(", ") + "</sup>";
+  }
+  function fmt(t) { return t.replace(/\{([\d,]+)\}/g, function (m, r) { return cites(r); }); }
+
+  var adj = {};
+  Object.keys(N).forEach(function (k) { adj[k] = []; });
+  function key(a, b) { return a < b ? a + "|" + b : b + "|" + a; }
+  E.forEach(function (e) { adj[e[0]].push(e[1]); adj[e[1]].push(e[0]); });
+  function reading(src, tgt) {
+    var p = P[src + ">" + tgt];
+    return p ? p[0] + " " + cites(p[1]) : "";
+  }
+
+  var path = [];
+  var preset = null;
+  var mode = "story";       /* story | node | pair */
+  var sel = null;
+  var pair = null;
+  var day = "all";
+  var focusField = null;
+
+  function mk(tag, attrs, parent) {
+    var el = document.createElementNS(NS, tag);
+    for (var k in attrs) el.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(el);
+    return el;
+  }
+  var svg = document.getElementById("sky");
+  var panel = document.getElementById("panel");
+
+  var defs = mk("defs", {}, svg);
+  Object.keys(DISC).forEach(function (d) {
+    var rg = mk("radialGradient", { id: "g-" + d }, defs);
+    mk("stop", { offset: "0%", style: "stop-color:var(--c-" + d + ");stop-opacity:0.95" }, rg);
+    mk("stop", { offset: "35%", style: "stop-color:var(--c-" + d + ");stop-opacity:0.35" }, rg);
+    mk("stop", { offset: "100%", style: "stop-color:var(--c-" + d + ");stop-opacity:0" }, rg);
+  });
+  var neb = mk("g", { "class": "nebula" }, svg);
+  [["phil", 170, 250, 190], ["method", 490, 240, 190], ["theory", 330, 440, 150], ["pheno", 185, 660, 190], ["ai", 495, 675, 180]].forEach(function (z) {
+    mk("circle", { cx: z[1], cy: z[2], r: z[3], fill: "url(#g-" + z[0] + ")", opacity: 0.2 }, neb);
+  });
+  var seed = 5;
+  function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+  var dg = mk("g", {}, svg);
+  for (var i = 0; i < 110; i++) {
+    mk("circle", { cx: (rnd() * 660).toFixed(1), cy: (rnd() * 860).toFixed(1), r: (0.5 + rnd() * 0.8).toFixed(2), "class": "dust", style: "--o:" + (0.15 + rnd() * 0.45).toFixed(2) + ";animation-delay:-" + (rnd() * 5).toFixed(1) + "s" }, dg);
+  }
+
+  var edgeEls = {};
+  var eg = mk("g", {}, svg);
+  E.forEach(function (e) {
+    var a = N[e[0]], b = N[e[1]];
+    var gid = "e-" + e[0] + "-" + e[1];
+    var lgd = mk("linearGradient", { id: gid, gradientUnits: "userSpaceOnUse", x1: a.x, y1: a.y, x2: b.x, y2: b.y }, defs);
+    mk("stop", { offset: "0%", style: "stop-color:var(--c-" + a.d + ")" }, lgd);
+    mk("stop", { offset: "100%", style: "stop-color:var(--c-" + b.d + ")" }, lgd);
+    edgeEls[key(e[0], e[1])] = mk("line", { x1: a.x, y1: a.y, x2: b.x, y2: b.y, "class": "edge", stroke: "url(#" + gid + ")" }, eg);
+  });
+
+  var nodeEls = {};
+  var justDragged = false;
+  var ng = mk("g", {}, svg);
+  Object.keys(N).forEach(function (k) {
+    var n = N[k];
+    var g = mk("g", { "class": "node", "data-id": k, tabindex: "0", role: "button", "aria-label": n.name + ", " + DISC[n.d].n }, ng);
+    mk("circle", { cx: n.x, cy: n.y, r: 26, "class": "halo", fill: "url(#g-" + n.d + ")" }, g);
+    mk("circle", { cx: n.x, cy: n.y, r: 7.5, fill: "var(--c-" + n.d + ")" }, g);
+    mk("circle", { cx: n.x, cy: n.y, r: 3, fill: "var(--core)", opacity: 0.9 }, g);
+    mk("circle", { cx: n.x, cy: n.y, r: 13, "class": "ring" }, g);
+    mk("circle", { cx: n.x, cy: n.y, r: 24, "class": "hitc" }, g);
+    var t = mk("text", { "class": "lbl" }, g);
+    var L = n.lines.length;
+    n.lines.forEach(function (ln, i) {
+      var x, y, anchor;
+      if (n.pos === "above") { x = n.x; y = n.y - 15 - (L - 1 - i) * 17; anchor = "middle"; }
+      else if (n.pos === "below") { x = n.x; y = n.y + 27 + i * 17; anchor = "middle"; }
+      else if (n.pos === "left") { x = n.x - 15; y = n.y + 5 - (L - 1) * 8.5 + i * 17; anchor = "end"; }
+      else { x = n.x + 15; y = n.y + 5 - (L - 1) * 8.5 + i * 17; anchor = "start"; }
+      var ts = mk("tspan", { x: x, y: y, "text-anchor": anchor }, t);
+      ts.textContent = ln;
+    });
+    g.addEventListener("click", function () { if (justDragged) { justDragged = false; return; } tap(k); });
+    g.addEventListener("keydown", function (ev) { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); tap(k); } });
+    g.addEventListener("pointerenter", function (ev) { if (ev.pointerType === "mouse") { hov = k; paintMap(); } });
+    g.addEventListener("focus", function () { hov = k; paintMap(); });
+    dragSetup(g, k);
+    nodeEls[k] = g;
+  });
+
+  svg.addEventListener("pointerleave", function () { if (hov) { hov = null; paintMap(); } });
+  var lg = document.getElementById("legend");
+  var legBtns = {};
+  Object.keys(DISC).forEach(function (d) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.innerHTML = '<i class="dot" style="background:var(--c-' + d + ')"></i>' + DISC[d].n;
+    b.addEventListener("click", function () { focusField = focusField === d ? null : d; render(); });
+    lg.appendChild(b);
+    legBtns[d] = b;
+  });
+
+  var allBtn = document.createElement("button");
+  allBtn.type = "button"; allBtn.textContent = "Show every idea";
+  allBtn.addEventListener("click", function () { showAll = !showAll; allBtn.className = showAll ? "active" : ""; allBtn.textContent = showAll ? "Show the big terms" : "Show every idea"; paintMap(); });
+  lg.appendChild(allBtn);
+  var pr = document.getElementById("presets");
+  var presetBtns = PRESETS.map(function (p, i) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.innerHTML = '<span class="d">' + p.day + "</span>" + p.label;
+    b.addEventListener("click", function () { mode = "story"; preset = i; path = p.path.slice(); render(); });
+    pr.appendChild(b);
+    return b;
+  });
+
+  var dr = document.getElementById("days");
+  var dayBtns = DAYS.map(function (d) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.textContent = d[1];
+    b.addEventListener("click", function () { day = d[0]; render(); });
+    dr.appendChild(b);
+    return b;
+  });
+
+  var rl = document.getElementById("refs");
+  REFS.forEach(function (r) {
+    var li = document.createElement("li");
+    li.id = "r" + r[0];
+    li.value = r[0];
+    if (r[2]) {
+      var a = document.createElement("a");
+      a.href = r[2]; a.target = "_blank"; a.rel = "noopener"; a.textContent = r[1];
+      li.appendChild(a);
+    } else {
+      li.textContent = r[1];
+    }
+    rl.appendChild(li);
+  });
+
+  function hasDay(k) {
+    return N[k].s.some(function (x) { return x[0] === day; });
+  }
+
+  function tap(id) {
+    if (mode === "node" && sel && sel !== id) { openPair(sel, id); return; }
+    if (mode === "pair" && pair && pair.tgt === id) { mode = "node"; sel = id; render(); return; }
+    mode = "node"; sel = id; render();
+  }
+  function openPair(src, tgt) {
+    if (src === tgt) { tap(src); return; }
+    mode = "pair"; pair = { src: src, tgt: tgt }; sel = null; render();
+  }
+
+  function chain(a, b) {
+    var prev = {}, seen = {}, q = [a];
+    seen[a] = true;
+    while (q.length) {
+      var c = q.shift();
+      if (c === b) break;
+      adj[c].forEach(function (nb) { if (!seen[nb]) { seen[nb] = true; prev[nb] = c; q.push(nb); } });
+    }
+    if (!seen[b]) return [];
+    var r = [b];
+    while (r[0] !== a) r.unshift(prev[r[0]]);
+    return r;
+  }
+
+  var BIG = ["hard", "self", "ncc", "consensus", "gwt", "iit", "hot", "pp", "neurophenom", "machine"];
+  var hov = null, showAll = false;
+  function paintMap() {
+    var shown = [], nexts = [], inEdge = {};
+    if (mode === "story") {
+      shown = path;
+      for (var i = 0; i < path.length - 1; i++) inEdge[key(path[i], path[i + 1])] = true;
+    } else if (mode === "node") {
+      shown = [sel];
+      nexts = adj[sel];
+    } else {
+      shown = [pair.src, pair.tgt];
+      var c = chain(pair.src, pair.tgt);
+      for (var j = 0; j < c.length - 1; j++) inEdge[key(c[j], c[j + 1])] = true;
+    }
+    var vis = {};
+    function reveal(k) { vis[k] = true; }
+    BIG.forEach(reveal);
+    shown.forEach(reveal); nexts.forEach(reveal);
+    if (hov) { reveal(hov); adj[hov].forEach(reveal); }
+    Object.keys(N).forEach(function (k) {
+      if (showAll || (day !== "all" && hasDay(k)) || (focusField && N[k].d === focusField)) vis[k] = true;
+    });
+    Object.keys(edgeEls).forEach(function (k) {
+      var cls = "edge";
+      var ends = k.split("|");
+      if (!vis[ends[0]] || !vis[ends[1]]) cls += " hid";
+      if (inEdge[k]) cls += " path";
+      else if (mode === "node" && (ends[0] === sel || ends[1] === sel)) cls += " next";
+      if (day !== "all" && !(hasDay(ends[0]) && hasDay(ends[1])) && !inEdge[k]) cls += " faded";
+      if (focusField && N[ends[0]].d !== focusField && N[ends[1]].d !== focusField && !inEdge[k]) cls += " faded";
+      edgeEls[k].setAttribute("class", cls);
+    });
+    Object.keys(nodeEls).forEach(function (k) {
+      var cls = "node";
+      if (shown.indexOf(k) > -1) cls += " inpath";
+      else if (nexts.indexOf(k) > -1) cls += " next";
+      else if (shown.length) cls += " dimmed";
+      if (day !== "all") cls += hasDay(k) ? " dayhit" : " off";
+      if (focusField && N[k].d !== focusField) cls += " off";
+      if (!vis[k]) cls += " hid";
+      nodeEls[k].setAttribute("class", cls);
+    });
+  }
+
+  function render() {
+    paintMap();
+    presetBtns.forEach(function (b, i) { b.className = mode === "story" && preset === i ? "active" : ""; });
+    dayBtns.forEach(function (b, i) { b.className = DAYS[i][0] === day ? "active" : ""; });
+    Object.keys(legBtns).forEach(function (d) { legBtns[d].className = focusField === d ? "active" : ""; });
+    if (mode === "story") renderStory();
+    else if (mode === "node") renderNode();
+    else renderPair();
+  }
+
+  function sessHtml(k) {
+    var items = N[k].s;
+    var html = '<p class="sess-h">At MoC7 ' + cites("17") + "</p><ul class=\"sess\">";
+    items.forEach(function (x) {
+      var on = day !== "all" && x[0] === day;
+      html += '<li' + (on ? ' class="on"' : "") + '><span class="when">' + x[1] + "</span>" + x[2] + (x[3] === 0 ? " †" : "") + "</li>";
+    });
+    return html + "</ul>";
+  }
+
+  function stepHtml(k, num, withSess) {
+    var n = N[k];
+    return '<section class="step"><div class="num" style="background:var(--c-' + n.d + ')">' + (num || "") + "</div><div><h3>" + n.name +
+      '</h3><p class="disc"><i class="dot" style="background:var(--c-' + n.d + ')"></i>' + DISC[n.d].n + '</p><p class="t">' + fmt(n.text) + "</p>" +
+      (withSess ? sessHtml(k) : "") + "</div></section>";
+  }
+
+  function renderStory() {
+    if (!path.length) {
+      panel.innerHTML = '<div class="empty"><h2>Pick an idea</h2><p>Tap an idea to read about it. Drag one idea onto a linked idea, or tap two in turn, to read the second through the first. A session is a good place to begin.</p></div>';
+      return;
+    }
+    var html = '<div class="actions"><button type="button" id="rev"' + (path.length < 2 ? " disabled" : "") + '>Read it the other way</button></div>';
+    html += '<p class="kicker">A story in ' + path.length + " ideas</p>";
+    html += '<p class="route">' + path.map(function (k) { return N[k].name; }).join('<span class="sep">→</span>') + "</p>";
+    if (preset !== null && PRESETS[preset].path.join() === path.join()) {
+      html += '<p class="note">From the programme: ' + PRESETS[preset].note + " " + cites(PRESETS[preset].refs) + "</p>";
+    }
+    path.forEach(function (k, i) {
+      html += stepHtml(k, i + 1, true);
+      if (i < path.length - 1) {
+        var nx = path[i + 1];
+        html += '<p class="link"><span class="from">' + N[nx].name + " through " + N[k].name + "</span>" + reading(k, nx) +
+          '<br><button type="button" class="lnk" data-s="' + nx + '" data-t="' + k + '">Read it the other way</button></p>';
+      }
+    });
+    panel.innerHTML = html;
+    var rev = document.getElementById("rev");
+    if (rev) rev.addEventListener("click", function () { path.reverse(); preset = null; render(); });
+    panel.querySelectorAll(".lnk").forEach(function (b) {
+      b.addEventListener("click", function () { openPair(b.getAttribute("data-s"), b.getAttribute("data-t")); });
+    });
+  }
+
+  function renderNode() {
+    var html = '<p class="kicker">One idea</p>' + stepHtml(sel, "", true);
+    html += '<p class="kicker lensk">Linked to</p><div class="row" id="nb"></div>';
+    html += '<p class="hint0">Drag this idea onto a linked idea, or tap another one, to read that idea through this one.</p>';
+    panel.innerHTML = html;
+    var nb = document.getElementById("nb");
+    adj[sel].forEach(function (k) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = N[k].name;
+      b.addEventListener("click", function () { openPair(sel, k); });
+      nb.appendChild(b);
+    });
+  }
+
+  function renderPair() {
+    var a = N[pair.src], b = N[pair.tgt];
+    var html = '<div class="actions"><button type="button" id="swap">Read it the other way</button><button type="button" id="back">Back to ' + a.name + "</button></div>";
+    html += '<p class="kicker">One idea seen through another</p>';
+    html += '<p class="route">' + b.name + '<span class="sep">through</span>' + a.name + "</p>";
+    var txt = reading(pair.src, pair.tgt);
+    if (txt) {
+      html += '<p class="reading">' + txt + "</p>";
+    } else {
+      var c = chain(pair.src, pair.tgt);
+      html += '<p class="hint0">These two are not linked directly. The nearest route between them passes through other ideas, and each link reads like this:</p>';
+      for (var i = 0; i < c.length - 1; i++) {
+        html += '<p class="reading small"><strong>' + N[c[i + 1]].name + " through " + N[c[i]].name + ".</strong> " + reading(c[i], c[i + 1]) + "</p>";
+      }
+    }
+    html += '<details><summary>The two ideas in brief</summary>' + stepHtml(pair.src, "", true) + stepHtml(pair.tgt, "", true) + "</details>";
+    panel.innerHTML = html;
+    document.getElementById("swap").addEventListener("click", function () { openPair(pair.tgt, pair.src); });
+    document.getElementById("back").addEventListener("click", function () { mode = "node"; sel = pair.src; render(); });
+  }
+
+  function dragSetup(g, k) {
+    g.addEventListener("pointerdown", function (ev) {
+      if (ev.button !== undefined && ev.button !== 0) return;
+      var sx = ev.clientX, sy = ev.clientY, ghost = null, over = null;
+      try { g.setPointerCapture(ev.pointerId); } catch (e1) {}
+      function nodeAt(x, y) {
+        var el = document.elementFromPoint(x, y);
+        var n = el && el.closest ? el.closest(".node") : null;
+        return n ? n.getAttribute("data-id") : null;
+      }
+      function move(e) {
+        var dx = e.clientX - sx, dy = e.clientY - sy;
+        if (!ghost && Math.sqrt(dx * dx + dy * dy) > 8) {
+          ghost = document.createElement("div");
+          ghost.className = "chip ghost";
+          ghost.innerHTML = '<i class="dot" style="background:var(--c-' + N[k].d + ')"></i>' + N[k].name;
+          document.body.appendChild(ghost);
+        }
+        if (ghost) {
+          ghost.style.left = e.clientX + "px";
+          ghost.style.top = e.clientY + "px";
+          var id = nodeAt(e.clientX, e.clientY);
+          if (id === k) id = null;
+          if (id !== over) {
+            if (over) nodeEls[over].classList.remove("drop");
+            over = id;
+            if (over) nodeEls[over].classList.add("drop");
+          }
+        }
+      }
+      function up(e) {
+        g.removeEventListener("pointermove", move);
+        g.removeEventListener("pointerup", up);
+        g.removeEventListener("pointercancel", up);
+        try { g.releasePointerCapture(ev.pointerId); } catch (e2) {}
+        if (ghost) {
+          var id = e.type === "pointerup" ? nodeAt(e.clientX, e.clientY) : null;
+          if (ghost.parentNode) ghost.parentNode.removeChild(ghost);
+          if (over) nodeEls[over].classList.remove("drop");
+          justDragged = true;
+          setTimeout(function () { justDragged = false; }, 60);
+          if (id && id !== k) openPair(k, id);
+        }
+      }
+      g.addEventListener("pointermove", move);
+      g.addEventListener("pointerup", up);
+      g.addEventListener("pointercancel", up);
+    });
+  }
+
+  preset = 0;
+  path = PRESETS[0].path.slice();
+  render();
+})();
+</script>
+
+</body>
+</html>
