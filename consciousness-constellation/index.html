@@ -213,29 +213,59 @@ footer p { margin: 0 0 8px; }
 footer ol { margin: 0 0 14px; padding-left: 1.6em; display: grid; gap: 4px; }
 footer li:target { color: var(--fg); background: var(--mark); border-radius: 4px; }
 a { color: var(--fg); text-underline-offset: 3px; }
+
+/* Screen-adapted layout: map first, panel beside it (desktop) or as a bottom sheet (phone) */
+body { padding-block: 0 28px; }
+.wrap { max-width: 1400px; }
+.top { display: flex; align-items: baseline; justify-content: space-between; gap: 4px 16px; flex-wrap: wrap; padding-block: 12px 4px; }
+.top h1 { font-size: clamp(1.5rem, 4.6vw, 2.1rem); margin: 0; }
+.top .hint { color: var(--muted); font-size: 0.92rem; margin: 0; }
+.controls { margin: 0; display: grid; gap: 0; }
+.strip { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 4px 0; -webkit-overflow-scrolling: touch; }
+.strip::-webkit-scrollbar { display: none; }
+.strip button { flex: none; white-space: nowrap; font-size: 0.88rem; padding: 6px 12px; }
+.strip .lab { flex: none; align-self: center; color: var(--muted); font-size: 0.82rem; padding-right: 2px; min-width: 3.6em; }
+.stage { display: grid; gap: 14px; margin-top: 8px; }
+.sky { display: flex; flex-direction: column; overflow: hidden; }
+svg { min-width: 0; }
+.legend { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 8px 12px 10px; }
+.legend::-webkit-scrollbar { display: none; }
+.legend button { flex: none; white-space: nowrap; }
+.panel .x { position: sticky; top: 0; float: right; width: 34px; height: 34px; padding: 0; border-radius: 50%; font-size: 1.2rem; line-height: 1; background: var(--bg); z-index: 2; margin: 0 0 6px 8px; }
+.empty { padding-top: 4px; }
+@media (min-width: 900px) {
+  .stage { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); align-items: stretch; }
+  .sky { min-height: 0; }
+  .sky svg { flex: 1 1 0; min-height: 0; height: 100%; }
+  .lbl { font-size: 17px; stroke-width: 5px; }
+  .panel { overflow-y: auto; max-width: none; min-height: 0; }
+}
+@media (min-width: 560px) and (max-width: 899px) { .lbl { font-size: 15px; } }
+@media (max-width: 899px) {
+  .lbl { font-size: 17px; stroke-width: 5px; }
+  .panel { font-size: 16px; }
+  .panel { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; max-height: 50svh; overflow-y: auto; max-width: none; border-radius: 20px 20px 0 0; background: var(--bg); border-color: var(--line); box-shadow: 0 -12px 40px rgba(0,0,0,0.4); transform: translateY(110%); visibility: hidden; transition: transform .3s, visibility .3s; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px)); }
+  .panel.open { transform: none; visibility: visible; }
+  body.sheet-open { padding-bottom: 52svh; }
+  .step h3 { font-size: 1.3rem; }
+}
+footer h2 { margin-top: 18px; }
 </style>
 </head>
 <body>
 
 <div class="wrap">
-  <div class="intro">
+  <header class="top">
     <h1>Consciousness Constellation</h1>
-    <p>A map that starts from the programme of Models of Consciousness 7 in Copenhagen, 12 to 16 October 2026. Each point of light is an idea that appears in the sessions, and each line is a connection between two ideas. Every connection can be read in both directions, and the two readings differ. <sup class="cite"><a href="#r17">17</a>, <a href="#r18">18</a></sup></p>
-    <p class="quiet">Colours follow the conference themes of the MoC7 Atlas, with theories and formal models as one group. <sup class="cite"><a href="#r19">19</a></sup> The big terms are always there. Hover over one, or tap it, and the ideas around it appear. Tap an idea to read about it and see where it comes up in the programme. Drag one idea onto another, or tap two in turn, and you read the second through the first. Swap them and you read the other way round. Every statement carries a numbered source.</p>
-  </div>
+    <p class="hint">Tap a big term and the ideas around it appear.</p>
+  </header>
 
   <div class="controls">
-    <div>
-      <p class="cap">Start from a MoC7 session</p>
-      <div class="row presets" id="presets"></div>
-    </div>
-    <div>
-      <p class="cap">Or see which ideas come up on a given day</p>
-      <div class="row" id="days"></div>
-    </div>
+    <div class="row strip presets" id="presets"><span class="lab">Sessions</span></div>
+    <div class="row strip" id="days"><span class="lab">Days</span></div>
   </div>
 
-  <div class="stage">
+  <div class="stage" id="stage">
     <div class="sky">
       <svg id="sky" viewBox="0 0 660 860" role="group" aria-label="Map of thirty-two connected ideas from consciousness science"></svg>
       <p class="legend" id="legend"></p>
@@ -244,6 +274,9 @@ a { color: var(--fg); text-underline-offset: 3px; }
   </div>
 
   <footer>
+    <h2>About this map</h2>
+    <p>The map starts from the programme of Models of Consciousness 7 in Copenhagen, 12 to 16 October 2026. Each point of light is an idea that appears in the sessions, and each line connects two ideas. Every connection can be read in both directions, and the two readings differ. <sup class="cite"><a href="#r17">17</a>, <a href="#r18">18</a></sup> Colours follow the conference themes of the MoC7 Atlas, with theories and formal models as one group. <sup class="cite"><a href="#r19">19</a></sup></p>
+    <p>Hover over a big term, or tap it, to see its neighbours. Drag one idea onto another, or tap two in turn, to read the second through the first.</p>
     <h2>Sources</h2>
     <ol id="refs"></ol>
     <p>A dagger after a talk means the programme gives only its title, so the page uses nothing beyond the title. Talks without a dagger have an abstract in the programme. The programme was read on 14 October 2026 and may change.</p>
@@ -650,7 +683,7 @@ a { color: var(--fg); text-underline-offset: 3px; }
 
   var path = [];
   var preset = null;
-  var mode = "story";       /* story | node | pair */
+  var mode = "none";       /* story | node | pair */
   var sel = null;
   var pair = null;
   var day = "all";
@@ -813,7 +846,7 @@ a { color: var(--fg); text-underline-offset: 3px; }
     } else if (mode === "node") {
       shown = [sel];
       nexts = adj[sel];
-    } else {
+    } else if (mode === "pair") {
       shown = [pair.src, pair.tgt];
       var c = chain(pair.src, pair.tgt);
       for (var j = 0; j < c.length - 1; j++) inEdge[key(c[j], c[j + 1])] = true;
@@ -855,8 +888,26 @@ a { color: var(--fg); text-underline-offset: 3px; }
     Object.keys(legBtns).forEach(function (d) { legBtns[d].className = focusField === d ? "active" : ""; });
     if (mode === "story") renderStory();
     else if (mode === "node") renderNode();
-    else renderPair();
+    else if (mode === "pair") renderPair();
+    else renderNone();
+    panel.classList.toggle("open", mode !== "none");
+    document.body.classList.toggle("sheet-open", mode !== "none");
+    if (mode !== "none") {
+      panel.insertAdjacentHTML("afterbegin", '<button type="button" class="x" aria-label="Close">\u00d7</button>');
+      panel.querySelector(".x").addEventListener("click", function () { mode = "none"; sel = null; pair = null; path = []; preset = null; render(); });
+    }
   }
+  function renderNone() {
+    panel.innerHTML = '<div class="empty"><h2>Pick an idea</h2><p>Tap an idea on the map, or choose a session above to follow a story through it.</p></div>';
+  }
+  var stage = document.getElementById("stage");
+  function fit() {
+    if (window.innerWidth >= 900) {
+      var t = stage.getBoundingClientRect().top + window.scrollY;
+      stage.style.height = Math.max(520, window.innerHeight - t - 16) + "px";
+    } else { stage.style.height = ""; }
+  }
+  window.addEventListener("resize", fit);
 
   function sessHtml(k) {
     var items = N[k].s;
@@ -988,8 +1039,7 @@ a { color: var(--fg); text-underline-offset: 3px; }
     });
   }
 
-  preset = 0;
-  path = PRESETS[0].path.slice();
+  fit();
   render();
 })();
 </script>
