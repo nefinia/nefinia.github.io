@@ -14,8 +14,23 @@
   "publications": [
     {
       "@type": "ScholarlyArticle",
+      "name": "Caught in the act: diffuse stellar and Lyα emission around a halo-less quasar in the assembling cluster CARLA J0800+4029 at z = 2",
+      "url": "https://sofiagallego.com/research/caught-in-the-act-carla-j0800/",
+      "datePublished": "2026",
+      "arxiv": "https://arxiv.org/abs/2609.37445",
+      "ads": "https://ui.adsabs.harvard.edu/abs/arXiv:2609.37445/abstract",
+      "publicationStatus": "submitted",
+      "journal": "Astronomy & Astrophysics",
+      "keywords": [
+        "Clusters and protoclusters",
+        "Quasars and AGN",
+        "Circumgalactic and intergalactic gas"
+      ]
+    },
+    {
+      "@type": "ScholarlyArticle",
       "name": "Stacking the Cosmic Web in fluorescent Lyα emission with MUSE",
-      "url": "https://sofiagallego.com/cosmicweb",
+      "url": "https://sofiagallego.com/research/stacking-cosmic-web-lyalpha/",
       "datePublished": "2018",
       "journal": "Monthly Notices of the Royal Astronomical Society",
       "volume": "475",
@@ -24,12 +39,19 @@
       "doi": "https://doi.org/10.1093/mnras/sty037",
       "arxiv": "https://arxiv.org/abs/1706.03785",
       "ads": "https://ui.adsabs.harvard.edu/abs/2018MNRAS.475.3854G/abstract",
-      "keywords": ["Lyman-alpha", "cosmic web", "circumgalactic medium", "intergalactic medium", "MUSE", "ultraviolet background"]
+      "keywords": [
+        "Lyman-alpha",
+        "cosmic web",
+        "circumgalactic medium",
+        "intergalactic medium",
+        "MUSE",
+        "ultraviolet background"
+      ]
     },
     {
       "@type": "ScholarlyArticle",
       "name": "Constraining the cosmic UV background at z > 3 with MUSE Lyman-α emission observations",
-      "url": "https://sofiagallego.com/uvb",
+      "url": "https://sofiagallego.com/research/cosmic-uv-background-muse/",
       "datePublished": "2021",
       "journal": "Monthly Notices of the Royal Astronomical Society",
       "volume": "504",
@@ -38,12 +60,18 @@
       "doi": "https://doi.org/10.1093/mnras/stab796",
       "arxiv": "https://arxiv.org/abs/2103.09250",
       "ads": "https://ui.adsabs.harvard.edu/abs/2021MNRAS.504...16G/abstract",
-      "keywords": ["Lyman-alpha", "cosmic ultraviolet background", "intergalactic medium", "MUSE", "EAGLE simulation"]
+      "keywords": [
+        "Lyman-alpha",
+        "cosmic ultraviolet background",
+        "intergalactic medium",
+        "MUSE",
+        "EAGLE simulation"
+      ]
     },
     {
       "@type": "ScholarlyArticle",
       "name": "Satellite infall and mass deposition on the Galactic Centre",
-      "url": "https://sofiagallego.com/galacticcentersims",
+      "url": "https://sofiagallego.com/research/galactic-centre-satellite-infall/",
       "datePublished": "2017",
       "journal": "Monthly Notices of the Royal Astronomical Society: Letters",
       "volume": "467",
@@ -52,12 +80,18 @@
       "doi": "https://doi.org/10.1093/mnrasl/slw254",
       "arxiv": "https://arxiv.org/abs/1611.05254",
       "ads": "https://ui.adsabs.harvard.edu/abs/2017MNRAS.467L..41G/abstract",
-      "keywords": ["Galactic Centre", "gas dynamics", "satellite galaxy", "hydrodynamical simulations", "central molecular zone"]
+      "keywords": [
+        "Galactic Centre",
+        "gas dynamics",
+        "satellite galaxy",
+        "hydrodynamical simulations",
+        "central molecular zone"
+      ]
     },
     {
       "@type": "ScholarlyArticle",
       "name": "Ubiquitous giant Lyα nebulae around the brightest quasars at z ~ 3.5 revealed with MUSE",
-      "url": "https://doi.org/10.3847/0004-637X/831/1/39",
+      "url": "https://sofiagallego.com/research/giant-lyalpha-nebulae-quasars-z35/",
       "datePublished": "2016",
       "journal": "The Astrophysical Journal",
       "volume": "831",
@@ -65,12 +99,17 @@
       "doi": "https://doi.org/10.3847/0004-637X/831/1/39",
       "arxiv": "https://arxiv.org/abs/1605.01422",
       "ads": "https://ui.adsabs.harvard.edu/abs/2016ApJ...831...39B/abstract",
-      "keywords": ["Lyman-alpha nebulae", "quasars", "circumgalactic medium", "MUSE"]
+      "keywords": [
+        "Lyman-alpha nebulae",
+        "quasars",
+        "circumgalactic medium",
+        "MUSE"
+      ]
     },
     {
       "@type": "ScholarlyArticle",
       "name": "Dark Galaxy Candidates at Redshift ~3.5 Detected with MUSE",
-      "url": "https://doi.org/10.3847/1538-4357/aab6aa",
+      "url": "https://sofiagallego.com/research/dark-galaxy-candidates-z35/",
       "datePublished": "2018",
       "journal": "The Astrophysical Journal",
       "volume": "859",
@@ -79,12 +118,17 @@
       "doi": "https://doi.org/10.3847/1538-4357/aab6aa",
       "arxiv": "https://arxiv.org/abs/1709.03522",
       "ads": "https://ui.adsabs.harvard.edu/abs/2018ApJ...859...53M/abstract",
-      "keywords": ["dark galaxies", "Lyman-alpha", "galaxy formation", "MUSE"]
+      "keywords": [
+        "dark galaxies",
+        "Lyman-alpha",
+        "galaxy formation",
+        "MUSE"
+      ]
     },
     {
       "@type": "ScholarlyArticle",
       "name": "The large- and small-scale properties of the intergalactic gas in the Slug Lyα nebula revealed by MUSE He II emission observations",
-      "url": "https://doi.org/10.1093/mnras/sty3481",
+      "url": "https://sofiagallego.com/research/slug-nebula-heii-emission/",
       "datePublished": "2019",
       "journal": "Monthly Notices of the Royal Astronomical Society",
       "volume": "483",
@@ -93,12 +137,18 @@
       "doi": "https://doi.org/10.1093/mnras/sty3481",
       "arxiv": "https://arxiv.org/abs/1811.11783",
       "ads": "https://ui.adsabs.harvard.edu/abs/2019MNRAS.483.5188C/abstract",
-      "keywords": ["Slug Nebula", "intergalactic medium", "Lyman-alpha", "MUSE", "cosmic web"]
+      "keywords": [
+        "Slug Nebula",
+        "intergalactic medium",
+        "Lyman-alpha",
+        "MUSE",
+        "cosmic web"
+      ]
     },
     {
       "@type": "ScholarlyArticle",
       "name": "A giant Lyα nebula and a small-scale clumpy outflow in the system of the exotic quasar J0952+0114 unveiled by MUSE",
-      "url": "https://doi.org/10.3847/1538-4357/ab2881",
+      "url": "https://sofiagallego.com/research/quasar-j0952-lyalpha-nebula/",
       "datePublished": "2019",
       "journal": "The Astrophysical Journal",
       "volume": "880",
@@ -107,12 +157,17 @@
       "doi": "https://doi.org/10.3847/1538-4357/ab2881",
       "arxiv": "https://arxiv.org/abs/1906.06347",
       "ads": "https://ui.adsabs.harvard.edu/abs/2019ApJ...880...47M/abstract",
-      "keywords": ["Lyman-alpha nebula", "quasar", "outflow", "MUSE"]
+      "keywords": [
+        "Lyman-alpha nebula",
+        "quasar",
+        "outflow",
+        "MUSE"
+      ]
     },
     {
       "@type": "ScholarlyArticle",
       "name": "The MUSE eXtremely Deep Field: Individual detections of Lyα haloes around rest-frame UV-selected galaxies at z ≃ 2.9–4.4",
-      "url": "https://doi.org/10.1051/0004-6361/202142302",
+      "url": "https://sofiagallego.com/research/muse-xdf-lyalpha-halos/",
       "datePublished": "2022",
       "journal": "Astronomy & Astrophysics",
       "volume": "660",
@@ -120,12 +175,17 @@
       "doi": "https://doi.org/10.1051/0004-6361/202142302",
       "arxiv": "https://arxiv.org/abs/2201.07257",
       "ads": "https://ui.adsabs.harvard.edu/abs/2022A&A...660A..44K/abstract",
-      "keywords": ["Lyman-alpha halos", "circumgalactic medium", "MUSE", "high-redshift galaxies"]
+      "keywords": [
+        "Lyman-alpha halos",
+        "circumgalactic medium",
+        "MUSE",
+        "high-redshift galaxies"
+      ]
     },
     {
       "@type": "ScholarlyArticle",
       "name": "Constraints on the structure and seasonal variations of Triton's atmosphere from the 5 October 2017 stellar occultation and previous observations",
-      "url": "https://doi.org/10.1051/0004-6361/202141443",
+      "url": "https://sofiagallego.com/research/triton-atmosphere-occultation/",
       "datePublished": "2022",
       "journal": "Astronomy & Astrophysics",
       "volume": "659",
@@ -133,12 +193,17 @@
       "doi": "https://doi.org/10.1051/0004-6361/202141443",
       "arxiv": "https://arxiv.org/abs/2201.10450",
       "ads": "https://ui.adsabs.harvard.edu/abs/2022A&A...659A.136M/abstract",
-      "keywords": ["Triton", "planetary atmosphere", "stellar occultation", "seasonal variation"]
+      "keywords": [
+        "Triton",
+        "planetary atmosphere",
+        "stellar occultation",
+        "seasonal variation"
+      ]
     },
     {
       "@type": "ScholarlyArticle",
       "name": "Characterizing the circumgalactic medium of quasars at z ~ 2.2 through Hα and Lyα emission",
-      "url": "https://doi.org/10.1093/mnras/stac3205",
+      "url": "https://sofiagallego.com/research/quasar-cgm-halpha-lyalpha/",
       "datePublished": "2023",
       "journal": "Monthly Notices of the Royal Astronomical Society",
       "volume": "519",
@@ -147,12 +212,18 @@
       "doi": "https://doi.org/10.1093/mnras/stac3205",
       "arxiv": "https://arxiv.org/abs/2303.05531",
       "ads": "https://ui.adsabs.harvard.edu/abs/2023MNRAS.519.5099L/abstract",
-      "keywords": ["circumgalactic medium", "quasars", "H-alpha", "Lyman-alpha", "KCWI"]
+      "keywords": [
+        "circumgalactic medium",
+        "quasars",
+        "H-alpha",
+        "Lyman-alpha",
+        "KCWI"
+      ]
     },
     {
       "@type": "ScholarlyArticle",
       "name": "A giant disk galaxy two billion years after the Big Bang",
-      "url": "https://doi.org/10.1038/s41550-025-02500-2",
+      "url": "https://sofiagallego.com/research/giant-disk-galaxy-two-billion-years/",
       "datePublished": "2025",
       "journal": "Nature Astronomy",
       "volume": "9",
@@ -161,12 +232,17 @@
       "doi": "https://doi.org/10.1038/s41550-025-02500-2",
       "arxiv": "https://arxiv.org/abs/2409.17956",
       "ads": "https://ui.adsabs.harvard.edu/abs/2025NatAs...9..710W/abstract",
-      "keywords": ["high-redshift galaxies", "galaxy disks", "galaxy environment", "JWST"]
+      "keywords": [
+        "high-redshift galaxies",
+        "galaxy disks",
+        "galaxy environment",
+        "JWST"
+      ]
     },
     {
       "@type": "ScholarlyArticle",
       "name": "Coevolution of halo and quasar properties in dense environments: CARLA J1017+6116 at z = 2.8",
-      "url": "https://doi.org/10.1051/0004-6361/202553857",
+      "url": "https://sofiagallego.com/research/carla-j1017-halo-quasar-coevolution/",
       "datePublished": "2025",
       "journal": "Astronomy & Astrophysics",
       "volume": "698",
@@ -174,12 +250,18 @@
       "doi": "https://doi.org/10.1051/0004-6361/202553857",
       "arxiv": "https://arxiv.org/abs/2505.10094",
       "ads": "https://ui.adsabs.harvard.edu/abs/2025A&A...698A.243G/abstract",
-      "keywords": ["quasar halos", "galaxy clusters", "intracluster medium", "Lyman-alpha", "KCWI"]
+      "keywords": [
+        "quasar halos",
+        "galaxy clusters",
+        "intracluster medium",
+        "Lyman-alpha",
+        "KCWI"
+      ]
     },
     {
       "@type": "ScholarlyArticle",
       "name": "Ly-alpha emission reveals two satellite halos around massive groups at z ~ 3: The puzzling case of a quiescent central galaxy",
-      "url": "https://doi.org/10.1051/0004-6361/202555793",
+      "url": "https://sofiagallego.com/research/satellite-halos-massive-groups/",
       "datePublished": "2025",
       "journal": "Astronomy & Astrophysics",
       "volume": "704",
@@ -187,7 +269,13 @@
       "doi": "https://doi.org/10.1051/0004-6361/202555793",
       "arxiv": "https://arxiv.org/abs/2510.01421",
       "ads": "https://ui.adsabs.harvard.edu/abs/2025A&A...704A.340G/abstract",
-      "keywords": ["Lyman-alpha halos", "massive galaxy groups", "satellite halos", "MUSE", "galaxy environment"]
+      "keywords": [
+        "Lyman-alpha halos",
+        "massive galaxy groups",
+        "satellite halos",
+        "MUSE",
+        "galaxy environment"
+      ]
     }
   ]
 }
