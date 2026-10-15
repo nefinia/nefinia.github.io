@@ -1352,6 +1352,28 @@ function viewMine(){
       <div class="eyebrow" style="margin-top:6px">Move to another device or clean up</div><div class="row">${dataButtons()}</div></div>
   </section>`;
 }
+function boardMarkdown(){
+  const mineW=desiredShares();
+  const tOf=cid=>{const id=cid.slice(2);return cid.startsWith("q:")?(store.questions.find(q=>q.id===id)||{}).t:cid.startsWith("c:")?(store.hive.find(h=>h.id===id)||{}).t:cid.startsWith("p:")?((store.posts||[]).find(x=>x.id===id)||{}).t:0};
+  const mine=Object.entries(mineW).map(([cid,p])=>({cid,sid:MYSIDS[cid],kind:p.kind,item:p.item,text:p.text,url:p.url,by:p.by,meta:p.meta,t:tOf(cid)||Date.now(),mine:true}));
+  const all=[...SHARED,...mine].filter(r=>r.item!=="people");
+  const replies=all.filter(isReply);const rows=all.filter(r=>!isReply(r)).sort((a,b)=>a.t-b.t);
+  if(!rows.length)return "";
+  const LBL={question:"Question",note:"Note or idea",ref:"Link",card:"Consensus answer"};
+  const when=t=>new Date(t).toLocaleString("en-GB",{weekday:"short",day:"numeric",hour:"2-digit",minute:"2-digit",timeZone:"Europe/Copenhagen"});
+  const saved=new Set(store.saved.filter(x=>x.kind==="board").map(x=>x.key));
+  const likes=r=>r.mine?(MYVOTES[r.sid]||0):(r.votes||0);
+  let md=`\n## The Board\n\nEverything shared on the Board, as it was when you exported (${when(Date.now())}). ★ marks posts you saved.\n`;
+  rows.forEach(r=>{
+    const it=ITEMS[r.item];let on="";
+    if(r.kind==="card"&&r.meta){const c=CS.find(x=>x[0]===r.meta.session);on=`Consensus session ${r.meta.session}${c?": "+c[5]:""}${r.meta.group?" · "+r.meta.group:""}`}
+    else if(it)on=`On ${it.title}${it.name?" · "+it.name:""}`;
+    const n=likes(r);
+    md+=`\n**${LBL[r.kind]||"Post"}** · ${r.mine?"you":(r.by||"anonymous")} · ${when(r.t)}${n?` · ♥ ${n}`:""}${r.sid&&saved.has("b:"+r.sid)?" · ★":""}\n${on?`*${on}*\n`:""}\n${r.text}${r.url?`\n<${r.url}>`:""}\n`;
+    (r.sid?replies.filter(x=>x.item==="re:"+r.sid).sort((a,b)=>a.t-b.t):[]).forEach(x=>{md+=`\n> ↳ ${x.mine?"you":(x.by||"anonymous")} · ${when(x.t)}: ${x.text.replace(/\n+/g," ")}${x.url?` <${x.url}>`:""}\n`});
+  });
+  return md;
+}
 function notesMarkdown(){
   let md="# My MoC7\n";
   const ids=new Set([...store.stars,...Object.keys(store.notes).filter(k=>k!=="_general"),...Object.keys(store.refs).filter(k=>ITEMS[k])]);
@@ -1360,10 +1382,11 @@ function notesMarkdown(){
   // people: everyone you saved, wrote about or added references for
   const pkeys=[...new Set([...store.saved.filter(x=>x.kind==="person").map(x=>x.key),...Object.keys(store.notes).filter(k=>k.startsWith("person:")&&(store.notes[k]||"").trim()).map(k=>k.slice(7)),...Object.keys(store.refs).filter(k=>k.startsWith("person:")&&(store.refs[k]||[]).length).map(k=>k.slice(7))])];
   if(pkeys.length){md+=`\n## People\n`;pkeys.map(k=>[k,PEOPLE[k]]).sort((a,b)=>((a[1]||{}).name||a[0]).localeCompare((b[1]||{}).name||b[0])).forEach(([k,P])=>{const sv=store.saved.find(x=>x.kind==="person"&&x.key===k);md+=`\n### ${P?P.name:(sv?sv.title:k)}\n`;if(P&&P.affs.size)md+=`${[...P.affs].join(" / ")}\n`;if(P)P.items.map(id=>ITEMS[id]).forEach(it=>md+=`- ${DAYS[it.day]} ${fmt(it.s)} · ${it.title}${it.href?` <${it.href}>`:""}\n`);const n=(store.notes["person:"+k]||"").trim();if(n)md+=`\n${n}\n`;if(sv&&sv.note)md+=`\n${sv.note}\n`;(store.refs["person:"+k]||[]).forEach(r=>md+=`- ${r.label}: ${r.url}\n`)})}
-  Object.keys(SKIND).filter(k=>k!=="person").forEach(k=>{const xs=store.saved.filter(x=>x.kind===k);if(!xs.length)return;md+=`\n## ${SKIND[k]}\n`;xs.forEach(x=>{md+=`- ${x.title}${x.url?` <${x.url}>`:""}${x.note?` — ${x.note}`:""}\n`;(store.refs[(k==="person"?"person:":k==="topic"?"topic:":"")+x.key]||[]).forEach(r=>md+=`  - ${r.label}: ${r.url}\n`)})});
+  Object.keys(SKIND).filter(k=>k!=="person"&&k!=="board").forEach(k=>{const xs=store.saved.filter(x=>x.kind===k);if(!xs.length)return;md+=`\n## ${SKIND[k]}\n`;xs.forEach(x=>{md+=`- ${x.title}${x.url?` <${x.url}>`:""}${x.note?` — ${x.note}`:""}\n`;(store.refs[(k==="person"?"person:":k==="topic"?"topic:":"")+x.key]||[]).forEach(r=>md+=`  - ${r.label}: ${r.url}\n`)})});
   const other=Object.entries(store.refs).filter(([k,v])=>!ITEMS[k]&&!k.startsWith("person:")&&v.length&&!store.saved.some(x=>(x.kind==="topic"?"topic:":"")+x.key===k));
   if(other.length){md+=`\n## Other references\n`;other.forEach(([k,v])=>{const [kind,key]=k.split(":");const name=kind==="person"?(PEOPLE[key]||{}).name:kind==="topic"?(TOPICS.find(t=>t.k===key)||{}).name:k;md+=`\n**${name||k}**\n`;v.forEach(r=>md+=`- ${r.label}: ${r.url}\n`)})}
   if((store.notes._general||"").trim())md+=`\n## Week notes\n\n${store.notes._general.trim()}\n`;
+  md+=boardMarkdown();
   return md;
 }
 
