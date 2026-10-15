@@ -847,6 +847,7 @@ const ANNOUNCEMENTS=[
  {from:"2026-10-13T12:00:00+02:00",until:"2026-10-14T00:00:00+02:00",text:"Tomorrow, Wednesday, we start at <b>8:45</b>, fifteen minutes earlier than usual."},
  {from:"2026-10-14T00:00:00+02:00",until:"2026-10-14T09:30:00+02:00",text:"Today we start at <b>8:45</b>, fifteen minutes earlier than usual."},
  {from:"2026-10-13T08:00:00+02:00",until:"2026-10-13T16:30:00+02:00",text:"Today's poster list was updated: 4 changes (15:00–16:30, main corridor).",more:"<b>P5</b> Davide Aldé: <i>Logical Q-space and the nature of mental qualities</i><br><b>P8</b> Sheikh Mohsinuddin (title to be confirmed)<br><b>P20</b> Eric Lampe: <i>A spectrum of structuralist theories of consciousness</i><br><b>P29</b> Tonglin Yan: <i>Formalizing Consciousness: A Comparative Mathematical Analysis of Leading Theories</i><br><button class='btn ghost' data-go='posters' style='margin-top:6px'>All posters</button>"},
+ {from:"2026-10-15T20:00:00+02:00",until:"2026-11-15T00:00:00+01:00",text:"Keep your notes after the conference: download them from <b>Saved</b>, or add MoC7 Atlas to your home screen.",more:"Your notes live only on this device. On iPhone, Safari can clear a website's data after about a week without a visit, unless the site is on your home screen (Share, then <i>Add to Home Screen</i>). Sync, if you turned it on, keeps an encrypted copy for two years after its last use.<br><br>Posts you shared on the Board are erased on 15 December 2026, unless you choose to keep them: see <a href=\"#\" data-act=\"keepinfo\">Your shared posts</a>."},
  {from:"2026-10-13T12:00:00+02:00",until:"2026-10-14T12:50:00+02:00",text:"Would you like to join the <b>Louisiana Museum visit</b> on Wednesday? Talk with the organisers. Buses leave at 12:50 from Universitetsparken 15."},
 ];
 function announcementsHtml(){const now=Date.now();const a=ANNOUNCEMENTS.filter(x=>now>=Date.parse(x.from)&&now<Date.parse(x.until));
@@ -1101,11 +1102,12 @@ function hiveMarkdown(){
    Shared: notes and references on talks where "Share" is ticked, questions for speakers, consensus answers.
    Names only if the person chose to show theirs. Unsharing or deleting removes it from the server. */
 const SHARE_URL=typeof ASK_URL==="string"&&ASK_URL?ASK_URL+"share":"";
-let SHARED=[],SHAREDAT=0,MYSIDS={},MYVOTES={};const SHAREQ={timer:null,busy:false};
+let SHARED=[],SHAREDAT=0,MYSIDS={},MYVOTES={},KEEPOK=false,SHAREKEEP=false;const SHAREQ={timer:null,busy:false};
 const hash36=s=>{let h=5381;for(const c of String(s))h=((h<<5)+h+c.codePointAt(0))>>>0;return h.toString(36)};
 const myName=()=>store.profile&&store.profile.showName===true?store.profile.name:"";
 function desiredShares(){
   const by=myName(),out={};
+  if(store.shareOff)return out;
   Object.keys(store.share).filter(k=>store.share[k]).forEach(k=>{
     const n=(store.notes[k]||"").trim();if(n)out["n:"+k]={kind:"note",item:k,text:n,by};
     (store.refs[k]||[]).forEach(r=>{out["r:"+k+":"+hash36(r.url)]={kind:"ref",item:k,text:r.label||r.url,url:r.url,by}});
@@ -1128,7 +1130,7 @@ async function pushShares(){
   if(changed){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}loadShared()}
   if(failed)setTimeout(shareTouch,60000);
 }
-async function loadShared(){if(!SHARE_URL)return;try{const d=await shareCall({op:"list"});SHARED=(d.rows||[]).filter(r=>!r.mine);MYSIDS=Object.fromEntries((d.rows||[]).filter(r=>r.mine).map(r=>[r.cid,r.sid]));MYVOTES=Object.fromEntries((d.rows||[]).filter(r=>r.mine).map(r=>[r.sid,r.votes||0]));SHAREDAT=Date.now();
+async function loadShared(){if(!SHARE_URL)return;try{const d=await shareCall({op:"list"});SHARED=(d.rows||[]).filter(r=>!r.mine);if("keep" in d){KEEPOK=true;SHAREKEEP=!!d.keep}MYSIDS=Object.fromEntries((d.rows||[]).filter(r=>r.mine).map(r=>[r.cid,r.sid]));MYVOTES=Object.fromEntries((d.rows||[]).filter(r=>r.mine).map(r=>[r.sid,r.votes||0]));SHAREDAT=Date.now();
   if(["hive","board","map","prog","mine"].includes(store.tab)&&!document.activeElement.matches("textarea,input"))render()}catch(e){}}
 async function likeShared(sid){const r=SHARED.find(x=>x.sid===sid);if(!r)return;const up=!r.voted;r.voted=up;r.votes=Math.max(0,(r.votes||0)+(up?1:-1));render();
   try{await shareCall({op:"vote",sid,up})}catch(e){r.voted=!up;r.votes=Math.max(0,(r.votes||0)+(up?-1:1));render();toast("Couldn't save your like right now")}}
@@ -1416,10 +1418,11 @@ function privacyHtml(){
     <h3 style="font:400 1.35rem var(--f-display);color:var(--head)">Privacy</h3>
     <p style="margin:0">MoC7 Atlas is built to keep your data with you. There is no account, no cookies and no advertising. Fonts and code are part of the page itself. The only outside script is Cloudflare Web Analytics, which counts visits without cookies and without identifying you.</p>
     <div><b>What stays on this device</b><div class="where">Your saved talks, notes, references, profile, consensus answers, questions you asked the assistant and (only if you ask it to remember them) AI keys. They live in this browser's storage and nowhere else. You can download them or delete them all at any time below. Clearing your browser data also deletes them.</div></div>
-    ${SYNC_URL?`<div><b>Sync, only if you turn it on</b><div class="where">An encrypted copy of your profile, notes, saved items and consensus answers is kept so your other devices can fetch it. It is locked on this device with your private sync code before it is sent; the server cannot read it and holds no name, email or account. It is stored with Cloudflare in Western Europe, deleted 90 days after its last use, and you can delete it yourself at any time. AI keys are never synced.</div></div>`:""}
+    ${SYNC_URL?`<div><b>Sync, only if you turn it on</b><div class="where">An encrypted copy of your profile, notes, saved items and consensus answers is kept so your other devices can fetch it. It is locked on this device with your private sync code before it is sent; the server cannot read it and holds no name, email or account. It is stored with Cloudflare in Western Europe, deleted two years after its last use, and you can delete it yourself at any time. AI keys are never synced.</div></div>`:""}
     <div><b>What leaves this device, and only when you do it</b><div class="where">Opening an outside link (an abstract, Google Scholar, a DOI, a Signal group). Asking the built-in assistant: your question goes to the MoC7 Atlas server and to Anthropic to be answered, and is not kept. Using another AI option: your question goes to the company you choose, under your own account with them, often outside the EU. Sharing, emailing or downloading your notes: they go only where you send them. The website that serves this page keeps ordinary technical logs, like any website.</div></div>
     <div><b>Programme data</b><div class="where">Speaker names, affiliations and titles come from the public MoC7 programme on amcs-community.org.</div></div>
-    <div><b>What you choose to share</b><div class="where">Shared items are notes and references on a talk where you tick "Share", questions for speakers, posts on the Board, consensus answers and, if you tick "List me in People", your name, affiliation, interests and link. Everyone using MoC7 Atlas can see them on the Board, the talk and the Constellation. They are anonymous unless you chose to show your name in your profile. The server keeps the text, that name if shown, and a scrambled code for this device so you can edit or remove your own posts; no IP address, email or account. Data is stored with Cloudflare in Western Europe. Untick "Share" or delete an item and it is removed from the server. Everything shared is erased on 15 December 2026. Anyone can report a post, and three reports hide it.</div></div>
+    <div><b>What you choose to share</b><div class="where">Shared items are notes and references on a talk where you tick "Share", questions for speakers, posts on the Board, consensus answers and, if you tick "List me in People", your name, affiliation, interests and link. Everyone using MoC7 Atlas can see them on the Board, the talk and the Constellation. They are anonymous unless you chose to show your name in your profile. The server keeps the text, that name if shown, and a scrambled code for this device so you can edit or remove your own posts; no IP address, email or account. Data is stored with Cloudflare in Western Europe. Untick "Share" or delete an item and it is removed from the server. Everything shared is erased on 15 December 2026, unless you choose to keep your posts; kept posts are erased on 15 December 2028. You can delete everything you shared at any time. Anyone can report a post, and three reports hide it.</div></div>
+    ${keepHtml()}
     <div><b>Feedback you send</b><div class="where">The feedback form sends your message, and a name and contact only if you add them, privately to Sofia Gallego, who made the app. It is never shown on the Board, is used only to reply and improve the app, and is deleted when no longer needed. Ask her to delete it at any time.</div></div>
     <div><b>Visit counts</b><div class="where">Cloudflare Web Analytics records page views, country, device type and the page that linked here, without cookies or a personal identifier, so the organisers can see how the app is used.</div></div>
     <div><b>Questions about your data</b><div class="where">Write to the organisers at <code>moc7-organisers@amcs.science</code>.</div></div>
@@ -1428,6 +1431,21 @@ function privacyHtml(){
   </div>`;
 }
 let WIPE=false;
+function keepHtml(){
+  if(!SHARE_URL||!KEEPOK)return "";
+  if(store.shareOff)return `<div class="mini" id="keepbox"><div class="eyebrow">Your shared posts</div><b>Sharing is off</b><div class="where">Nothing from this device is on the Board.</div><div class="row" style="margin-top:8px"><button class="btn" data-act="shareon">Turn sharing back on</button></div></div>`;
+  return `<div class="mini" id="keepbox"><div class="eyebrow">Your shared posts</div>
+    <b>${SHAREKEEP?"Kept until 15 December 2028":"Erased on 15 December 2026"}</b>
+    <div class="where">${SHAREKEEP?"Your Board posts, replies, shared notes and consensus answers stay after the conference, so you and others can keep using them. You can stop this at any time.":"Everything you shared is erased after the conference. If you'd like to keep using it, for your own research or with others, you can keep it for two more years."}</div>
+    <div class="row" style="margin-top:8px;gap:6px">${SHAREKEEP?`<button class="btn" data-act="keepoff">Stop keeping</button>`:`<button class="btn primary" data-act="keepon">Keep my posts until 2028</button>`}<button class="btn ghost" data-act="sharedel" style="color:var(--t-X)">Delete everything I've shared</button></div></div>`;
+}
+async function setKeep(on){try{const d=await shareCall({op:"keep",on});SHAREKEEP=!!d.keep;toast(on?"Your posts will be kept until December 2028":"Your posts will be erased on 15 December 2026");render()}catch(e){toast("Couldn't change that right now")}}
+async function deleteShared(){
+  if(!sure("Delete everything you've shared from the Board and the app? Your notes stay on this device."))return;
+  store.shareOff=true;save();
+  try{await shareCall({op:"deleteall"});store.sent={};save();SHAREKEEP=false;toast("Everything you shared was deleted");loadShared()}catch(e){toast("Couldn't reach the server. It will be removed as soon as possible");shareTouch()}
+  render();
+}
 function dataButtons(){return `<button class="btn" data-act="exportall">Download my data (.json)</button><label class="btn" for="importfile" style="cursor:pointer">Import from a file</label><input type="file" id="importfile" accept=".json,application/json" hidden>
   ${WIPE?`<button class="btn" data-act="wipe2" style="border-color:var(--t-X);color:var(--t-X)">Yes, delete everything on this device</button><button class="btn ghost" data-act="wipe0">Cancel</button>`:`<button class="btn ghost" data-act="wipe1" style="color:var(--t-X)">Delete everything on this device</button>`}`}
 function exportData(){const d=JSON.parse(JSON.stringify(store));if(d.ai){d.ai.keys={};d.ai.key=""}return JSON.stringify({app:"MoC7 Atlas",version:1,exported:new Date().toISOString(),data:d},null,2)}
@@ -1500,6 +1518,7 @@ function viewBoard(){
     <div class="row" style="gap:8px"><select class="sel" id="bsort" data-act="bsort" aria-label="Order" style="flex:0 0 auto">${[["new","Newest"],["old","Oldest"],["liked","Most liked"],["open","Unanswered questions"]].map(([k,l])=>`<option value="${k}" ${BSORT===k?"selected":""}>${l}</option>`).join("")}</select><input class="inp" id="bq" value="${esc(BQ)}" placeholder="Search the board" style="flex:1;min-width:0"></div>
     ${rows.length?`<div class="stack" style="gap:8px">${rows.slice(0,400).map(row).join("")}</div>`:BQ||BSORT==="open"?`<div class="where">Nothing matches.</div>`:`<div class="card"><b>Nothing here yet.</b><div class="where" style="margin-top:4px">Be the first: ask everyone a question above. Notes you share on talks and the consensus groups' answers also appear here.</div></div>`}
     <p class="where">Delete your own posts at any time, or untick "Share" on a talk. See something inappropriate? Report it: three reports hide it.${SHAREDAT?` Updated ${ago(SHAREDAT)}.`:""}</p>
+    ${keepHtml()}
   </section>`;
 }
 function boardPost(){
@@ -2099,7 +2118,7 @@ function syncCard(){
     <div class="where" style="margin:8px 0 4px">Your sync code. Open the link on your other device, or type the code there in Profile.</div>
     <div style="font:600 1.05rem var(--f-mono);letter-spacing:.04em;margin-bottom:10px">${esc(S.code)}</div>
     <div class="row"><button class="btn" data-act="synclink">Copy link for another device</button><button class="btn ghost" data-act="synccode">Copy code</button></div>
-    <div class="where" style="margin-top:10px">Keep it private: the code is the only key. If you lose it, nothing is lost here; turn sync on again for a new code. The encrypted copy is deleted 90 days after its last use.</div>
+    <div class="where" style="margin-top:10px">Keep it private: the code is the only key. If you lose it, nothing is lost here; turn sync on again for a new code. The encrypted copy is deleted two years after its last use.</div>
     <div class="row" style="margin-top:8px"><button class="btn ghost" data-act="syncoff">Stop syncing on this device</button><button class="btn ghost" data-act="syncdel">Delete the synced copy</button></div></div>`;
 }
 
@@ -2220,6 +2239,11 @@ document.addEventListener("click",e=>{
   if(act==="pdl")return offerFile("my-moc7.md",profileMarkdown());
   if(act==="mexport")return offerFile("my-moc7-notes.md",notesMarkdown());
   if(act==="mcopy")return copyText(notesMarkdown());
+  if(act==="keepon")return setKeep(true);
+  if(act==="keepoff")return setKeep(false);
+  if(act==="sharedel")return deleteShared();
+  if(act==="shareon"){store.shareOff=false;save();shareTouch();toast("Sharing is on again");return render()}
+  if(act==="keepinfo"){e.preventDefault&&e.preventDefault();go("info");setTimeout(()=>{const el=document.getElementById("keepbox")||document.getElementById("privacy");if(el)el.scrollIntoView({behavior:"smooth"})},60);return}
   if(act==="fbsend")return sendFeedback();
   if(act==="fbagain"){FBSENT=false;return render()}
   if(act==="copymail"){const m="moc7-organisers@amcs.science";if(navigator.clipboard)navigator.clipboard.writeText(m).then(()=>toast("Copied"),()=>{const r=document.createRange();r.selectNodeContents($("#mail"));getSelection().removeAllRanges();getSelection().addRange(r)});return}
