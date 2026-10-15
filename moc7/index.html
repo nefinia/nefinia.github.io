@@ -356,6 +356,7 @@ a.tag:hover{border-color:var(--accent);color:var(--accent)}
     <div class="brand"><h1>MoC7 <em>Atlas</em></h1><small><span class="long">Guide to Models of Consciousness 7 · Copenhagen, 12–16 Oct</span><span class="short">Guide to MoC7</span></small></div>
     <div class="topacts"><span data-display-settings-slot hidden></span>
       <span class="clock" id="clock">—</span>
+      <button class="iconbtn" data-act="about" title="About this app" aria-label="About this app, and feedback" style="font:600 .9rem var(--f-body)">?</button>
       <button class="iconbtn" id="installBtn" hidden title="Install as an app" aria-label="Install MoC7 Atlas as an app"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg></button>
       <button class="me" id="meBtn" data-go="profile" aria-label="Your profile"><span class="av" id="meAv"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c1.2-3.6 4-5.4 7-5.4s5.8 1.8 7 5.4"/></svg></span><span id="meName">Profile</span></button>
     </div>
@@ -1391,6 +1392,25 @@ function notesMarkdown(){
 }
 
 
+let FBKIND="feedback";const FBDRAFT={text:"",name:"",contact:""};let FBSENT=false;
+function feedbackHtml(){
+  if(!SHARE_URL)return "";
+  if(FBSENT)return `<div class="mini"><b>Thank you</b><div class="where">Your message went to Sofia.${FBDRAFT.contact?" She'll get back to you.":""}</div><div class="row" style="margin-top:8px"><button class="btn ghost" data-act="fbagain">Write another</button></div></div>`;
+  const chip=(k,l)=>`<button class="chip" data-fbkind="${k}" aria-pressed="${FBKIND===k}">${l}</button>`;
+  return `<div class="stack" style="gap:8px"><b>Feedback, or work together</b>
+    <div class="where" style="margin-top:-4px">Ideas, problems, what you liked. Or if you'd like something like this for your own event, or to collaborate.</div>
+    <div class="row" style="gap:6px">${chip("feedback","Feedback")}${chip("collab","Collaborate")}</div>
+    <textarea id="fbText" rows="4" maxlength="2000" placeholder="${FBKIND==="collab"?"What do you have in mind?":"What worked, what didn't, what's missing?"}" style="width:100%;box-sizing:border-box">${esc(FBDRAFT.text)}</textarea>
+    <div class="row" style="gap:6px"><input id="fbName" maxlength="80" placeholder="Your name (optional)" value="${esc(FBDRAFT.name)}" style="flex:1 1 140px;min-width:0"><input id="fbContact" maxlength="200" placeholder="Email or link to reply (optional)" value="${esc(FBDRAFT.contact)}" style="flex:2 1 180px;min-width:0"></div>
+    <div class="row" style="justify-content:space-between;align-items:center;gap:8px"><span class="where" style="font-size:.8rem">Goes privately to Sofia, never to the Board.</span><button class="btn primary" data-act="fbsend">Send</button></div></div>`;
+}
+async function sendFeedback(){
+  const g=id=>(document.getElementById(id)||{}).value||"";
+  FBDRAFT.text=g("fbText").trim();FBDRAFT.name=g("fbName").trim();FBDRAFT.contact=g("fbContact").trim();
+  if(!FBDRAFT.text){const t=document.getElementById("fbText");if(t)t.focus();return}
+  try{await shareCall({op:"feedback",kind:FBKIND,text:FBDRAFT.text,name:FBDRAFT.name,contact:FBDRAFT.contact});FBSENT=true;FBDRAFT.text="";render();const el=document.getElementById("about");if(el)el.scrollIntoView({block:"start"})}
+  catch(e){toast("Couldn't send right now. Please try again in a moment")}
+}
 function privacyHtml(){
   return `<div class="card stack" id="privacy" style="gap:10px">
     <h3 style="font:400 1.35rem var(--f-display);color:var(--head)">Privacy</h3>
@@ -1400,6 +1420,7 @@ function privacyHtml(){
     <div><b>What leaves this device, and only when you do it</b><div class="where">Opening an outside link (an abstract, Google Scholar, a DOI, a Signal group). Asking the built-in assistant: your question goes to the MoC7 Atlas server and to Anthropic to be answered, and is not kept. Using another AI option: your question goes to the company you choose, under your own account with them, often outside the EU. Sharing, emailing or downloading your notes: they go only where you send them. The website that serves this page keeps ordinary technical logs, like any website.</div></div>
     <div><b>Programme data</b><div class="where">Speaker names, affiliations and titles come from the public MoC7 programme on amcs-community.org.</div></div>
     <div><b>What you choose to share</b><div class="where">Shared items are notes and references on a talk where you tick "Share", questions for speakers, posts on the Board, consensus answers and, if you tick "List me in People", your name, affiliation, interests and link. Everyone using MoC7 Atlas can see them on the Board, the talk and the Constellation. They are anonymous unless you chose to show your name in your profile. The server keeps the text, that name if shown, and a scrambled code for this device so you can edit or remove your own posts; no IP address, email or account. Data is stored with Cloudflare in Western Europe. Untick "Share" or delete an item and it is removed from the server. Everything shared is erased on 15 December 2026. Anyone can report a post, and three reports hide it.</div></div>
+    <div><b>Feedback you send</b><div class="where">The feedback form sends your message, and a name and contact only if you add them, privately to Sofia Gallego, who made the app. It is never shown on the Board, is used only to reply and improve the app, and is deleted when no longer needed. Ask her to delete it at any time.</div></div>
     <div><b>Visit counts</b><div class="where">Cloudflare Web Analytics records page views, country, device type and the page that linked here, without cookies or a personal identifier, so the organisers can see how the app is used.</div></div>
     <div><b>Questions about your data</b><div class="where">Write to the organisers at <code>moc7-organisers@amcs.science</code>.</div></div>
     ${HOST.name||HOST.email?`<div><b>Who runs this page</b><div class="copyline" style="margin-top:4px">${esc(HOST.name)}${HOST.name&&HOST.email?" · ":""}${HOST.email?`<code>${esc(HOST.email)}</code>`:""}</div></div>`:""}
@@ -1533,9 +1554,11 @@ function viewInfo(){
       <div class="mini"><div class="eyebrow">Questions for the organisers</div><div class="copyline" style="margin-top:4px"><code id="mail">moc7-organisers@amcs.science</code><button class="btn ghost" data-act="copymail">Copy</button></div></div>
     </div>
     <div class="row"><a class="btn" href="https://amcs-community.org/wp-content/uploads/2026/10/moc7-booklet-web-full.pdf" target="_blank" rel="noopener">Booklet (PDF) ↗</a><a class="btn" href="https://amcs-community.org/moc7-schedule-information/" target="_blank" rel="noopener">Official programme ↗</a><a class="btn" href="https://amcs-community.org/moc7-practical-information/" target="_blank" rel="noopener">Practical information ↗</a></div>
-    <div class="card stack" id="about" style="gap:6px"><h3 style="font:400 1.35rem var(--f-display);color:var(--head)">About this app</h3>
+    <div class="card stack" id="about" style="gap:10px"><h3 style="font:400 1.35rem var(--f-display);color:var(--head)">About this app</h3>
       <p style="margin:0;line-height:1.5">MoC7 Atlas gathers the conference in one place: the programme and posters, the people, the social plans, a map of how the ideas connect, a board for questions and the consensus groups' answers, and an assistant that knows the programme. Times follow the official programme, checked every morning and at midday.</p>
-      <p class="where" style="margin:0">Designed and built by <a href="https://sofiagallego.com" target="_blank" rel="noopener">Sofia Gallego</a> for MoC7. Ideas or problems: <code>moc7-organisers@amcs.science</code>.</p></div>
+      <div><b>Who made it</b><div class="where">Sofia Gallego, an astrophysicist and interdisciplinary researcher working across science, art and technology. She built MoC7 Atlas while taking part in the conference. <a href="https://sofiagallego.com" target="_blank" rel="noopener">sofiagallego.com</a> · <a href="https://www.linkedin.com/in/sofia-gallego/" target="_blank" rel="noopener">LinkedIn</a></div></div>
+      ${feedbackHtml()}
+      <p class="where" style="margin:0">Questions about the conference itself: <code>moc7-organisers@amcs.science</code>.</p></div>
     ${privacyHtml()}
   </section>`;
 }
@@ -2119,6 +2142,7 @@ document.addEventListener("click",e=>{
   if(t.matches("summary")&&t.parentElement.dataset.par){const d=t.parentElement;const key=d.dataset.par;setTimeout(()=>{if(d.open)OPEN_PAR.add(key);else OPEN_PAR.delete(key);t.textContent=d.open?"Hide talks":"Show all talks"});return}
   const ds=t.dataset;
   if(ds.saveans!=null){const i=+ds.saveans;const m=CHAT[i];if(!m||m.saved)return;const q=(CHAT[i-1]&&CHAT[i-1].role==="user")?CHAT[i-1].content:"Answer";store.saved.push({id:"s"+Date.now().toString(36),kind:"note",key:"s"+Date.now(),title:q.length>120?q.slice(0,118)+"…":q,url:"",note:m.content.replace(/\*\*/g,"").replace(/^#{1,4}\s+/gm,""),t:Date.now()});m.saved=true;save();toast("Saved to your notes");return render(true)}
+  if(ds.fbkind){FBKIND=ds.fbkind;return render()}
   if(ds.tab)return go(ds.tab);
   if(ds.go)return go(ds.go);
   if(ds.day!=null){store.day=+ds.day;PDAY=null;QUERY="";save();return render()}
@@ -2196,11 +2220,14 @@ document.addEventListener("click",e=>{
   if(act==="pdl")return offerFile("my-moc7.md",profileMarkdown());
   if(act==="mexport")return offerFile("my-moc7-notes.md",notesMarkdown());
   if(act==="mcopy")return copyText(notesMarkdown());
+  if(act==="fbsend")return sendFeedback();
+  if(act==="fbagain"){FBSENT=false;return render()}
   if(act==="copymail"){const m="moc7-organisers@amcs.science";if(navigator.clipboard)navigator.clipboard.writeText(m).then(()=>toast("Copied"),()=>{const r=document.createRange();r.selectNodeContents($("#mail"));getSelection().removeAllRanges();getSelection().addRange(r)});return}
 });
 document.addEventListener("input",e=>{
   const el=e.target;
   if(el.dataset&&el.dataset.note){store.notes[el.dataset.note]=el.value;clearTimeout(window.__nt);window.__nt=setTimeout(save,300);return}
+  if(el.id==="fbText"||el.id==="fbName"||el.id==="fbContact"){FBDRAFT[{fbText:"text",fbName:"name",fbContact:"contact"}[el.id]]=el.value;return}
   if(el.id==="bq"){BQ=el.value;clearTimeout(window.__bqt);window.__bqt=setTimeout(()=>render(true),200);return}
   if(el.id==="bpost"){BDRAFT=el.value;return}
   if(el.id==="q"){QUERY=el.value;clearTimeout(window.__qt);window.__qt=setTimeout(()=>render(true),150);return}
