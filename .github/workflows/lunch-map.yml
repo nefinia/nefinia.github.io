@@ -1,0 +1,57 @@
+name: Lunch map (one-off)
+on:
+  push:
+    paths: [.github/workflows/lunch-map.yml]
+permissions:
+  contents: write
+jobs:
+  map:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -q pillow
+      - name: Draw HCØ entrance and the Niels Bohr Building from OpenStreetMap
+        run: |
+          python3 - <<'PY'
+          import math, io, json, urllib.request, urllib.parse, os
+          from PIL import Image, ImageDraw, ImageFont
+          UA = {"User-Agent": "MoC7 Atlas static lunch map (sofiagallego.com/moc7)"}
+          def get(u): return urllib.request.urlopen(urllib.request.Request(u, headers=UA), timeout=30).read()
+          nbb = None
+          for q in ["Niels Bohr Bygningen", "Niels Bohr Building, Jagtvej", "Jagtvej 155A, København"]:
+              r = json.loads(get("https://nominatim.openstreetmap.org/search?format=json&limit=1&viewbox=12.54,55.71,12.58,55.69&bounded=1&q=" + urllib.parse.quote(q)))
+              if r: nbb = (float(r[0]["lat"]), float(r[0]["lon"]), q, r[0].get("display_name","")); break
+          print("NBB", nbb)
+          hco = (55.700659, 12.560836)
+          z = 17
+          def xy(lat, lon):
+              n = 2 ** z
+              return ((lon + 180) / 360 * n * 256, (1 - math.log(math.tan(math.radians(lat)) + 1 / math.cos(math.radians(lat))) / math.pi) / 2 * n * 256)
+          W, H = 720, 420
+          a = xy(*hco); b = xy(nbb[0], nbb[1])
+          cxp, cyp = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
+          x0, y0 = cxp - W / 2, cyp - H / 2
+          img = Image.new("RGB", (W, H), "white")
+          for tx in range(int(x0 // 256), int((x0 + W) // 256) + 1):
+              for ty in range(int(y0 // 256), int((y0 + H) // 256) + 1):
+                  t = Image.open(io.BytesIO(get(f"https://tile.openstreetmap.org/{z}/{tx}/{ty}.png"))).convert("RGB")
+                  img.paste(t, (int(tx * 256 - x0), int(ty * 256 - y0)))
+          d = ImageDraw.Draw(img)
+          try: f = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 15)
+          except Exception: f = ImageFont.load_default()
+          def mark(p, col, label):
+              x, y = p[0] - x0, p[1] - y0
+              d.ellipse([x - 16, y - 16, x + 16, y + 16], outline=col, width=3)
+              d.ellipse([x - 7, y - 7, x + 7, y + 7], fill=col, outline="white", width=2)
+              tw = d.textlength(label, font=f)
+              bx = min(max(x + 20, 4), W - tw - 14)
+              d.rounded_rectangle([bx, y - 13, bx + tw + 10, y + 11], 6, fill="white", outline=col, width=2)
+              d.text((bx + 5, y - 10), label, fill=col, font=f)
+          mark(a, (214, 72, 52), "HCØ entrance")
+          mark(b, (0, 128, 120), "Lunch: Niels Bohr Building")
+          img.save("moc7/lunch-map.png", optimize=True)
+          open("nbb.txt", "w").write(f"{nbb[0]:.6f},{nbb[1]:.6f} via '{nbb[2]}' = {nbb[3]}")
+          PY
+      - run: |
+          git config user.name "moc7-watch"; git config user.email "actions@users.noreply.github.com"
+          git add moc7/lunch-map.png && git commit -m "MoC7 Atlas: lunch map image (© OpenStreetMap contributors) — NBB at $(cat nbb.txt)" && git push
