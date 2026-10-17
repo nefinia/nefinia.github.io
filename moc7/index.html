@@ -860,7 +860,7 @@ function rateHtml(){
   return `<div><div class="row" role="group" aria-label="Rate MoC7 Atlas" style="gap:2px;align-items:center">${stars}</div><div class="where" style="font-size:.85rem">${r?`You rated it ${r} out of 5. Thank you! Tap again to change it.`:"How would you rate the app? One tap, sent privately."}</div></div>`;
 }
 async function sendRating(n){
-  const prev=myRating();try{localStorage.setItem("moc7atlas.rated",String(n))}catch(e){}render();
+  const prev=myRating();if(n===prev)return;try{localStorage.setItem("moc7atlas.rated",String(n))}catch(e){}render();
   try{await shareCall({op:"feedback",kind:"feedback",text:`Rating: ${n}/5${prev?` (changed from ${prev}/5)`:""}`})}
   catch(e){try{prev?localStorage.setItem("moc7atlas.rated",String(prev)):localStorage.removeItem("moc7atlas.rated")}catch(x){}render();toast("Couldn't send right now. Please try again in a moment")}
 }
