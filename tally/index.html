@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Tally</title>
+<style>
+:root{--bg:#faf8f4;--surface:#ffffff;--ink:#1f1d24;--muted:#6b6672;--line:#e6e1d8;--accent:#0f7f7a;--accent-soft:#d8efed;--warn:#a5482f;
+  --f:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#16151a;--surface:#1f1d24;--ink:#ece8f0;--muted:#a49fac;--line:#34313b;--accent:#4cc3bb;--accent-soft:#1d3a39;--warn:#e08a6f}}
+:root[data-theme="dark"]{--bg:#16151a;--surface:#1f1d24;--ink:#ece8f0;--muted:#a49fac;--line:#34313b;--accent:#4cc3bb;--accent-soft:#1d3a39;--warn:#e08a6f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--f)}
+.wrap{max-width:1000px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.6rem;margin:0 0 2px}
+h2{font-size:1.05rem;margin:0 0 10px}
+.muted{color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:14px}
+button,select,input{font:inherit;color:inherit}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+a.btn{text-decoration:none;display:inline-block;color:var(--ink)}
+.scroll{overflow-x:auto}
+input,select{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 10px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tile .v{font-size:1.7rem;font-weight:650;font-variant-numeric:tabular-nums}
+.tile .l{color:var(--muted);font-size:.85rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:720px){.grid2{grid-template-columns:1fr}}
+.grid2 .card{margin-top:0}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+td,th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left;font-size:.9rem}
+td.n,th.n{text-align:right}
+td .bar{height:6px;border-radius:3px;background:var(--accent);opacity:.75;margin-top:3px}
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart .ax{fill:var(--muted);font-size:11px;font-family:var(--f)}
+.chart .gl{stroke:var(--line);stroke-width:1}
+.chart rect.b{fill:var(--accent)}
+.chart rect.hit{fill:transparent;cursor:default}
+.chart rect.hit:hover+rect.b,.chart g:hover rect.b{opacity:.8}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:.8rem;padding:4px 8px;border-radius:6px;white-space:nowrap;transform:translate(-50%,-110%);display:none}
+.err{color:var(--warn)}
+code{font-family:var(--mono);font-size:.85em;background:var(--accent-soft);padding:1px 5px;border-radius:5px}
+details summary{cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Tally</h1>
+  <div class="muted">Anonymous counts from your sites and apps. No cookies, no visitors tracked: only totals per hour.</div>
+
+  <div class="card" id="keybox">
+    <div class="row"><label for="key">Key</label><input id="key" type="password" autocomplete="off" placeholder="Your Tally key" style="flex:1;min-width:180px"><button class="btn" id="go">Show</button></div>
+    <div class="muted" style="font-size:.85rem;margin-top:6px">Kept only in this browser.</div>
+  </div>
+
+  <div id="app" hidden>
+    <div class="row" style="margin-top:14px" role="group" aria-label="Filters">
+      <span class="muted">Period</span>
+      <button class="btn" data-days="1">Today</button><button class="btn" data-days="7">7 days</button><button class="btn" data-days="30">30 days</button><button class="btn" data-days="90">90 days</button><button class="btn" data-days="0">All</button>
+      <select id="appsel" aria-label="Site or app"><option value="">All sites and apps</option></select>
+      <span style="flex:1"></span>
+      <a class="btn" id="csv" href="#">Download CSV</a><a class="btn" id="json" href="#">JSON</a>
+    </div>
+    <div id="status" class="muted" style="margin-top:8px"></div>
+    <div class="tiles" id="tiles" style="margin-top:12px"></div>
+    <div class="card"><h2>Openings per day</h2><div class="chart" id="cDay"></div></div>
+    <div class="card"><h2>When people come (hour of day, Copenhagen time)</h2><div class="chart" id="cHour"></div></div>
+    <div class="grid2" style="margin-top:14px">
+      <div class="card"><h2>Sites and apps</h2><div id="tApps"></div></div>
+      <div class="card"><h2>Pages</h2><div id="tPages"></div></div>
+    </div>
+    <div class="card"><h2>What people do</h2><div class="muted" style="font-size:.85rem;margin-bottom:6px">Tabs, buttons and other actions, by name.</div><div id="tActs"></div></div>
+    <div class="card" id="gamesCard"><h2>Games</h2><div id="tGames" class="scroll"></div><h2 style="margin-top:16px">Players coming back</h2><div id="tBack"></div></div>
+    <div class="grid2" style="margin-top:14px">
+      <div class="card"><h2>Countries</h2><div id="tCountry"></div></div>
+      <div class="card"><h2>Devices</h2><div id="tDev"></div></div>
+    </div>
+    <div class="card"><details><summary><b>Using the data elsewhere</b></summary>
+      <p>The download has one row per site or app, day, hour and counter: <code>app, day, hour_utc, name, n</code>. Day and hour are in UTC. Open it in a spreadsheet, give it to any AI, or read it from a script.</p>
+      <p>The same data is at <code>https://moc7-ask.sofiag-gallego.workers.dev/stats?key=YOUR_KEY&amp;format=csv</code>, with optional <code>&amp;from=YYYY-MM-DD&amp;to=YYYY-MM-DD&amp;app=games</code>. A spreadsheet can load it directly, for example in Google Sheets with <code>=IMPORTDATA("…")</code>.</p>
+      <p>Counter names: <code>open</code> one opening of a page or app · <code>page:…</code> which page · <code>view:…</code>, <code>tab:…</code>, <code>act:…</code> tabs and buttons · <code>open:phone|tablet|desktop</code>, <code>open:installed|browser</code>, <code>scheme:dark|light</code>, <code>lang:…</code>, <code>country:…</code> · games: <code>play:…</code>, <code>win:…</code>, <code>loss:…</code>, <code>solved:…</code>, <code>best:…</code>, <code>minute:…</code> (minutes played), <code>ev:game:event</code>, <code>player:new</code> and <code>player:back-…</code> (days since this browser last played).</p>
+    </details></div>
+  </div>
+</div>
+<script>
+const API="https://moc7-ask.sofiag-gallego.workers.dev/stats";
+let KEY="",DAYS=30,APP="",ROWS=[];
+try{KEY=localStorage.getItem("tally.key")||"";DAYS=+(localStorage.getItem("tally.days")||30)}catch(e){}
+const $=s=>document.querySelector(s);
+const W_SMALL=()=>innerWidth<560;
+let RT;addEventListener("resize",()=>{clearTimeout(RT);RT=setTimeout(()=>{if(ROWS.length)render()},200)});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt=n=>n>=10000?(n/1000).toFixed(1).replace(/\.0$/,"")+"k":n.toLocaleString("en");
+const cph=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Copenhagen",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",hourCycle:"h23"});
+function local(day,hour){const p=Object.fromEntries(cph.formatToParts(new Date(day+"T"+String(hour).padStart(2,"0")+":00:00Z")).map(x=>[x.type,x.value]));return{day:p.year+"-"+p.month+"-"+p.day,hour:+p.hour}}
+function range(){if(!DAYS)return{};const to=new Date(),from=new Date(Date.now()-(DAYS-1)*864e5-864e5);return{from:from.toISOString().slice(0,10),to:to.toISOString().slice(0,10)}}
+function url(fmtx){const r=range(),q=new URLSearchParams({key:KEY});if(r.from)q.set("from",r.from);if(r.to)q.set("to",r.to);if(APP)q.set("app",APP);if(fmtx)q.set("format",fmtx);return API+"?"+q}
+async function load(){
+  $("#status").textContent="Loading…";
+  try{const r=await fetch(url("json"));if(r.status===404){$("#status").innerHTML='<span class="err">That key doesn\'t match.</span>';$("#app").hidden=true;$("#keybox").hidden=false;return}
+    const d=await r.json();ROWS=d.rows||[];try{localStorage.setItem("tally.key",KEY)}catch(e){}
+    $("#keybox").hidden=true;$("#app").hidden=false;render()}
+  catch(e){$("#status").innerHTML='<span class="err">Couldn\'t reach the server.</span>'}
+}
+function sumBy(rows,keyf){const m=new Map();rows.forEach(r=>{const k=keyf(r);if(k==null)return;m.set(k,(m.get(k)||0)+r[4])});return m}
+function table(el,map,{label="",limit=15,fmtk=k=>k}={}){
+  const arr=[...map].sort((a,b)=>b[1]-a[1]);const top=arr.slice(0,limit),max=top.length?top[0][1]:1;
+  if(!arr.length){el.innerHTML='<div class="muted">Nothing yet.</div>';return}
+  el.innerHTML=`<table><thead><tr><th>${esc(label)}</th><th class="n">Count</th></tr></thead><tbody>${top.map(([k,v])=>`<tr><td>${esc(fmtk(k))}<div class="bar" style="width:${Math.max(2,v/max*100)}%"></div></td><td class="n">${fmt(v)}</td></tr>`).join("")}</tbody></table>${arr.length>limit?`<div class="muted" style="font-size:.8rem;margin-top:4px">and ${arr.length-limit} more in the download</div>`:""}`;
+}
+function bars(el,labels,values,{tick=l=>l,every=1,unit="openings"}={}){
+  const W=Math.max(320,Math.min(900,el.clientWidth||900)),H=W<500?180:220,pl=36,pb=24,pt=8,n=values.length,max=Math.max(1,...values);
+  const nice=(()=>{const p=Math.pow(10,Math.floor(Math.log10(max)));const s=[1,2,5,10].map(x=>x*p).find(x=>max/x<=5)||p*10;return{step:s,top:Math.ceil(max/s)*s}})();
+  const bw=(W-pl)/n,gap=Math.min(4,bw*.25),y=v=>H-pb-(v/nice.top)*(H-pb-pt);
+  let g="";for(let v=0;v<=nice.top;v+=nice.step){g+=`<line class="gl" x1="${pl}" x2="${W}" y1="${y(v)}" y2="${y(v)}"/><text class="ax" x="${pl-6}" y="${y(v)+4}" text-anchor="end">${fmt(v)}</text>`}
+  let b="";values.forEach((v,i)=>{const x=pl+i*bw+gap/2,w=Math.max(1,bw-gap),h=H-pb-y(v);
+    b+=`<g data-i="${i}"><rect class="hit" x="${pl+i*bw}" y="${pt}" width="${bw}" height="${H-pb-pt}"/>${v?`<rect class="b" x="${x}" y="${y(v)}" width="${w}" height="${h}" rx="${Math.min(4,w/2)}"/>`:""}</g>`;
+    if(i%every===0)b+=`<text class="ax" x="${x+w/2}" y="${H-6}" text-anchor="middle">${esc(tick(labels[i]))}</text>`});
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Bar chart">${g}${b}</svg><div class="tip"></div>`;
+  const tip=el.querySelector(".tip"),svg=el.querySelector("svg");
+  svg.addEventListener("mousemove",e=>{const gg=e.target.closest("g[data-i]");if(!gg){tip.style.display="none";return}const i=+gg.dataset.i;const r=el.getBoundingClientRect();
+    tip.textContent=`${labels[i]}: ${values[i].toLocaleString("en")} ${unit}`;tip.style.left=(e.clientX-r.left)+"px";tip.style.top=(e.clientY-r.top)+"px";tip.style.display="block"});
+  svg.addEventListener("mouseleave",()=>tip.style.display="none");
+}
+function render(){
+  document.querySelectorAll("[data-days]").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.days===DAYS)));
+  $("#csv").href=url("csv");$("#json").href=url("json");
+  const apps=[...new Set(ROWS.map(r=>r[0]))].sort();const sel=$("#appsel");
+  if(!APP)sel.innerHTML='<option value="">All sites and apps</option>'+apps.map(a=>`<option>${esc(a)}</option>`).join("");sel.value=APP;
+  const rows=ROWS.map(r=>{const l=local(r[1],r[2]);return[r[0],l.day,l.hour,r[3],r[4]]});
+  const opens=rows.filter(r=>r[3]==="open"),total=opens.reduce((s,r)=>s+r[4],0);
+  const pref=p=>rows.filter(r=>r[3].startsWith(p));const tot=a=>a.reduce((s,r)=>s+r[4],0);
+  const back=tot(pref("player:back-")),neu=tot(pref("player:new"));
+  const actions=tot(rows.filter(r=>/^(act|tab|view|go|ev|edit|rate|win|loss|solved|play):/.test(r[3])));
+  const tiles=[[fmt(total),"openings"],[fmt(actions),"actions"],[fmt(tot(pref("minute:"))),"minutes played (games)"],[back+neu?Math.round(back/(back+neu)*100)+"%":"–","of game visits from returning players"]];
+  $("#tiles").innerHTML=tiles.map(t=>`<div class="tile"><div class="v">${t[0]}</div><div class="l">${t[1]}</div></div>`).join("");
+  $("#status").textContent=ROWS.length?`${DAYS?`Last ${DAYS===1?"day":DAYS+" days"}`:"Everything"}${APP?" · "+APP:""}`:"No data for this period yet.";
+  // per day
+  const byDay=sumBy(opens,r=>r[1]);let days=[...byDay.keys()].sort();
+  if(DAYS){days=[];for(let i=DAYS-1;i>=0;i--)days.push(local(new Date(Date.now()-i*864e5).toISOString().slice(0,10),12).day)}
+  bars($("#cDay"),days,days.map(d=>byDay.get(d)||0),{tick:d=>d.slice(5).replace("-","/"),every:Math.max(1,Math.ceil(days.length/(W_SMALL()?5:12)))});
+  const byHour=sumBy(opens,r=>r[2]);const hrs=[...Array(24).keys()];
+  bars($("#cHour"),hrs.map(h=>String(h).padStart(2,"0")+":00"),hrs.map(h=>byHour.get(h)||0),{tick:l=>l.slice(0,2),every:W_SMALL()?4:2});
+  table($("#tApps"),sumBy(opens,r=>r[0]),{label:"Site or app"});
+  table($("#tPages"),sumBy(rows.filter(r=>r[3].startsWith("page:")),r=>r[0]+" · "+r[3].slice(5)),{label:"Page"});
+  table($("#tActs"),sumBy(rows.filter(r=>!/^(open|page:|open:|scheme:|lang:|country:|player:|minute:)/.test(r[3])&&r[3]!=="open"),r=>(APP?"":r[0]+" · ")+r[3]),{label:"Action",limit:30});
+  table($("#tCountry"),sumBy(rows.filter(r=>r[3].startsWith("country:")),r=>r[3].slice(8).toUpperCase()),{label:"Country"});
+  table($("#tDev"),sumBy(rows.filter(r=>/^(open:|scheme:|lang:)/.test(r[3])),r=>r[3].replace("open:","").replace("scheme:","scheme: ").replace("lang:","language: ")),{label:"Device, mode, language"});
+  // games
+  const g={};rows.forEach(r=>{const m=r[3].match(/^(play|win|loss|solved|minute|best):(.+)$/);if(!m)return;(g[m[2]]=g[m[2]]||{play:0,win:0,loss:0,solved:0,minute:0,best:0})[m[1]]+=r[4]});
+  const gs=Object.entries(g).sort((a,b)=>b[1].play-a[1].play);
+  $("#gamesCard").hidden=!gs.length&&!back&&!neu;
+  $("#tGames").innerHTML=gs.length?`<table><thead><tr><th>Game</th><th class="n">Plays</th><th class="n">Wins</th><th class="n">Losses</th><th class="n">Solved</th><th class="n">Minutes</th><th class="n">New bests</th></tr></thead><tbody>${gs.map(([k,v])=>`<tr><td>${esc(k)}</td><td class="n">${fmt(v.play)}</td><td class="n">${fmt(v.win)}</td><td class="n">${fmt(v.loss)}</td><td class="n">${fmt(v.solved)}</td><td class="n">${fmt(v.minute)}</td><td class="n">${fmt(v.best)}</td></tr>`).join("")}</tbody></table>`:'<div class="muted">Nothing yet.</div>';
+  const ord=["player:new","player:back-0d","player:back-1d","player:back-2-7d","player:back-8-30d","player:back-31d+"],nm={"player:new":"First visit","player:back-0d":"Again the same day","player:back-1d":"Back after a day","player:back-2-7d":"Back within a week","player:back-8-30d":"Back within a month","player:back-31d+":"Back after a month or more"};
+  const pb=sumBy(pref("player:"),r=>r[3]);table($("#tBack"),new Map(ord.filter(k=>pb.get(k)).map(k=>[nm[k],pb.get(k)])),{label:"Game visit"});
+}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-days]");if(b){DAYS=+b.dataset.days;try{localStorage.setItem("tally.days",DAYS)}catch(x){}load()}});
+$("#appsel").addEventListener("change",e=>{APP=e.target.value;load()});
+$("#go").addEventListener("click",()=>{KEY=$("#key").value.trim();if(KEY)load()});
+$("#key").addEventListener("keydown",e=>{if(e.key==="Enter")$("#go").click()});
+if(KEY)load();
+</script>
+</body>
+</html>
