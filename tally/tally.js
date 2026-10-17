@@ -24,7 +24,7 @@ TALLY.flush=function(start){if(TALLY.off||!TALLY.url)return;if(!TALLY.n&&!start)
   try{if(navigator.sendBeacon&&navigator.sendBeacon(TALLY.url,new Blob([body],{type:"text/plain"})))return}catch(e){}
   try{fetch(TALLY.url,{method:"POST",body,headers:{"content-type":"text/plain"},keepalive:true}).catch(()=>{})}catch(e){}};
 (function(){if(TALLY.off||!TALLY.url)return;
-  const w=Math.min(screen.width||0,screen.height||0),dev=w&&w<600?"phone":w<1000?"tablet":"desktop";
+  const w=Math.min(screen.width||0,screen.height||0),touch=window.matchMedia&&matchMedia("(pointer: coarse)").matches,dev=!touch?"desktop":w&&w<600?"phone":"tablet";
   const standalone=window.matchMedia&&matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
   ["open","page:"+(location.pathname.split("/").filter(Boolean).pop()||"index").replace(/\.html?$/,"").toLowerCase().replace(/[^a-z0-9_.-]/g,"").slice(0,40),"open:"+dev,"open:"+(standalone?"installed":"browser"),"scheme:"+(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"),"lang:"+String(navigator.language||"xx").slice(0,2)].forEach(TALLY.track);
   setTimeout(()=>TALLY.flush(true),4000);
