@@ -852,14 +852,28 @@ const ANNOUNCEMENTS=[
  {from:"2026-10-15T20:00:00+02:00",until:"2026-11-15T00:00:00+01:00",text:"Keep your notes after the conference: download them from <b>Saved</b>, or add MoC7 Atlas to your home screen.",more:"Your notes live only on this device. On iPhone, Safari can clear a website's data after about a week without a visit, unless the site is on your home screen (Share, then <i>Add to Home Screen</i>). Sync, if you turned it on, keeps an encrypted copy for two years after its last use.<br><br>Posts you shared on the Board are erased on 15 December 2026, unless you choose to keep them: see <a href=\"#\" data-act=\"keepinfo\">Your shared posts</a>."},
  {from:"2026-10-13T12:00:00+02:00",until:"2026-10-14T12:50:00+02:00",text:"Would you like to join the <b>Louisiana Museum visit</b> on Wednesday? Talk with the organisers. Buses leave at 12:50 from Universitetsparken 15."},
 ];
+function myRating(){try{return +localStorage.getItem("moc7atlas.rated")||0}catch(e){return 0}}
+function rateHtml(){
+  if(!SHARE_URL)return "";
+  const r=myRating();
+  const stars=[1,2,3,4,5].map(n=>`<button class="star" data-rate="${n}" aria-label="${n} star${n>1?"s":""}" aria-pressed="${n<=r}" style="background:none;border:0;padding:2px;font-size:1.7rem;line-height:1;cursor:pointer;color:${n<=r?"var(--gold)":"var(--line)"}">★</button>`).join("");
+  return `<div><div class="row" role="group" aria-label="Rate MoC7 Atlas" style="gap:2px;align-items:center">${stars}</div><div class="where" style="font-size:.85rem">${r?`You rated it ${r} out of 5. Thank you! Tap again to change it.`:"How would you rate the app? One tap, sent privately."}</div></div>`;
+}
+async function sendRating(n){
+  const prev=myRating();try{localStorage.setItem("moc7atlas.rated",String(n))}catch(e){}render();
+  try{await shareCall({op:"feedback",kind:"feedback",text:`Rating: ${n}/5${prev?` (changed from ${prev}/5)`:""}`})}
+  catch(e){try{prev?localStorage.setItem("moc7atlas.rated",String(prev)):localStorage.removeItem("moc7atlas.rated")}catch(x){}render();toast("Couldn't send right now. Please try again in a moment")}
+}
 function creatorNote(){
   if(Date.now()<Date.parse("2026-10-16T16:00:00+02:00"))return "";
   let hide=false;try{hide=localStorage.getItem("moc7atlas.note")==="1"}catch(e){}
   if(hide)return "";
   return `<div class="card stack" style="gap:6px;position:relative"><button class="btn ghost" data-act="notehide" aria-label="Close this note" style="position:absolute;top:6px;right:6px;padding:0 8px">×</button>
     <div class="eyebrow">A note from Sofia</div>
-    <div style="line-height:1.5;padding-right:20px">Thank you for using MoC7 Atlas this week. I hope it made the conference a little easier to find your way through. If you have a moment, I'd love to hear what worked and what didn't.</div>
-    <div class="row" style="gap:6px;margin-top:4px"><button class="btn primary" data-act="about">Share feedback</button><a class="btn" href="https://sofiagallego.com" target="_blank" rel="noopener">My other projects ↗</a></div>
+    <div style="line-height:1.5;padding-right:20px">Thank you for using MoC7 Atlas this week. I hope it made the conference a little easier to find your way through.</div>
+    ${rateHtml()}
+    <div style="line-height:1.5">If you have a moment, I'd love to hear what worked and what didn't.</div>
+    <div class="row" style="gap:6px;margin-top:4px"><button class="btn ${myRating()?"primary":""}" data-act="about">Share feedback</button><a class="btn" href="https://sofiagallego.com" target="_blank" rel="noopener">My other projects ↗</a></div>
     <div class="where" style="font-size:.85rem">Sofia Gallego, astrophysicist, artist and interdisciplinary researcher</div></div>`;
 }
 function announcementsHtml(){const now=Date.now();const a=ANNOUNCEMENTS.filter(x=>now>=Date.parse(x.from)&&now<Date.parse(x.until));
@@ -2174,6 +2188,7 @@ document.addEventListener("click",e=>{
   if(t.matches("summary")&&t.parentElement.dataset.par){const d=t.parentElement;const key=d.dataset.par;setTimeout(()=>{if(d.open)OPEN_PAR.add(key);else OPEN_PAR.delete(key);t.textContent=d.open?"Hide talks":"Show all talks"});return}
   const ds=t.dataset;
   if(ds.saveans!=null){const i=+ds.saveans;const m=CHAT[i];if(!m||m.saved)return;const q=(CHAT[i-1]&&CHAT[i-1].role==="user")?CHAT[i-1].content:"Answer";store.saved.push({id:"s"+Date.now().toString(36),kind:"note",key:"s"+Date.now(),title:q.length>120?q.slice(0,118)+"…":q,url:"",note:m.content.replace(/\*\*/g,"").replace(/^#{1,4}\s+/gm,""),t:Date.now()});m.saved=true;save();toast("Saved to your notes");return render(true)}
+  if(ds.rate){return sendRating(+ds.rate)}
   if(ds.fbkind){FBKIND=ds.fbkind;return render()}
   if(ds.tab)return go(ds.tab);
   if(ds.go)return go(ds.go);
