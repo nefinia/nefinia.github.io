@@ -1,5 +1,5 @@
 /* Tally: tiny privacy-first analytics. Usage:
-   <script src="https://sofiagallego.com/tally/tally.js" data-url="https://YOUR-WORKER/ev" data-app="myapp" defer></script>
+   <script src="https://sofiagallego.com/tally/tally.js" data-app="myapp" defer></script>   (data-app="auto" names it after the folder; data-url overrides the server)
    Then mark buttons with data-ev="name" or data-act/data-tab, or call window.__tally.track("name"). */
 (function(){
 /* ---- own analytics (reusable in any app) ----
@@ -8,7 +8,12 @@
  * Respects "Do Not Track" and Global Privacy Control. To reuse: set TALLY.url and TALLY.app; mark
  * anything worth counting with data-* attributes (or call TALLY.track("name")).
  */
-const TALLY={url:(document.currentScript&&document.currentScript.dataset.url)||"",app:(document.currentScript&&document.currentScript.dataset.app)||"app",q:{},n:0,
+const TALLY_TAG=document.currentScript||{dataset:{}};
+const TALLY={url:TALLY_TAG.dataset.url||"https://moc7-ask.sofiag-gallego.workers.dev/ev",app:(function(a){
+    // data-app="auto": name the app after the first part of the address (es/ and fr/ are skipped), "home" for top-level pages
+    if(a&&a!=="auto")return a;let seg=location.pathname.split("/").filter(Boolean).filter(x=>!/^(es|fr|en)$/.test(x));
+    if(seg.length&&/\./.test(seg[seg.length-1]))seg=seg.slice(0,-1);
+    return seg.length?seg[0].toLowerCase().replace(/[^a-z0-9-]/g,"").slice(0,30)||"home":"home"})(TALLY_TAG.dataset.app),q:{},n:0,
   // data-* attributes worth counting; values are kept only for keys whose values are UI names
   keys:["ev","act","tab","go","rate","theme"],
   withValue:new Set(["act","tab","go","theme","rate"]),
@@ -21,7 +26,7 @@ TALLY.flush=function(start){if(TALLY.off||!TALLY.url)return;if(!TALLY.n&&!start)
 (function(){if(TALLY.off||!TALLY.url)return;
   const w=Math.min(screen.width||0,screen.height||0),dev=w&&w<600?"phone":w<1000?"tablet":"desktop";
   const standalone=window.matchMedia&&matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
-  ["open","open:"+dev,"open:"+(standalone?"installed":"browser"),"scheme:"+(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"),"lang:"+String(navigator.language||"xx").slice(0,2)].forEach(TALLY.track);
+  ["open","page:"+(location.pathname.split("/").filter(Boolean).pop()||"index").replace(/\.html?$/,"").toLowerCase().replace(/[^a-z0-9_.-]/g,"").slice(0,40),"open:"+dev,"open:"+(standalone?"installed":"browser"),"scheme:"+(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"),"lang:"+String(navigator.language||"xx").slice(0,2)].forEach(TALLY.track);
   setTimeout(()=>TALLY.flush(true),4000);
   document.addEventListener("click",e=>{const el=e.target.closest&&e.target.closest("[data-ev],"+TALLY.keys.map(k=>"[data-"+k+"]").join(","));if(!el)return;
     if(el.dataset.ev)return TALLY.track(el.dataset.ev);
