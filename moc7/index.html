@@ -860,7 +860,7 @@ function creatorNote(){
     <div class="eyebrow">A note from Sofia</div>
     <div style="line-height:1.5;padding-right:20px">Thank you for using MoC7 Atlas this week. I hope it made the conference a little easier to find your way through. If you have a moment, I'd love to hear what worked and what didn't.</div>
     <div class="row" style="gap:6px;margin-top:4px"><button class="btn primary" data-act="about">Share feedback</button><a class="btn" href="https://sofiagallego.com" target="_blank" rel="noopener">My other projects ↗</a></div>
-    <div class="where" style="font-size:.85rem">Sofia Gallego, astrophysicist and interdisciplinary researcher</div></div>`;
+    <div class="where" style="font-size:.85rem">Sofia Gallego, astrophysicist, artist and interdisciplinary researcher</div></div>`;
 }
 function announcementsHtml(){const now=Date.now();const a=ANNOUNCEMENTS.filter(x=>now>=Date.parse(x.from)&&now<Date.parse(x.until));
   return a.map(x=>x.more?`<details class="announce"><summary><div class="eyebrow">Announcement</div><div>${x.text} <span class="amore">Show</span></div></summary><div style="margin-top:6px;font-size:.9rem;line-height:1.5">${x.more}</div></details>`:`<div class="announce" role="status"><div class="eyebrow">Announcement</div><div>${x.text}</div></div>`).join("")}
