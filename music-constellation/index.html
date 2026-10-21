@@ -3,13 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<!-- Privacy-friendly statistics, no cookies: Cloudflare Web Analytics + Tally (sofiagallego.com/tally) -->
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "7b6420812e4d4b47b127ffaa187ab46b"}'></script>
-<script>window.gtag=window.gtag||function(c,n){if(c==="event"&&window.__tally)window.__tally.track(String(n))};</script>
-<script defer src="/tally/tally.js" data-app="auto"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-20EEFX7Q6N"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-20EEFX7Q6N');
+</script>
 <meta name="robots" content="noindex, nofollow">
 <meta name="description" content="A map of the ideas in the course What is music?, with readings in both directions.">
 <title>Music Constellation</title>
+<script src="/assets/js/display.js"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bellefair&family=Hanken+Grotesk:wght@400;500;600&display=swap">
 <style>
 /* Layout: a map of the course ideas on one side, the reading on the other (stacked on a phone). Colours follow the five lenses of the course. */
@@ -249,6 +253,11 @@ footer h2 { margin-top: 18px; }
 .fnote { font-size: 15px; font-family: serif; opacity: 0; animation: fnote 1.7s ease-out forwards; }
 @keyframes fnote { 0% { opacity: 0; transform: translate(0, 0); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx), -46px); } }
 .soundbtn { font: inherit; font-size: 0.9rem; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; }
+.sitetools { display: flex; align-items: center; gap: 8px; }
+.langs { display: flex; gap: 4px; }
+.langs a { font: 600 13px system-ui, sans-serif; text-decoration: none; color: var(--fg); border: 1px solid var(--line); border-radius: 999px; padding: 5px 10px; }
+.langs a[aria-current="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.sitetools .sgd-btn { position: static; }
 .soundbtn[aria-pressed="false"] { color: var(--muted); }
 .top .right { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
 .back { color: var(--muted); font-size: 0.92rem; margin: 0; }
@@ -258,12 +267,13 @@ footer h2 { margin-top: 18px; }
 </style>
 </head>
 <body>
+
 <div class="wrap">
   <header class="top">
     <h1>What is music? The constellation</h1>
-    <div class="right"><p class="hint">Tap an idea to hear its note and see the ideas around it.</p><button class="soundbtn" id="soundBtn" type="button" aria-pressed="true">Sound on</button></div>
+    <div class="right"><p class="hint">Tap an idea to hear its note and see the ideas around it.</p><button class="soundbtn" id="soundBtn" type="button" aria-pressed="true">Sound on</button><div class="sitetools"><span data-display-settings-slot></span><div class="langs" aria-label="Language"><a href="/music-constellation/" hreflang="en" lang="en" aria-current="true">EN</a><a href="/music-constellation/es/" hreflang="es" lang="es">ES</a></div></div></div>
   </header>
-  <p class="back">A map of the ideas in <a href="/what-is-music/" >What is music?</a>, a course through many lenses.</p>
+  <p class="back">A map of the ideas in <a href="/what-is-music/">What is music?</a>, a course through many lenses.</p>
 
   <div class="controls">
     <div class="row strip presets" id="presets"><span class="lab">Stories</span></div>
@@ -584,7 +594,7 @@ footer h2 { margin-top: 18px; }
     var html = '<p class="sess-h">In the course</p><ul class="sess">';
     items.forEach(function (x) {
       var on = day !== "all" && x[0] === day;
-      html += '<li' + (on ? ' class="on"' : "") + '><a href="' + COURSE + '#m' + x[0].slice(1) + '" >' + x[2] + "</a></li>";
+      html += '<li' + (on ? ' class="on"' : "") + '><a href="' + COURSE + '#m' + x[0].slice(1) + '" target="_blank" rel="noopener">' + x[2] + "</a></li>";
     });
     return html + "</ul>";
   }
@@ -714,5 +724,6 @@ footer h2 { margin-top: 18px; }
 
 })();
 </script>
+
 </body>
 </html>

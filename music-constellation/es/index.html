@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-20EEFX7Q6N"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-20EEFX7Q6N');
+</script>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Un mapa de las ideas del curso ¿Qué es la música?, con lecturas en los dos sentidos.">
+<title>Constelación musical</title>
+<script src="/assets/js/display.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bellefair&family=Hanken+Grotesk:wght@400;500;600&display=swap">
+<style>
+/* Layout: a map of the course ideas on one side, the reading on the other (stacked on a phone). Colours follow the five lenses of the course. */
+:root {
+  color-scheme: dark;
+  --bg: #0a0f1f;
+  --sky: #0d1429;
+  --fg: #e8eaf3;
+  --muted: #9aa3bf;
+  --line: #3f4a74;
+  --rule: #232c4a;
+  --dust: #cfd6ee;
+  --mark: #1a2347;
+  --core: #ffffff;
+  --glow: 0.5;
+  --card: rgba(255,255,255,0.035);
+  --sky2: #141c3a;
+  --c-math: #c7a6ec;
+  --c-ear: #f0a3c0;
+  --c-theory: #e8b27a;
+  --c-phys: #8fb4e8;
+  --c-world: #8fd9b8;
+  --display: "Bellefair", Georgia, "Times New Roman", serif;
+  --body: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --bg: #f2f3f8;
+    --sky: #e6e8f2;
+    --fg: #161b30;
+    --muted: #565e7a;
+    --line: #aab2d0;
+    --rule: #d2d7e8;
+    --dust: #6b739a;
+    --mark: #dfe3f2;
+    --core: #ffffff;
+    --glow: 0.42;
+    --card: rgba(255,255,255,0.7);
+    --sky2: #eef0fa;
+    --c-math: #7a4fb0;
+    --c-ear: #b03a6c;
+    --c-theory: #a5540c;
+    --c-phys: #2f62ad;
+    --c-world: #1c7a56;
+  }
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f2f3f8;
+  --sky: #e6e8f2;
+  --fg: #161b30;
+  --muted: #565e7a;
+  --line: #aab2d0;
+  --rule: #d2d7e8;
+  --dust: #6b739a;
+  --mark: #dfe3f2;
+  --core: #ffffff;
+  --glow: 0.42;
+  --card: rgba(255,255,255,0.7);
+  --sky2: #eef0fa;
+  --c-math: #7a4fb0;
+  --c-ear: #b03a6c;
+  --c-theory: #a5540c;
+  --c-phys: #2f62ad;
+  --c-world: #1c7a56;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.6;
+  margin: 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 44px;
+}
+.wrap { max-width: 1120px; margin: 0 auto; }
+.intro { max-width: 64ch; }
+h1 {
+  background: linear-gradient(90deg, var(--c-math), var(--c-ear), var(--c-theory), var(--c-world), var(--c-phys));
+  -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent;
+  letter-spacing: 0.01em;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(2rem, 6vw, 2.8rem);
+  line-height: 1.1;
+  margin: 0 0 12px;
+  text-wrap: balance;
+}
+.intro p { margin: 0 0 8px; }
+.intro .quiet { color: var(--muted); }
+
+.controls { margin-top: 18px; display: grid; gap: 14px; }
+.cap { color: var(--muted); font-size: 0.92rem; margin: 0 0 8px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; }
+button {
+  transition: border-color .2s, background .2s, transform .15s;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--fg);
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 7px 14px;
+  cursor: pointer;
+}
+button:hover:not(:disabled) { border-color: var(--muted); }
+button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+button:disabled { opacity: 0.4; cursor: default; }
+button.active { border-color: var(--fg); background: var(--mark); }
+.presets button .d { color: var(--muted); margin-right: 6px; font-size: 0.85rem; }
+
+.chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: var(--sky); border: 1px solid var(--rule); user-select: none; -webkit-user-select: none; touch-action: none; font-size: 0.98rem; }
+.ghost { position: fixed; z-index: 50; pointer-events: none; transform: translate(-50%, -140%); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35); }
+.node.drop .ring { stroke: var(--fg); stroke-width: 2.8; }
+.node.drop .halo { opacity: 0.6; }
+.lensk { display: flex; align-items: center; gap: 6px; margin-top: 14px; }
+.reading { font-family: var(--display); font-size: 1.3rem; line-height: 1.5; margin: 0 0 16px; }
+.reading.small { font-size: 1.05rem; font-family: var(--body); }
+.lnk { margin-top: 8px; font-size: 0.88rem; padding: 4px 10px; }
+details { margin-top: 8px; }
+summary { cursor: pointer; color: var(--muted); font-size: 0.95rem; margin-bottom: 10px; }
+.node { touch-action: none; }
+.hint0 { margin: 14px 0 18px; color: var(--muted); font-size: 0.95rem; }
+
+.stage { display: grid; gap: 24px; margin-top: 18px; }
+@media (min-width: 940px) {
+  .stage { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: start; }
+}
+.sky { border: 1px solid var(--rule); border-radius: 18px; background: radial-gradient(ellipse at 50% 0%, var(--sky2), var(--sky) 70%); box-shadow: 0 10px 40px rgba(5,8,25,0.25); min-width: 0; overflow-x: auto; }
+svg { display: block; width: 100%; min-width: 560px; height: auto; }
+.dust { fill: var(--dust); }
+.edge { stroke-width: 1.3; stroke-linecap: round; opacity: 0.55; }
+.edge.next { stroke: var(--muted); stroke-width: 2; opacity: 1; }
+.edge.path { stroke: var(--fg); stroke-width: 2.8; opacity: 1; filter: drop-shadow(0 0 4px var(--fg)); }
+.edge.hid { opacity: 0.04; }
+.edge.faded { opacity: 0.15; }
+.node { cursor: pointer; }
+.node:focus { outline: none; }
+.node .halo { opacity: var(--glow); transition: opacity .25s; }
+.node:hover .halo { opacity: 0.9; }
+.node.inpath .halo { opacity: 1; }
+.node.dayhit .halo { opacity: 1; }
+.node .ring { fill: none; stroke: transparent; stroke-width: 1.6; }
+.node.inpath .ring { stroke: var(--fg); stroke-width: 2.2; }
+.node.next .ring { stroke: var(--fg); stroke-dasharray: 2.5 3; }
+.node.dayhit .ring { stroke: var(--fg); stroke-width: 1.4; }
+.node .hitc { fill: transparent; }
+.node:focus-visible .ring { stroke: var(--fg); stroke-width: 2.6; }
+.lbl { font-family: var(--body); font-size: 15px; font-weight: 500; letter-spacing: 0.01em; fill: var(--fg); pointer-events: none; paint-order: stroke; stroke: var(--sky); stroke-width: 4px; stroke-linejoin: round; }
+.node.dimmed .lbl, .node.off .lbl { fill: var(--muted); }
+.node.off { opacity: 0.4; }
+.node { transition: opacity .3s; }
+.node.hid { opacity: 0; pointer-events: none; }
+.node:not(.hid) .lbl { animation: fin .35s ease; }
+@keyframes fin { from { opacity: 0; } to { opacity: 1; } }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 10px; margin: 0; padding: 10px 14px 12px; color: var(--muted); font-size: 0.88rem; }
+.legend button { display: inline-flex; align-items: center; gap: 6px; border-color: transparent; padding: 3px 8px; font-size: 0.88rem; color: var(--muted); }
+.legend button.active { color: var(--fg); border-color: var(--fg); background: transparent; }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+
+.panel { min-width: 0; max-width: 64ch; background: var(--card); border: 1px solid var(--rule); border-radius: 18px; padding: 20px 22px; }
+@media (max-width: 520px) { .panel { padding: 16px; } }
+.nebula { pointer-events: none; }
+@keyframes tw { 0%,100% { opacity: var(--o); } 50% { opacity: calc(var(--o) * 0.25); } }
+.dust { animation: tw 5s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .dust { animation: none; } }
+.num { box-shadow: 0 0 14px currentColor; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.kicker { color: var(--muted); font-size: 0.9rem; margin: 0 0 4px; }
+.route { font-family: var(--display); font-size: 1.35rem; line-height: 1.3; margin: 0 0 14px; text-wrap: balance; }
+.route .sep { color: var(--muted); padding-inline: 4px; }
+.note { margin: 0 0 18px; color: var(--muted); font-size: 0.93rem; }
+.step { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; }
+.num { width: 26px; height: 26px; border-radius: 50%; color: var(--bg); font-size: 0.85rem; font-weight: 600; display: grid; place-items: center; margin-top: 2px; }
+.step h3 { font-family: var(--display); font-weight: 400; font-size: 1.45rem; line-height: 1.2; margin: 0; }
+.disc { margin: 2px 0 6px; color: var(--muted); font-size: 0.88rem; display: flex; align-items: center; gap: 6px; }
+.step p.t { margin: 0; }
+.sess { margin: 10px 0 0; padding: 0; list-style: none; font-size: 0.9rem; color: var(--muted); display: grid; gap: 4px; }
+.sess li { padding-left: 12px; border-left: 2px solid var(--rule); }
+.sess li.on { border-left-color: var(--fg); color: var(--fg); }
+.sess .when { font-weight: 600; margin-right: 6px; }
+.sess-h { margin: 14px 0 0; font-size: 0.86rem; color: var(--muted); }
+.link { margin: 14px 0 14px 40px; color: var(--muted); font-size: 0.97rem; }
+.link .from { display: block; font-size: 0.86rem; margin-bottom: 2px; }
+.empty h2 { font-family: var(--display); font-weight: 400; font-size: 1.6rem; margin: 0 0 8px; }
+.empty p { margin: 0; color: var(--muted); }
+sup.cite { font-size: 0.7em; line-height: 0; margin-left: 2px; white-space: nowrap; }
+sup.cite a { text-decoration: none; padding: 0 1px; }
+sup.cite a:hover { text-decoration: underline; }
+
+footer { margin-top: 36px; max-width: 70ch; color: var(--muted); font-size: 0.92rem; }
+footer h2 { font-family: var(--display); font-weight: 400; font-size: 1.4rem; color: var(--fg); margin: 0 0 8px; }
+footer p { margin: 0 0 8px; }
+footer ol { margin: 0 0 14px; padding-left: 1.6em; display: grid; gap: 4px; }
+footer li:target { color: var(--fg); background: var(--mark); border-radius: 4px; }
+a { color: var(--fg); text-underline-offset: 3px; }
+
+/* Screen-adapted layout: map first, panel beside it (desktop) or as a bottom sheet (phone) */
+body { padding-block: 0 28px; }
+.wrap { max-width: 1400px; }
+.top { display: flex; align-items: baseline; justify-content: space-between; gap: 4px 16px; flex-wrap: wrap; padding-block: 12px 4px; }
+.top h1 { font-size: clamp(1.5rem, 4.6vw, 2.1rem); margin: 0; }
+.top .hint { color: var(--muted); font-size: 0.92rem; margin: 0; }
+.controls { margin: 0; display: grid; gap: 0; }
+.strip { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 4px 0; -webkit-overflow-scrolling: touch; }
+.strip::-webkit-scrollbar { display: none; }
+.strip button { flex: none; white-space: nowrap; font-size: 0.88rem; padding: 6px 12px; }
+.strip .lab { flex: none; align-self: center; color: var(--muted); font-size: 0.82rem; padding-right: 2px; min-width: 3.6em; }
+.stage { display: grid; gap: 14px; margin-top: 8px; }
+.sky { display: flex; flex-direction: column; overflow: hidden; }
+svg { min-width: 0; }
+.legend { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 8px 12px 10px; }
+.legend::-webkit-scrollbar { display: none; }
+.legend button { flex: none; white-space: nowrap; }
+.panel .x { position: sticky; top: 0; float: right; width: 34px; height: 34px; padding: 0; border-radius: 50%; font-size: 1.2rem; line-height: 1; background: var(--bg); z-index: 2; margin: 0 0 6px 8px; }
+.empty { padding-top: 4px; }
+@media (min-width: 900px) {
+  .stage { height: 780px; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); align-items: stretch; }
+  .sky { min-height: 0; }
+  .sky svg { flex: 1 1 0; min-height: 0; height: 100%; }
+  .lbl { font-size: 17px; stroke-width: 5px; }
+  .panel { overflow-y: auto; max-width: none; min-height: 0; }
+}
+@media (min-width: 560px) and (max-width: 899px) { .lbl { font-size: 15px; } }
+@media (max-width: 899px) {
+  .lbl { font-size: 17px; stroke-width: 5px; }
+  .panel { font-size: 16px; }
+  .panel { max-width: none; }
+  .step h3 { font-size: 1.3rem; }
+}
+footer h2 { margin-top: 18px; }
+
+.fnote { font-size: 15px; font-family: serif; opacity: 0; animation: fnote 1.7s ease-out forwards; }
+@keyframes fnote { 0% { opacity: 0; transform: translate(0, 0); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx), -46px); } }
+.soundbtn { font: inherit; font-size: 0.9rem; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; }
+.sitetools { display: flex; align-items: center; gap: 8px; }
+.langs { display: flex; gap: 4px; }
+.langs a { font: 600 13px system-ui, sans-serif; text-decoration: none; color: var(--fg); border: 1px solid var(--line); border-radius: 999px; padding: 5px 10px; }
+.langs a[aria-current="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.sitetools .sgd-btn { position: static; }
+.soundbtn[aria-pressed="false"] { color: var(--muted); }
+.top .right { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.back { color: var(--muted); font-size: 0.92rem; margin: 0; }
+.back a { color: var(--fg); }
+.sess a { color: inherit; }
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <h1>¿Qué es la música? La constelación</h1>
+    <div class="right"><p class="hint">Toca una idea para escuchar su nota y ver las ideas a su alrededor.</p><button class="soundbtn" id="soundBtn" type="button" aria-pressed="true">Sonido activado</button><div class="sitetools"><span data-display-settings-slot></span><div class="langs" aria-label="Idioma"><a href="/music-constellation/" hreflang="en" lang="en">EN</a><a href="/music-constellation/es/" hreflang="es" lang="es" aria-current="true">ES</a></div></div></div>
+  </header>
+  <p class="back">Un mapa de las ideas de <a href="/what-is-music/es/">¿Qué es la música?</a>, un curso a través de muchas lentes.</p>
+
+  <div class="controls">
+    <div class="row strip presets" id="presets"><span class="lab">Historias</span></div>
+    <div class="row strip" id="days"><span class="lab">Módulo</span></div>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="sky">
+      <svg id="sky" viewBox="0 0 660 920" role="group" aria-label="Mapa de treinta y cuatro ideas conectadas del curso ¿Qué es la música?"></svg>
+      <p class="legend" id="legend"></p>
+    </div>
+    <div class="panel" id="panel" aria-live="polite"></div>
+  </div>
+
+  <footer>
+    <h2>Sobre este mapa</h2>
+    <p>Cada punto del mapa es una idea del curso, y cada línea une dos ideas que se ayudan a explicar. Cada línea se puede leer en los dos sentidos, y las dos lecturas son distintas. Leer la quinta a través de la aspereza explica por qué la quinta suena suave; leer la aspereza a través de la quinta muestra cómo los músicos usan los batimientos para afinar. Los colores muestran las cinco lentes del curso: la física del sonido, las matemáticas, el oído y la percepción, la afinación y la armonía, y las tradiciones y artes del mundo. <sup class="cite"><a href="#r23">23</a></sup></p>
+    <p>Toca una idea para leer sobre ella. Para leer una idea a través de otra, arrástrala sobre una idea conectada, o toca las dos una después de la otra. También puedes elegir un módulo para iluminar las ideas que trata, o una historia para seguir un camino corto por el mapa. Cada idea enlaza con la parte del curso donde se explica.</p>
+    <p>Cada idea tiene también una nota. Las ideas más altas en el mapa suenan más agudas, y todas las notas salen de la serie armónica de un La grave, así que dos ideas conectadas suenan siempre un intervalo de esa serie, y una historia suena como una melodía corta. Puedes apagar el sonido arriba.</p>
+    <h2>Fuentes</h2>
+    <ol id="refs"></ol>
+    <p>Las lecturas se escribieron para este mapa, y los números remiten a fuentes de los datos que usan. Dos de las fuentes están citadas de memoria y todavía hay que verificarlas. Esta es una manera de dibujar el mapa, y otra persona podría elegir otras ideas y otras conexiones.</p>
+  </footer>
+</div>
+<script>
+(function () {
+  var NS = "http://www.w3.org/2000/svg";
+  var COURSE = "/what-is-music/es/";
+  var DISC = {"phys": {"n": "F\u00edsica del sonido"}, "math": {"n": "Matem\u00e1ticas"}, "ear": {"n": "El o\u00eddo y la percepci\u00f3n"}, "theory": {"n": "Afinaci\u00f3n, escalas y armon\u00eda"}, "world": {"n": "Tradiciones y artes"}};
+  var REFS = [[1, "Wikipedia (inglés), Harmonic series (music)", "https://en.wikipedia.org/wiki/Harmonic_series_(music)"], [2, "Wikipedia (inglés), Beat (acoustics)", "https://en.wikipedia.org/wiki/Beat_(acoustics)"], [3, "Wikipedia (inglés), Consonance and dissonance", "https://en.wikipedia.org/wiki/Consonance_and_dissonance"], [4, "Wikipedia (inglés), Cent (music)", "https://en.wikipedia.org/wiki/Cent_(music)"], [5, "Wikipedia (inglés), Pythagorean comma", "https://en.wikipedia.org/wiki/Pythagorean_comma"], [6, "Wikipedia (inglés), Equal temperament", "https://en.wikipedia.org/wiki/Equal_temperament"], [7, "Wikipedia (inglés), Fourier series", "https://en.wikipedia.org/wiki/Fourier_series"], [8, "Wikipedia (inglés), Cochlea", "https://en.wikipedia.org/wiki/Cochlea"], [9, "Wikipedia (inglés), Missing fundamental", "https://en.wikipedia.org/wiki/Missing_fundamental"], [10, "Wikipedia (inglés), Formant", "https://en.wikipedia.org/wiki/Formant"], [11, "Wikipedia (inglés), Overtone singing", "https://en.wikipedia.org/wiki/Overtone_singing"], [12, "Wikipedia (inglés), Gamelan", "https://en.wikipedia.org/wiki/Gamelan"], [13, "Wikipedia (inglés), Raga", "https://en.wikipedia.org/wiki/Raga"], [14, "Wikipedia (inglés), Arabic maqam", "https://en.wikipedia.org/wiki/Arabic_maqam"], [15, "Wikipedia (inglés), Euclidean rhythm", "https://en.wikipedia.org/wiki/Euclidean_rhythm"], [16, "Wikipedia (inglés), Musica universalis", "https://en.wikipedia.org/wiki/Musica_universalis"], [17, "Wikipedia (inglés), Siku (instrument)", "https://en.wikipedia.org/wiki/Siku_(instrument)"], [18, "Wikipedia (inglés), Mode (music)", "https://en.wikipedia.org/wiki/Mode_(music)"], [19, "Wikipedia (inglés), Reverberation", "https://en.wikipedia.org/wiki/Reverberation"], [20, "Wikipedia (inglés), Shí-èr-lǜ (Chinese twelve pitches)", "https://en.wikipedia.org/wiki/Shí-èr-lǜ"], [21, "Plomp y Levelt (1965), Tonal consonance and critical bandwidth, JASA 38, 548 a 560 (citado de memoria, enlace no verificado)", null], [22, "McDermott et al. (2016), Indifference to dissonance in native Amazonians, Nature 535, 547 a 550 (citado de memoria, enlace no verificado)", null], [23, "¿Qué es la música? Un curso a través de muchas lentes, el curso al que pertenece este mapa", "/what-is-music/es/"]];
+  var N = {"vibration": {"name": "Vibración y altura", "d": "phys", "lines": ["Vibración", "y altura"], "text": "Todo sonido empieza con algo que se mueve de un lado a otro: una cuerda de violín, la caña de un clarinete, el aire dentro de una flauta, tus propias cuerdas vocales. El número de veces que va y viene cada segundo es su frecuencia, y se mide en hercios (Hz). La frecuencia la oímos como altura. El A con el que afinan las orquestas se mueve 440 veces por segundo, y el A una octava más abajo, 220 veces. Cuando pulsas una cuerda, el sonido se va apagando, pero la altura se mantiene, porque la cuerda conserva el mismo ritmo mientras su movimiento se hace más pequeño. {23}", "x": 420, "y": 70, "pos": "above", "s": [["M1", "Module 1", "Módulo 1, el oscilador y Lab 1", 2]]}, "wave": {"name": "El sonido en el aire", "d": "phys", "lines": ["El sonido", "en el aire"], "text": "Una cuerda que vibra empuja el aire que tiene al lado, lo comprime y lo suelta. Estos pequeños cambios de presión pasan de una porción de aire a la siguiente y viajan hacia afuera a unos 343 metros por segundo. Ese patrón que viaja es el sonido. Hasta tu oído llega el patrón, mientras el aire se queda prácticamente en su sitio. El tamaño de los cambios de presión decide qué tan fuerte es el sonido, y se mide en decibelios. La distancia entre una compresión y la siguiente es la longitud de onda: unos 78 cm para el A de 440 Hz, y más de 12 metros para la nota más grave del piano. {23}", "x": 568, "y": 92, "pos": "above", "s": [["M1", "Module 1", "Módulo 1, el sonido en el aire y los decibelios", 2]]}, "string": {"name": "Cuerdas y tubos", "d": "phys", "lines": ["Cuerdas", "y tubos"], "text": "Una cuerda está fija en sus dos extremos, así que los extremos no pueden moverse. Solo duran las vibraciones que caben exactamente entre los dos extremos: media onda, dos medias ondas, tres, y así sucesivamente. Cada una de estas formas tiene su propia frecuencia, 1, 2, 3… veces la más grave. El aire dentro de un instrumento de viento sigue la misma regla con sus propios límites. Una flauta está abierta en ambos extremos y contiene todos los armónicos. Un clarinete está cerrado en un extremo y contiene sobre todo los impares, y en parte por eso suena tan distinto. {1,23}", "x": 510, "y": 190, "pos": "above", "s": [["M2", "Module 2", "Módulo 2, ondas que caben en una cuerda", 2], ["M2", "Module 2", "Módulo 2, columnas de aire", 2]]}, "harmonics": {"name": "La serie armónica", "d": "phys", "lines": ["Serie", "armónica"], "text": "Cuando tocas una nota en el violín, la cuerda vibra entera y, al mismo tiempo, en mitades, tercios, cuartos y partes más pequeñas. Así, una nota es en realidad un conjunto de frecuencias, 1, 2, 3, 4… veces la más grave. Estos son los armónicos, y juntos forman la serie armónica. Sobre un C grave dan C, C una octava más arriba, G, otra vez C, E, G, un B bemol un poco bajo, y luego siguen subiendo, cada vez más juntos. Las octavas, las quintas, los acordes, el timbre y la manera en que el oído juzga la suavidad vuelven todos a esta serie. {1,23}", "x": 385, "y": 232, "pos": "below", "s": [["M2", "Module 2", "Módulo 2, la serie armónica", 2], ["M3", "Module 3", "Módulo 3, las notas escondidas dentro de cada nota", 2], ["M7", "Module 7", "Módulo 7, el acorde dentro de una nota", 2]]}, "timbre": {"name": "Timbre", "d": "phys", "lines": ["Timbre"], "text": "El timbre es el color de un sonido. Es la razón por la que un violín y una flauta tocando el mismo A, igual de fuerte, siguen sonando como dos instrumentos distintos. La diferencia principal está en los armónicos: cada instrumento tiene su propio equilibrio de armónicos fuertes y débiles. Una cuerda frotada tiene muchos armónicos agudos fuertes, y eso la hace brillante. Una flauta tiene menos, por eso suena más redonda. El comienzo del sonido también cuenta. Si le cortas el ataque a una grabación, un piano y una trompeta se vuelven sorprendentemente difíciles de distinguir. {1,23}", "x": 596, "y": 262, "pos": "below", "s": [["M2", "Module 2", "Módulo 2, el color como receta de armónicos y Lab 2", 2]]}, "resonance": {"name": "Resonancia y formantes", "d": "phys", "lines": ["Resonancia", "y formantes"], "text": "Todo objeto y todo espacio hueco tiene frecuencias en las que vibra con más facilidad. Son sus resonancias. Cuando un sonido contiene esas frecuencias, el objeto las recoge y las refuerza. Tu boca y tu garganta forman un espacio así, y sus resonancias se llaman formantes. Cuando pasas de una i a una a, tus cuerdas vocales mantienen la misma altura, pero la lengua y los labios mueven los formantes, y eso es lo que cambia la vocal. El cuerpo de madera de un violín y las calabazas bajo las teclas de un balafón cumplen la misma función en sus instrumentos. {10,23}", "x": 530, "y": 350, "pos": "right", "s": [["M9", "Module 9", "Módulo 9, la fuente y el filtro", 2], ["M9", "Module 9", "Módulo 9, cuerpos huecos que responden", 2]]}, "rooms": {"name": "Salas y reverberación", "d": "phys", "lines": ["Salas"], "text": "La sala forma parte de cada interpretación. El sonido te llega primero directamente y luego muchas veces más, al rebotar en las paredes, el suelo y el techo. El tiempo que tarda un sonido en apagarse después de que el músico deja de tocar se llama tiempo de reverberación. Hacia 1900, el físico Wallace Sabine descubrió que crece con el volumen de la sala y se acorta cuanto más absorben las superficies, con cortinas, butacas o personas. Las buenas salas de concierto para música orquestal tienen unos dos segundos. Una habitación pequeña con alfombra tiene mucho menos, y una iglesia de piedra puede tener varios segundos, lo que cambia la velocidad a la que se puede tocar. {19,23}", "x": 605, "y": 435, "pos": "below", "s": [["M9", "Module 9", "Módulo 9, la sala como último instrumento", 2]]}, "ratio": {"name": "Razones", "d": "math", "lines": ["Razones"], "text": "Si divides una cuerda por la mitad, suena exactamente una octava más arriba. Su frecuencia se ha duplicado, así que las dos notas están en la razón 2 a 1. Es la idea más antigua de la teoría musical: los intervalos son razones de frecuencias. La octava es 2:1, la quinta 3:2, la cuarta 4:3 y la tercera mayor 5:4. Para poner un intervalo encima de otro, multiplicas sus razones. Una quinta más una cuarta da 3/2 × 4/3 = 2, exactamente una octava, y puedes comprobarlo en cualquier instrumento. {1,23}", "x": 150, "y": 92, "pos": "above", "s": [["M0", "Module 0", "Módulo 0, T1 razones", 2], ["M4", "Module 4", "Módulo 4, los intervalos como razones", 2]]}, "log": {"name": "Logaritmos y cents", "d": "math", "lines": ["Logaritmos", "y cents"], "text": "Como los intervalos se combinan multiplicando, es difícil comparar sus tamaños directamente. Los logaritmos ayudan, porque convierten la multiplicación en suma. Los músicos usan una unidad logarítmica llamada cent. Una octava mide 1200 cents y cada semitono del piano mide exactamente 100. Una quinta pura, de razón 3:2, mide unos 702 cents, y la quinta del piano mide 700, así que se diferencian en dos cents, una quincuagésima parte de un semitono. La mayoría de los oyentes empieza a notar diferencias a partir de unos cinco a diez cents. {4,23}", "x": 62, "y": 215, "pos": "above", "s": [["M0", "Module 0", "Módulo 0, T2 logaritmos y el conversor", 2], ["M4", "Module 4", "Módulo 4, por qué el cent es 1/1200 de octava", 2]]}, "fourier": {"name": "La idea de Fourier", "d": "math", "lines": ["Fourier"], "text": "A principios del siglo XIX, Joseph Fourier mostró que cualquier onda que se repite, por complicada que sea su forma, puede construirse sumando ondas sinusoidales simples. Las frecuencias de estas ondas son múltiplos enteros de la frecuencia con que se repite la onda. Para el sonido, esto significa que la forma de la onda en el tiempo y la lista de sus armónicos describen lo mismo de dos maneras. Un espectro, la imagen que muestra la intensidad de cada armónico, es la segunda manera de mirarlo. {7,23}", "x": 262, "y": 180, "pos": "above", "s": [["M2", "Module 2", "Módulo 2, el teorema de Fourier", 2], ["M3", "Module 3", "Módulo 3, Lab 3b, onda sonora y espectro", 2]]}, "primes": {"name": "Primos y comas", "d": "math", "lines": ["Primos"], "text": "Todo número entero puede escribirse como producto de números primos de una sola manera: 12 es 2 × 2 × 3 y nada más. Este hecho sencillo tiene una consecuencia musical. Las octavas se construyen con el número 2 y las quintas con el número 3. Por muchas quintas que apiles, obtienes potencias de 3, y estas nunca pueden ser iguales a una potencia de 2. Así, una cadena de quintas puras nunca cae exactamente en una octava, y toda afinación tiene un pequeño sobrante, que los músicos llaman coma. {5,23}", "x": 80, "y": 330, "pos": "below", "s": [["M4", "Module 4", "Módulo 4, por qué las quintas puras nunca cierran el círculo", 2]]}, "contfrac": {"name": "Fracciones continuas", "d": "math", "lines": ["Fracciones", "continuas"], "text": "Una fracción continua es un método para encontrar las fracciones más simples que más se acercan a un número dado. En música, el número que se quiere aproximar es el tamaño de la quinta medido en octavas, unos 0.585. El método da las fracciones 3/5, 7/12, 24/41 y 31/53, cada una más cercana que la anterior. El denominador de cada fracción es un número de notas iguales por octava que contiene una buena quinta. El doce está en la lista, y es el primero en el que la quinta está tan cerca de la pura que la mayoría de las personas no oye la diferencia. {6,23}", "x": 195, "y": 300, "pos": "below", "s": [["M5", "Module 5", "Módulo 5, la fracción continua hecha a mano", 2]]}, "clock": {"name": "Aritmética del reloj", "d": "math", "lines": ["Aritmética", "del reloj"], "text": "Numera las doce notas de la octava como las horas de un reloj, con C en las doce. Después de B vuelve C, como después de las once vienen las doce. La aritmética en este círculo da la vuelta, y describe bien la música. Una quinta son siete pasos, y si sigues sumando siete visitas las doce notas antes de volver a C. El mismo círculo sirve para el ritmo: coloca alrededor los doce pulsos de un ciclo y marca dónde suena el tambor o la campana. {15,23}", "x": 280, "y": 385, "pos": "right", "s": [["M6", "Module 6", "Módulo 6, contar los huecos del piano", 2], ["M8", "Module 8", "Módulo 8, repartir los pulsos de la forma más pareja posible", 2]]}, "cochlea": {"name": "La cóclea", "d": "ear", "lines": ["La cóclea"], "text": "La cóclea es un pequeño tubo enrollado en el oído interno, del tamaño de un guisante. Por dentro recorre una membrana estrecha y rígida en un extremo, y más ancha y floja en el otro. Las frecuencias agudas hacen vibrar el extremo rígido y las graves el extremo flojo, así que cada lugar de la membrana responde a su propio rango de alturas. De esta manera el oído separa un sonido en sus frecuencias antes de que la señal llegue al cerebro, un poco como un prisma separa la luz en colores. {8,23}", "x": 445, "y": 430, "pos": "below", "s": [["M1", "Module 1", "Módulo 1, el oído como analizador de espectro", 2], ["M3", "Module 3", "Módulo 3, del batimiento a la aspereza", 2]]}, "beats": {"name": "Batimientos", "d": "ear", "lines": ["Batimientos"], "text": "Cuando dos notas tienen alturas muy cercanas, por ejemplo dos cuerdas de violín casi afinadas, sus vibraciones entran y salen de fase. Cuando están en fase se suman y el sonido se hace más fuerte, y cuando están desfasadas se cancelan y se hace más suave. Oyes una sola nota que late: uaa, uaa, uaa. El número de latidos por segundo es la diferencia entre las dos frecuencias, así que cuanto más cerca están las notas, más lento es el latido. Los músicos lo usan para afinar: ajustan hasta que los batimientos se hacen lentos y desaparecen. {2,23}", "x": 340, "y": 320, "pos": "below", "s": [["M3", "Module 3", "Módulo 3, el batimiento entre dos notas cercanas y Lab 3a", 2]]}, "roughness": {"name": "Aspereza y consonancia", "d": "ear", "lines": ["Aspereza y", "consonancia"], "text": "Cuando dos notas están un poco más separadas, los batimientos se vuelven demasiado rápidos para contarlos y el sonido se hace granuloso o zumbante. Esto es la aspereza. En 1863, Hermann Helmholtz propuso que explica por qué algunos intervalos suenan suaves y otros tensos. Con razones simples como la octava y la quinta, muchos armónicos de las dos notas coinciden exactamente. Con un intervalo como el semitono, muchos armónicos caen cerca unos de otros y rozan. Si a las personas les gusta la aspereza es otra cuestión. Algunas tradiciones la buscan, y los oyentes que crecieron lejos de la música occidental no siempre prefieren los intervalos suaves. {3,21,22,23}", "x": 360, "y": 505, "pos": "right", "s": [["M3", "Module 3", "Módulo 3, por qué algunos intervalos suenan suaves y Lab 3b", 2], ["M3", "Module 3", "Módulo 3, naturaleza o cultura", 2]]}, "missing": {"name": "La fundamental ausente", "d": "ear", "lines": ["Fundamental", "ausente"], "text": "Toca una nota a través de un filtro que elimina su armónico más grave y deja los armónicos 2 a 6. Podrías esperar que la altura subiera, pero sigues oyendo la nota grave original. El cerebro reconoce el patrón de los armónicos, 2, 3, 4, 5 y 6 veces la misma frecuencia, y oye esa frecuencia como la altura, aunque allí no suene nada. Por eso el pequeño altavoz de un teléfono, que no puede producir frecuencias graves, te deja seguir una línea de bajo. {9,23}", "x": 470, "y": 300, "pos": "below", "s": [["M1", "Module 1", "Módulo 1, botones de fundamental ausente del Lab 1", 2]]}, "octave": {"name": "La octava", "d": "theory", "lines": ["Octava"], "text": "Dos notas a distancia de octava, con frecuencias en la razón 2:1, suenan tan parecidas que la mayoría de las tradiciones musicales las trata como la misma nota. Cuando hombres y mujeres cantan juntos una canción, suelen cantar a una octava de distancia sin darse cuenta. La física ayuda a explicar por qué: todos los armónicos de la nota aguda ya son armónicos de la grave, así que las dos se funden casi por completo. Por eso la octava es el marco en el que se construyen la mayoría de las escalas. {1,23}", "x": 135, "y": 440, "pos": "above", "s": [["M6", "Module 6", "Módulo 6, la octava, otra vez la misma nota", 2]]}, "fifth": {"name": "La quinta", "d": "theory", "lines": ["La quinta"], "text": "La quinta, de razón 3:2, es el intervalo más consonante después de la octava. El armónico 3 de la nota grave tiene la misma frecuencia que el armónico 2 de la aguda, y cuando la quinta es pura ese armónico compartido suena estable, sin batimientos. Esto hace que la quinta sea fácil de afinar de oído, y los violinistas afinan así sus cuatro cuerdas. Los teóricos de China, Grecia, la India y el mundo árabe usaron cadenas de quintas para construir sus notas. {1,20,23}", "x": 220, "y": 525, "pos": "above", "s": [["M6", "Module 6", "Módulo 6, la quinta, el intervalo más fácil de afinar y Lab 6", 2]]}, "comma": {"name": "La coma pitagórica", "d": "theory", "lines": ["Coma", "pitagórica"], "text": "Empieza en una nota y sube doce quintas puras. Pasas por las doce notas del piano y llegas cerca de la nota de partida, siete octavas más arriba. Pero no exactamente: te pasas por unos 23.5 cents, casi un cuarto de semitono. Esta pequeña diferencia es la coma pitagórica. Por ella, un instrumento de notas fijas, como el piano o el órgano, no puede tener todas sus quintas y todas sus octavas perfectamente puras al mismo tiempo. {5,23}", "x": 70, "y": 555, "pos": "above", "s": [["M4", "Module 4", "Módulo 4, primos y comas", 2], ["M6", "Module 6", "Módulo 6, Lab 6 corta la cuerda", 2]]}, "temper": {"name": "Temperamento", "d": "theory", "lines": ["Temperamento"], "text": "Un temperamento es una decisión sobre dónde poner la coma. La afinación pitagórica mantiene puras once quintas y pone toda la coma en la última, que suena tan desafinada que se la llama el lobo. Los temperamentos mesotónicos estrechan más las quintas para que las terceras mayores sean puras, algo que le sentaba de maravilla a la música del Renacimiento. Los buenos temperamentos de la época de Bach reparten la coma de forma desigual, así que cada tonalidad tenía su propio color. El temperamento igual, la afinación del piano moderno, hace cada quinta dos cents más estrecha, y todas las tonalidades suenan igual. {6,23}", "x": 130, "y": 660, "pos": "above", "s": [["M5", "Module 5", "Módulo 5, afinación y temperamento y Lab 5a", 2]]}, "twelve": {"name": "Doce notas", "d": "theory", "lines": ["Doce", "notas"], "text": "¿Por qué el piano tiene doce notas en cada octava? Si construyes notas subiendo por quintas, tras doce pasos vuelves muy cerca de donde empezaste, así que doce notas forman un círculo casi cerrado. Doce también es un número lo bastante pequeño para caber bajo las manos. Con menos notas las quintas serían malas, y con muchas más sería difícil tocar y aprender. En el teclado, las siete teclas blancas vienen de las primeras siete quintas, y las cinco negras llenan los huecos con las cinco siguientes. {6,23}", "x": 255, "y": 635, "pos": "below", "s": [["M6", "Module 6", "Módulo 6, por qué la octava tiene doce notas", 2], ["M5", "Module 5", "Módulo 5, otras maneras de dividir la octava", 2]]}, "scales": {"name": "Pentatónica y diatónica", "d": "theory", "lines": ["Escalas"], "text": "Si detienes la cadena de quintas después de cinco notas, obtienes la escala pentatónica, las cinco notas de las teclas negras. Aparece en canciones de China, Escocia, África occidental y los Andes. Si te detienes después de siete notas, obtienes la escala diatónica, las teclas blancas. Ambas escalas tienen algo en común: sus pasos tienen solo dos tamaños, así que las notas quedan repartidas de forma bastante pareja en la octava. Puede que esta sea una de las razones por las que son fáciles de cantar y recordar, y por las que aparecen en tantos lugares. {18,23}", "x": 345, "y": 610, "pos": "below", "s": [["M6", "Module 6", "Módulo 6, por qué el cinco y el siete aparecen en todas partes", 2]]}, "modes": {"name": "Modos, mayor y menor", "d": "theory", "lines": ["Modos"], "text": "Las siete teclas blancas pueden dar siete modos distintos, según qué nota se sienta como casa. Empezar y terminar en C da el modo mayor (jónico), en D el modo dórico, en A el modo menor (eólico), y así sucesivamente. Las notas son las mismas, pero el carácter cambia. La música medieval y renacentista los usaba todos. Desde el siglo XVII, la música occidental se apoyó sobre todo en el mayor y el menor, que dan un final firme gracias a la sensible, la nota justo debajo de casa. La música popular, el jazz y la música de cine siguieron usando los demás. {18,23}", "x": 400, "y": 735, "pos": "below", "s": [["M6", "Module 6", "Módulo 6, las mismas notas, otra casa", 2], ["M6", "Module 6", "Módulo 6, por qué Occidente se quedó solo con el mayor y el menor", 2]]}, "chords": {"name": "Acordes y conducción de voces", "d": "theory", "lines": ["Acordes"], "text": "Un acorde mayor ya está presente dentro de una sola nota: los armónicos 4, 5 y 6 de un C grave son C, E y G. Cuando un acorde sigue a otro, los músicos suelen preferir que cada voz se mueva lo menos posible hacia su nota siguiente. Esto se llama conducción de voces. En 1739, Leonhard Euler dibujó un mapa de notas, más tarde llamado Tonnetz, donde los acordes que comparten dos notas quedan uno al lado del otro. En este mapa, las progresiones suaves son paseos cortos. {1,23}", "x": 500, "y": 570, "pos": "above", "s": [["M7", "Module 7", "Módulo 7, armonía y conducción de voces y Lab 7b", 2]]}, "rhythm": {"name": "Ritmo y polirritmo", "d": "theory", "lines": ["Ritmo"], "text": "El ritmo y la altura están más cerca de lo que parece. Un tambor tocado cuatro veces por segundo es un ritmo. Acelera hasta cien veces por segundo y oyes una nota grave. Del mismo modo, tres pulsos contra dos, un polirritmo, se convierte en una quinta al acelerarlo, porque la quinta es la razón 3:2. Otro vínculo con las matemáticas está en cómo se reparten los golpes en un ciclo: colocarlos de la forma más pareja posible da muchos de los patrones de campana de África occidental y Cuba. {15,23}", "x": 560, "y": 660, "pos": "above", "s": [["M8", "Module 8", "Módulo 8, ritmo, tiempo y ciclos y Lab 8a", 2]]}, "notation": {"name": "Notación", "d": "theory", "lines": ["Notación"], "text": "Cada manera de escribir música decide qué conservar y qué dejar al intérprete. El pentagrama occidental es una especie de gráfico, con la altura hacia arriba y el tiempo hacia la derecha. Las figuras son fracciones: blancas, negras, corcheas. Otros sistemas escriben números de la escala, como el jianpu chino, sílabas, como el sargam indio, o posiciones de los dedos, como la tablatura de laúd y de guitarra. Muchas tradiciones no escriben la música y la transmiten de oído, de maestro a alumno. {23}", "x": 265, "y": 770, "pos": "below", "s": [["M11", "Module 11", "Módulo 11, escribir el sonido", 2]]}, "gamelan": {"name": "Gamelan y ombak", "d": "world", "lines": ["Gamelan"], "text": "Las orquestas de gamelan de Java y Bali están hechas sobre todo de metalófonos y gongs de bronce. Las láminas de bronce no tienen armónicos ordenadamente espaciados como las cuerdas, así que los intervalos que suenan bien en ellas son otros. Los gamelanes usan dos sistemas de escalas, sléndro de cinco notas y pélog de siete, y cada juego de instrumentos se afina en relación consigo mismo, así que no hay dos gamelanes que suenen exactamente igual. En Bali, los instrumentos se fabrican en pares afinados ligeramente separados, para que juntos batan y brillen. Este efecto se llama ombak, que significa ola. {12,23}", "x": 55, "y": 790, "pos": "above", "s": [["M3", "Module 3", "Módulo 3, naturaleza o cultura", 2], ["M5", "Module 5", "Módulo 5, otras respuestas", 2]]}, "raga": {"name": "Rāga y śruti", "d": "world", "lines": ["Rāga"], "text": "Un rāga es mucho más que una escala. También dice qué notas se usan al subir y cuáles al bajar, qué notas son importantes, qué frases son típicas y cómo se ornamenta cada nota. Algunos rāgas están ligados a un momento del día o a una estación. Los músicos indios afinan cada nota escuchándola contra el bordón de la tanpura, y la teoría antigua describe 22 pequeños pasos en la octava, llamados śruti. El tiempo se organiza en ciclos rítmicos llamados tāla. {13,23}", "x": 150, "y": 850, "pos": "below", "s": [["M6", "Module 6", "Módulo 6, otros mundos de escalas", 2], ["M8", "Module 8", "Módulo 8, tāla", 2]]}, "maqam": {"name": "Maqām y makam", "d": "world", "lines": ["Maqām"], "text": "El maqām árabe y el makam turco son sistemas de modos melódicos, cada uno con sus notas, sus frases típicas y su recorrido por la escala. Muchos usan intervalos que caen entre las teclas del piano, como una tercera neutra, a medio camino entre la menor y la mayor. La teoría árabe suele escribirlos en una cuadrícula de 24 cuartos de tono por octava, y la teoría turca en una de 53 pequeños pasos. En la práctica, la altura exacta de estas notas cambia de un maqām a otro y de una región a otra, y se aprende de oído con un maestro. {14,23}", "x": 70, "y": 700, "pos": "above", "s": [["M4", "Module 4", "Módulo 4, intervalos neutros", 2], ["M5", "Module 5", "Módulo 5, otras respuestas", 2]]}, "overtone": {"name": "Canto de armónicos y canto subarmónico", "d": "world", "lines": ["Canto de", "armónicos"], "text": "En el canto de armónicos, quien canta sostiene una nota grave y da forma a la boca y la lengua para que un armónico suene mucho más fuerte que los demás. Suena como una segunda voz que silba una melodía sobre el bordón. La tradición es fuerte en Tuvá y Mongolia, y entre las mujeres xhosa de Sudáfrica. Algunos monjes tibetanos cantan con un subarmónico muy profundo: un segundo par de pliegues en la garganta vibra junto con las cuerdas vocales y añade una nota una octava más abajo. {11,23}", "x": 610, "y": 540, "pos": "below", "s": [["M9", "Module 9", "Módulo 9, cantar los propios armónicos", 2]]}, "africa": {"name": "Patrones guía de África occidental", "d": "world", "lines": ["Patrones guía", "de África"], "text": "En la música ewe de Ghana y Togo, y en muchas otras tradiciones de África occidental, una campana toca un patrón repetido llamado patrón guía. Uno muy común tiene siete golpes repartidos en doce pulsos. Todo el conjunto lo escucha para mantenerse unido, mientras los tambores tocan a su alrededor patrones de tres y de dos, unos contra otros. Con la trata atlántica de esclavos, estos patrones viajaron a las Américas, y hoy puedes oírlos en la música cubana y brasileña. {15,23}", "x": 600, "y": 780, "pos": "below", "s": [["M8", "Module 8", "Módulo 8, repartir los pulsos de la forma más pareja posible", 2]]}, "andes": {"name": "Siku andino", "d": "world", "lines": ["Siku", "andino"], "text": "El siku es la zampoña andina. Está dividido en dos hileras de tubos, llamadas ira y arka, y cada hilera la toca una persona distinta. Ninguna de las dos tiene todas las notas, así que los dos músicos se alternan para hacer entre ambos una sola melodía. Los conjuntos de sikuris tocan la misma melodía al mismo tiempo en tubos de distintos tamaños, a menudo a distancia de octava, lo que da un sonido denso y con mucho aire. Cada tubo está cerrado abajo, así que, como un clarinete, suena sobre todo con los armónicos impares. {17,23}", "x": 480, "y": 830, "pos": "below", "s": [["M7", "Module 7", "Módulo 7, hoquetus y voces paralelas", 2], ["M2", "Module 2", "Módulo 2, el aliento en un tubo", 2]]}, "kepler": {"name": "Armonía de las esferas", "d": "world", "lines": ["Armonía de", "las esferas"], "text": "La idea de que el cielo es una especie de música se remonta a los pitagóricos de la antigua Grecia. En 1619, Johannes Kepler publicó Harmonices Mundi, donde mostró que para cada planeta la razón entre su velocidad más rápida y más lenta alrededor del Sol se acerca a un intervalo musical: más o menos una tercera mayor para Saturno y una quinta para Marte. Hoy los astrónomos encuentran razones simples en órbitas reales, llamadas resonancias orbitales, y estudian las estrellas midiendo cómo vibran, un poco como quien escucha una campana. {16,23}", "x": 596, "y": 180, "pos": "below", "s": [["M10", "Module 10", "Módulo 10, la armonía del cosmos y Lab 10", 2]]}};
+  var E = [["vibration", "wave"], ["vibration", "string"], ["string", "harmonics"], ["harmonics", "timbre"], ["harmonics", "fourier"], ["timbre", "fourier"], ["timbre", "resonance"], ["resonance", "rooms"], ["resonance", "overtone"], ["harmonics", "overtone"], ["wave", "cochlea"], ["cochlea", "beats"], ["cochlea", "missing"], ["harmonics", "missing"], ["beats", "roughness"], ["roughness", "harmonics"], ["roughness", "fifth"], ["roughness", "gamelan"], ["ratio", "octave"], ["ratio", "fifth"], ["ratio", "log"], ["log", "cochlea"], ["octave", "fifth"], ["fifth", "comma"], ["primes", "comma"], ["comma", "temper"], ["contfrac", "twelve"], ["contfrac", "log"], ["twelve", "temper"], ["twelve", "fifth"], ["twelve", "scales"], ["clock", "scales"], ["clock", "twelve"], ["clock", "rhythm"], ["scales", "modes"], ["modes", "chords"], ["chords", "harmonics"], ["chords", "roughness"], ["scales", "raga"], ["scales", "andes"], ["temper", "maqam"], ["temper", "gamelan"], ["raga", "rhythm"], ["rhythm", "africa"], ["rhythm", "ratio"], ["rhythm", "notation"], ["notation", "log"], ["kepler", "ratio"], ["kepler", "resonance"], ["andes", "chords"], ["maqam", "log"], ["gamelan", "timbre"], ["string", "ratio"]];
+  var P = {"vibration>wave": ["La vibración es donde empieza el sonido. La cuerda se mueve, el aire de al lado se comprime y se suelta, y ese patrón viaja hasta tu oído. Mantiene la misma frecuencia durante todo el camino, y por eso la altura que oyes es la altura que toca la cuerda.", "23"], "wave>vibration": ["Una vibración se convierte en sonido solo cuando mueve el aire. Una cuerda vibrando en el vacío no haría ningún sonido. Incluso en el aire, una cuerda delgada mueve muy poco aire por sí sola, y por eso el violín tiene un cuerpo de madera: recoge la vibración y empuja mucho más aire.", "23"], "vibration>string": ["Una cuerda es un objeto vibrante particular, con un límite fuerte: sus dos extremos no pueden moverse. Ese límite decide qué vibraciones son posibles, y por tanto qué frecuencias puede tocar la cuerda. Si cambias su longitud, su tensión o su grosor, esas frecuencias también cambian.", "1"], "string>vibration": ["En una cuerda, una vibración nunca es un movimiento simple. Cuando la pulsas o la frotas con el arco, la cuerda se mueve entera y también en mitades, tercios y cuartos al mismo tiempo. Lo que parece una vibración son varias, todas a la vez.", "1"], "string>harmonics": ["La serie armónica es la lista de vibraciones que caben en una cuerda entre sus dos extremos fijos: media onda, dos, tres y así sucesivamente. Sus frecuencias son 1, 2, 3 veces la más grave. Así, la serie se deduce directamente de la forma de la cuerda.", "1"], "harmonics>string": ["Una cuerda es un muy buen instrumento para oír la serie armónica nota por nota. Si tocas suavemente una cuerda de violín en su punto medio y pasas el arco, oyes el armónico 2, una octava más arriba. Tócala a un tercio de su longitud y oyes el armónico 3. Los instrumentistas de cuerda los llaman armónicos naturales y los usan todo el tiempo.", "1"], "harmonics>timbre": ["El timbre depende de cuánto de cada armónico contiene un sonido. Dos notas con la misma altura tienen los mismos armónicos, con intensidades distintas. Si cambias el equilibrio, por ejemplo tocando con el arco más cerca del puente, lo que refuerza los armónicos agudos, la misma nota cambia de color.", "1"], "timbre>harmonics": ["Normalmente no oímos los armónicos de una nota uno por uno. Los oímos mezclados como la voz de un instrumento. Con práctica, y en una habitación silenciosa, puedes empezar a distinguir algunos, sobre todo la octava y la quinta por encima de la nota.", "1"], "harmonics>fourier": ["El teorema de Fourier dice que lo que pasa en una cuerda pasa en cualquier sonido estable. Toda nota que se repite puede separarse en armónicos que son múltiplos enteros de su frecuencia. Así, la serie armónica aparece en las voces, los instrumentos de viento y los sintetizadores, además de en las cuerdas.", "7"], "fourier>harmonics": ["Desde el punto de vista de Fourier, la serie armónica se deduce de las matemáticas. Una onda que se repite f veces por segundo solo puede contener las frecuencias f, 2f, 3f y así sucesivamente, porque cualquier otra frecuencia rompería la repetición.", "7"], "timbre>fourier": ["La idea de Fourier da una manera de medir el color de un sonido. Un espectro muestra la intensidad de cada armónico. Si comparas los espectros de un violín y una flauta tocando la misma nota, puedes ver en el gráfico lo que oyes como la diferencia entre ellos.", "7"], "fourier>timbre": ["Los mismos armónicos con intensidades distintas se suman en una onda de forma distinta. El oído oye esa diferencia como color, aunque sigue más de cerca las intensidades de los armónicos que la forma exacta de la onda.", "7"], "timbre>resonance": ["Las resonancias dan forma al timbre de la mayoría de los instrumentos. El cuerpo de un violín o la boca de quien canta hacen más fuertes algunos armónicos y más suaves otros. Por eso la misma cuerda, puesta en dos violines distintos, puede sonar bastante diferente.", "10"], "resonance>timbre": ["Piensa en un sonido como una fuente y un filtro. Tus cuerdas vocales producen un zumbido lleno de armónicos, el mismo para todas las vocales. La forma de tu boca y tu garganta, el filtro, decide qué armónicos salen más fuertes. Cuando mueves la lengua, el filtro cambia y oyes otra vocal.", "10"], "resonance>rooms": ["Una sala se comporta como un resonador muy grande. Refleja unas frecuencias más que otras y mantiene el sonido después de que el músico deja de tocar. En una habitación pequeña algunas notas graves pueden retumbar, porque coinciden con las resonancias propias de la habitación.", "19"], "rooms>resonance": ["Cada resonancia de una sala nace del sonido que rebota de un lado a otro entre sus paredes y se refuerza a sí mismo. En una sala grande hay tantas de estas resonancias que se funden en una reverberación continua, y la fórmula de Sabine dice cuánto dura.", "19"], "resonance>overtone": ["El canto de armónicos usa una resonancia con tanta precisión que selecciona un solo armónico. Quien canta mantiene la misma nota grave y mueve la lengua para colocar una resonancia de la boca sobre el armónico 8, luego el 9, luego el 10. Cada armónico se vuelve una nota de la melodía.", "11,10"], "overtone>resonance": ["Los cantores de armónicos muestran que un formante puede tocarse como un instrumento. La voz mantiene una sola altura todo el tiempo, y la melodía sale enteramente del movimiento de las resonancias de la boca, algo que la mayoría hacemos sin pensar cuando cambiamos de vocal.", "11"], "harmonics>overtone": ["En el canto de armónicos, la serie armónica se oye como una melodía. Las notas silbadas solo pueden ser armónicos de la nota grave sostenida, así que la escala que usa quien canta es la propia serie armónica, sobre todo los armónicos 6 a 12.", "1,11"], "overtone>harmonics": ["El canto de armónicos hace audible la serie armónica. Sobre un A grave de 110 Hz, los armónicos 6 a 12 están en 660, 770, 880 Hz y más arriba, una melodía brillante muy por encima de la nota sostenida. Desde el armónico 8 hacia arriba están lo bastante juntos para formar una escala.", "11"], "wave>cochlea": ["La cóclea es donde la onda de presión del aire se convierte en una señal en los nervios. A través del tímpano y de tres huesecillos, la onda llega al líquido dentro de la cóclea y hace moverse su membrana. Cada lugar de la membrana responde a una frecuencia distinta.", "8"], "cochlea>wave": ["Una onda sonora llega al oído como un único movimiento complicado del tímpano. La cóclea la separa en sus frecuencias, cada una en su propio lugar de la membrana. Así, el oído hace una especie de análisis de frecuencias antes de que el cerebro haga cualquier otra cosa.", "8"], "cochlea>beats": ["Los batimientos aparecen cuando dos notas están tan cerca que sacuden el mismo lugar de la membrana de la cóclea. Allí se suman y se cancelan por turnos, y oímos cómo la intensidad sube y baja. Las notas suficientemente separadas sacuden lugares distintos, y las oímos como dos notas separadas.", "2,21"], "beats>cochlea": ["Los batimientos muestran que la cóclea tiene un límite en la finura con que separa las frecuencias. Dos tonos lo bastante cercanos para compartir una región de la membrana baten; dos tonos más separados se oyen como dos notas. El ancho de estas regiones se llama banda crítica.", "21"], "cochlea>missing": ["La fundamental ausente muestra que la audición va más allá de la cóclea. La membrana recibe los armónicos 2 a 6 y nada en la frecuencia más grave, así que ningún lugar de ella responde a esa altura. Aun así, el cerebro anuncia la nota grave, porque encaja con el patrón de lo que sí llega.", "9"], "missing>cochlea": ["La cóclea separa un sonido en sus partes, y el cerebro las vuelve a juntar. La fundamental ausente es uno de los ejemplos más claros de este segundo paso: la altura que oímos se construye en el cerebro a partir del patrón de los armónicos.", "9"], "harmonics>missing": ["El cerebro reconoce la serie armónica como un patrón. Notas de 220, 330 y 440 Hz son los armónicos 2, 3 y 4 de 110 Hz, así que el cerebro oye 110 Hz, incluso cuando no suena nada en 110 Hz.", "1,9"], "missing>harmonics": ["Los armónicos hacen más que dar color a un sonido. También llevan su altura, con tanta fuerza que se puede quitar el armónico más grave y seguimos oyendo la misma nota. Una línea de bajo en el pequeño altavoz de un teléfono es un ejemplo cotidiano.", "9"], "beats>roughness": ["La aspereza es en lo que se convierten los batimientos cuando son demasiado rápidos para contarlos. A partir de unos quince a veinte batimientos por segundo, el latido se vuelve un zumbido o un grano en el sonido. Dos notas a un semitono de distancia alrededor del C central suenan así.", "2,21"], "roughness>beats": ["Los batimientos lentos son el extremo suave de la aspereza, y los músicos los usan de distintas maneras. Un afinador de pianos los escucha para eliminarlos. Un fabricante de acordeones afina pares de lengüetas ligeramente separadas para crearlos, y muchos órganos tienen un registro, la voix céleste, hecho para este efecto.", "3"], "roughness>harmonics": ["Que dos notas suenen ásperas juntas depende de sus armónicos. Si muchos armónicos de una nota caen cerca de armónicos de la otra sin coincidir, baten rápido y el intervalo suena áspero. Una onda sinusoidal pura no tiene armónicos, así que los mismos intervalos suenan mucho menos ásperos con ondas sinusoidales.", "3,21"], "harmonics>roughness": ["La serie armónica da una razón sencilla de por qué algunos intervalos suenan suaves. Cuando dos notas están en una razón simple, muchos de sus armónicos tienen exactamente la misma frecuencia, así que no baten. En una octava, cada armónico de la nota aguda coincide con uno de la grave.", "1,3"], "roughness>fifth": ["La quinta suena suave porque el armónico 3 de la nota grave y el armónico 2 de la aguda tienen la misma frecuencia, y lo mismo pasa con los armónicos 6 y 4, y 9 y 6. Los armónicos que no coinciden quedan lo bastante separados para no rozar.", "3"], "fifth>roughness": ["Los músicos usan la aspereza al afinar quintas. Si la quinta está un poco desafinada, el armónico compartido bate lentamente. Al girar la clavija, los batimientos se hacen más lentos y se detienen cuando la quinta es pura. Así afinan los violinistas sus cuerdas.", "2,3"], "roughness>gamelan": ["En el gamelan balinés, la aspereza se elige a propósito. Los instrumentos vienen en pares, uno afinado un poco más alto que el otro, para que juntos batan a un ritmo constante. Este brillo, el ombak, es parte del sonido que buscan los músicos, y cada gamelan tiene su propia velocidad de ombak.", "12,22"], "gamelan>roughness": ["El gamelan muestra que buscar o evitar la aspereza depende de la cultura además de la física. El batimiento que un afinador de pianos se esfuerza en eliminar es justo lo que busca un afinador balinés. Estudios con oyentes de tradiciones musicales muy distintas sugieren también que la preferencia por los intervalos suaves es en parte aprendida.", "12,22"], "ratio>octave": ["Como razón, la octava es el intervalo más simple después del unísono: 2 a 1. Divide por la mitad la longitud de una cuerda y su frecuencia se duplica.", "1"], "octave>ratio": ["Como las octavas suenan como la misma nota, dan un marco a las razones. Puedes multiplicar o dividir cualquier razón por 2 sin cambiar el nombre de la nota. Así una razón como 9/4 se convierte en 9/8, el tono, dentro de una octava.", "23"], "ratio>fifth": ["La quinta es la razón 3 a 2, la más simple después de la octava. En una cuerda, dos tercios de su longitud suenan una quinta más arriba que la cuerda entera.", "1,20"], "fifth>ratio": ["Con la quinta, las razones se vuelven una manera de construir notas. Empieza en una nota y multiplica por 3/2 una y otra vez, devolviendo cada nota nueva a la octava al dividir por 2. Las notas de una escala aparecen una tras otra. Las afinaciones pitagórica y china antigua se construyeron así.", "20"], "ratio>log": ["Las razones se combinan multiplicando, lo que hace difícil comparar intervalos o sumarlos de cabeza. Los logaritmos convierten las razones en tamaños que se pueden sumar, medidos en cents. Una quinta de 702 cents y una cuarta de 498 cents suman 1200, una octava.", "4"], "log>ratio": ["Con logaritmos, cada razón se vuelve una longitud en una regla, y la regla es la misma en cada octava. 3/2 mide 702 cents, 4/3 mide 498, 5/4 mide 386. Puedes compararlas directamente con los pasos de 100 cents del piano.", "4"], "log>cochlea": ["La cóclea funciona más o menos como una regla logarítmica. Por encima de unos cientos de hercios, cada octava ocupa aproximadamente la misma longitud de la membrana, esté donde esté. Esta es una de las razones por las que oímos los intervalos como razones: una octava suena como la misma distancia, grave o aguda.", "4,8"], "cochlea>log": ["El logaritmo está incorporado en el oído. Cuando subes una octava, el lugar de vibración más fuerte se desplaza a lo largo de la cóclea más o menos la misma distancia, empieces abajo o arriba. Los cents que usan los músicos siguen al oído de esta manera.", "8"], "octave>fifth": ["La quinta divide la octava en dos partes desiguales. Una quinta hacia arriba y luego una cuarta hacia arriba hacen exactamente una octava, 3/2 × 4/3 = 2. Por eso la cuarta se llama la inversión de la quinta.", "1"], "fifth>octave": ["Si sigues apilando quintas, casi llegas a una octava una y otra vez. Doce quintas casi hacen siete octavas, pero se pasan por una pequeña cantidad, así que la cadena nunca llega a cerrarse del todo.", "5"], "fifth>comma": ["La coma es el precio de apilar quintas puras. Después de doce, la nota a la que llegas está cerca de un cuarto de semitono más alta que siete octavas sobre el inicio. En un violín puedes ajustar mientras tocas, pero en un teclado esta pequeña diferencia tiene que ir a alguna parte.", "5"], "comma>fifth": ["Por la coma, cada quinta en un teclado es un compromiso. Si todas las quintas son puras, una de ellas queda muy desafinada. Si cada una se estrecha un poco, ninguna es perfectamente pura. En el piano moderno cada quinta es dos cents más estrecha.", "5,6"], "primes>comma": ["Los números primos muestran que la coma no se puede evitar. Apilar quintas da potencias de 3 y apilar octavas da potencias de 2. Como cada número entero tiene una sola factorización en primos, ninguna potencia de 3 puede ser igual a una potencia de 2, así que las dos cadenas nunca se encuentran exactamente.", "5"], "comma>primes": ["La coma es un lugar donde se puede oír una propiedad de los números. El 3 de la razón de la quinta nunca se cancela, y tras doce quintas oyes el resultado como una nota un poco demasiado alta.", "5"], "comma>temper": ["Cada temperamento es una manera de tratar la coma. Cada uno reparte los 23.5 cents de forma distinta entre las quintas, y los afinadores de distintos siglos tomaron decisiones distintas según la música que tocaban.", "6"], "temper>comma": ["Para un afinador, la coma es algo que hay que repartir. La afinación pitagórica la pone entera en una quinta, el lobo. El temperamento igual quita unos dos cents a cada una de las doce quintas. Las afinaciones históricas encontraron muchos caminos intermedios.", "6"], "contfrac>twelve": ["Las fracciones continuas muestran que doce es una muy buena elección. La quinta mide 0.585 de una octava, y 7/12 es la fracción más cercana con un denominador pequeño. Siete pasos de doce dan una quinta a solo dos cents de la pura.", "6"], "twelve>contfrac": ["Las fracciones continuas ayudan a explicar el número doce. El método da 5, 12, 41 y 53 como los números de pasos iguales que dan las mejores quintas. Cinco es demasiado tosco, y 41 o 53 son muchas notas para tocar, así que doce es la elección práctica. La teoría turca usa el 53.", "6"], "contfrac>log": ["Para usar fracciones continuas con un intervalo musical, primero necesitas su tamaño en octavas, que es un logaritmo. Para la quinta es log₂(3/2) = 0.58496…, y este es el número que aproxima el método.", "4,6"], "log>contfrac": ["Los logaritmos convierten la búsqueda de una buena afinación en una pregunta sencilla: ¿cuántos pasos iguales en una octava ponen uno de ellos muy cerca de 702 cents? Las fracciones continuas la responden.", "4,6"], "twelve>temper": ["Decidir tener doce notas por octava todavía no dice cómo afinarlas. Doce teclas pueden afinarse para que las quintas sean puras, o las terceras, o para que todas las tonalidades sean iguales. Esa elección es el trabajo del temperamento.", "6"], "temper>twelve": ["El temperamento se vuelve un problema práctico cuando un instrumento tiene solo doce notas fijas. Cantantes y violinistas pueden ajustar cada nota mientras tocan. Un teclado no puede, así que la coma tiene que colocarse en algún lugar.", "6"], "twelve>fifth": ["En una octava de doce pasos iguales, la quinta son siete pasos, 700 cents. Eso es solo dos cents más estrecho que una quinta pura, algo que la mayoría de las personas no puede oír.", "6"], "fifth>twelve": ["Las doce notas vienen de la quinta. Empieza en F, sube por quintas y devuelve cada nota a la octava: F, C, G, D, A, E, B, luego F sostenido, C sostenido, G sostenido, D sostenido y A sostenido. Tras doce pasos estás casi de vuelta en F.", "5,20"], "twelve>scales": ["Las escalas más comunes eligen algunas de las doce notas. La pentatónica usa cinco, como las teclas negras, y la diatónica usa siete, como las teclas blancas. La mayoría de las melodías se mantiene dentro de cinco o siete notas a la vez.", "18"], "scales>twelve": ["Las doce notas son el conjunto completo del que eligen las escalas. Cambiar de tonalidad significa elegir otro grupo de siete entre las mismas doce, algo que funciona con tanta facilidad porque en el piano moderno las doce están igualmente espaciadas.", "18"], "clock>scales": ["En el reloj de doce notas, una escala es un conjunto de horas. Empieza en F y suma quintas, de siete horas cada vez. Cinco pasos dan la escala pentatónica, y siete dan la escala mayor.", "23"], "scales>clock": ["El reloj muestra por qué estas escalas suenan equilibradas. La escala mayor es la manera más pareja de colocar siete notas entre doce horas, y la pentatónica es la manera más pareja de colocar cinco.", "15"], "clock>twelve": ["En el reloj, sumar siete una y otra vez visita cada una de las doce horas antes de volver. Esto funciona porque 7 y 12 no tienen ningún factor común. Con pasos de 6 solo visitarías dos horas.", "23"], "twelve>clock": ["Doce notas caben con naturalidad en un reloj. Después de B vuelve C, igual que después de las once vienen las doce. Por eso los músicos dibujan el círculo de quintas como la esfera de un reloj.", "23"], "clock>rhythm": ["En un reloj de pulsos, un ritmo es un conjunto de puntos donde algo suena. Reparte siete golpes de la forma más pareja posible en doce pulsos y obtienes uno de los patrones de campana más comunes de África occidental.", "15"], "rhythm>clock": ["El reloj que organiza las escalas también organiza el tiempo. El patrón de campana de siete golpes en doce pulsos tiene exactamente la misma forma que la escala mayor en el reloj de doce notas.", "15"], "scales>modes": ["Un modo es una escala con una nota de casa elegida. Las siete teclas blancas dan siete modos, según qué nota se sienta como el final de la melodía.", "18"], "modes>scales": ["Una escala es un conjunto de notas, y se vuelve música cuando tiene una casa y una manera de moverse. Las mismas siete notas pueden sonar luminosas, como en el mayor, u oscuras, como en el frigio, según dónde descanse la melodía.", "18"], "modes>chords": ["Los acordes ayudan a explicar por qué el mayor y el menor se volvieron los modos principales de la música occidental. Ambos pueden terminar con una cadencia firme: un acorde de dominante cuya sensible sube hacia la nota de casa.", "18"], "chords>modes": ["Cada modo da acordes distintos. En el mayor, el acorde sobre la quinta nota contiene la sensible, que tira con fuerza hacia casa. El dórico y el mixolidio no tienen sensible, así que para lograr el mismo final firme los músicos alteraban una nota hacia arriba, y con el tiempo esto fue llevando estos modos hacia el mayor y el menor.", "18"], "chords>harmonics": ["La serie armónica contiene el acorde mayor. Los armónicos 4, 5 y 6 de un C grave son C, E y G, en la razón 4:5:6.", "1"], "harmonics>chords": ["Un acorde puede oírse como una nota desplegada. En 1722, Jean-Philippe Rameau sostuvo que la armonía nace de este acorde natural que hay dentro de cada nota, y sobre él construyó su teoría de la fundamental de un acorde.", "1"], "chords>roughness": ["En la armonía, la aspereza es un color que los compositores colocan a propósito. Un acorde de séptima de dominante es áspero y parece querer moverse, y el acorde al que va es más suave. Gran parte de la armonía occidental se construye sobre este movimiento de la tensión al reposo.", "3"], "roughness>chords": ["Los coros usan la aspereza para afinar sus acordes. En un acorde mayor, los cantantes bajan la tercera unos 14 cents respecto a la tercera del piano. En ese punto sus armónicos coinciden con los de las otras notas, los batimientos desaparecen y el acorde resuena.", "3"], "scales>raga": ["Un rāga usa una escala y añade mucho más: reglas para subir y bajar, notas que se acentúan o se evitan, frases típicas y ornamentos. Dos rāgas pueden usar exactamente las mismas notas y ser, aun así, músicas claramente distintas.", "13"], "raga>scales": ["En la música india, la escala es el material básico de un rāga. La teoría carnática enumera 72 escalas madre, las melakarta, y de ellas derivan miles de rāgas.", "13"], "scales>andes": ["La música andina es un buen lugar para oír la escala pentatónica en uso cotidiano. Muchas melodías tradicionales del Altiplano son pentatónicas, y las canciones más recientes a menudo se mueven entre la pentatónica, el mayor y el menor.", "17"], "andes>scales": ["En el siku, la escala la comparten dos músicos. Cada hilera de la zampoña tiene una nota de cada dos, así que ninguno de los dos puede tocar la escala entera solo, y la melodía existe únicamente cuando tocan ambos.", "17"], "temper>maqam": ["El maqām conserva las notas que caen entre las teclas del piano. Una cuadrícula de 24 o 53 pasos por octava es una manera de escribir estas notas, pero los músicos las sitúan de oído, y su altura exacta depende del maqām y de la región.", "14"], "maqam>temper": ["Desde el punto de vista del maqām, el temperamento igual es una elección posible entre muchas. Con doce notas iguales, los intervalos neutros que dan su carácter al maqām Rast o al Bayātī no se pueden tocar.", "14"], "temper>gamelan": ["La afinación del gamelan va contra la idea de un estándar único. Cada juego de instrumentos se afina en relación consigo mismo, y los músicos valoran las diferencias entre gamelanes. Una sola afinación universal borraría lo que hace reconocible a cada uno.", "12"], "gamelan>temper": ["El gamelan muestra que la mejor afinación depende del instrumento. Las láminas y gongs de bronce tienen armónicos que no están espaciados de forma regular, así que los intervalos que suenan suaves en ellos son distintos de los de las cuerdas o las voces.", "12"], "raga>rhythm": ["En la música india, el ritmo se organiza en tāla, ciclos de pulsos que se cuentan con palmadas y gestos de la mano. Un final habitual, el tihāī, repite una frase tres veces, calculada para que la última nota caiga justo en el primer pulso del ciclo, llamado sam.", "13"], "rhythm>raga": ["El ritmo indio juega a través del ciclo. Grupos de 3, 5 o 7 se colocan contra el tāla, lo que crea tensión, y la tensión se libera cuando la música vuelve al sam, el primer pulso.", "23"], "rhythm>africa": ["La música de África occidental superpone varios pulsos al mismo tiempo. Los bailarines pueden seguir una capa y los músicos otra, y la música vive en cómo encajan las capas.", "15"], "africa>rhythm": ["En la música de África occidental, el ritmo es una conversación entre partes alrededor de un patrón de campana fijo. Tres contra dos es el suelo habitual de la música, presente casi todo el tiempo.", "15"], "rhythm>ratio": ["Un polirritmo es una razón en el tiempo. Tres pulsos contra dos es 3:2. Si lo aceleras por encima de unas veinte repeticiones por segundo, los pulsos se vuelven alturas y oyes una quinta justa.", "23"], "ratio>rhythm": ["La misma razón puede oírse como ritmo o como intervalo. 3:2 tocado lento es un polirritmo, y tocado rápido es una quinta. El Lab 8a del curso te deja oír cómo ocurre el cambio.", "23"], "rhythm>notation": ["La notación occidental escribe el tiempo como fracciones: blancas, negras y corcheas, con puntillos y tresillos para otras duraciones. Las notas de cada compás tienen que sumar lo que indica el compás.", "23"], "notation>rhythm": ["El ritmo es lo más difícil de escribir por completo. Los pequeños retrasos y empujones que hacen que la música tenga swing o groove no están en la partitura, y los intérpretes los aprenden escuchando.", "23"], "notation>log": ["El pentagrama es un gráfico logarítmico. Cada línea o espacio hacia arriba es un paso de la escala, y una octava ocupa la misma altura en cualquier lugar del pentagrama, como ocurre a lo largo de la cóclea.", "4"], "log>notation": ["La notación usa logaritmos sin decirlo. Una partitura coloca intervalos iguales a alturas iguales, lo que coincide con la manera en que el oído los oye.", "4"], "kepler>ratio": ["Kepler buscó razones musicales en el cielo. Encontró que la razón entre la velocidad más rápida y la más lenta de Saturno, vista desde el Sol, se acerca a 5:4, una tercera mayor, y la de Marte a 3:2, una quinta.", "16"], "ratio>kepler": ["Las razones simples sí aparecen en órbitas reales. Planetas y lunas a menudo se asientan en periodos con razones como 2:1 o 3:2, llamadas resonancias orbitales. Neptuno da tres vueltas al Sol mientras Plutón da dos.", "16"], "kepler>resonance": ["La resonancia llega hasta las estrellas. El Sol vibra en millones de modos a la vez, y midiendo estas vibraciones los astrónomos pueden ver su interior. Este campo se llama heliosismología.", "16"], "resonance>kepler": ["Una estrella vibra como una campana enorme. Medir sus frecuencias informa a los astrónomos sobre su densidad, su edad y sus capas internas. Los tonos son demasiado graves para que los oigamos, pero se pueden acelerar hasta volverlos sonido.", "16"], "andes>chords": ["Un conjunto de sikus logra un sonido pleno sin progresiones de acordes. Muchos músicos tocan juntos la misma melodía en tubos de distintos tamaños, a una octava o más de distancia, y la riqueza viene de estas capas.", "17"], "chords>andes": ["En un conjunto de sikus, la armonía nace de muchos tamaños de tubo tocando juntos la misma melodía, y de dos músicos que comparten una sola línea. Es otra manera de hacer que muchas voces suenen como una.", "17"], "maqam>log": ["Para describir el maqām con precisión hacen falta los cents. Una tercera neutra mide unos 350 cents, a medio camino entre la tercera menor del piano, de 300, y la tercera mayor, de 400, así que el piano no puede tocarla.", "4,14"], "log>maqam": ["Con los cents, los intervalos del maqām pueden compararse exactamente con otras afinaciones. La coma turca mide unos 22.6 cents, el cuarto de tono árabe 50 y la coma pitagórica 23.5.", "4,14"], "gamelan>timbre": ["En el gamelan, el timbre de los instrumentos da forma a la afinación. Las láminas y gongs de bronce tienen armónicos que no están ordenadamente espaciados, así que los intervalos que suenan suaves en ellos se alejan de las razones simples.", "12"], "timbre>gamelan": ["Gran parte del sonido del gamelan viene del bronce. Sus armónicos irregulares dan a los instrumentos su color resonante, y son parte de la razón por la que las escalas del gamelan difieren de las de las cuerdas y las voces.", "12"], "string>ratio": ["En una cuerda, una razón es una longitud que puedes medir. Dos tercios de la cuerda suenan una quinta más arriba, tres cuartos una cuarta más arriba y la mitad una octava más arriba.", "1"], "ratio>string": ["La cuerda fue el primer instrumento de la teoría musical. Con un monocordio, una cuerda tendida sobre una regla, los teóricos griegos y chinos midieron los intervalos como longitudes.", "20"]};
+  var PRESETS = [{"day": "M3", "label": "Por qué una quinta suena suave", "path": ["cochlea", "beats", "roughness", "fifth"], "note": "El Módulo 3 sigue este camino paso a paso, y el Lab 3b te deja oírlo y verlo.", "refs": "23"}, {"day": "M6", "label": "¿Por qué doce notas?", "path": ["ratio", "fifth", "comma", "temper", "twelve"], "note": "El Módulo 6 cuenta esta historia con una cuerda cortada por quintas en el Lab 6. Para la demostración con números primos, abre la coma y sigue su enlace a los primos.", "refs": "23"}, {"day": "M5", "label": "De la coma al piano", "path": ["comma", "temper", "twelve", "contfrac"], "note": "El Módulo 5 compara temperamentos históricos, y el Módulo 6 explica por qué tenemos doce notas.", "refs": "23"}, {"day": "M2", "label": "Una nota, muchas notas", "path": ["vibration", "string", "harmonics", "timbre", "fourier"], "note": "Módulos 1 y 2, con el Lab 2, donde construyes un sonido a partir de sus armónicos.", "refs": "23"}, {"day": "M9", "label": "Cantar los armónicos", "path": ["timbre", "resonance", "overtone", "harmonics"], "note": "Módulo 9, sobre voces, instrumentos y salas.", "refs": "23"}, {"day": "M8", "label": "El ritmo se vuelve altura", "path": ["rhythm", "ratio", "fifth"], "note": "Módulo 8, con el Lab 8a, donde un polirritmo se acelera hasta volverse un intervalo.", "refs": "23"}, {"day": "M8", "label": "Ciclos de tiempo", "path": ["clock", "rhythm", "africa"], "note": "Módulo 8, sobre ritmos parejos y patrones guía de África occidental.", "refs": "23"}, {"day": "M6", "label": "Escalas por el mundo", "path": ["scales", "raga", "rhythm", "africa"], "note": "Módulos 6 y 8.", "refs": "23"}, {"day": "M3", "label": "Naturaleza o cultura", "path": ["roughness", "gamelan", "temper", "maqam"], "note": "El Módulo 3 termina con esta pregunta, y el Módulo 5 muestra otras respuestas.", "refs": "23"}, {"day": "M10", "label": "El cielo como música", "path": ["kepler", "ratio", "string", "harmonics"], "note": "Módulo 10, con los intervalos de Kepler en el Lab 10.", "refs": "23"}];
+  var DAYS = [["all", "Todos los m\u00f3dulos"], ["M0", "0"], ["M1", "1"], ["M2", "2"], ["M3", "3"], ["M4", "4"], ["M5", "5"], ["M6", "6"], ["M7", "7"], ["M8", "8"], ["M9", "9"], ["M10", "10"], ["M11", "11"]];
+
+  function low(s) { return s.replace(/^(El|La|Los|Las) /, function (m) { return m.toLowerCase(); }); }
+  function cites(refStr) {
+    return '<sup class="cite">' + refStr.split(",").map(function (r) {
+      return '<a href="#r' + r + '" aria-label="Fuente ' + r + '">' + r + "</a>";
+    }).join(", ") + "</sup>";
+  }
+  function fmt(t) { return t.replace(/\{([\d,]+)\}/g, function (m, r) { return cites(r); }); }
+
+  var adj = {};
+  Object.keys(N).forEach(function (k) { adj[k] = []; });
+  function key(a, b) { return a < b ? a + "|" + b : b + "|" + a; }
+  E.forEach(function (e) { adj[e[0]].push(e[1]); adj[e[1]].push(e[0]); });
+  function reading(src, tgt) {
+    var p = P[src + ">" + tgt];
+    return p ? p[0] + " " + cites(p[1]) : "";
+  }
+
+  var path = [];
+  var preset = null;
+  var mode = "none";       /* story | node | pair */
+  var sel = null;
+  var pair = null;
+  var day = "all";
+  var focusField = null;
+
+  function mk(tag, attrs, parent) {
+    var el = document.createElementNS(NS, tag);
+    for (var k in attrs) el.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(el);
+    return el;
+  }
+  var svg = document.getElementById("sky");
+  var panel = document.getElementById("panel");
+
+  var defs = mk("defs", {}, svg);
+  Object.keys(DISC).forEach(function (d) {
+    var rg = mk("radialGradient", { id: "g-" + d }, defs);
+    mk("stop", { offset: "0%", style: "stop-color:var(--c-" + d + ");stop-opacity:0.95" }, rg);
+    mk("stop", { offset: "35%", style: "stop-color:var(--c-" + d + ");stop-opacity:0.35" }, rg);
+    mk("stop", { offset: "100%", style: "stop-color:var(--c-" + d + ");stop-opacity:0" }, rg);
+  });
+  var neb = mk("g", { "class": "nebula" }, svg);
+  [["math", 160, 230, 190], ["phys", 520, 210, 190], ["ear", 420, 400, 140], ["theory", 250, 620, 200], ["world", 330, 800, 190]].forEach(function (z) {
+    mk("circle", { cx: z[1], cy: z[2], r: z[3], fill: "url(#g-" + z[0] + ")", opacity: 0.2 }, neb);
+  });
+  var seed = 5;
+  function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+  var dg = mk("g", {}, svg);
+  for (var i = 0; i < 110; i++) {
+    mk("circle", { cx: (rnd() * 660).toFixed(1), cy: (rnd() * 920).toFixed(1), r: (0.5 + rnd() * 0.8).toFixed(2), "class": "dust", style: "--o:" + (0.15 + rnd() * 0.45).toFixed(2) + ";animation-delay:-" + (rnd() * 5).toFixed(1) + "s" }, dg);
+  }
+
+  var edgeEls = {};
+  var eg = mk("g", {}, svg);
+  E.forEach(function (e) {
+    var a = N[e[0]], b = N[e[1]];
+    var gid = "e-" + e[0] + "-" + e[1];
+    var lgd = mk("linearGradient", { id: gid, gradientUnits: "userSpaceOnUse", x1: a.x, y1: a.y, x2: b.x, y2: b.y }, defs);
+    mk("stop", { offset: "0%", style: "stop-color:var(--c-" + a.d + ")" }, lgd);
+    mk("stop", { offset: "100%", style: "stop-color:var(--c-" + b.d + ")" }, lgd);
+    edgeEls[key(e[0], e[1])] = mk("line", { x1: a.x, y1: a.y, x2: b.x, y2: b.y, "class": "edge", stroke: "url(#" + gid + ")" }, eg);
+  });
+
+  var H = [16, 15, 12, 10, 9, 8, 6, 5, 4];
+  function freqOf(k) { var y = N[k].y, l = Math.round(Math.min(8, Math.max(0, (y - 60) / 800 * 8))); return 110 * H[l]; }
+  var soundOn = true;
+  try { if (localStorage.getItem("wim-sound") === "off") soundOn = false; } catch (e) {}
+  var AC = null;
+  function ac() { if (!AC) { var C = window.AudioContext || window.webkitAudioContext; if (!C) return null; AC = new C(); } if (AC.state === "suspended") AC.resume(); return AC; }
+  function pluck(f, when, vol) {
+    var c = ac(); if (!c) return;
+    var t = c.currentTime + (when || 0), g = c.createGain();
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol || 0.16, t + 0.012); g.gain.exponentialRampToValueAtTime(0.0008, t + 1.6);
+    g.connect(c.destination);
+    [[1, 1], [2, 0.28], [3, 0.1]].forEach(function (h) {
+      var o = c.createOscillator(), og = c.createGain(); o.type = "sine"; o.frequency.value = f * h[0]; og.gain.value = h[1];
+      o.connect(og); og.connect(g); o.start(t); o.stop(t + 1.7);
+    });
+  }
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var fx = null;
+  function floatNotes(k, delay) {
+    if (reduce || !fx) return;
+    setTimeout(function () {
+      var n = N[k];
+      [0, 1].forEach(function (i) {
+        var tx = mk("text", { x: n.x + (i ? 9 : -4), y: n.y - 6, "class": "fnote", fill: "var(--c-" + n.d + ")", style: "animation-delay:" + (i * 0.18) + "s;--dx:" + (i ? 14 : -10) + "px" }, fx);
+        tx.textContent = i ? "\u266B" : "\u266A";
+        setTimeout(function () { if (tx.parentNode) tx.parentNode.removeChild(tx); }, 1900);
+      });
+    }, (delay || 0) * 1000);
+  }
+  function play(k, when) { if (soundOn) pluck(freqOf(k), when); floatNotes(k, when); }
+  function playPath(ks) { ks.forEach(function (k, i) { play(k, i * 0.32); }); }
+  var sb = document.getElementById("soundBtn");
+  function paintSound() { sb.textContent = soundOn ? "\u266A Sonido activado" : "\u266A Sonido desactivado"; sb.setAttribute("aria-pressed", soundOn ? "true" : "false"); }
+  sb.addEventListener("click", function () { soundOn = !soundOn; try { localStorage.setItem("wim-sound", soundOn ? "on" : "off"); } catch (e) {} paintSound(); if (soundOn) pluck(440, 0, 0.1); });
+  paintSound();
+
+  var nodeEls = {};
+  var justDragged = false;
+  var ng = mk("g", {}, svg);
+  Object.keys(N).forEach(function (k) {
+    var n = N[k];
+    var g = mk("g", { "class": "node", "data-id": k, tabindex: "0", role: "button", "aria-label": n.name + ", " + DISC[n.d].n }, ng);
+    mk("circle", { cx: n.x, cy: n.y, r: 26, "class": "halo", fill: "url(#g-" + n.d + ")" }, g);
+    var big = ["harmonics", "ratio", "fifth", "beats", "twelve", "scales", "rhythm", "timbre", "temper", "gamelan", "kepler"].indexOf(k) > -1, col = "var(--c-" + n.d + ")";
+    mk("line", { x1: n.x + 7.4, y1: n.y + 2.5, x2: n.x + 7.4, y2: n.y - 13, stroke: col, "stroke-width": 1.8, "stroke-linecap": "round" }, g);
+    if (big) mk("path", { d: "M" + (n.x + 7.4) + " " + (n.y - 13) + " q 1.5 5.4 7 8 q -3.1 -0.8 -7 -2.8", fill: col, stroke: col, "stroke-width": 1.2, "stroke-linejoin": "round" }, g);
+    mk("ellipse", { cx: n.x, cy: n.y + 2.5, rx: 8.6, ry: 6, transform: "rotate(-22 " + n.x + " " + (n.y + 2.5) + ")", fill: col }, g);
+    mk("ellipse", { cx: n.x - 2.2, cy: n.y + 1.2, rx: 2.6, ry: 1.5, transform: "rotate(-22 " + (n.x - 2.2) + " " + (n.y + 1.2) + ")", fill: "var(--core)", opacity: 0.75 }, g);
+    mk("circle", { cx: n.x, cy: n.y, r: 13, "class": "ring" }, g);
+    mk("circle", { cx: n.x, cy: n.y, r: 24, "class": "hitc" }, g);
+    var t = mk("text", { "class": "lbl" }, g);
+    var L = n.lines.length;
+    n.lines.forEach(function (ln, i) {
+      var x, y, anchor;
+      if (n.pos === "above") { x = n.x; y = n.y - 19 - (L - 1 - i) * 17; anchor = "middle"; }
+      else if (n.pos === "below") { x = n.x; y = n.y + 27 + i * 17; anchor = "middle"; }
+      else if (n.pos === "left") { x = n.x - 15; y = n.y + 5 - (L - 1) * 8.5 + i * 17; anchor = "end"; }
+      else { x = n.x + 15; y = n.y + 5 - (L - 1) * 8.5 + i * 17; anchor = "start"; }
+      var ts = mk("tspan", { x: x, y: y, "text-anchor": anchor }, t);
+      ts.textContent = ln;
+    });
+    g.addEventListener("click", function () { if (justDragged) { justDragged = false; return; } tap(k); });
+    g.addEventListener("keydown", function (ev) { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); tap(k); } });
+    g.addEventListener("pointerenter", function (ev) { if (ev.pointerType === "mouse") { hov = k; paintMap(); } });
+    g.addEventListener("focus", function () { hov = k; paintMap(); });
+    dragSetup(g, k);
+    nodeEls[k] = g;
+  });
+
+  fx = mk("g", { "class": "fx", "pointer-events": "none" }, svg);
+  svg.addEventListener("pointerleave", function () { if (hov) { hov = null; paintMap(); } });
+  var lg = document.getElementById("legend");
+  var legBtns = {};
+  Object.keys(DISC).forEach(function (d) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.innerHTML = '<i class="dot" style="background:var(--c-' + d + ')"></i>' + DISC[d].n;
+    b.addEventListener("click", function () { focusField = focusField === d ? null : d; render(); });
+    lg.appendChild(b);
+    legBtns[d] = b;
+  });
+
+  var allBtn = document.createElement("button");
+  allBtn.type = "button"; allBtn.textContent = "Mostrar todas las ideas";
+  allBtn.addEventListener("click", function () { showAll = !showAll; allBtn.className = showAll ? "active" : ""; allBtn.textContent = showAll ? "Mostrar las ideas principales" : "Mostrar todas las ideas"; paintMap(); });
+  lg.appendChild(allBtn);
+  var pr = document.getElementById("presets");
+  var presetBtns = PRESETS.map(function (p, i) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.innerHTML = '<span class="d">' + p.day + "</span>" + p.label;
+    b.addEventListener("click", function () { mode = "story"; preset = i; path = p.path.slice(); render(); playPath(path); });
+    pr.appendChild(b);
+    return b;
+  });
+
+  var dr = document.getElementById("days");
+  var dayBtns = DAYS.map(function (d) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.textContent = d[1];
+    b.addEventListener("click", function () { day = d[0]; render(); });
+    dr.appendChild(b);
+    return b;
+  });
+
+  var rl = document.getElementById("refs");
+  REFS.forEach(function (r) {
+    var li = document.createElement("li");
+    li.id = "r" + r[0];
+    li.value = r[0];
+    if (r[2]) {
+      var a = document.createElement("a");
+      a.href = r[2]; a.target = "_blank"; a.rel = "noopener"; a.textContent = r[1];
+      li.appendChild(a);
+    } else {
+      li.textContent = r[1];
+    }
+    rl.appendChild(li);
+  });
+
+  function hasDay(k) {
+    return N[k].s.some(function (x) { return x[0] === day; });
+  }
+
+  function tap(id) {
+    if (mode === "node" && sel && sel !== id) { openPair(sel, id); return; }
+    play(id);
+    if (mode === "pair" && pair && pair.tgt === id) { mode = "node"; sel = id; render(); return; }
+    mode = "node"; sel = id; render();
+  }
+  function openPair(src, tgt) {
+    if (src === tgt) { tap(src); return; }
+    mode = "pair"; pair = { src: src, tgt: tgt }; sel = null; render();
+    play(src); play(tgt, 0.3); if (soundOn) { pluck(freqOf(src), 0.75, 0.1); pluck(freqOf(tgt), 0.75, 0.1); }
+  }
+
+  function chain(a, b) {
+    var prev = {}, seen = {}, q = [a];
+    seen[a] = true;
+    while (q.length) {
+      var c = q.shift();
+      if (c === b) break;
+      adj[c].forEach(function (nb) { if (!seen[nb]) { seen[nb] = true; prev[nb] = c; q.push(nb); } });
+    }
+    if (!seen[b]) return [];
+    var r = [b];
+    while (r[0] !== a) r.unshift(prev[r[0]]);
+    return r;
+  }
+
+  var BIG = ["harmonics", "ratio", "fifth", "beats", "twelve", "scales", "rhythm", "timbre", "temper", "gamelan", "kepler"];
+  var hov = null, showAll = false;
+  function paintMap() {
+    var shown = [], nexts = [], inEdge = {};
+    if (mode === "story") {
+      shown = path;
+      for (var i = 0; i < path.length - 1; i++) inEdge[key(path[i], path[i + 1])] = true;
+    } else if (mode === "node") {
+      shown = [sel];
+      nexts = adj[sel];
+    } else if (mode === "pair") {
+      shown = [pair.src, pair.tgt];
+      var c = chain(pair.src, pair.tgt);
+      for (var j = 0; j < c.length - 1; j++) inEdge[key(c[j], c[j + 1])] = true;
+    }
+    var vis = {};
+    function reveal(k) { vis[k] = true; }
+    BIG.forEach(reveal);
+    shown.forEach(reveal); nexts.forEach(reveal);
+    if (hov) { reveal(hov); adj[hov].forEach(reveal); }
+    Object.keys(N).forEach(function (k) {
+      if (showAll || (day !== "all" && hasDay(k)) || (focusField && N[k].d === focusField)) vis[k] = true;
+    });
+    Object.keys(edgeEls).forEach(function (k) {
+      var cls = "edge";
+      var ends = k.split("|");
+      if (!vis[ends[0]] || !vis[ends[1]]) cls += " hid";
+      if (inEdge[k]) cls += " path";
+      else if (mode === "node" && (ends[0] === sel || ends[1] === sel)) cls += " next";
+      if (day !== "all" && !(hasDay(ends[0]) && hasDay(ends[1])) && !inEdge[k]) cls += " faded";
+      if (focusField && N[ends[0]].d !== focusField && N[ends[1]].d !== focusField && !inEdge[k]) cls += " faded";
+      edgeEls[k].setAttribute("class", cls);
+    });
+    Object.keys(nodeEls).forEach(function (k) {
+      var cls = "node";
+      if (shown.indexOf(k) > -1) cls += " inpath";
+      else if (nexts.indexOf(k) > -1) cls += " next";
+      else if (shown.length) cls += " dimmed";
+      if (day !== "all") cls += hasDay(k) ? " dayhit" : " off";
+      if (focusField && N[k].d !== focusField) cls += " off";
+      if (!vis[k]) cls += " hid";
+      nodeEls[k].setAttribute("class", cls);
+    });
+  }
+
+  function render() {
+    paintMap();
+    presetBtns.forEach(function (b, i) { b.className = mode === "story" && preset === i ? "active" : ""; });
+    dayBtns.forEach(function (b, i) { b.className = DAYS[i][0] === day ? "active" : ""; });
+    Object.keys(legBtns).forEach(function (d) { legBtns[d].className = focusField === d ? "active" : ""; });
+    if (mode === "story") renderStory();
+    else if (mode === "node") renderNode();
+    else if (mode === "pair") renderPair();
+    else renderNone();
+    if (mode !== "none" && window.innerWidth < 900 && panel.getBoundingClientRect().top > 60) panel.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (mode !== "none") {
+      panel.insertAdjacentHTML("afterbegin", '<button type="button" class="x" aria-label="Cerrar">\u00d7</button>');
+      panel.querySelector(".x").addEventListener("click", function () { mode = "none"; sel = null; pair = null; path = []; preset = null; render(); });
+    }
+  }
+  function renderNone() {
+    panel.innerHTML = '<div class="empty"><h2>Elige una idea</h2><p>Toca una idea en el mapa para leer sobre ella, o elige una historia arriba para seguir un camino por el curso. Arrastra una idea sobre otra conectada, o toca dos seguidas, para leer la segunda a través de la primera.</p></div>';
+  }
+  function fit() {}
+
+  function sessHtml(k) {
+    var items = N[k].s;
+    var html = '<p class="sess-h">En el curso</p><ul class="sess">';
+    items.forEach(function (x) {
+      var on = day !== "all" && x[0] === day;
+      html += '<li' + (on ? ' class="on"' : "") + '><a href="' + COURSE + '#m' + x[0].slice(1) + '" target="_blank" rel="noopener">' + x[2] + "</a></li>";
+    });
+    return html + "</ul>";
+  }
+
+  function stepHtml(k, num, withSess) {
+    var n = N[k];
+    return '<section class="step"><div class="num" style="background:var(--c-' + n.d + ')">' + (num || "") + "</div><div><h3>" + n.name +
+      '</h3><p class="disc"><i class="dot" style="background:var(--c-' + n.d + ')"></i>' + DISC[n.d].n + '</p><p class="t">' + fmt(n.text) + "</p>" +
+      (withSess ? sessHtml(k) : "") + "</div></section>";
+  }
+
+  function renderStory() {
+    if (!path.length) {
+      panel.innerHTML = '<div class="empty"><h2>Elige una idea</h2><p>Toca una idea para leer sobre ella. Arrastra una idea sobre otra conectada, o toca dos seguidas, para leer la segunda a través de la primera. Una historia es un buen lugar para empezar.</p></div>';
+      return;
+    }
+    var html = '<div class="actions"><button type="button" id="rev"' + (path.length < 2 ? " disabled" : "") + '>Leer al revés</button></div>';
+    html += '<p class="kicker">Una historia en ' + path.length + " ideas</p>";
+    html += '<p class="route">' + path.map(function (k) { return N[k].name; }).join('<span class="sep">→</span>') + "</p>";
+    if (preset !== null && PRESETS[preset].path.join() === path.join()) {
+      html += '<p class="note">En el curso: ' + PRESETS[preset].note + " " + cites(PRESETS[preset].refs) + "</p>";
+    }
+    path.forEach(function (k, i) {
+      html += stepHtml(k, i + 1, true);
+      if (i < path.length - 1) {
+        var nx = path[i + 1];
+        html += '<p class="link"><span class="from">' + N[nx].name + " a través de " + low(N[k].name) + "</span>" + reading(k, nx) +
+          '<br><button type="button" class="lnk" data-s="' + nx + '" data-t="' + k + '">Leer al revés</button></p>';
+      }
+    });
+    panel.innerHTML = html;
+    var rev = document.getElementById("rev");
+    if (rev) rev.addEventListener("click", function () { path.reverse(); preset = null; render(); });
+    panel.querySelectorAll(".lnk").forEach(function (b) {
+      b.addEventListener("click", function () { openPair(b.getAttribute("data-s"), b.getAttribute("data-t")); });
+    });
+  }
+
+  function renderNode() {
+    var html = '<p class="kicker">Una idea</p>' + stepHtml(sel, "", true);
+    html += '<p class="kicker lensk">Conectada con</p><div class="row" id="nb"></div>';
+    html += '<p class="hint0">Arrastra esta idea sobre una idea conectada, o toca otra, para leer esa idea a través de esta.</p>';
+    panel.innerHTML = html;
+    var nb = document.getElementById("nb");
+    adj[sel].forEach(function (k) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = N[k].name;
+      b.addEventListener("click", function () { openPair(sel, k); });
+      nb.appendChild(b);
+    });
+  }
+
+  function renderPair() {
+    var a = N[pair.src], b = N[pair.tgt];
+    var html = '<div class="actions"><button type="button" id="swap">Leer al revés</button><button type="button" id="back">Volver a ' + low(a.name) + "</button></div>";
+    html += '<p class="kicker">Una idea vista a través de otra</p>';
+    html += '<p class="route">' + b.name + '<span class="sep">a través de</span>' + low(a.name) + "</p>";
+    var txt = reading(pair.src, pair.tgt);
+    if (txt) {
+      html += '<p class="reading">' + txt + "</p>";
+    } else {
+      var c = chain(pair.src, pair.tgt);
+      html += '<p class="hint0">Estas dos ideas no están conectadas directamente. El camino más corto entre ellas pasa por otras ideas, y cada conexión se lee así:</p>';
+      for (var i = 0; i < c.length - 1; i++) {
+        html += '<p class="reading small"><strong>' + N[c[i + 1]].name + " a través de " + low(N[c[i]].name) + ".</strong> " + reading(c[i], c[i + 1]) + "</p>";
+      }
+    }
+    html += '<details><summary>Las dos ideas en breve</summary>' + stepHtml(pair.src, "", true) + stepHtml(pair.tgt, "", true) + "</details>";
+    panel.innerHTML = html;
+    document.getElementById("swap").addEventListener("click", function () { openPair(pair.tgt, pair.src); });
+    document.getElementById("back").addEventListener("click", function () { mode = "node"; sel = pair.src; render(); });
+  }
+
+  function dragSetup(g, k) {
+    g.addEventListener("pointerdown", function (ev) {
+      if (ev.button !== undefined && ev.button !== 0) return;
+      var sx = ev.clientX, sy = ev.clientY, ghost = null, over = null;
+      try { g.setPointerCapture(ev.pointerId); } catch (e1) {}
+      function nodeAt(x, y) {
+        var el = document.elementFromPoint(x, y);
+        var n = el && el.closest ? el.closest(".node") : null;
+        return n ? n.getAttribute("data-id") : null;
+      }
+      function move(e) {
+        var dx = e.clientX - sx, dy = e.clientY - sy;
+        if (!ghost && Math.sqrt(dx * dx + dy * dy) > 8) {
+          ghost = document.createElement("div");
+          ghost.className = "chip ghost";
+          ghost.innerHTML = '<i class="dot" style="background:var(--c-' + N[k].d + ')"></i>' + N[k].name;
+          document.body.appendChild(ghost);
+        }
+        if (ghost) {
+          ghost.style.left = e.clientX + "px";
+          ghost.style.top = e.clientY + "px";
+          var id = nodeAt(e.clientX, e.clientY);
+          if (id === k) id = null;
+          if (id !== over) {
+            if (over) nodeEls[over].classList.remove("drop");
+            over = id;
+            if (over) nodeEls[over].classList.add("drop");
+          }
+        }
+      }
+      function up(e) {
+        g.removeEventListener("pointermove", move);
+        g.removeEventListener("pointerup", up);
+        g.removeEventListener("pointercancel", up);
+        try { g.releasePointerCapture(ev.pointerId); } catch (e2) {}
+        if (ghost) {
+          var id = e.type === "pointerup" ? nodeAt(e.clientX, e.clientY) : null;
+          if (ghost.parentNode) ghost.parentNode.removeChild(ghost);
+          if (over) nodeEls[over].classList.remove("drop");
+          justDragged = true;
+          setTimeout(function () { justDragged = false; }, 60);
+          if (id && id !== k) openPair(k, id);
+        }
+      }
+      g.addEventListener("pointermove", move);
+      g.addEventListener("pointerup", up);
+      g.addEventListener("pointercancel", up);
+    });
+  }
+
+  fit();
+  render();
+
+})();
+</script>
+
+</body>
+</html>
