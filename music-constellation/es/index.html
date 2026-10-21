@@ -13,6 +13,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="description" content="Un mapa de las ideas del curso ¿Qué es la música?, con lecturas en los dos sentidos.">
 <title>Constelación musical</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Cstyle%3E.s%7Bstroke:%232B2118%7D%40media %28prefers-color-scheme:dark%29%7B.s%7Bstroke:%23EFE5D3%7D%7D%3C/style%3E%3Cpath class="s" d="M60 70V14q3 15 22 22q-13-2-22-7" fill="none" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/%3E%3Ccircle cx="42" cy="72" r="17" fill="none" stroke="%23BF5B2C" stroke-width="11"/%3E%3C/svg%3E">
 <script src="/assets/js/display.js"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bellefair&family=Hanken+Grotesk:wght@400;500;600&display=swap">
 <style>
@@ -253,6 +254,9 @@ footer h2 { margin-top: 18px; }
 .fnote { font-size: 15px; font-family: serif; opacity: 0; animation: fnote 1.7s ease-out forwards; }
 @keyframes fnote { 0% { opacity: 0; transform: translate(0, 0); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx), -46px); } }
 .soundbtn { font: inherit; font-size: 0.9rem; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; }
+.brandrow { display: flex; align-items: center; gap: 12px; }
+.brandrow h1 { margin: 0; }
+.logo { width: 44px; height: 44px; flex: none; }
 .sitetools { display: flex; align-items: center; gap: 8px; }
 .langs { display: flex; gap: 4px; }
 .langs a { font: 600 13px system-ui, sans-serif; text-decoration: none; color: var(--fg); border: 1px solid var(--line); border-radius: 999px; padding: 5px 10px; }
@@ -270,7 +274,8 @@ footer h2 { margin-top: 18px; }
 
 <div class="wrap">
   <header class="top">
-    <h1>¿Qué es la música? La constelación</h1>
+    <div class="brandrow"><svg class="logo" viewBox="0 0 100 100" aria-hidden="true"><path d="M58 70 V18 q3 14 20 20 q-12 -2 -20 -6" fill="none" stroke="var(--fg)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="44" cy="72" r="15" fill="none" stroke="#C8653A" stroke-width="8"/><circle cx="39" cy="67" r="3.4" fill="#E0A43C"/></svg>
+    <h1>¿Qué es la música? La constelación</h1></div>
     <div class="right"><p class="hint">Toca una idea para escuchar su nota y ver las ideas a su alrededor.</p><button class="soundbtn" id="soundBtn" type="button" aria-pressed="true">Sonido activado</button><div class="sitetools"><span data-display-settings-slot></span><div class="langs" aria-label="Idioma"><a href="/music-constellation/" hreflang="en" lang="en">EN</a><a href="/music-constellation/es/" hreflang="es" lang="es" aria-current="true">ES</a></div></div></div>
   </header>
   <p class="back">Un mapa de las ideas de <a href="/what-is-music/es/">¿Qué es la música?</a>, un curso a través de muchas lentes.</p>
