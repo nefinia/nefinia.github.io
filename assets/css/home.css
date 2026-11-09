@@ -165,3 +165,14 @@ body:not(.inner) main::before{content:"";position:absolute;inset:0;z-index:-1;po
   .langs.open .lang-more{display:flex}
   .langs .lang-more a{padding:8px 10px!important;text-align:center}
 }
+
+/* welcome line + come-in */
+.welcome{margin:0;font-size:14px;line-height:1.7;color:var(--dim);max-width:46ch}
+.come-in{position:relative;z-index:3;padding:56px 16px 72px;border-top:1px solid var(--line)}
+.come-in-inner{max-width:640px;margin:0 auto;display:grid;gap:16px}
+.come-in h2{margin:0;font:900 26px/1.2 Roboto,Helvetica,Arial,sans-serif;color:var(--ink)}
+.come-in p{margin:0;font-size:15px;line-height:1.7;color:var(--dim)}
+.come-in ul{list-style:none;margin:4px 0;padding:0;display:grid;gap:10px}
+.come-in li{font-size:15px;line-height:1.6;color:var(--dim);padding-left:14px;border-left:2px solid var(--glow)}
+.come-in li strong{color:var(--ink);font-weight:700}
+.come-in .tlink{font-size:13px}
