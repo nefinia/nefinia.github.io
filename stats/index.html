@@ -80,6 +80,7 @@ details summary{cursor:pointer}
       <div class="card"><h2>Countries</h2><div id="tCountry"></div></div>
       <div class="card"><h2>Devices</h2><div id="tDev"></div></div>
     </div>
+    <div class="card" id="gaCard" hidden><h2>Google Analytics, before Tally</h2><div class="muted" style="font-size:.85rem;margin-bottom:6px">Totals from Google Analytics, 1 Jan 2025 to 10 Nov 2026. Google counts sessions, Tally counts openings, so these numbers sit apart from the charts above.</div><div id="tGA"></div></div>
     <div class="card"><details><summary><b>About these numbers</b></summary><p>Counts are anonymous totals per hour: no cookies, no visitor codes, no IP addresses. Day and hour in the download are in UTC. Counter names: <code>open</code> one opening, <code>page:…</code> which page, <code>tab:…</code> and <code>act:…</code> buttons, <code>country:…</code>, <code>lang:…</code>, and for games <code>play:…</code>, <code>win:…</code>, <code>minute:…</code>.</p></details></div>
   </div>
 </div>
@@ -96,6 +97,10 @@ const siteOf=a=>DOM[a]||"sofiagallego.com · "+(SITE[a]||a);
 const MAIN=["sofiagallego.com","sofi.games","cosmoventures.fr","sofiaserenata.com","mapideas.org"];
 const hit=r=>!APP||(APP.startsWith("site:")?domOf(r[0])===APP.slice(5):r[0]===APP.slice(4));
 const appName=()=>APP.startsWith("site:")?APP.slice(5):(SITE[APP.slice(4)]||APP.slice(4));
+const GA=[
+  {site:"cosmoventures.fr",sessions:125,engaged:42,note:"Direct 69, search 27, other sites 27, social 2. 207 page views from 94 people; the home page has 146 of them."},
+  {site:"sofiaserenata.com",sessions:260,engaged:38,note:"Direct 245, other sites 10, search 3."}
+];
 let FAILED=[];
 let KEY="",DAYS=30,APP="",ROWS=[];
 try{KEY=localStorage.getItem("tally.key")||"";DAYS=+(localStorage.getItem("tally.days")||30)}catch(e){}
@@ -155,6 +160,9 @@ function render(){
   const tiles=[[fmt(total),"openings"],[fmt(actions),"actions"],[fmt(tot(pref("minute:"))),"minutes played (games)"],[back+neu?Math.round(back/(back+neu)*100)+"%":"–","of game visits from returning players"]];
   $("#tiles").innerHTML=tiles.map(t=>`<div class="tile"><div class="v">${t[0]}</div><div class="l">${t[1]}</div></div>`).join("");
   $("#status").textContent=ROWS.length?`${DAYS?`Last ${DAYS===1?"day":DAYS+" days"}`:"Everything"}${APP?" · "+appName():""}${FAILED.length?" · not reachable: "+FAILED.join(", "):""}`:"No data for this period yet.";
+  const gaRows=GA.filter(g=>!APP||APP==="site:"+g.site);
+  $("#gaCard").hidden=!gaRows.length;
+  $("#tGA").innerHTML=gaRows.length?`<table><thead><tr><th>Site</th><th class="n">Sessions</th><th class="n">Engaged</th><th>Where from</th></tr></thead><tbody>${gaRows.map(g=>`<tr><td>${esc(g.site)}</td><td class="n">${fmt(g.sessions)}</td><td class="n">${fmt(g.engaged)}</td><td>${esc(g.note)}</td></tr>`).join("")}</tbody></table>`:"";
   // per day
   const byDay=sumBy(opens,r=>r[1]);let days=[...byDay.keys()].sort();
   if(DAYS){days=[];for(let i=DAYS-1;i>=0;i--)days.push(local(new Date(Date.now()-i*864e5).toISOString().slice(0,10),12).day)}
