@@ -196,7 +196,7 @@
       const pts = SECTIONS.map(s=>[s.v.x-14,s.v.y-14,28,28]);
       const cost=(s,side,placed)=>{ const bx=lboxFor(s,side); let c=inFrame(bx)?0:1e6;
         pts.forEach((p,i)=>{ if(SECTIONS[i]!==s) c+=area(bx,p)*50; });
-        placed.forEach(q=>{ c+=area(bx,q)*100; if(ov(bx,q,6)) c+=500; });
+        placed.forEach(q=>{ c+=area(bx,q)*100; if(ov(bx,q,6)) c+=500; else if(ov(bx,q,28)) c+=60; });
         return c + ({r:0,l:1,u:3,d:4})[side]; };
       const placed=[];
       SECTIONS.forEach(s=>{ let best='r',bc=Infinity;
@@ -217,7 +217,7 @@
       SECTIONS.forEach((s,i)=>{ s.v=picks[i]; });
       const c=placeLabels(); const score=Math.min(d,narrow?110:170) - c;
       if(score>bestScore){bestScore=score;bestSeed=sd;}
-      if(c===0 && d>(narrow?105:150)) break;
+      if(c<60 && d>(narrow?105:150)) break;
     }
     voronoi(rng(bestSeed)); pick(x0,x1); render(rng(bestSeed+101));
     SECTIONS.forEach((s,i)=>{ s.v=picks[i]; s.paths=s.v.nb.map(([n])=>edgePath(s.v,verts[n])); });
