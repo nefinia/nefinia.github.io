@@ -16,6 +16,8 @@ body.inner::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:n
 .page .lead-in{font-size:19px;color:var(--ink)}
 .page a{color:var(--glow);text-decoration:none;border-bottom:1px solid rgba(185,198,255,.35)}
 .page a:hover{border-bottom-color:var(--glow)}
+.page .lead-in a.site-link{color:var(--ink);font-weight:700;border-bottom:2px solid var(--glow)}
+.page .lead-in a.site-link:hover{color:var(--glow)}
 .page ul{padding-left:20px}
 .page li{margin-bottom:8px;color:#cfd3e6}
 .page em,.page i{color:inherit}
