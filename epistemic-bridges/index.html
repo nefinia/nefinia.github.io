@@ -80,19 +80,18 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 <section class="abstract">
 <h2>In short</h2>
-<p>Creativity often happens in the space between ideas, where concepts that seem unrelated turn out to connect. In Bridges, a short web game, people link two simple ideas, such as a bee and a mirror, in any way they like. The same pairs went to 15 open language models, from GPT-2 (2019) to Qwen3 (2025). The players' answers draw a map of where people go, and each model is described by how much of that map it reaches, with no judge: every answer is placed in a space of meaning, and the rest is counting.</p>
-<p>Measured the usual way, chat training seems to close the map almost completely. Most of that comes from the voice: chat models wrap every answer in the same way of speaking. With the voice removed from every answer in the same way, a smaller gap remains in the ideas, clearest for the newest models.</p>
+<p>Creativity often happens in the space between ideas, where concepts that seem unrelated turn out to connect. In the web game Bridges, players link two simple ideas, such as a bee and a mirror, in any form. The same pairs went to 15 open models from 2019 to 2025. The human answers draw a map of where people go. Each model is described, without any judge, by how many of its answers land on that map and how much of the map it reaches.</p>
+<p>Measured as written, chat training seems to close the map. Most of that gap is the voice. With the voice removed from every answer in the same way, the newest chat models still reach less of the ideas than people, and take the most common connection more often.</p>
 </section>
 
+<h2>The game</h2>
+<p>Each round shows two ideas joined by a dashed arrow, and the player writes how to get from one to the other: a sentence, a chain of words, a memory. Six pairs go to every player, two concrete, two mixed and two abstract, each in one direction. Twenty-two players wrote 115 bridges, and the main comparison uses the 86 English answers of the 16 players who did all six. A typical answer has 9 words.</p>
+<p>The same pairs, in the same words, went to the models, ten times per pair and direction. A base model is trained only to continue text. Chat models go through a second stage of training that teaches them to answer as a helpful assistant, with the clear, safe and sensible answer that people rate highly. People cannot be scored against a map they drew, so the players are split in two halves, and one half is placed on the other half's map like a model.</p>
 
-<h2>The game and the map</h2>
-<p>Two ideas appear, joined by an arrow, and the player writes how to get from one to the other: a sentence, a chain of words, a memory. Six pairs go to everyone, two concrete, two mixed and two abstract, each in one direction. Twenty-two players wrote 115 bridges, and the main comparison uses the 86 English answers from the 16 players who did all six. The models answered the same text ten times per pair and direction, with no persona, with reasoning personas, with creative conditions and at different temperatures.</p>
-<p>Each answer becomes a point in a space of meaning, where answers that say similar things sit close together. Around each player's answer there is a small sphere, and together these spheres are the human map. For a model, two numbers follow: how many of its answers land on the map, and how many of the places people went it comes close to. People cannot be measured against a map they drew, so the players are split in two halves many times, and one half is placed on the other half's map like a model.</p>
-
-<h2>The voice and the ideas</h2>
-<p>Measured the usual way, the results look dramatic. The same Qwen2.5 7B model reaches about half of the places people went before chat training, and 1 in 17 after. The newest model, Qwen3 8B, reaches 1 in 100. Looking at the answers explains much of it. A typical chat answer begins: “While the transition from a bee to a mirror may seem inexplicably bizarre on the surface, we can creatively construct a connection through a series of steps…”. Almost every chat answer opens like this, so their first sentences all land on the same spot.</p>
-<p>That shared voice can be measured on its own, as how often a set of answers repeats the same sentence patterns. Chat models repeat more than people, up to a third more for the Qwen models from 7 to 14 billion parameters. Base models, trained only to continue text, repeat a little less than people. Chat training gives the models one voice.</p>
-<p>The ideas can be measured on their own too. Every answer, from players and models alike, loses the sentences that only talk about the task, and keeps its content words. On this map of ideas, half of the players reach 8 of every 10 places the other half went, and so do the base models and most older and smaller chat models. The newest and largest reach about 6: Qwen3 8B 62%, Qwen3 32B 57%. They also take the most common connection in about half of their answers, against one in three for people. gpt-oss 20B stays close to people in ideas, and still takes the common connection more often than any model.</p>
+<h2>Voice or ideas</h2>
+<p>As written, Qwen2.5 7B reaches 54% of the human map before chat training and 6% after, and the newest model, Qwen3 8B, reaches 1%. A look at the answers changes the picture. A typical chat answer begins: “While the transition from a bee to a mirror may seem inexplicably bizarre on the surface, we can creatively construct a connection through a series of steps…”. Most chat answers open this way, so they all land on the same spot.</p>
+<p>Chat training gives the models a voice, and the voice is shared: their sentence patterns repeat more than people's, most of all for the Qwen models from 7 to 14 billion parameters, while base models repeat less than people.</p>
+<p>With the voice removed from every answer in the same way, the gap in ideas is much smaller. Half of the players reach 83% of the other half's map of ideas, the base models about as much, and so do the older and smaller chat models. The newer and larger ones reach less: Qwen2.5 7B 68%, Qwen3 8B 62%, Qwen3 32B 57%. They also take the most common connection, like the hourglass for salt and clock, in about half of their answers, against a third for people.</p>
 <figure class="wide"><div class="plate"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 475.2 316.8" xmlns="http://www.w3.org/2000/svg" version="1.1">
  
  <defs>
@@ -732,10 +731,10 @@ z
  </defs>
 </svg>
 </div>
-<figcaption><b>Figure 1.</b> Each group placed by how much of the human map of ideas it reaches (horizontal) and how much its voice repeats (vertical). The star is half of the players against the other half. Qwen2.5 7B before chat training (blue) and after (orange); creative conditions on the same chat model (green); more randomness on the same model (dashed). Grey bars: standard error from leaving out one player at a time.</figcaption></figure>
+<figcaption><b>Figure 1.</b> Horizontal: share of the human map of ideas reached, voice removed. Vertical: repetition of the voice. The star is half of the players against the other half. Qwen2.5 7B before chat training (blue) and after (orange); creative conditions on the same chat model (green); more randomness (dashed). Grey bars: standard error from leaving out one player at a time.</figcaption></figure>
 
 <h2>Personas and randomness</h2>
-<p>Asked to answer with a persona, chat models change their voice more than their ideas. Every creative condition makes the sentence patterns more varied. In ideas, most stay within the noise, and a few narrow the map: with a story, Qwen2.5 7B reaches only about a third of it, as if the story became the common connection. One condition widens the ideas on every model: answering as an ordinary person drawn at random, such as a 62-year-old fisherwoman in La Serena who mends her own nets. It adds about one place in ten. The reasoning personas from earlier work on false epistemic redundancy change little, and the one that explains everything through purpose narrows the map by about four places in ten.</p>
+<p>As written, every creative condition seemed to open the map. Measured apart, they mostly change the voice. Only an ordinary life drawn at random, such as a fisherwoman in La Serena who mends her own nets, widens the ideas on every model. With a story, the newest models narrow the ideas, as if the story itself became the common connection. The reasoning personas from false epistemic redundancy change the ideas little, or narrow them.</p>
 <figure class="narrow"><div class="plate"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 432 349.2" xmlns="http://www.w3.org/2000/svg" version="1.1">
  
  <defs>
@@ -1422,11 +1421,11 @@ z
  </defs>
 </svg>
 </div>
-<figcaption><b>Figure 2.</b> Change from the same model with no persona. Left: places reached on the map of ideas. Right: repetition of the voice. Reasoning personas on 10 chat models (blue), creative conditions on 5 (orange).</figcaption></figure>
-<p>Randomness reaches further and loses its way. At a temperature of 1.6, Qwen2.5 7B reaches more of the map of ideas than with any persona, while a third of its answers land where no person went; at 2.0, more than half. The ordinary person moves the answers toward places people go.</p>
+<figcaption><b>Figure 2.</b> Change from the same model with no persona. Left: share of the map of ideas reached. Right: repetition of the voice. Reasoning personas (blue), creative conditions (orange).</figcaption></figure>
+<p>Randomness gives a different shape. More temperature reaches more of the map of ideas, and more of the answers fall where no person went. Randomness spreads the answers; an ordinary life moves them toward places people go.</p>
 
 <h2>Pairs and direction</h2>
-<p>Abstract pairs lowered people's variety only a little. A strong shared connection lowers it more: for spider and melody, more than half of the players went through a web or a nursery rhyme. For chat models, the direction of the arrow changes the answer in 35 of 60 cases; for people, in none of the six pairs, although with so few answers per direction a small effect would be hard to see.</p>
+<p>Abstract pairs change people's answers less than expected. What lowers diversity is a strong shared connection, like the web or the nursery rhyme for spider and melody. For chat models the starting idea changes the answer in 35 of 60 cases; for people, in none of the six pairs, although with so few answers a small effect would be hard to see.</p>
 <figure class="wide"><div class="plate"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 532.8 237.6" xmlns="http://www.w3.org/2000/svg" version="1.1">
  
  <defs>
@@ -2152,10 +2151,10 @@ z
  </defs>
 </svg>
 </div>
-<figcaption><b>Figure 3.</b> Left: different answers per answer for each pair, people and chat models. Right: pull of the starting idea, positive when answers sit closer to where they start.</figcaption></figure>
+<figcaption><b>Figure 3.</b> Left: different answers per answer for each pair. Right: pull of the starting idea.</figcaption></figure>
 
 <h2>The warm-up, before and after ChatGPT</h2>
-<p>The ten-word warm-up links today's players to people tested before AI chatbots. Players today score 83 on average, against 78 in the published scores from before ChatGPT, within the same range. There is no sign here that people have become less divergent, although the two groups of people differ. The models' warm-up scores do not follow their bridges: Qwen3 scores 79 to 80 on single words and reaches the least of the map of ideas.</p>
+<p>The ten-word warm-up links today's players to people tested before AI chatbots. Players today score 83, against 78 in the published scores from before ChatGPT. There is no sign that people have become less divergent, although the two samples differ. The models' scores do not follow their bridges: Qwen3 scores 80 on single words and reaches the least.</p>
 <figure class="narrow"><div class="plate"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 446.4 273.6" xmlns="http://www.w3.org/2000/svg" version="1.1">
  
  <defs>
@@ -2692,19 +2691,19 @@ z
  </defs>
 </svg>
 </div>
-<figcaption><b>Figure 4.</b> Warm-up scores. Grey band: people tested before ChatGPT. Black: players today. Models with no persona: base in blue, chat in orange.</figcaption></figure>
+<figcaption><b>Figure 4.</b> Warm-up scores. Grey band: people tested before ChatGPT. Black: players today. Base models in blue, chat models in orange.</figcaption></figure>
 
 <h2>What no model reaches</h2>
-<p>Some bridges stay far from every AI answer, even with every persona and temperature together. The farthest are personal: a wish kept secret, a place from childhood, an object reused in a garden, an afternoon at the sea. After them come an old meaning of a word, and play with the sound or the letters of the words themselves.</p>
+<p>Some human bridges stay far from all AI answers. The farthest are personal: a wish kept secret, a place from childhood, an object reused in a garden, an afternoon at the sea. After them come an old meaning of a word, and play with the sound of the words themselves.</p>
 
 <h2>What it suggests</h2>
-<p>Chat training changes the voice first and the ideas less. The voice matters on its own: a connection said in a person's own words carries something of that person, and when every answer arrives in the same voice, readers meet one way of thinking. Under the voice, the newest models still reach less of where people go and return more often to the common connection. Measuring diversity in AI needs the two apart, since the usual measure mixed them and changed tenfold once they were separated.</p>
-<p>A harmonic interaction between people and machines would preserve what people do well, the personal, the sensory, the playful, each in its own voice, and add what machines do well, such as speed and breadth across disciplines. The ordinary person drawn at random points to one simple way: many lives, many voices, and a measure of how much ground they cover together.</p>
+<p>Chat training narrows the voice first, and the ideas less. The voice matters in its own right: a connection said in a person's own words carries something of that person, and when every answer arrives in the same voice, readers meet one way of thinking. Measuring diversity needs the voice and the ideas apart.</p>
+<p>A harmonic interaction would preserve what people do well, the personal, the sensory, the playful, each in its own voice, and enhance what machines can add, such as speed and breadth across disciplines.</p>
 
-<h2>How sure these numbers are</h2>
-<p>Repeating the measurement eleven times moves the places reached by 1 to 3 in a hundred. A second batch of answers from the same model moves them by 3 to 7. Leaving out one player at a time moves them by 5 to 12, so with 16 players only the larger gaps are clear: the voice of chat models, and the gap between people and the newest models in ideas. The effect of chat training on the ideas of one 7B model is within that uncertainty. More players, from other fields and languages, are the next step.</p>
+<h2>Limits</h2>
+<p>The human map comes from 16 players, mostly engineers who use AI every day, so only the larger gaps are clear: the voice of chat models, and the gap between people and the newest models in ideas. More players, from other fields and languages, are the next step.</p>
 
-<p class="foot">Draft of 15 November 2026. Every number on this page comes from the analysis scripts in the repository, where the full paper is in <code>paper/</code>. Player answers stay private. Models: GPT-2 XL, GPT-J 6B, Vicuna 7B, Zephyr 7B, Phi-3 mini, OLMo 2 7B, Qwen2.5 (0.5B to 14B, chat and base), Qwen3 8B and 32B, gpt-oss 20B. Reasoning personas from Gallego and Habana, <i>False Epistemic Redundancy: Do AI Ensembles Share a Blind Spot?</i> (Apart Research, 2026).</p>
+<p class="foot">Draft of 15 November 2026. Every number on this page comes from the analysis scripts in the repository, and the full paper is in <code>paper/</code>. Player answers stay private. Reasoning personas from Gallego and Habana, <i>False Epistemic Redundancy: Do AI Ensembles Share a Blind Spot?</i> (Apart Research, 2026).</p>
 </div>
 
 </body>
