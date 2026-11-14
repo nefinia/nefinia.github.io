@@ -68,54 +68,45 @@ ul { padding-left: 20px; } li { margin-bottom: 6px; max-width: 64ch; }
 a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (max-width: 520px) { body { font-size: 16px; padding-block: 0; } .sheet { padding-top: 32px; box-shadow: none; } }
 </style>
-</head>
-<body>
 
-<div class="sheet">
+<style>
+.sheet ol, .sheet ul.terms { padding-left: 1.2em; }
+.sheet ul.terms { list-style: none; padding-left: 0; }
+.sheet ul.terms li { margin: 0 0 .6em; }
+.sheet ol.refs { font-size: 14px; color: var(--ink-2); }
+.sheet ol.refs li { margin-bottom: .35em; }
+.sheet p.note { font-family: var(--sans); font-size: 13.5px; color: var(--ink-2); }
+</style>
+
+</head>
+<body><div class="sheet">
 <p class="venue">AI × Epistemics Research Sprint · Apart Research · November 2026 · Draft</p>
 <h1>Epistemic Bridges</h1>
 <p class="subtitle">Do language models reach the connections people make?</p>
 <p class="byline">Sofia G. Gallego · CosmoVentures, Paris · Play at <a href="https://mapideas.org/bridges">mapideas.org/bridges</a> · Code at <a href="https://github.com/nefinia/epistemic-bridges">github.com/nefinia/epistemic-bridges</a></p>
-
-<section class="abstract">
-<h2>Abstract</h2>
-<p>Creativity often happens in the space between ideas, where concepts that seem unrelated turn out to connect. This study asks how much of the space of connections that people make between two ideas language models reach. In a short multilingual game, Bridges, 22 players linked two simple ideas, such as a bee and a mirror, in any form they liked. The same pairs went to 15 open models released between 2019 and 2025, with and without personas and at different temperatures.</p>
-<p>Measured as written, chat training seems to close the map of where people go: the same 7B model reaches 54% of it before chat training and 6% after. Most of that gap is the voice. Chat answers share one way of speaking, and their sentence patterns repeat more than people's. With the voice removed from every answer in the same way, most of the largest and newest chat models still reach less of the human map of ideas, 57% to 68% against 83% for people, and take the most common connection more often. Creative conditions change the voice more than the ideas. Only one widens the ideas on every model: asking it to answer as an ordinary person drawn at random, such as a fisherwoman who mends her own nets.</p>
-</section>
-
-<div class="keys">
-  <div class="key"><b>54% → 6%</b><span>Share of the human map reached by Qwen2.5 7B before and after chat training, measured as written</span></div>
-  <div class="key"><b>4.0 · 5.4</b><span>Repetition of sentence patterns: players, and the newest model tested (Qwen3 8B)</span></div>
-  <div class="key"><b>83% · 57%</b><span>Share of the human map of ideas reached, voice removed: half of the players, and Qwen3 32B</span></div>
-  <div class="key"><b>83 · 78</b><span>Warm-up word score of players today, and of people tested before ChatGPT</span></div>
-</div>
-
-<h2>1 · The question</h2>
+<section class="abstract"><h2>Abstract</h2><p>Creativity often happens in the space between ideas, where concepts that seem unrelated turn out to connect. We ask how much of the space of connections that people make between two ideas language models reach. In the web game Bridges, players link two simple ideas, such as a bee and a mirror, in any form. We collected 115 bridges from 22 players and gave the same pairs to 15 open models from 2019 to 2025, with and without personas and at different temperatures. The human answers draw a map of where people go, and each model is described, without any judge, by how much of that map it reaches and how many of its answers land on it. Measured as written, chat training seems to close the map: the same 7B model reaches 54% of it before chat training and 6% after. Most of that gap is the voice. Chat answers share one way of speaking, and their sentence patterns repeat more than people's. With the voice removed from every answer in the same way, most of the largest and newest chat models still reach less of the human map of ideas (57% to 68%, against 83% for people) and take the most common connection more often. Creative conditions change the voice more than the ideas. Only one widens the ideas on every model: asking it to answer as an ordinary person drawn at random, such as a fisherwoman. Measuring diversity in AI needs the voice and the ideas apart.</p></section>
+<h2>1 · Introduction</h2>
 <p>How can people and AI think together in a way that keeps the space of ideas open, and even widens it? Any concept can be described in many ways: a physicist, a poet and a cook each bring a different perspective to the same word. Much of creativity, innovation and improvement happens between those perspectives, in the space between ideas that seem connected or not. A harmonic interaction between humans and machines would preserve that space, and enrich it where it can.</p>
-<p>More and more thinking now passes through AI tools, which learn from what is already written. If those tools pull everyone toward the same connections, each person may feel more creative while the group as a whole explores less. So the study asks how much of the ground that people cover models reach, and what they miss. The pairs are simple and universal on purpose, so nobody needs to know a topic to play. The study is a first step toward a map of ideas (<a href="https://mapideas.org">mapideas.org</a>) and continues earlier work on false epistemic redundancy, which found that AI personas that look different can share the same blind spots.</p>
+<p>More and more thinking now passes through AI tools, which learn from what is already written. If those tools pull everyone toward the same connections, each person may feel more creative while the group as a whole explores less. Recent studies point that way from two directions. On the model side, chat training reduces the variety of what a model writes (Kirk et al. 2024), and models are more alike in their creative output than people are (Wenger and Kenett 2026). On the human side, help from AI can improve each person's ideas while making the ideas of a group more alike (Doshi and Hauser 2024; Anderson et al. 2024). Both lines of work mostly ask <i>how much</i> answers vary. We ask a question closer to the space itself: <i>how much of the ground that people cover do models reach, and what do they miss?</i></p>
+<p>To answer it, a measure needs a human reference and a task anyone can do. This paper reports a small, exploratory study built on Bridges, a game where people link two simple ideas in any form (<a href="https://mapideas.org/bridges">mapideas.org/bridges</a>). The pairs are simple and universal on purpose, so nobody needs to know a topic to play, and the game measures the act of connecting itself. The same pairs then go to language models of different ages, sizes and training. The study is a first step toward a map of ideas that shows how concepts relate across perspectives and leaves room for contrast (<a href="https://mapideas.org">mapideas.org</a>), and it continues earlier work on false epistemic redundancy, which found that AI personas that look different can share the same blind spots (Gallego and Habana 2026). Four questions guide the study:</p>
+<ol><li>How much of the human space of connections do models reach, how does that change with the age of the model, its size and chat training, and how much of the difference lies in the voice and how much in the ideas?</li><li>Can framings, reasoning personas or creative ones, widen what a model reaches, and how do they compare with plain randomness?</li><li>Do concrete and abstract pairs, or the direction of the arrow, change the answers of people and models?</li><li>How do players today compare with people tested before ChatGPT on a standard word task?</li></ol>
+<h2>2 · Related Work</h2>
+<p>Linking two fixed ends is an old game and an old idea. Lewis Carroll's <i>Doublets</i> (1879) turned one word into another one letter at a time, and Koestler later described creativity as the meeting of two unrelated frames of thought (Koestler 1964). Psychology turned the idea into measures. The Remote Associates Test asks for the one word linking three distant words (Mednick 1962), and work on conceptual combination studied how people join two concepts through a shared property or a relation (Wisniewski 1997). Word association norms go back to 1910, and Jenkins and Russell found that answers became more alike between 1910 and 1952 (Jenkins and Russell 1960), an early record of a culture narrowing how people connect. Players navigating Wikipedia from one article to another pass through a few central hubs (West and Leskovec 2012), and the daily game Linxicon asks players to chain single words between two random ones. Bridges keeps the form open, keeps the direction of the arrow, and puts people and models on the same pairs.</p>
+<p>Measuring creative diversity has its own tools. The Divergent Association Task scores how far apart ten words are (Olson et al. 2021) and was recently used to compare about 100,000 people with language models, finding that models beat the average person but not the most creative ones (Bellemare-Pepin et al. 2026). Ecology offers ways to count diversity as an effective number of kinds (Jost 2006), which the Vendi score brings to machine learning (Friedman and Dieng 2023). Precision and recall for generative models separate how close generated samples stay to real ones from how much of the real distribution they cover (Kynkäänniemi et al. 2019); we use the same idea with human answers as the reference. Wright et al. benchmark epistemic diversity in model claims against an external reference (Wright et al. 2025), an approach we share, and Le Bronnec et al. found that chat models gain precision and lose recall against human text (Le Bronnec et al. 2024). Diversity measures can mix how something is said with what is said. Tevet and Berant separate form from content and show that common metrics mostly follow form (Tevet and Berant 2021), and tuned models repeat sentence templates far more than people (Shaib et al. 2024). Different models also give strikingly similar answers to open questions (Jiang et al. 2025).</p>
+<p>Prompting can push back against narrow output. Personas of ordinary people raise the diversity of model-generated ideas (Deng et al. 2026), full backstories recover more human-like variety than role labels (Moon et al. 2024), multi-persona prompting widens design concepts (Feng et al. 2025), and asking a model to think step by step raises idea variance (Meincke et al. 2024). Most of this work measures variety among model outputs. Here every condition is measured against the same human map.</p>
+<h2>3 · Methods</h2>
 
-<h2>2 · How it works</h2>
-<p>Everything starts with the players. Two ideas appear, joined by a dashed arrow, and the player writes how to get from one to the other: a sentence, a chain of words, a memory, anything. Six core pairs go to everyone, two at each level of abstraction, each shown in one direction per player. After those six, players can stop or keep going with 24 more pairs: sixteen players finished the six, and four kept going. The same text then went to fifteen open models, ten times per pair and direction, and a model answers everything it is asked.</p>
-<p>Two kinds of model matter here. A <b>base model</b> is trained only to continue text it has read. <b>Chat training</b> is a second stage that teaches it to answer as a helpful assistant, with the clear, safe and sensible answers that people rate highly. Every chatbot has gone through it.</p>
-<p>To compare people and models without anyone grading them, each answer is read between its two ideas (“salt <i>[answer]</i> a clock”), cut to 40 words (nine in ten human answers are shorter, while chat models write around 150), and placed in a <b>space of meaning</b>, where close answers say similar things. In that space:</p>
-<ul>
-<li><b>The human map</b> is the region the players' answers cover, a small sphere around each one.</li>
-<li><b>On the map</b> (precision) is the share of a model's answers inside the human map: does it write the kind of connection people write?</li>
-<li><b>Map reached</b> (recall) is the share of human answers the model comes close to: does it reach the places people went?</li>
-<li><b>The human reference</b>: people cannot be scored against a map they drew, so the players are split at random in two halves, and one half is placed on the other half's map like a model.</li>
-<li><b>Temperature</b> is how much randomness a model adds as it writes. A <b>persona</b> is a short text asking the model to answer as someone or in some way.</li>
-</ul>
-<p>The same two numbers also answer the reverse question, with the models drawing the map and people placed on it: the share of human answers on a model's map is that model's map reached.</p>
-<p>Chat answers wrap the connection in a shared scaffolding: they announce the task, number steps and sum up. So the study also measures two things apart, treating people and models the same way:</p>
-<ul>
-<li><b>Voice</b>: how much a set of answers repeats the same sentence patterns, at the same length and number of answers (a compression ratio on parts of speech, after Shaib et al. 2024).</li>
-<li><b>Ideas</b>: every answer is cleaned the same way (formatting goes, and sentences that only talk about the task are dropped), reduced to its content words at a player's length, and placed on the human map half against half, like the players.</li>
-</ul>
-
-<h2>3 · What came out</h2>
-
-<h3>As written, chat models seem to close the map</h3>
-<p>GPT-2 and GPT-J reach about 70% of the human map, yet only a third of their answers land on it: coverage through noise, like monkeys at typewriters. Chat models land on the map more often and reach much less of it. Qwen2.5 7B reaches 54% before chat training and 6% after, and the newest model, Qwen3 8B, 1%. This is the kind of result usually reported, and it held with full answers, a shorter cut, other embedding models and all three languages together.</p>
+<h3>3.1 · The game and the players</h3>
+<p>Each round of Bridges shows two ideas joined by a dashed arrow, and the player writes how to get from one to the other, in any form: a sentence, a chain of words, a memory. Up to three stepping stones can be added. Six core pairs go to every player, two for each level of abstraction: two concrete things (bee and mirror, salt and clock), a concrete and an abstract one (river and secret, spider and melody), and two abstract ones (forgetting and festival, distance and habit). Each player sees each pair in one direction, chosen so that both directions get about the same number of players. After the six core pairs, players can stop or keep going with 24 more pairs, eight at each level (all pairs are listed in the paper's appendix). A ten-word warm-up comes first, and an AI bridge is shown only when a player asks for one. The game runs in five languages and needs no account.</p>
+<p>The game was shared during the sprint through AI safety communities and personal networks. Between 25 October and 14 November 2026, 22 players wrote 115 bridges, 93 of them in English. Sixteen players answered all six core pairs, and four of them kept going, with 8 more bridges on 7 of the other pairs. People stop when they want, while a model answers every pair it is given, so every comparison uses equal numbers of answers. The main analysis uses the 86 English answers to the six core pairs, from 16 players; the 21 Spanish and French answers, too few for maps of their own, join them in a check with all languages together. A typical answer has 9 words and takes about a minute. Most players who answered the optional questions use AI daily and work in engineering; a few work in the arts, sciences, health or social sciences, and one never uses AI.</p>
+<h3>3.2 · Models and conditions</h3>
+<p>The same pairs, in the same words, then went to 15 open models (Table 1), run with vLLM on Modal. Two are base models, GPT-2 XL (2019) and GPT-J 6B (2021). A base model is trained only to continue text it has read, so it simply carries on from the prompt. Chat models go through a second stage of training, here called <i>chat training</i> (instruction tuning and learning from human preferences), which teaches them to answer as a helpful assistant, with the kind of clear, safe and sensible answer that people rate highly. The chat models range from 2023 to 2025, mostly around 7 billion parameters, together with the Qwen2.5 family from 0.5 to 14 billion parameters and the base Qwen2.5 7B, so that size and chat training can each be seen on their own. Two larger 2025 models, Qwen3 32B and OpenAI's open gpt-oss 20B, answered in English with no persona, keeping only gpt-oss's final answer after its reasoning.</p>
+<p>Each model first answered every pair, direction and language 10 times with no persona. Chat models then answered again with the four reasoning personas from false epistemic redundancy (Gallego and Habana 2026), each built on a documented weakness in model reasoning: a causal mechanist (Ullman 2023), an analogical thinker (Lewis and Mitchell 2024), a teleological analyst (Goh et al. 2026) and a dialectical thinker (Abbasloo 2025). Because those personas were built for investigating, five chat models also answered with twelve creative conditions, built from the ways players connected ideas and from earlier work on prompting for diversity (Deng et al. 2026; Meincke et al. 2024): five ways of connecting (association, story, memory, senses, wordplay), three moods (playful, dreamy, a child's eyes), an ordinary life drawn at random from 30 short sketches, a small random constraint, and thinking step by step. Finally, two models answered with no persona at six temperatures from 0.4 to 2.0. All texts given to the models are in the paper's appendix, and sample answers are in the paper's appendix.</p>
+<h3>3.3 · Terms and measures</h3>
+<p>No language model grades any answer. All measures come from placing answers in a space of meaning and counting. The terms used in the rest of the paper are defined here.</p>
+<ul class="terms"><li><b>Space of meaning.</b> Each answer is turned into a list of numbers by a small embedding model (all-MiniLM-L6-v2), so that answers saying similar things sit close together and different answers sit far apart. Before this step, each answer is read between its two ideas (“salt <i>[answer]</i> a clock”), so that answers that fill the gap between the two ideas read as full sentences, and it is cut to its first 40 words. Nine in ten human answers are 40 words or shorter, while chat models write around 150; the cut gives every answer the same room. Results with the full answers are in the paper's appendix.</li><li><b>Voice and ideas.</b> Chat answers wrap the connection in a shared scaffolding: they announce the task, number steps and sum up. To measure the ideas on their own, every answer, human or AI, is cleaned the same way: formatting goes, and sentences that only talk about the task are dropped (the phrases are listed in the paper's appendix). The cleaning changes 1 in 10 player answers and 95% of chat answers. What remains is reduced to its content words (nouns, verbs and adjectives, without the two ideas of the pair), and each model answer keeps as many content words as a player's answer to the same pair. These are placed on the human map half against half, exactly like the human reference below; we call this the human map of ideas.</li><li><b>Repetition of the voice.</b> How much a set of answers compresses when written as parts of speech (Shaib et al. 2024), with each model answer cut to a player's length and as many answers as players gave. A set that repeats the same sentence patterns compresses more.</li><li><b>Temperature.</b> The amount of randomness a model adds as it writes. Low temperature gives the most likely words; high temperature gives more unusual ones, and at the top, nonsense.</li><li><b>Persona.</b> A short text placed before the question that asks the model to answer as someone or in some way.</li><li><b>The human map.</b> For each pair, the region of the space of meaning that the players' answers cover: a small sphere around each human answer, as wide as the distance to its third closest human neighbour (Kynkäänniemi et al. 2019; Le Bronnec et al. 2024).</li><li><b>On the map (precision).</b> The share of a group's answers that fall inside the human map. A high value means the group writes the kind of connection people write.</li><li><b>Map reached (recall).</b> The share of human answers that fall close to at least one of the group's answers, inside the group's own spheres. A high value means the group reaches most of the places people went.</li><li><b>Human reference.</b> People cannot be scored against a map they drew themselves, since they would cover all of it. So the players are split at random into two halves: one half draws the map and the other half is placed on it exactly like a model, over 200 random splits.</li><li><b>Different answers per answer.</b> The effective number of really different answers in a group (the Vendi score; Friedman and Dieng 2023), divided by the number of answers. It is 1 when every answer is different and close to 0 when all say the same thing.</li><li><b>Hub rate.</b> The share of answers that take the most common human bridge for that pair, such as the hourglass for salt and clock, or walking for distance and habit.</li><li><b>Direction shift.</b> For each pair, how far apart the answers going one way sit from the answers going the other way, compared with the same distance after shuffling the directions at random 2000 times. A shift larger than in 95% of the shuffles counts as a real difference.</li><li><b>Pull of the starting idea.</b> How much closer an answer sits to the idea it starts from than to the idea it ends at.</li><li><b>Warm-up score.</b> The Divergent Association Task score (Olson et al. 2021): the average distance between the first seven valid words of the warm-up, with the published GloVe word vectors, times 100.</li></ul>
+<p>Map reached and on the map are computed with as many answers from a group as there are human answers for that pair, averaged over 30 random draws and then over the six pairs, since a bigger group would reach more just by being bigger. The two numbers also answer the reverse question, where the models draw the map and people are placed on it. The share of human answers that land on a model's map is exactly that model's map reached, and the share of a model's map that people reach is exactly its share on the human map. Every result was checked again with two other embedding models, the full answers and a shorter cut (see the paper's appendix).</p>
+<h2>4 · Results</h2>
 <div class="table-wrap">
 <table>
 <thead><tr><th></th><th></th><th></th><th></th><th></th><th colspan="2" style="text-align:center">As written</th><th colspan="2" style="text-align:center">Ideas</th><th></th></tr><tr><th>Model</th><th>Year</th><th>Size</th><th>Words</th><th>Hub</th><th>On map</th><th>Reached</th><th>On map</th><th>Reached</th><th>Voice</th></tr></thead>
@@ -139,12 +130,14 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 </tbody></table>
 </div>
-<p style="font-family:var(--sans);font-size:13.5px;color:var(--ink-2)">English answers, temperature 1.0, no persona. Words: typical length of the full answer. Hub: share of answers taking the most common human bridge. Ideas: voice removed, content words only, half against half as for people. Voice: repetition of sentence patterns (higher is more repetitive). Ideas and voice are means of 11 runs of the measurement.</p>
+<p class="note"><b>Table 1.</b> Models with no persona, English, temperature 1.0. Words: median length of the full answer. Hub: share of answers taking the most common human bridge. As written: precision and recall of the answers as written, against the map of all players. Ideas: the same with the voice removed and content words only, half against half as for people. Voice: repetition of sentence patterns (higher is more repetitive). Ideas and voice are means of 11 runs of the measurement.</p>
 
-<h3>Voice or ideas</h3>
-<p>A typical chat answer, from Qwen2.5 7B, begins: “While the transition from a bee to a mirror may seem inexplicably bizarre on the surface, we can creatively construct a connection through a series of steps…”. The first forty words of most chat answers hold this kind of announcement and no connection yet, so they all land on the same spot. Chat training gives the models a voice, and the voice is shared: their sentence patterns repeat more than people's, most of all for the largest and newest models, while base models repeat less than people.</p>
-<p>With the voice removed from every answer in the same way, the gap in ideas is much smaller. Half of the players reach 83% of the other half's map of ideas, base models 79% to 85%, and older and smaller chat models about as much. The newer chat models of 7 billion parameters and more reach less: Qwen2.5 7B 68%, OLMo 2 and Qwen2.5 14B 65%, Qwen3 8B 62%, and the largest, Qwen3 32B, 57%. gpt-oss 20B is the exception, at 78%. The hub rate, which counts a shared connection directly, points the same way: larger chat models take the most common bridge in 41% to 54% of their answers, people in 34%.</p>
-<p>How sure are these numbers? Repeating the measurement moves ideas reached by 1 to 3 points, a second batch of answers from the same model by 3 to 7, and leaving out one player at a time by 5 to 12. So the voice result is clear, the gap between people and the Qwen3 models in ideas is clear, and the effect of chat training on the ideas of one 7B model is within what 16 players can tell.</p>
+<h3>4.1 · As written, chat models seem to close the map</h3>
+<p>The first step measures the answers as they come (Table 1). GPT-2 and GPT-J reach about 70% of the human map, yet only a third of their answers land on it: coverage through noise, like monkeys at typewriters. Chat models land on the map more often and reach much less of it. The clearest case keeps everything else the same: Qwen2.5 7B reaches 54% of the map before chat training and 6% after, larger chat models reach less, and the newest, Qwen3 8B, reaches 1%. This held with full answers, a shorter cut, other embedding models and all three languages together (see the paper's appendix).</p>
+<h3>4.2 · Voice or ideas</h3>
+<p>A look at what is being measured changes the picture. A typical chat answer, from Qwen2.5 7B, begins: “While the transition from a bee to a mirror may seem inexplicably bizarre on the surface, we can creatively construct a connection through a series of steps…”. The first forty words of most chat answers hold this kind of announcement and no connection yet, so they all land on the same spot. Chat training gives the models a voice, and the voice is shared: at the same length and number of answers, the sentence patterns of chat models repeat more than people's (4.3 to 5.5 against 4.0 in Table 1), most of all for Vicuna and the Qwen models from 7 to 14 billion parameters, while base models repeat less than people (3.5 to 4.2).</p>
+<p>With the voice removed from every answer in the same way, the gap in ideas is much smaller (Figure 1). Half of the players reach 83% of the other half's map of ideas, the base models 79% to 85%, and the older and smaller chat models about as much (74% to 83%). The newer chat models of 7 billion parameters and more reach less: Qwen2.5 7B 68%, OLMo 2 and Qwen2.5 14B 65%, Qwen3 8B 62%, and the largest, Qwen3 32B, 57%, while staying on the map most often (86%). gpt-oss 20B is the exception, at 78%. On the same 7B model, chat training moves the ideas reached from 81% to 68% and the voice from 4.2 to 5.3. The hub rate, which counts a shared connection directly and does not depend on embeddings, points the same way: chat models from 3.8 billion parameters up take the most common bridge in 41% to 54% of their answers, people in 34%, the base models in 5% to 23%.</p>
+<p>The largest uncertainty comes from the players: leaving out one at a time gives a standard error of 0.05 to 0.12 on ideas reached (see the paper's appendix). The voice result is clear: chat training raises the repetition of Qwen2.5 7B by 1.1 (standard error 0.2). In ideas, the gap between people and the Qwen3 models is clear, the gap for Qwen2.5 14B and OLMo 2 suggestive, and the effect of chat training on the same 7B model is within the uncertainty of 16 players.</p>
 <figure class="wide"><div class="plate"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 475.2 316.8" xmlns="http://www.w3.org/2000/svg" version="1.1">
  
  <defs>
@@ -783,11 +776,10 @@ z
   </clipPath>
  </defs>
 </svg>
-</div>
-<figcaption><b>Figure 1.</b> Voice and ideas. Horizontal: share of the human map of ideas reached, voice removed. Vertical: repetition of the voice. The star is half of the players against the other half. Qwen2.5 7B before chat training (blue) and after (orange); creative conditions on the same chat model (green); the same chat model at temperatures from 0.4 to 2.0 (dashed).</figcaption></figure>
-
-<h3>Personas and creative conditions change the voice more than the ideas</h3>
-<p>As written, every creative condition seemed to open the map, by up to 36 points. Measured apart, they mostly change the voice: every creative condition makes the sentence patterns less repetitive. In ideas, most stay within the difference between two samples of one model. Only an ordinary life drawn at random (“a 62-year-old fisherwoman in La Serena who mends her own nets”) widens the ideas on all five models, by 11 points on average. On the newest models several framings narrow the ideas, as if the framing became the hub. Randomness spreads answers widely, including away from where people go; an ordinary life moves them toward places people go.</p>
+</div><figcaption><b>Figure 1.</b> Voice and ideas. Horizontal: share of the human map of ideas reached, with the voice removed. Vertical: repetition of the voice. The star is half of the players against the other half. Qwen2.5 7B before chat training (blue) and after (orange); creative conditions on the same chat model (green); the same chat model at temperatures from 0.4 to 2.0 (dashed). Grey bars: standard error from leaving out one player at a time.</figcaption></figure>
+<h3>4.3 · Personas and creative conditions change the voice more than the ideas</h3>
+<p>As written, every creative condition seemed to open the map, by up to 36 points. Measured apart, they mostly change the voice (Figure 2, right): every creative condition makes the sentence patterns less repetitive, while the reasoning personas leave the voice as it is. In ideas, most conditions stay within the difference between two samples of one model (Figure 2, left). Only an ordinary life drawn at random widens the ideas on all five models, by 11 points on average (4 to 20). On the newest models several creative framings narrow the ideas, as if the framing itself became the hub: with a story, Qwen2.5 7B reaches 36% of the map of ideas. Among the reasoning personas, the teleological analyst, which explains everything through purpose, narrows the ideas by 40 points.</p>
+<p>Randomness gives a different shape. On Qwen2.5 7B, raising the temperature to 1.6 reaches 86% of the map of ideas, more than any persona, while the share of answers on the map falls to 63%, and to 44% at 2.0. An ordinary life reaches 77% with 73% of its answers on the map. Randomness spreads the answers, including away from where people go; an ordinary life moves them toward places people go.</p>
 <figure class="narrow"><div class="plate"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 432 349.2" xmlns="http://www.w3.org/2000/svg" version="1.1">
  
  <defs>
@@ -1473,740 +1465,12 @@ z
   </clipPath>
  </defs>
 </svg>
-</div>
-<figcaption><b>Figure 2.</b> Change from the same model with no persona. Left: share of the map of ideas reached. Right: repetition of the voice. Reasoning personas on 10 chat models (blue), creative conditions on 5 (orange).</figcaption></figure>
-
-<h3>Concrete and abstract pairs, and the direction of the arrow</h3>
-<p>The pairs were chosen at three levels of abstraction and shown in both directions. Level matters less than expected: people give about as many different answers for abstract pairs as for concrete ones. What lowers diversity is a strong shared hub, like the web or the nursery rhyme for spider and melody. Direction behaves differently for people and models. For chat models the starting idea changes the answer in 35 of 60 cases, partly because their answers open by naming where they start; for people no pair shows a shift beyond chance, although six to nine answers per direction make small effects hard to see. Both people and chat models lean slightly toward the idea they start from.</p>
-<figure class="wide"><div class="plate"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 532.8 237.6" xmlns="http://www.w3.org/2000/svg" version="1.1">
- 
- <defs>
-  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
- </defs>
- <g id="fig4-figure_1">
-  <g id="fig4-patch_1">
-   <path d="M 0 237.6 
-L 532.8 237.6 
-L 532.8 0 
-L 0 0 
-z
-" style="fill: #ffffff"/>
-  </g>
-  <g id="fig4-axes_1">
-   <g id="fig4-patch_2">
-    <path d="M 44.032109 184.286709 
-L 254.908125 184.286709 
-L 254.908125 22.56 
-L 44.032109 22.56 
-z
-" style="fill: #ffffff"/>
-   </g>
-   <g id="fig4-patch_3">
-    <path d="M 53.617383 184.286709 
-L 66.220857 184.286709 
-L 66.220857 62.087422 
-L 53.617383 62.087422 
-z
-" clip-path="url(#fig4-p97904854ba)" style="fill: #0b0b0b"/>
-   </g>
-   <g id="fig4-patch_4">
-    <path d="M 86.784419 184.286709 
-L 99.387893 184.286709 
-L 99.387893 71.222371 
-L 86.784419 71.222371 
-z
-" clip-path="url(#fig4-p97904854ba)" style="fill: #0b0b0b"/>
-   </g>
-   <g id="fig4-patch_5">
-    <path d="M 119.951455 184.286709 
-L 132.554929 184.286709 
-L 132.554929 59.902377 
-L 119.951455 59.902377 
-z
-" clip-path="url(#fig4-p97904854ba)" style="fill: #0b0b0b"/>
-   </g>
-   <g id="fig4-patch_6">
-    <path d="M 153.118491 184.286709 
-L 165.721965 184.286709 
-L 165.721965 94.039123 
-L 153.118491 94.039123 
-z
-" clip-path="url(#fig4-p97904854ba)" style="fill: #0b0b0b"/>
-   </g>
-   <g id="fig4-patch_7">
-    <path d="M 186.285527 184.286709 
-L 198.889001 184.286709 
-L 198.889001 75.818967 
-L 186.285527 75.818967 
-z
-" clip-path="url(#fig4-p97904854ba)" style="fill: #0b0b0b"/>
-   </g>
-   <g id="fig4-patch_8">
-    <path d="M 219.452563 184.286709 
-L 232.056037 184.286709 
-L 232.056037 83.08713 
-L 219.452563 83.08713 
-z
-" clip-path="url(#fig4-p97904854ba)" style="fill: #0b0b0b"/>
-   </g>
-   <g id="fig4-patch_9">
-    <path d="M 66.884197 184.286709 
-L 79.487671 184.286709 
-L 79.487671 137.890877 
-L 66.884197 137.890877 
-z
-" clip-path="url(#fig4-p97904854ba)" style="fill: #eb6834"/>
-   </g>
-   <g id="fig4-patch_10">
-    <path d="M 100.051233 184.286709 
-L 112.654707 184.286709 
-L 112.654707 142.337807 
-L 100.051233 142.337807 
-z
-" clip-path="url(#fig4-p97904854ba)" style="fill: #eb6834"/>
-   </g>
-   <g id="fig4-patch_11">
-    <path d="M 133.218269 184.286709 
-L 145.821743 184.286709 
-L 145.821743 142.389951 
-L 133.218269 142.389951 
-z
-" clip-path="url(#fig4-p97904854ba)" style="fill: #eb6834"/>
-   </g>
-   <g id="fig4-patch_12">
-    <path d="M 166.385306 184.286709 
-L 178.988779 184.286709 
-L 178.988779 149.868669 
-L 166.385306 149.868669 
-z
-" clip-path="url(#fig4-p97904854ba)" style="fill: #eb6834"/>
-   </g>
-   <g id="fig4-patch_13">
-    <path d="M 199.552342 184.286709 
-L 212.155815 184.286709 
-L 212.155815 150.462696 
-L 199.552342 150.462696 
-z
-" clip-path="url(#fig4-p97904854ba)" style="fill: #eb6834"/>
-   </g>
-   <g id="fig4-patch_14">
-    <path d="M 232.719378 184.286709 
-L 245.322852 184.286709 
-L 245.322852 146.630693 
-L 232.719378 146.630693 
-z
-" clip-path="url(#fig4-p97904854ba)" style="fill: #eb6834"/>
-   </g>
-   <g id="fig4-matplotlib.axis_1">
-    <g id="fig4-xtick_1">
-     <g id="fig4-line2d_1">
-      <defs>
-       <path id="fig4-m1499624fad" d="M 0 0 
-L 0 3.5 
-" style="stroke: #52514e; stroke-width: 0.8"/>
-      </defs>
-      <g>
-       <use xlink:href="#fig4-m1499624fad" x="66.552527" y="184.286709" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_1">
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(60.023386 197.306299)">bee</text>
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(55.851277 205.708213)">mirror</text>
-     </g>
-    </g>
-    <g id="fig4-xtick_2">
-     <g id="fig4-line2d_2">
-      <g>
-       <use xlink:href="#fig4-m1499624fad" x="99.719563" y="184.286709" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_2">
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(93.406985 197.306299)">salt</text>
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(90.730032 205.708213)">clock</text>
-     </g>
-    </g>
-    <g id="fig4-xtick_3">
-     <g id="fig4-line2d_3">
-      <g>
-       <use xlink:href="#fig4-m1499624fad" x="132.886599" y="184.286709" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_3">
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(124.811443 197.306299)">river</text>
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(122.097849 205.707666)">secret</text>
-     </g>
-    </g>
-    <g id="fig4-xtick_4">
-     <g id="fig4-line2d_4">
-      <g>
-       <use xlink:href="#fig4-m1499624fad" x="166.053635" y="184.286709" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_4">
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(155.221682 197.306299)">spider</text>
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(153.083401 205.708213)">melody</text>
-     </g>
-    </g>
-    <g id="fig4-xtick_5">
-     <g id="fig4-line2d_5">
-      <g>
-       <use xlink:href="#fig4-m1499624fad" x="199.220671" y="184.286709" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_5">
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(181.937234 197.306299)">forgetting</text>
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(186.478484 205.708213)">festival</text>
-     </g>
-    </g>
-    <g id="fig4-xtick_6">
-     <g id="fig4-line2d_6">
-      <g>
-       <use xlink:href="#fig4-m1499624fad" x="232.387707" y="184.286709" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_6">
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(217.557004 197.306299)">distance</text>
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(223.458332 205.708213)">habit</text>
-     </g>
-    </g>
-   </g>
-   <g id="fig4-matplotlib.axis_2">
-    <g id="fig4-ytick_1">
-     <g id="fig4-line2d_7">
-      <path d="M 44.032109 184.286709 
-L 254.908125 184.286709 
-" clip-path="url(#fig4-p97904854ba)" style="fill: none; stroke: #e4e3df; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="fig4-line2d_8">
-      <defs>
-       <path id="fig4-m9a8658e370" d="M 0 0 
-L -3.5 0 
-" style="stroke: #52514e; stroke-width: 0.8"/>
-      </defs>
-      <g>
-       <use xlink:href="#fig4-m9a8658e370" x="44.032109" y="184.286709" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_7">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #52514e" x="37.032109" y="187.705655" transform="rotate(-0 37.032109 187.705655)">0.0</text>
-     </g>
-    </g>
-    <g id="fig4-ytick_2">
-     <g id="fig4-line2d_9">
-      <path d="M 44.032109 164.070871 
-L 254.908125 164.070871 
-" clip-path="url(#fig4-p97904854ba)" style="fill: none; stroke: #e4e3df; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="fig4-line2d_10">
-      <g>
-       <use xlink:href="#fig4-m9a8658e370" x="44.032109" y="164.070871" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_8">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #52514e" x="37.032109" y="167.489816" transform="rotate(-0 37.032109 167.489816)">0.1</text>
-     </g>
-    </g>
-    <g id="fig4-ytick_3">
-     <g id="fig4-line2d_11">
-      <path d="M 44.032109 143.855032 
-L 254.908125 143.855032 
-" clip-path="url(#fig4-p97904854ba)" style="fill: none; stroke: #e4e3df; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="fig4-line2d_12">
-      <g>
-       <use xlink:href="#fig4-m9a8658e370" x="44.032109" y="143.855032" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_9">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #52514e" x="37.032109" y="147.273977" transform="rotate(-0 37.032109 147.273977)">0.2</text>
-     </g>
-    </g>
-    <g id="fig4-ytick_4">
-     <g id="fig4-line2d_13">
-      <path d="M 44.032109 123.639193 
-L 254.908125 123.639193 
-" clip-path="url(#fig4-p97904854ba)" style="fill: none; stroke: #e4e3df; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="fig4-line2d_14">
-      <g>
-       <use xlink:href="#fig4-m9a8658e370" x="44.032109" y="123.639193" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_10">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #52514e" x="37.032109" y="127.058139" transform="rotate(-0 37.032109 127.058139)">0.3</text>
-     </g>
-    </g>
-    <g id="fig4-ytick_5">
-     <g id="fig4-line2d_15">
-      <path d="M 44.032109 103.423355 
-L 254.908125 103.423355 
-" clip-path="url(#fig4-p97904854ba)" style="fill: none; stroke: #e4e3df; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="fig4-line2d_16">
-      <g>
-       <use xlink:href="#fig4-m9a8658e370" x="44.032109" y="103.423355" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_11">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #52514e" x="37.032109" y="106.8423" transform="rotate(-0 37.032109 106.8423)">0.4</text>
-     </g>
-    </g>
-    <g id="fig4-ytick_6">
-     <g id="fig4-line2d_17">
-      <path d="M 44.032109 83.207516 
-L 254.908125 83.207516 
-" clip-path="url(#fig4-p97904854ba)" style="fill: none; stroke: #e4e3df; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="fig4-line2d_18">
-      <g>
-       <use xlink:href="#fig4-m9a8658e370" x="44.032109" y="83.207516" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_12">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #52514e" x="37.032109" y="86.626461" transform="rotate(-0 37.032109 86.626461)">0.5</text>
-     </g>
-    </g>
-    <g id="fig4-ytick_7">
-     <g id="fig4-line2d_19">
-      <path d="M 44.032109 62.991677 
-L 254.908125 62.991677 
-" clip-path="url(#fig4-p97904854ba)" style="fill: none; stroke: #e4e3df; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="fig4-line2d_20">
-      <g>
-       <use xlink:href="#fig4-m9a8658e370" x="44.032109" y="62.991677" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_13">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #52514e" x="37.032109" y="66.410623" transform="rotate(-0 37.032109 66.410623)">0.6</text>
-     </g>
-    </g>
-    <g id="fig4-ytick_8">
-     <g id="fig4-line2d_21">
-      <path d="M 44.032109 42.775839 
-L 254.908125 42.775839 
-" clip-path="url(#fig4-p97904854ba)" style="fill: none; stroke: #e4e3df; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="fig4-line2d_22">
-      <g>
-       <use xlink:href="#fig4-m9a8658e370" x="44.032109" y="42.775839" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_14">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #52514e" x="37.032109" y="46.194784" transform="rotate(-0 37.032109 46.194784)">0.7</text>
-     </g>
-    </g>
-    <g id="fig4-ytick_9">
-     <g id="fig4-line2d_23">
-      <path d="M 44.032109 22.56 
-L 254.908125 22.56 
-" clip-path="url(#fig4-p97904854ba)" style="fill: none; stroke: #e4e3df; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="fig4-line2d_24">
-      <g>
-       <use xlink:href="#fig4-m9a8658e370" x="44.032109" y="22.56" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_15">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #52514e" x="37.032109" y="25.978945" transform="rotate(-0 37.032109 25.978945)">0.8</text>
-     </g>
-    </g>
-    <g id="fig4-text_16">
-     <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #0b0b0b" x="16.557188" y="103.423355" transform="rotate(-90 16.557188 103.423355)">Really different answers per answer</text>
-    </g>
-   </g>
-   <g id="fig4-line2d_25">
-    <path d="M 116.303081 184.286709 
-L 116.303081 22.56 
-" clip-path="url(#fig4-p97904854ba)" style="fill: none; stroke: #e4e3df; stroke-linecap: square"/>
-   </g>
-   <g id="fig4-line2d_26">
-    <path d="M 182.637153 184.286709 
-L 182.637153 22.56 
-" clip-path="url(#fig4-p97904854ba)" style="fill: none; stroke: #e4e3df; stroke-linecap: square"/>
-   </g>
-   <g id="fig4-patch_15">
-    <path d="M 44.032109 184.286709 
-L 44.032109 22.56 
-" style="fill: none; stroke: #52514e; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
-   </g>
-   <g id="fig4-patch_16">
-    <path d="M 44.032109 184.286709 
-L 254.908125 184.286709 
-" style="fill: none; stroke: #52514e; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
-   </g>
-   <g id="fig4-text_17">
-    <text style="font-size: 7px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52514e" x="83.136045" y="221.950411" transform="rotate(-0 83.136045 221.950411)">concrete</text>
-   </g>
-   <g id="fig4-text_18">
-    <text style="font-size: 7px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52514e" x="149.470117" y="221.950957" transform="rotate(-0 149.470117 221.950957)">concrete–abstract</text>
-   </g>
-   <g id="fig4-text_19">
-    <text style="font-size: 7px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52514e" x="215.804189" y="221.950957" transform="rotate(-0 215.804189 221.950957)">abstract</text>
-   </g>
-   <g id="fig4-text_20">
-    <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #0b0b0b" x="149.470117" y="16.56" transform="rotate(-0 149.470117 16.56)">Diversity by pair</text>
-   </g>
-   <g id="fig4-legend_1">
-    <g id="fig4-patch_17">
-     <path d="M 150.481172 35.008828 
-L 165.481172 35.008828 
-L 165.481172 29.758828 
-L 150.481172 29.758828 
-z
-" style="fill: #0b0b0b"/>
-    </g>
-    <g id="fig4-text_21">
-     <text style="font-size: 7.5px; font-family: 'DejaVu Sans'; text-anchor: start" x="171.481172" y="35.008828" transform="rotate(-0 171.481172 35.008828)">People</text>
-    </g>
-    <g id="fig4-patch_18">
-     <path d="M 150.481172 46.259414 
-L 165.481172 46.259414 
-L 165.481172 41.009414 
-L 150.481172 41.009414 
-z
-" style="fill: #eb6834"/>
-    </g>
-    <g id="fig4-text_22">
-     <text style="font-size: 7.5px; font-family: 'DejaVu Sans'; text-anchor: start" x="171.481172" y="46.259414" transform="rotate(-0 171.481172 46.259414)">Chat models (mean)</text>
-    </g>
-   </g>
-  </g>
-  <g id="fig4-axes_2">
-   <g id="fig4-patch_19">
-    <path d="M 312.203984 184.286709 
-L 523.08 184.286709 
-L 523.08 22.56 
-L 312.203984 22.56 
-z
-" style="fill: #ffffff"/>
-   </g>
-   <g id="fig4-matplotlib.axis_3">
-    <g id="fig4-xtick_7">
-     <g id="fig4-line2d_27">
-      <g>
-       <use xlink:href="#fig4-m1499624fad" x="328.88946" y="184.286709" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_23">
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(322.36032 197.306299)">bee</text>
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(318.18821 205.708213)">mirror</text>
-     </g>
-    </g>
-    <g id="fig4-xtick_8">
-     <g id="fig4-line2d_28">
-      <g>
-       <use xlink:href="#fig4-m1499624fad" x="364.390473" y="184.286709" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_24">
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(358.077895 197.306299)">salt</text>
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(355.400942 205.708213)">clock</text>
-     </g>
-    </g>
-    <g id="fig4-xtick_9">
-     <g id="fig4-line2d_29">
-      <g>
-       <use xlink:href="#fig4-m1499624fad" x="399.891486" y="184.286709" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_25">
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(391.81633 197.306299)">river</text>
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(389.102736 205.707666)">secret</text>
-     </g>
-    </g>
-    <g id="fig4-xtick_10">
-     <g id="fig4-line2d_30">
-      <g>
-       <use xlink:href="#fig4-m1499624fad" x="435.392499" y="184.286709" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_26">
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(424.560545 197.306299)">spider</text>
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(422.422264 205.708213)">melody</text>
-     </g>
-    </g>
-    <g id="fig4-xtick_11">
-     <g id="fig4-line2d_31">
-      <g>
-       <use xlink:href="#fig4-m1499624fad" x="470.893511" y="184.286709" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_27">
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(453.610074 197.306299)">forgetting</text>
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(458.151324 205.708213)">festival</text>
-     </g>
-    </g>
-    <g id="fig4-xtick_12">
-     <g id="fig4-line2d_32">
-      <g>
-       <use xlink:href="#fig4-m1499624fad" x="506.394524" y="184.286709" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_28">
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(491.563821 197.306299)">distance</text>
-      <text style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(497.465149 205.708213)">habit</text>
-     </g>
-    </g>
-   </g>
-   <g id="fig4-matplotlib.axis_4">
-    <g id="fig4-ytick_10">
-     <g id="fig4-line2d_33">
-      <path d="M 312.203984 166.707114 
-L 523.08 166.707114 
-" clip-path="url(#fig4-p9172ff5152)" style="fill: none; stroke: #e4e3df; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="fig4-line2d_34">
-      <g>
-       <use xlink:href="#fig4-m9a8658e370" x="312.203984" y="166.707114" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_29">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #52514e" x="305.203984" y="170.126059" transform="rotate(-0 305.203984 170.126059)">−0.025</text>
-     </g>
-    </g>
-    <g id="fig4-ytick_11">
-     <g id="fig4-line2d_35">
-      <path d="M 312.203984 143.271947 
-L 523.08 143.271947 
-" clip-path="url(#fig4-p9172ff5152)" style="fill: none; stroke: #e4e3df; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="fig4-line2d_36">
-      <g>
-       <use xlink:href="#fig4-m9a8658e370" x="312.203984" y="143.271947" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_30">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #52514e" x="305.203984" y="146.690892" transform="rotate(-0 305.203984 146.690892)">0.000</text>
-     </g>
-    </g>
-    <g id="fig4-ytick_12">
-     <g id="fig4-line2d_37">
-      <path d="M 312.203984 119.83678 
-L 523.08 119.83678 
-" clip-path="url(#fig4-p9172ff5152)" style="fill: none; stroke: #e4e3df; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="fig4-line2d_38">
-      <g>
-       <use xlink:href="#fig4-m9a8658e370" x="312.203984" y="119.83678" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_31">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #52514e" x="305.203984" y="123.255726" transform="rotate(-0 305.203984 123.255726)">0.025</text>
-     </g>
-    </g>
-    <g id="fig4-ytick_13">
-     <g id="fig4-line2d_39">
-      <path d="M 312.203984 96.401613 
-L 523.08 96.401613 
-" clip-path="url(#fig4-p9172ff5152)" style="fill: none; stroke: #e4e3df; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="fig4-line2d_40">
-      <g>
-       <use xlink:href="#fig4-m9a8658e370" x="312.203984" y="96.401613" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_32">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #52514e" x="305.203984" y="99.820559" transform="rotate(-0 305.203984 99.820559)">0.050</text>
-     </g>
-    </g>
-    <g id="fig4-ytick_14">
-     <g id="fig4-line2d_41">
-      <path d="M 312.203984 72.966446 
-L 523.08 72.966446 
-" clip-path="url(#fig4-p9172ff5152)" style="fill: none; stroke: #e4e3df; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="fig4-line2d_42">
-      <g>
-       <use xlink:href="#fig4-m9a8658e370" x="312.203984" y="72.966446" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_33">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #52514e" x="305.203984" y="76.385392" transform="rotate(-0 305.203984 76.385392)">0.075</text>
-     </g>
-    </g>
-    <g id="fig4-ytick_15">
-     <g id="fig4-line2d_43">
-      <path d="M 312.203984 49.53128 
-L 523.08 49.53128 
-" clip-path="url(#fig4-p9172ff5152)" style="fill: none; stroke: #e4e3df; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="fig4-line2d_44">
-      <g>
-       <use xlink:href="#fig4-m9a8658e370" x="312.203984" y="49.53128" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_34">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #52514e" x="305.203984" y="52.950225" transform="rotate(-0 305.203984 52.950225)">0.100</text>
-     </g>
-    </g>
-    <g id="fig4-ytick_16">
-     <g id="fig4-line2d_45">
-      <path d="M 312.203984 26.096113 
-L 523.08 26.096113 
-" clip-path="url(#fig4-p9172ff5152)" style="fill: none; stroke: #e4e3df; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="fig4-line2d_46">
-      <g>
-       <use xlink:href="#fig4-m9a8658e370" x="312.203984" y="26.096113" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="fig4-text_35">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #52514e" x="305.203984" y="29.515058" transform="rotate(-0 305.203984 29.515058)">0.125</text>
-     </g>
-    </g>
-    <g id="fig4-text_36">
-     <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #0b0b0b" x="265.734844" y="103.423355" transform="rotate(-90 265.734844 103.423355)">Closer to the starting idea (+)</text>
-    </g>
-   </g>
-   <g id="fig4-line2d_47">
-    <path d="M 312.203984 143.271947 
-L 523.08 143.271947 
-" clip-path="url(#fig4-p9172ff5152)" style="fill: none; stroke: #52514e; stroke-width: 0.8; stroke-linecap: square"/>
-   </g>
-   <g id="fig4-line2d_48">
-    <path d="M 382.140979 184.286709 
-L 382.140979 22.56 
-" clip-path="url(#fig4-p9172ff5152)" style="fill: none; stroke: #e4e3df; stroke-linecap: square"/>
-   </g>
-   <g id="fig4-line2d_49">
-    <path d="M 453.143005 184.286709 
-L 453.143005 22.56 
-" clip-path="url(#fig4-p9172ff5152)" style="fill: none; stroke: #e4e3df; stroke-linecap: square"/>
-   </g>
-   <g id="fig4-patch_20">
-    <path d="M 312.203984 184.286709 
-L 312.203984 22.56 
-" style="fill: none; stroke: #52514e; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
-   </g>
-   <g id="fig4-patch_21">
-    <path d="M 312.203984 184.286709 
-L 523.08 184.286709 
-" style="fill: none; stroke: #52514e; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
-   </g>
-   <g id="fig4-line2d_50">
-    <defs>
-     <path id="fig4-macadde4be6" d="M 0 2.915476 
-C 0.773193 2.915476 1.514823 2.608283 2.061553 2.061553 
-C 2.608283 1.514823 2.915476 0.773193 2.915476 0 
-C 2.915476 -0.773193 2.608283 -1.514823 2.061553 -2.061553 
-C 1.514823 -2.608283 0.773193 -2.915476 0 -2.915476 
-C -0.773193 -2.915476 -1.514823 -2.608283 -2.061553 -2.061553 
-C -2.608283 -1.514823 -2.915476 -0.773193 -2.915476 0 
-C -2.915476 0.773193 -2.608283 1.514823 -2.061553 2.061553 
-C -1.514823 2.608283 -0.773193 2.915476 0 2.915476 
-z
-" style="stroke: #ffffff"/>
-    </defs>
-    <g clip-path="url(#fig4-p9172ff5152)">
-     <use xlink:href="#fig4-macadde4be6" x="321.789258" y="46.313408" style="fill: #0b0b0b; stroke: #ffffff"/>
-     <use xlink:href="#fig4-macadde4be6" x="357.290271" y="129.344214" style="fill: #0b0b0b; stroke: #ffffff"/>
-     <use xlink:href="#fig4-macadde4be6" x="392.791283" y="172.718557" style="fill: #0b0b0b; stroke: #ffffff"/>
-     <use xlink:href="#fig4-macadde4be6" x="428.292296" y="94.434363" style="fill: #0b0b0b; stroke: #ffffff"/>
-     <use xlink:href="#fig4-macadde4be6" x="463.793309" y="29.911214" style="fill: #0b0b0b; stroke: #ffffff"/>
-     <use xlink:href="#fig4-macadde4be6" x="499.294321" y="115.623266" style="fill: #0b0b0b; stroke: #ffffff"/>
-    </g>
-   </g>
-   <g id="fig4-line2d_51">
-    <defs>
-     <path id="fig4-m52bf0ecf44" d="M 0 2.915476 
-C 0.773193 2.915476 1.514823 2.608283 2.061553 2.061553 
-C 2.608283 1.514823 2.915476 0.773193 2.915476 0 
-C 2.915476 -0.773193 2.608283 -1.514823 2.061553 -2.061553 
-C 1.514823 -2.608283 0.773193 -2.915476 0 -2.915476 
-C -0.773193 -2.915476 -1.514823 -2.608283 -2.061553 -2.061553 
-C -2.608283 -1.514823 -2.915476 -0.773193 -2.915476 0 
-C -2.915476 0.773193 -2.608283 1.514823 -2.061553 2.061553 
-C -1.514823 2.608283 -0.773193 2.915476 0 2.915476 
-z
-" style="stroke: #ffffff"/>
-    </defs>
-    <g clip-path="url(#fig4-p9172ff5152)">
-     <use xlink:href="#fig4-m52bf0ecf44" x="328.88946" y="176.935495" style="fill: #2a78d6; stroke: #ffffff"/>
-     <use xlink:href="#fig4-m52bf0ecf44" x="364.390473" y="128.38311" style="fill: #2a78d6; stroke: #ffffff"/>
-     <use xlink:href="#fig4-m52bf0ecf44" x="399.891486" y="112.933851" style="fill: #2a78d6; stroke: #ffffff"/>
-     <use xlink:href="#fig4-m52bf0ecf44" x="435.392499" y="159.355819" style="fill: #2a78d6; stroke: #ffffff"/>
-     <use xlink:href="#fig4-m52bf0ecf44" x="470.893511" y="144.157236" style="fill: #2a78d6; stroke: #ffffff"/>
-     <use xlink:href="#fig4-m52bf0ecf44" x="506.394524" y="160.884653" style="fill: #2a78d6; stroke: #ffffff"/>
-    </g>
-   </g>
-   <g id="fig4-line2d_52">
-    <defs>
-     <path id="fig4-mfa99bb3e16" d="M 0 2.915476 
-C 0.773193 2.915476 1.514823 2.608283 2.061553 2.061553 
-C 2.608283 1.514823 2.915476 0.773193 2.915476 0 
-C 2.915476 -0.773193 2.608283 -1.514823 2.061553 -2.061553 
-C 1.514823 -2.608283 0.773193 -2.915476 0 -2.915476 
-C -0.773193 -2.915476 -1.514823 -2.608283 -2.061553 -2.061553 
-C -2.608283 -1.514823 -2.915476 -0.773193 -2.915476 0 
-C -2.915476 0.773193 -2.608283 1.514823 -2.061553 2.061553 
-C -1.514823 2.608283 -0.773193 2.915476 0 2.915476 
-z
-" style="stroke: #ffffff"/>
-    </defs>
-    <g clip-path="url(#fig4-p9172ff5152)">
-     <use xlink:href="#fig4-mfa99bb3e16" x="335.989663" y="116.168243" style="fill: #eb6834; stroke: #ffffff"/>
-     <use xlink:href="#fig4-mfa99bb3e16" x="371.490676" y="101.51015" style="fill: #eb6834; stroke: #ffffff"/>
-     <use xlink:href="#fig4-mfa99bb3e16" x="406.991688" y="81.174668" style="fill: #eb6834; stroke: #ffffff"/>
-     <use xlink:href="#fig4-mfa99bb3e16" x="442.492701" y="97.68278" style="fill: #eb6834; stroke: #ffffff"/>
-     <use xlink:href="#fig4-mfa99bb3e16" x="477.993714" y="124.234508" style="fill: #eb6834; stroke: #ffffff"/>
-     <use xlink:href="#fig4-mfa99bb3e16" x="513.494727" y="118.960267" style="fill: #eb6834; stroke: #ffffff"/>
-    </g>
-   </g>
-   <g id="fig4-text_37">
-    <text style="font-size: 7px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52514e" x="346.639967" y="221.950411" transform="rotate(-0 346.639967 221.950411)">concrete</text>
-   </g>
-   <g id="fig4-text_38">
-    <text style="font-size: 7px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52514e" x="417.641992" y="221.950957" transform="rotate(-0 417.641992 221.950957)">concrete–abstract</text>
-   </g>
-   <g id="fig4-text_39">
-    <text style="font-size: 7px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52514e" x="488.644018" y="221.950957" transform="rotate(-0 488.644018 221.950957)">abstract</text>
-   </g>
-   <g id="fig4-text_40">
-    <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #0b0b0b" x="417.641992" y="16.56" transform="rotate(-0 417.641992 16.56)">Pull of the starting idea</text>
-   </g>
-   <g id="fig4-legend_2">
-    <g id="fig4-line2d_53">
-     <g>
-      <use xlink:href="#fig4-macadde4be6" x="454.921406" y="32.383828" style="fill: #0b0b0b; stroke: #ffffff"/>
-     </g>
-    </g>
-    <g id="fig4-text_41">
-     <text style="font-size: 7.5px; font-family: 'DejaVu Sans'; text-anchor: start" x="468.421406" y="35.008828" transform="rotate(-0 468.421406 35.008828)">People</text>
-    </g>
-    <g id="fig4-line2d_54">
-     <g>
-      <use xlink:href="#fig4-m52bf0ecf44" x="454.921406" y="43.634414" style="fill: #2a78d6; stroke: #ffffff"/>
-     </g>
-    </g>
-    <g id="fig4-text_42">
-     <text style="font-size: 7.5px; font-family: 'DejaVu Sans'; text-anchor: start" x="468.421406" y="46.259414" transform="rotate(-0 468.421406 46.259414)">Base models</text>
-    </g>
-    <g id="fig4-line2d_55">
-     <g>
-      <use xlink:href="#fig4-mfa99bb3e16" x="454.921406" y="54.885" style="fill: #eb6834; stroke: #ffffff"/>
-     </g>
-    </g>
-    <g id="fig4-text_43">
-     <text style="font-size: 7.5px; font-family: 'DejaVu Sans'; text-anchor: start" x="468.421406" y="57.51" transform="rotate(-0 468.421406 57.51)">Chat models</text>
-    </g>
-   </g>
-  </g>
- </g>
- <defs>
-  <clipPath id="fig4-p97904854ba">
-   <rect x="44.032109" y="22.56" width="210.876016" height="161.726709"/>
-  </clipPath>
-  <clipPath id="fig4-p9172ff5152">
-   <rect x="312.203984" y="22.56" width="210.876016" height="161.726709"/>
-  </clipPath>
- </defs>
-</svg>
-</div>
-<figcaption><b>Figure 3.</b> Left: really different answers per answer for each pair (partly the shared voice for chat models). Right: pull of the starting idea, positive when answers sit closer to the idea they start from.</figcaption></figure>
-
-<h3>The warm-up, before and after ChatGPT</h3>
-<p>The ten-word warm-up links today's players to people tested before AI chatbots existed. The published scores, collected before ChatGPT, average 78; players today average 83, within the published range and slightly above. There is no sign here that people have become less divergent, although this sample differs from the original one. Model scores do not follow how much of the map of ideas they reach: Qwen3 8B scores 80 on single words and reaches the least. For players, a higher warm-up score goes with bridges farther from the other players' (a hint, with 16 players).</p>
+</div><figcaption><b>Figure 2.</b> Change from the same model with no persona. Left: share of the map of ideas reached. Right: repetition of the voice. Dot: mean; bar: range across models. Reasoning personas on 10 chat models (blue), creative conditions on 5 (orange).</figcaption></figure>
+<h3>4.4 · Concrete and abstract pairs, and the direction of the arrow</h3>
+<p>The pairs were chosen at three levels of abstraction and shown in both directions, to see whether either changes the answers. Level matters less than expected (figure in the paper's appendix). People give about as many different answers for abstract pairs (0.50 to 0.54 per answer) as for concrete ones (0.56 to 0.60), and chat models stay low everywhere (0.17 to 0.23, partly their shared voice). What lowers diversity is a strong shared hub. For spider and melody, 60% of people's answers pass through a web or a nursery rhyme, and for the same pair, and for bee and mirror through a reflection, 88% of the chat models' answers take the hub.</p>
+<p>Direction behaves differently for people and models. For chat models the starting idea changes the answer in 35 of 60 cases, by about one and a half times the shift expected by chance; part of this may be the voice, since chat answers open by naming where they start. Base models show it in only 2 of 18 cases, and for people no pair shows a shift beyond chance, although with six to nine answers per direction a small effect would be hard to see. Both people and chat models lean slightly toward the idea they start from.</p>
+<h3>4.5 · The warm-up, before and after ChatGPT</h3>
+<p>The warm-up adds a link to people tested before AI chatbots existed. The published scores for the Divergent Association Task, collected before ChatGPT, average 78.4 (standard deviation 6.4) (Olson et al. 2021). Players today average 83.0 (standard deviation 5.7, 20 players), within the range of the published scores and slightly above their average (Figure 3). There is no sign that people have become less divergent, although the two samples differ. Models score between 57 and 88, and their scores do not follow how much of the map of ideas they reach: Qwen3 8B and 32B score 79 to 80 on single words and reach the least. For players, a higher warm-up score goes with bridges farther from the other players' (Spearman 0.44 over 16 players, not significant).</p>
 <figure class="narrow"><div class="plate"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 446.4 273.6" xmlns="http://www.w3.org/2000/svg" version="1.1">
  
  <defs>
@@ -2742,20 +2006,50 @@ z
   </clipPath>
  </defs>
 </svg>
-</div>
-<figcaption><b>Figure 4.</b> Warm-up scores. Grey band: people tested before ChatGPT (mean ± one standard deviation). Black: players today. Models with no persona: base in blue, chat in orange.</figcaption></figure>
-
-<h3>What no model reaches</h3>
-<p>Even with every condition and temperature together, some human bridges stay far from all AI answers. The farthest are personal: a wish kept secret, a place from childhood, an object reused in a garden, an afternoon at the sea, a child's pyjamas. After them come an old meaning of a word, and play with the letters or the sound of the words themselves. Two players, hours apart, found the same rare connection for one pair: a connection can be rare and still shared, and a good measure of diversity should keep it.</p>
-
-<h2>4 · What it suggests</h2>
-<p>Chat training narrows the voice first, and the ideas less. Measured as written, the same model reaches a ninth as much of the human map after chat training, and most of that is one shared way of speaking. Underneath, the largest and newest chat models still reach less of the ideas than people and take the common connection more often. The voice matters in its own right: a connection said in a person's own words carries something of that person, and when every answer arrives in the same voice, readers meet one way of thinking.</p>
-<p>Measuring diversity needs the voice and the ideas apart. The usual pipeline gave a result that changed by a factor of ten once the voice was removed, as earlier work on form and content warned. A harmonic interaction would preserve what people do well, the personal, the sensory, the playful, each in its own voice, and enhance what machines can add, such as speed and breadth across disciplines. A tool could offer several voices, each from a different life or discipline, and training could value human trains of thought for how widely they explore as well as for being right.</p>
-
-<h2>5 · Limits</h2>
-<p>These results come from a first test, and its limits shape how far they go. The human map comes from 16 English-speaking players, mostly engineers who use AI every day, so every share reached is relative to a narrow human map. The cleaning that separates voice from ideas uses a short list of phrases written for this study, and the explaining register that remains is still partly style. The Spanish and French answers are too few for maps of their own; with all three languages together the order of the models is the same. “On the map” measures closeness to what people wrote, only a stand-in for making sense; blind ratings by people are the next check. Only open models were tested, mostly one family for size. With two pairs per level of abstraction, level and pair cannot be fully separated, and the warm-up comparison sets a small sample against a published norm from a different population.</p>
-
-<p class="foot">Draft of 14 November 2026. Every number on this page comes from the analysis scripts in the repository, and the LaTeX version of the report is in <code>paper/</code>. Models: GPT-2 XL, GPT-J 6B, Vicuna 7B, Zephyr 7B, Phi-3 mini, OLMo 2 7B, Qwen2.5 (0.5B to 14B, chat and base), Qwen3 8B and 32B, gpt-oss 20B. Reasoning personas from Gallego and Habana, <i>False Epistemic Redundancy: Do AI Ensembles Share a Blind Spot?</i> (Apart Research, 2026).</p>
+</div><figcaption><b>Figure 3.</b> Warm-up scores. Grey band: people tested before ChatGPT (mean ± one standard deviation). Black: players today, diamond the mean. Models with no persona: base in blue, chat in orange.</figcaption></figure>
+<h3>4.6 · What no model reaches</h3>
+<p>Even with every condition and temperature together, some human bridges stay far from all AI answers, and they show what is missing. The farthest bridges are personal: a wish kept secret, a place from childhood, an object reused in a garden, an afternoon at the sea, a child's pyjamas. After them come an old meaning of a word, and play with the letters or the sound of the words themselves.</p>
+<h2>5 · Discussion</h2>
+<p><b>Chat training narrows the voice first, and the ideas less.</b> Measured as written, the same model reaches a ninth as much of the human map after chat training. Most of that is one shared way of speaking. With the voice removed, most of the largest and newest chat models still reach less of the ideas than people and base models, and they take the common connection more often, so the narrowing of ideas is real and much smaller than it first appears. The voice matters in its own right. A connection said in a person's own words carries something of that person, and when every answer arrives in the same voice, readers meet one way of thinking, however varied the content underneath.</p>
+<p><b>Measuring diversity needs the voice and the ideas apart.</b> The usual pipeline, embedding model answers and comparing them with human ones, gave a result that changed by a factor of ten once the voice was removed. Earlier work warned that diversity measures follow form (Tevet and Berant 2021), and here the form was most of the effect. Studies of homogenization in AI could report both, the voice and the content, each with its own simple measure.</p>
+<p><b>Human ways of connecting help, in one case.</b> Creative framings change the voice of every model, and the ideas of only one: an ordinary life, drawn at random, widens the ideas on every model while keeping answers where people go. The blind spots point the same way, since what no model reaches is memory, place and play. Reasoning styles built for investigating change the ideas little, or narrow them, which echoes false epistemic redundancy: framings that look different can leave the search in the same place (Gallego and Habana 2026). This part is partly circular, since the creative conditions borrow human styles and are measured against human answers.</p>
+<p><b>From creativity to blind spots, and toward a harmonic interaction.</b> Bridges measures connecting on simple ideas; false epistemic redundancy looked at technical cases with a known, unusual answer. Both ask whether a model explores beyond the most expected answer, and running an ordinary life on those technical cases is a direct next step. A harmonic interaction would preserve what people do well, the personal, the sensory, the playful, each in its own voice, and enhance what machines can add, such as speed and breadth across disciplines. A tool could offer several voices, each from a different life or discipline, and training could value human trains of thought for how widely they explore as well as for being right.</p>
+<h2>6 · Future Work</h2>
+<p>Blind human judgments of whether two answers say the same thing (Tevet and Berant 2021; Zhang et al. 2025), players from other fields, cultures and habits of AI use, and pairs with values at stake, such as freedom and safety, are the next steps.</p>
+<h2>Limitations</h2>
+<p>This is a small exploratory study, and its limits shape how far the results go. The human map comes from 16 players for the English core pairs, mostly engineers who use AI daily, recruited through AI safety communities, so every share reached is relative to a narrow human map. “On the map” measures closeness to what people wrote, which only stands in for making sense; blind human ratings are the next check. Model answers are much longer than human ones and wrapped in a shared voice. The cleaning that separates voice from ideas uses a short list of phrases written for this study; it drops a few sentences that also carry content, and the explaining register that remains is still partly style. Content words drawn from the start of a cleaned answer may miss a connection made later. With 16 players, the standard error on ideas reached is 0.05 to 0.12, so only the larger gaps are clear. Only open models were tested, mostly one family for size, and Falcon 7B failed to run. The creative conditions were designed after seeing the first answers, borrowing the styles of connecting, and are measured against the same kind of answers. Six pairs of simple ideas are a narrow task, and with two pairs per level of abstraction, level and pair cannot be fully separated. The warm-up comparison sets a small, specific sample against a published norm from a different population.</p>
+<h2>References</h2><ol class="refs">
+<li>R. Kirk, I. Mediratta, C. Nalmpantis, J. Luketina, E. Hambro, E. Grefenstette, R. Raileanu. <i>Understanding the Effects of RLHF on LLM Generalisation and Diversity.</i> ICLR, 2024.</li>
+<li>E. Wenger, Y. N. Kenett. <i>Large language models are homogeneously creative.</i> PNAS Nexus, 5(3):pgag042, 2026.</li>
+<li>A. R. Doshi, O. P. Hauser. <i>Generative AI enhances individual creativity but reduces the collective diversity of novel content.</i> Science Advances, 10(28), 2024.</li>
+<li>B. R. Anderson, J. H. Shah, M. Kreminski. <i>Homogenization Effects of Large Language Models on Human Creative Ideation.</i> Creativity &amp; Cognition, 2024.</li>
+<li>S. G. Gallego, A. Habana. <i>False Epistemic Redundancy: Do AI Ensembles Share a Blind Spot?</i> Apart Research Digital Minds Research Sprint, 2026. <a href="https://apartresearch.com/project/false-epistemic-redundancy-do-ai-ensembles-share-a-blind-spot-b50u">https://apartresearch.com/project/false-epistemic-redundancy-do-ai-ensembles-share-a-blind-spot-b50u</a></li>
+<li>A. Koestler. <i>The Act of Creation.</i> Hutchinson, 1964.</li>
+<li>S. A. Mednick. <i>The associative basis of the creative process.</i> Psychological Review, 69(3), 1962.</li>
+<li>E. J. Wisniewski. <i>When concepts combine.</i> Psychonomic Bulletin &amp; Review, 4(2), 1997.</li>
+<li>J. J. Jenkins, W. A. Russell. <i>Systematic changes in word association norms: 1910–1952.</i> Journal of Abnormal and Social Psychology, 60, 1960.</li>
+<li>R. West, J. Leskovec. <i>Human wayfinding in information networks.</i> WWW, 2012.</li>
+<li>J. A. Olson, J. Nahas, D. Chmoulevitch, S. J. Cropper, M. E. Webb. <i>Naming unrelated words predicts creativity.</i> PNAS, 118(25), 2021.</li>
+<li>A. Bellemare-Pepin et al. <i>Divergent creativity in humans and large language models.</i> Scientific Reports, 2026.</li>
+<li>L. Jost. <i>Entropy and diversity.</i> Oikos, 113(2), 2006.</li>
+<li>D. Friedman, A. B. Dieng. <i>The Vendi Score: A Diversity Evaluation Metric for Machine Learning.</i> TMLR, 2023.</li>
+<li>T. Kynkäänniemi, T. Karras, S. Laine, J. Lehtinen, T. Aila. <i>Improved Precision and Recall Metric for Assessing Generative Models.</i> NeurIPS, 2019.</li>
+<li>D. Wright, S. Masud, J. Moore, S. Yadav, M. Antoniak, P. Ebert Christensen, C. Y. Park, I. Augenstein. <i>Epistemic Diversity and Knowledge Collapse in Large Language Models.</i> arXiv:2510.04226, 2025.</li>
+<li>Y. Deng, M. Brucks, O. Toubia. <i>Examining and Addressing Barriers to Diversity in LLM-Generated Ideas.</i> 2026.</li>
+<li>S. Moon et al. <i>Virtual Personas for Language Models via an Anthology of Backstories.</i> EMNLP, 2024.</li>
+<li>W. B. Feng, S. H\'elie, J. H. Panchal. <i>Enhancing design concept diversity: multi-persona prompting strategies for large language models.</i> Design Science, 11:e52, 2025.</li>
+<li>L. Meincke, E. Mollick, C. Terwiesch. <i>Prompting Diverse Ideas: Increasing AI Idea Variance.</i> 2024.</li>
+<li>T. D. Ullman. <i>Large Language Models Fail on Trivial Alterations to Theory-of-Mind Tasks.</i> arXiv:2302.08399, 2023.</li>
+<li>M. Lewis, M. Mitchell. <i>Evaluating the Robustness of Analogical Reasoning in Large Language Models.</i> arXiv:2411.14215, 2024.</li>
+<li>E. Goh, J. Kos, A. Goel. <i>Knowledge Model Prompting Increases LLM Performance on Planning Tasks.</i> arXiv:2602.03900, 2026.</li>
+<li>F. Le Bronnec, A. Verine, B. Negrevergne, Y. Chevaleyre, A. Allauzen. <i>Exploring Precision and Recall to assess the quality and diversity of LLMs.</i> ACL, 2024.</li>
+<li>G. Tevet, J. Berant. <i>Evaluating the Evaluation of Diversity in Natural Language Generation.</i> EACL, 2021.</li>
+<li>C. Shaib, Y. Elazar, J. J. Li, B. C. Wallace. <i>Detection and Measurement of Syntactic Templates in Generated Text.</i> EMNLP, 2024.</li>
+<li>Y. Zhang, H. Diddee, S. Holm, H. Liu, X. Liu, V. Samuel, B. Wang, D. Ippolito. <i>NoveltyBench: Evaluating Language Models for Humanlike Diversity.</i> arXiv:2504.05228, 2025.</li>
+<li>L. Jiang et al. <i>Artificial Hivemind: The Open-Ended Homogeneity of Language Models (and Beyond).</i> NeurIPS, 2025.</li>
+<li>S. Abbasloo. <i>Measuring Reasoning in LLMs: a New Dialectical Angle.</i> arXiv:2510.18134, 2025.</li>
+</ol>
+<p class="foot">Draft of 14 November 2026. Every number on this page comes from the analysis scripts in the repository, and the full paper with its appendices is in <code>paper/</code>.</p>
 </div>
 
 </body>
