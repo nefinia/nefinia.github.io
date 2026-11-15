@@ -138,8 +138,8 @@ body.inner::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:n
 .support{font-size:12px;color:var(--faint)!important;text-decoration:none;border-bottom:1px solid var(--line)}
 .support:hover{color:var(--ink)!important}
 /* events intro (links to sofiaserenata.com) */
-.events-intro .feature{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);align-items:start;margin-top:8px}
-.ev-photo{display:block;width:100%;max-height:560px;object-fit:cover;object-position:center 30%;border-radius:6px}
+.events-intro .feature{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);align-items:stretch;margin-top:8px}
+.ev-photo{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;border-radius:6px}
 .ev-wide{margin:28px 0 0}
 .ev-wide img{display:block;width:100%;height:auto;border-radius:6px}
 .events-intro .occ-h{margin:36px 0 12px}
@@ -150,7 +150,7 @@ body.inner::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:n
 .page a.ev-btn:hover{background:var(--glow)}
 .page .ev-scores{margin-top:18px;font-size:15px;opacity:.85}
 .page > .ev-cta{max-width:none}
-@media (max-width:760px){.events-intro .feature{grid-template-columns:1fr}.ev-photo{max-height:420px}}
+@media (max-width:760px){.events-intro .feature{grid-template-columns:1fr}.ev-photo{height:auto;max-height:420px}}
 
 /* reading panel: a soft, semi-transparent field behind the text column */
 body.inner .page{position:relative}
