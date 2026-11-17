@@ -12,13 +12,15 @@ Everything is paraphrased from the paper abstracts, so check a number against th
 LANGS = ["en", "fr", "es"]
 
 TOPICS = {
+    "astro":    {"en": "Astrophysics", "fr": "Astrophysique", "es": "Astrofísica"},
+    "ai":       {"en": "AI research", "fr": "Recherche en IA", "es": "Investigación en IA"},
+    "inter":    {"en": "Interdisciplinary", "fr": "Interdisciplinaire", "es": "Interdisciplinar"},
     "cgm":      {"en": "Circumgalactic and intergalactic gas", "fr": "Gaz circumgalactique et intergalactique", "es": "Gas circumgaláctico e intergaláctico"},
     "cosmicweb": {"en": "Cosmic web and UV background", "fr": "Toile cosmique et fond UV", "es": "Red cósmica y fondo UV"},
     "clusters": {"en": "Clusters and protoclusters", "fr": "Amas et protoamas", "es": "Cúmulos y protocúmulos"},
     "agn":      {"en": "Quasars and AGN", "fr": "Quasars et AGN", "es": "Cuásares y AGN"},
     "galaxies": {"en": "Galaxy evolution", "fr": "Évolution des galaxies", "es": "Evolución de galaxias"},
     "nearby":   {"en": "Galactic Centre and Solar System", "fr": "Centre galactique et Système solaire", "es": "Centro galáctico y Sistema Solar"},
-    "ai":       {"en": "AI safety", "fr": "Sûreté de l’IA", "es": "Seguridad de la IA"},
 }
 
 UI = {
@@ -39,7 +41,7 @@ UI = {
         "with": "With", "sprint_note": "Alongside astronomy, part of the work at CosmoVentures looks at how AI systems are overseen and contained. These reports come from Apart Research sprints: early results, shared openly.",
         "title_suffix": "Sofia Gallego", "kw": "Research",
         "nav_files": ["index.html", "science.html", "outreach.html", "ventures.html", "games.html", "art.html", "events.html", "about.html", "contact.html"],
-        "months": {"2026-09": "Sep 2026", "2026-08": "Aug 2026"},
+        "months": {"2026-11": "Nov 2026", "2026-09": "Sep 2026", "2026-08": "Aug 2026"},
         "sprint_kind": "Report from an Apart Research sprint",
     },
     "fr": {
@@ -59,7 +61,7 @@ UI = {
         "with": "Avec", "sprint_note": "À côté de l’astronomie, une partie du travail de CosmoVentures porte sur la manière de surveiller et de contenir les systèmes d’IA. Ces rapports sont issus de sprints d’Apart Research : des premiers résultats, partagés librement.",
         "title_suffix": "Sofia Gallego", "kw": "Recherche",
         "nav_files": ["index.html", "science.html", "outreach.html", "ventures.html", "games.html", "art.html", "events.html", "about.html", "contact.html"],
-        "months": {"2026-09": "sept. 2026", "2026-08": "août 2026"},
+        "months": {"2026-11": "nov. 2026", "2026-09": "sept. 2026", "2026-08": "août 2026"},
         "sprint_kind": "Rapport issu d’un sprint d’Apart Research",
     },
     "es": {
@@ -79,7 +81,7 @@ UI = {
         "with": "Con", "sprint_note": "Junto a la astronomía, parte del trabajo de CosmoVentures estudia cómo supervisar y contener sistemas de IA. Estos informes provienen de sprints de Apart Research: resultados tempranos, compartidos abiertamente.",
         "title_suffix": "Sofia Gallego", "kw": "Investigación",
         "nav_files": ["index.html", "science.html", "outreach.html", "ventures.html", "games.html", "art.html", "events.html", "about.html", "contact.html"],
-        "months": {"2026-09": "sep. 2026", "2026-08": "ago. 2026"},
+        "months": {"2026-11": "nov. 2026", "2026-09": "sep. 2026", "2026-08": "ago. 2026"},
         "sprint_kind": "Informe de un sprint de Apart Research",
     },
 }
@@ -115,6 +117,34 @@ ENTRIES = [
         },
     ),
     # ------------------------------------------------------------------ AI safety reports
+    dict(
+        slug="fostering-epistemic-diversity-in-the-ai-era", kind="report", sort="2026-11-16", year="2026", when="2026-11",
+        title="Fostering Epistemic Diversity in the AI Era",
+        sprint="AI x Epistemics Research Sprint", with_people=[],
+        report="https://apartresearch.com/sprints/projects/fostering-epistemic-diversity-in-the-ai-era-eryb6y8lh8",
+        extra=[("project", "https://mapideas.org", {"en": "Map of ideas →", "fr": "Carte des idées →", "es": "Mapa de ideas →"}),
+               ("code", "https://github.com/nefinia/mapideas", {"en": "Code →", "fr": "Code →", "es": "Código →"})],
+        topics=["ai", "inter"], image=None,
+        short={
+            "en": "Creativity often grows in the space between ideas, and AI can narrow that space or widen it. The report gathers evidence from science, art, politics, law, culture and work, and proposes a public map of ideas that keeps the space between perspectives visible.",
+            "fr": "La créativité naît souvent dans l’espace entre les idées, et l’IA peut le réduire ou l’élargir. Le rapport rassemble des éléments issus de la science, de l’art, de la politique, du droit, de la culture et du travail, et propose une carte publique des idées qui garde visible l’espace entre les points de vue.",
+            "es": "La creatividad suele nacer en el espacio entre las ideas, y la IA puede estrecharlo o ampliarlo. El informe reúne evidencia de la ciencia, el arte, la política, el derecho, la cultura y el trabajo, y propone un mapa público de ideas que mantiene visible el espacio entre perspectivas.",
+        },
+    ),
+    dict(
+        slug="epistemic-bridges", kind="report", sort="2026-11-15", year="2026", when="2026-11",
+        title="Epistemic Bridges: Do Language Models Reach the Connections People Make?",
+        sprint="AI x Epistemics Research Sprint", with_people=[],
+        report="https://apartresearch.com/sprints/projects/epistemic-bridges-do-language-models-reach-the-connections-people-make-y0xuxrgxw8",
+        extra=[("project", "https://mapideas.org/bridges", {"en": "Bridges game →", "fr": "Jeu Bridges →", "es": "Juego Bridges →"}),
+               ("code", "https://github.com/nefinia/epistemic-bridges", {"en": "Code →", "fr": "Code →", "es": "Código →"})],
+        topics=["ai"], image=None,
+        short={
+            "en": "Fifteen open language models were given the word pairs that players of the Bridges game connect. With their shared assistant voice set aside, the newer chat models still cover less of the map of ideas than people do, 47 to 59 percent against 81.",
+            "fr": "Quinze modèles de langage ouverts ont reçu les paires de mots que les joueurs du jeu Bridges relient. Une fois leur voix d’assistant commune mise de côté, les modèles de chat récents couvrent encore moins la carte des idées que les humains, de 47 à 59 % contre 81 %.",
+            "es": "A quince modelos de lenguaje abiertos se les dieron los pares de palabras que los jugadores de Bridges conectan. Dejando aparte su voz de asistente común, los modelos de chat más recientes cubren aún menos el mapa de ideas que las personas, del 47 al 59 % frente al 81 %.",
+        },
+    ),
     dict(
         slug="different-reviewers-same-blind-spot", kind="report", sort="2026-09-20", year="2026", when="2026-09",
         title="Different Reviewers, Same Blind Spot",

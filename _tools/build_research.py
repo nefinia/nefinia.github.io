@@ -23,7 +23,7 @@ sys.path.insert(0, HERE)
 from research_data import ENTRIES, TOPICS, UI, LANGS, ME  # noqa: E402
 
 SITE = "https://sofiagallego.com"
-TODAY = "2026-10-14"
+TODAY = "2026-11-17"
 SCHOLAR = "https://scholar.google.com/citations?user=2rU-igEAAAAJ"
 ORCID = "https://orcid.org/0000-0002-8825-8107"
 DEFAULT_OG = "cosmic_web.png"
@@ -36,6 +36,10 @@ ABBR = {
 }
 SURNAME_FIX = {"J. Marques Oliveira": ("Marques Oliveira", "J.")}
 
+ASTRO = {"cgm", "cosmicweb", "clusters", "agn", "galaxies", "nearby"}
+for _e in ENTRIES:
+    if ASTRO & set(_e["topics"]) and "astro" not in _e["topics"]:
+        _e["topics"] = ["astro"] + _e["topics"]
 ENTRIES.sort(key=lambda e: e["sort"], reverse=True)
 BY_SLUG = {e["slug"]: e for e in ENTRIES}
 
@@ -202,7 +206,7 @@ def write(path, text):
 
 _science = read("science.html")
 BRAND = re.search(r'<svg class="mono-nav".*?</svg>', _science, re.S).group(0)
-GA = re.search(r"<!-- Google Analytics -->.*?</script>\s*<script>.*?</script>", _science, re.S).group(0)
+GA = re.search(r"<!-- Privacy-friendly statistics.*?<script defer src=\"/tally/tally\.js\"[^>]*></script>", _science, re.S).group(0)
 
 
 def nav_html(lang, current_urls):
@@ -349,7 +353,9 @@ def entry_page(e, lang, idx):
     else:
         links.append(f'<a href="{e["report"]}" target="_blank" rel="noopener">{u["readreport"].replace(" →", " ↗")}</a>')
         for _, href, labels in e.get("extra", []):
-            if href.startswith("/"):
+            if href.startswith("http"):
+                links.append(f'<a href="{href}" target="_blank" rel="noopener">{labels[lang].replace(" →", " ↗")}</a>')
+            elif href.startswith("/"):
                 links.append(f'<a href="{href}">{labels[lang].replace(" →", "")}</a>')
             else:
                 links.append(f'<a href="{p}/{href}">{labels[lang].replace(" →", "")}</a>')
@@ -487,6 +493,7 @@ def feed_html(lang):
     if(note) note.hidden=(t!=='ai');
     if(url){try{var q=t?'?topic='+t:'';history.replaceState(null,'',location.pathname+q+location.hash);}catch(_){}}
   }
+  [].slice.call(document.querySelectorAll('[data-strand]')).forEach(function(a){a.addEventListener('click',function(ev){ev.preventDefault();show(a.getAttribute('data-strand'),true);feed.scrollIntoView({behavior:'smooth',block:'start'});});});
   bar.hidden=false;
   chips.forEach(function(c){c.addEventListener('click',function(){show(c.getAttribute('data-topic'),true);});});
   var m=location.search.match(/[?&]topic=([a-z]+)/), t=m?m[1]:'';
@@ -552,6 +559,14 @@ CSS = CSS_START + r'''
 .page > .feed{max-width:860px}
 .feed .feed-intro{color:var(--dim)}
 .page .feed > p:first-of-type{font-size:inherit}
+.strands{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:26px 0 18px}
+.page a.strand{display:flex;flex-direction:column;gap:8px;padding:18px 18px 20px;border:1px solid var(--line);border-radius:14px;background:rgba(10,12,26,.6);color:var(--dim);text-decoration:none;border-bottom:1px solid var(--line)}
+.page a.strand b{font-family:var(--display);font-weight:900;font-size:21px;line-height:1.15;color:var(--ink)}
+.page a.strand span{font-size:15px;line-height:1.5}
+.page a.strand:hover,.page a.strand:focus-visible{border-color:var(--glow);background:rgba(185,198,255,.1)}
+@media(max-width:700px){.strands{grid-template-columns:1fr}}
+details.more{margin:6px 0 10px}
+details.more summary{cursor:pointer;font-family:var(--mono);font-size:13px;color:var(--dim)}
 .filters{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 6px}
 .filters[hidden],.topic-note[hidden],.entry[hidden],.yeargroup[hidden]{display:none}
 .chip{font-family:var(--mono);font-size:12.5px;line-height:1.3;padding:7px 13px;border:1px solid var(--line);border-radius:999px;background:rgba(10,12,26,.6);color:var(--dim);cursor:pointer;text-decoration:none;display:inline-block}
